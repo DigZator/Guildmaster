@@ -78,7 +78,7 @@ module.exports = async (interaction, client) => {
         if (subcommand === 'remove') {
             const allowedChannel = ['tlr-submission', 'tlr-control'];
             if (!allowedChannel.includes(interaction.channel.name)) {
-                await interaction.editReply({
+                await interaction.reply({
                     content: 'This command can only be used in the `tlr-submission` channel.',
                     flags: 64
                 });
@@ -90,8 +90,7 @@ module.exports = async (interaction, client) => {
 
             if (!/^\d{17,19}$/.test(messageId)) {
                 await interaction.editReply({
-                    content: '❌ Invalid message ID format.',
-                    flags: 64
+                    content: '❌ Invalid message ID format.'
                 });
                 return;
             }
@@ -102,8 +101,7 @@ module.exports = async (interaction, client) => {
 
             if (!outputChannel) {
                 await interaction.editReply({
-                    content: 'Output channel not found. Contact an admin.',
-                    flags: 64
+                    content: 'Output channel not found. Contact an admin.'
                 });
                 return;
             }
@@ -113,16 +111,14 @@ module.exports = async (interaction, client) => {
                 message = await outputChannel.messages.fetch(messageId);
                 if (!message.embeds || message.embeds.length === 0) {
                     await interaction.editReply({
-                        content: 'The specified message is not a memorial.',
-                        flags: 64
+                        content: 'The specified message is not a memorial.'
                     });
                     return;
                 }
             } catch (fetchError) {
                 console.error('Error fetching message:', fetchError);
                 await interaction.editReply({
-                    content: 'Could not find a message with that ID in the output channel.',
-                    flags: 64
+                    content: 'Could not find a message with that ID in the output channel.'
                 });
                 return;
             }
@@ -142,8 +138,7 @@ module.exports = async (interaction, client) => {
 
             if (!isAuthor && !isAdmin) {
                 await interaction.editReply({
-                    content: 'You do not have permission to remove this memorial.',
-                    flags: 64
+                    content: 'You do not have permission to remove this memorial.'
                 });
                 return;
             }
@@ -159,16 +154,25 @@ module.exports = async (interaction, client) => {
                     .setStyle(ButtonStyle.Secondary)
             );
 
+            const characterName = message.embeds[0]?.title || 'Unknown Character';
+            const timestamp = message.createdAt.toLocaleString('en-GB',{
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
             await interaction.editReply({
-                content: 'Are you sure you want to delete this memorial? This action cannot be undone.',
-                components: [confirmRow],
-                flags: 64
+                content: `⚠️ **Confirm Deletion**\n\n` +
+                            `**Character:** ${characterName}\n` +
+                            `**Posted on:** ${timestamp}\n\n` +
+                            `This action cannot be undone.`,
+                components: [confirmRow]
             });
         }
     } catch (error) {
         console.error('Error handling The Long Rest command:', error);
-        if (!interaction.replied) {
-            await interaction.editReply({
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({
                 content: 'There was an error while executing this command!',
                 flags: 64
             });
