@@ -1,5 +1,6 @@
 # Sensitive files
 token.txt
+url.txt
 .env
 
 # Dependencies
