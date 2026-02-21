@@ -9,6 +9,8 @@ module.exports = async (interaction, client) => {
         return;
     }
 
+    await interaction.deferReply({ flags: 64})
+
     if (!client.announcementSessions) {
         client.announcementSessions = new Map();
     }
@@ -18,7 +20,7 @@ module.exports = async (interaction, client) => {
         channelId: interaction.channel.id
     });
 
-    await interaction.reply({
+    await interaction.editReply({
         content: '📝 **Game Announcement - Step 1/2**\n\n' +
                  'Please send your announcement message wrapped in triple backticks (```).\n\n' +
                  '**Example:**\n' +
