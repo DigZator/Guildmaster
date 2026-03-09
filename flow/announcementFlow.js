@@ -111,7 +111,7 @@ module.exports = (client) => {
                     .setTitle(parsed.title)
                     .setImage(imageUrl)
                     .setColor(parsed.embedColor ?? 0x5865F2);
-                
+
                 const descriptionParts1 = [
                     parsed.format === 'Workshop' ? `**${parsed.sessionTypeLabel}**` :
                     `**${parsed.sessionTypeLabel}** for *${parsed.difficulty ? parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase() : `N/A`}*`,
@@ -200,7 +200,7 @@ module.exports = (client) => {
                 previewContent += `\n**Here’s a preview of your announcement. Please confirm:**`;
 
                 await message.channel.send({
-                    content: `Here’s a preview of your announcement. Please confirm:`,
+                    content: previewContent,
                     embeds: [embedAnnounce],
                     components: [previewButtons]
                 });
