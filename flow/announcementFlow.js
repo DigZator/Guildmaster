@@ -68,9 +68,11 @@ module.exports = (client) => {
                 }
 
                 const imageUrl = attachment.url;
+
+                const isDev = process.env.DEV_MODE === 'true';
+                const chanName = isDev ? 'test-out' : 'quest-board';
                 const outputChannel = message.guild.channels.cache.find(
-                    ch => ch.name === 'quest-board'
-                    // ch => ch.name === 'test-out'
+                    ch => ch.name === chanName
                 );
 
                 if (!outputChannel) {
@@ -85,9 +87,16 @@ module.exports = (client) => {
 
                 const SESSION_TYPE_ROLES = {
                     'In-Person One-Shot': 'In-Person One-Shots',
+                    'In-Person Mini-Adventure': 'In-Person Mini-Adventures',
                     'In-Person Campaign': 'In-Person Campaigns',
+                    'In-Person Workshop': 'Workshops',
                     'Online One-Shot': 'Online One-Shots',
-                    'Online Campaign': 'Online Campaigns'
+                    'Online Mini-Adventure': 'Online Mini-Adventures',
+                    'Online Campaign': 'Online Campaigns',
+                    'Online Workshop': 'Workshops',
+                    'Play-By-Post One-Shot': 'Play-By-Post One-Shots',
+                    'Play-By-Post Mini-Adventure': 'Play-By-Post Mini-Adventures',
+                    'Play-By-Post Campaign': 'Play-By-Post Campaigns'
                 };
 
                 let roleMention = '';
@@ -104,6 +113,7 @@ module.exports = (client) => {
                     .setColor(parsed.embedColor ?? 0x5865F2);
                 
                 const descriptionParts1 = [
+                    parsed.format === 'Workshop' ? `**${parsed.sessionTypeLabel}**` :
                     `**${parsed.sessionTypeLabel}** for *${parsed.difficulty ? parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase() : `N/A`}*`,
                     `**${parsed.date}**`,
                     `**${parsed.time}**`,
@@ -131,7 +141,7 @@ module.exports = (client) => {
 
                 descriptionParts3.push(``);
 
-                descriptionParts3.push(`**Campaign Link:** ${parsed.campaignLink ?? ``}`);
+                //descriptionParts3.push(`**Campaign Link:** ${parsed.campaignLink ?? ``}`);
 
                 embedAnnounce.addFields({
                     name: `\u200B`,
@@ -167,7 +177,7 @@ module.exports = (client) => {
 
                 embedAnnounce.addFields({
                     name: `\u200B`,
-                    value: '**!! Register by clicking the link below !!**\nhttps://adventuringguildmumbai.fillout.com/player-sign-up',
+                    value: parsed.registrationText + "\n" + parsed.registrationLink,
                     inline: false
                 });
 
@@ -177,6 +187,17 @@ module.exports = (client) => {
                 session.roleMention = roleMention;
                 session.outputChannelId = outputChannel.id;
                 session.step = 'preview_confirmation';
+
+                let previewContent = "";
+
+                if (parsed.hasErrors) {
+                    previewContent += `⚠️ **Validation Warnings:**\n`;
+                    parsed.errors.forEach(err => {
+                        previewContent += `- ${err}\n`;
+                    });
+                }
+
+                previewContent += `\n**Here’s a preview of your announcement. Please confirm:**`;
 
                 await message.channel.send({
                     content: `Here’s a preview of your announcement. Please confirm:`,
