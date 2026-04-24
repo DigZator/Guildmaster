@@ -18,6 +18,10 @@ module.exports = (client) => {
                 require('../commands/announce_game')(interaction, client);
             }
 
+            if (command === 'list_game') {
+                require('../commands/list_games')(interaction, client);
+            }
+
         } catch (error) {
             console.error('Error handling interaction:', error);
             if (!interaction.replied) {

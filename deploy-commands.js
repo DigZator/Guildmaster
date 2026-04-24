@@ -63,13 +63,19 @@ const commands = [
         .addBooleanOption(option =>
             option
                 .setName('all')
-                .setDescription('Show all games including full and past ones'))
+                .setDescription('Show all games including full and past ones')
+            )
 
         .addIntegerOption(option =>
             option
                 .setName('limit')
                 .setDescription('Limit the number of games shown')
                 .setMinValue(1)
+            )
+        .addBooleanOption(option =>
+            option
+                .setName('public')
+                .setDescription('Show results publicly in the channel (default: only you can see)')
             ),
 ].map(cmd => cmd.toJSON());
 

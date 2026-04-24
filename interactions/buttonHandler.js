@@ -1,4 +1,5 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
+const { buildEmbed } = require('../utils/listGamesHelper')
 const memorialDrafts = require('../utils/memorialDrafts');
 
 const memorialModButtons = new ActionRowBuilder().addComponents(
@@ -241,6 +242,61 @@ module.exports = (client) => {
                 });
 
                 client.announcementSessions.delete(interaction.user.id);
+            }
+
+            if (interaction.customId.startsWith('list_games_next_')) {
+                const parts = interaction.customId.split('_');
+                const page = parseInt(parts[3]) + 1;
+                const userId = parts[4];
+
+                const session = client.listGamesSessions?.get(userId);
+                if (!session) {
+                    await interaction.reply({ content: '❌ Session expired. Run the command again.', ephemeral: true });
+                    return;
+                }
+                const { embed, totalPage } = buildEmbed(session.sorted, page);
+
+                const row =  new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`list_page_prev_${page}_${userId}`)
+                    .setLabel('◀')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(false),
+                new ButtonBuilder()
+                    .setCustomId(`list_games_next_${page}_${userId}`)
+                    .setLabel('▶')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(page >= totalPages -1)
+                );
+                await interaction.update({embeds: [embed], components: [row]});
+            }
+
+            if (interaction.customId.startsWith('list_games_prev_')) {
+                const parts = interaction.customId.split('_');
+                const page = parseInt(parts[3]) - 1;
+                const userId = parts[4];
+
+                const session = client.listGamesSessions?.get(userId);
+                if (!session) {
+                    await interaction.reply({ content: '❌ Session expired. Run the command again.', ephemeral: true });
+                    return;
+                }
+                const { embed, totalPage } = buildEmbed(session.sorted, page);
+
+                const row =  new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`list_page_prev_${page}_${userId}`)
+                    .setLabel('◀')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(false),
+                new ButtonBuilder()
+                    .setCustomId(`list_games_next_${page}_${userId}`)
+                    .setLabel('▶')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(page >= totalPages -1)
+                );
+
+                await interaction.update({embeds: [embed], components: [row]});
             }
 
         } catch (error) {
