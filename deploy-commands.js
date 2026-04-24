@@ -35,7 +35,42 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('announce_game')
-        .setDescription('Announce a new game!')
+        .setDescription('Announce a new game!'),
+    
+    new SlashCommandBuilder()
+        .setName('list_games')
+        .setDescription('Browse upcoming games')
+        .addStringOption(option =>
+            option
+                .setName('format_filter')
+                .setDescription('Filter games by format')
+                .addChoices(
+                    { name: 'Online', value: 'Online' },
+                    { name: 'In-Person', value: 'In-Person' },
+                    { name: 'Play-by-Post', value: 'Play-by-Post' },
+                )
+            )
+        .addStringOption(option =>
+            option
+                .setName('type_filter')
+                .setDescription('Filter games by type')
+                .addChoices(
+                    { name: 'One-Shots', value: 'One-Shot' },
+                    { name: 'Mini-Adventures', value: 'Mini-Adventure' },
+                    { name: 'Campaigns', value: 'Campaign' },
+                )
+            )
+        .addBooleanOption(option =>
+            option
+                .setName('all')
+                .setDescription('Show all games including full and past ones'))
+
+        .addIntegerOption(option =>
+            option
+                .setName('limit')
+                .setDescription('Limit the number of games shown')
+                .setMinValue(1)
+            ),
 ].map(cmd => cmd.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);
