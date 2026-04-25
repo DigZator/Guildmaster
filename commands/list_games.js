@@ -1,5 +1,5 @@
 const { fetchGames } = require('../utils/notion');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ApplicationCommandOptionWithAutocompleteMixin } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { buildEmbed, formatGameLine} = require(`../utils/listGamesHelper`)
 
 function applyFilters(games, { formatFilter, typeFilter, showAll }) {
@@ -39,8 +39,8 @@ function sortAndLimit(games, n) {
 }
 
 module.exports = async (interaction, client) => {
-    const formatFilter = interaction.options.getString('format_fitler')
-    const typeFilter = interaction.options.getString('type_fitler')
+    const formatFilter = interaction.options.getString('format_filter')
+    const typeFilter = interaction.options.getString('type_filter')
     const showAll = interaction.options.getBoolean('all') ?? false;
     const n = interaction.options.getInteger('n')
     const isPublic = interaction.options.getBoolean('public') ?? false;
@@ -67,7 +67,7 @@ module.exports = async (interaction, client) => {
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(true),
             new ButtonBuilder()
-                .setCustomId(`list_games_next_${page}_${interaction.user.id}`)
+                .setCustomId(`list_page_next_${page}_${interaction.user.id}`)
                 .setLabel('▶')
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(totalPages <= 1)
