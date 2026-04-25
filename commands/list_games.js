@@ -41,9 +41,9 @@ function sortAndLimit(games, n) {
 module.exports = async (interaction, client) => {
     const formatFilter = interaction.options.getString('format_fitler')
     const typeFilter = interaction.options.getString('type_fitler')
-    const showAll = interaction.options.getSBoolean('all') ?? false;
+    const showAll = interaction.options.getBoolean('all') ?? false;
     const n = interaction.options.getInterger('n')
-    const isPublic = interaction.options.getSBoolean('public') ?? false;
+    const isPublic = interaction.options.getBoolean('public') ?? false;
 
     await interaction.deferReply({ ephemeral: inPublic});
 
