@@ -1,32 +1,23 @@
-function formatGameLine(game) {
-    const formatEmoji = {
-        'Online': '🌐',
-        'In-Person': '📍',
-        'Play-By-Post': '📝'
-    };
+const { EmbedBuilder } = require('discord.js');
 
+function formatGameLine(game, isAdmin) {
+    const hidden = isAdmin && !game.show ? '[HIDDEN] ' : '';
     const seatsLeft = game.seats - game.taken;
-    const emoji = formatEmoji[game.format] || '🎲';
+    const lock = !game.activate ? ' 🔒' : '';
+    const level = game.level === '0' ? 'N/A' : game.level;
 
-    const lvl = game.level===0 ? "N/A" : game.level;
-
-    return `**${game.title.trim()}**
-${emoji} ${game.format} ${game.type} | ${game.system} | Lvl ${lvl} ${game.experienceLevel}
-📅 ${game.date} | ${game.time}
-💺 ${seatsLeft} seats left | \`${game.uid}\``;
+    return `${hidden}**${game.title.trim()}** | ${game.format} ${game.type} | ${game.system} | Lvl ${level} ${game.experienceLevel} | ${game.date} | ${seatsLeft} seats left${lock} | \`${game.uid}\``;
 }
 
-function buildEmbed(games, page) {
+function buildEmbed(games, page, isAdmin) {
     const pageSize = 10;
     const totalPages = Math.ceil(games.length / pageSize);
     const start = page * pageSize;
     const pageGames = games.slice(start, start + pageSize);
 
     const description = pageGames
-        .map(formatGameLine)
-        .join('\n\n─────────────────\n\n');
-
-    const { EmbedBuilder } = require('discord.js');
+        .map(g => formatGameLine(g, isAdmin))
+        .join('\n\n');
 
     return {
         embed: new EmbedBuilder()

@@ -255,7 +255,7 @@ module.exports = (client) => {
                     await interaction.reply({ content: '❌ Session expired. Run the command again.', ephemeral: true });
                     return;
                 }
-                const { embed, totalPage } = buildEmbed(session.sorted, page);
+                const { embed, totalPage } = buildEmbed(session.sorted, page, session.isAdmin);
 
                 const row =  new ActionRowBuilder().addComponents(
                 new ButtonBuilder()

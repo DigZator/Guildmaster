@@ -1,24 +1,18 @@
 const { fetchGames } = require('../utils/notion');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { buildEmbed, formatGameLine} = require(`../utils/listGamesHelper`)
+const { buildEmbed } = require('../utils/listGamesHelper');
+const { isAdminChannel } = require('../utils/isAdminChannel');
 
-function applyFilters(games, { formatFilter, typeFilter, showAll }) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+function applyFilters(games, { formatFilter, typeFilter, browsing, isAdmin }) {
+    let filtered = [...games];
 
-    let filtered = games;
+    if (!isAdmin) {
+        filtered = filtered.filter(g => g.show);
+    }
 
-    if (!showAll) {
-        filtered = filtered.filter(g => {
-            if (!g.show) return false;
-            if (!g.activate) return false;
-            if (!g.rawDate) return false;
-            const gameDate = new Date(g.rawDate);
-            if (gameDate < today) return false;
-            const seatsLeft = g.seats - g.taken;
-            if (seatsLeft <= 0) return false;
-            return true;
-        });
+    if (!browsing) {
+        filtered = filtered.filter(g => g.activate);
+        filtered = filtered.filter(g => (g.seats - g.taken) > 0);
     }
 
     if (formatFilter) {
@@ -29,55 +23,54 @@ function applyFilters(games, { formatFilter, typeFilter, showAll }) {
         filtered = filtered.filter(g => g.type === typeFilter);
     }
 
+    filtered.sort((a, b) => b.createdTime - a.createdTime);
+
     return filtered;
 }
 
-
-function sortAndLimit(games, n) {
-    const sorted = [...games].sort((a, b) => b.createdTime - a.createdTime);
-    return n ? sorted.slice(0, n) : sorted;
-}
-
 module.exports = async (interaction, client) => {
-    const formatFilter = interaction.options.getString('format_filter')
-    const typeFilter = interaction.options.getString('type_filter')
-    const showAll = interaction.options.getBoolean('all') ?? false;
-    const n = interaction.options.getInteger('n')
+    const formatFilter = interaction.options.getString('format_filter');
+    const typeFilter = interaction.options.getString('type_filter');
+    const browsing = interaction.options.getBoolean('browsing') ?? false;
+    const n = interaction.options.getInteger('n');
     const isPublic = interaction.options.getBoolean('public') ?? false;
+    const isAdmin = isAdminChannel(interaction);
 
     await interaction.deferReply({ flags: isPublic ? 0 : 64 });
 
     try {
         const allGames = await fetchGames();
-        const filtered = applyFilters(allGames, { formatFilter, typeFilter, showAll });
-        const sorted = sortAndLimit(filtered, n);
+        let filtered = applyFilters(allGames, { formatFilter, typeFilter, browsing, isAdmin });
 
-        if (sorted.length === 0) {
-            await interaction.editReply({ content: 'No games found matching your filters.'});
-            return;;
+        if (n) filtered = filtered.slice(0, n);
+
+        if (filtered.length === 0) {
+            await interaction.editReply({ content: 'No games found matching your filters.' });
+            return;
         }
 
         const page = 0;
-        const { embed, totalPages } = buildEmbed(sorted, page);
+        const { embed, totalPages } = buildEmbed(filtered, page, isAdmin);
 
-        const row =  new ActionRowBuilder().addComponents(
+        const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId(`list_page_prev_${page}_${interaction.user.id}`)
+                .setCustomId(`list_games_prev_${page}_${interaction.user.id}`)
                 .setLabel('◀')
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(true),
             new ButtonBuilder()
-                .setCustomId(`list_page_next_${page}_${interaction.user.id}`)
+                .setCustomId(`list_games_next_${page}_${interaction.user.id}`)
                 .setLabel('▶')
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(totalPages <= 1)
         );
 
         client.listGamesSessions = client.listGamesSessions ?? new Map();
-        client.listGamesSessions.set(interaction.user.id, { sorted, isPublic });
+        client.listGamesSessions.set(interaction.user.id, { sorted: filtered, isPublic, isAdmin });
 
         await interaction.editReply({ embeds: [embed], components: [row] });
-    } catch(error) {
+
+    } catch (error) {
         console.error('list_games error:', error);
         await interaction.editReply({ content: '❌ Failed to fetch games. Please try again.' });
     }

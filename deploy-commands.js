@@ -50,6 +50,17 @@ const commands = [
     new SlashCommandBuilder()
         .setName('list_games')
         .setDescription('Browse upcoming games')
+        .addBooleanOption(option =>
+            option
+                .setName('browsing')
+                .setDescription('Show all announced games including full and closed ones')
+            )
+        .addIntegerOption(option =>
+            option
+                .setName('n')
+                .setDescription('Limit the number of games shown')
+                .setMinValue(1)
+            )
         .addStringOption(option =>
             option
                 .setName('format_filter')
@@ -69,18 +80,6 @@ const commands = [
                     { name: 'Mini-Adventures', value: 'Mini-Adventure' },
                     { name: 'Campaigns', value: 'Campaign' },
                 )
-            )
-        .addBooleanOption(option =>
-            option
-                .setName('all')
-                .setDescription('Show all games including full and past ones')
-            )
-
-        .addIntegerOption(option =>
-            option
-                .setName('limit')
-                .setDescription('Limit the number of games shown')
-                .setMinValue(1)
             )
         .addBooleanOption(option =>
             option
