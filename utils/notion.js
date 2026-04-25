@@ -71,6 +71,14 @@ function formatTime(str, timezone = 'UTC') {
     });
 }
 
+function countSeats(props) {
+    try {
+        return props['xLmb'].filter(item => item[0] === '‣').length;
+    } catch {
+        return 0;
+    }
+}
+
 async function fetchGames() {
     const blocks = await fetchRaw();
     
@@ -104,7 +112,7 @@ async function fetchGames() {
             location:         getText(props, 'Plyx'),
             price:            getText(props, 'IiTI'),
             seats:            parseInt(getText(props, 'jenY')) || 0,
-            taken:            parseInt(getText(props, '}=II')) || 0,
+            taken:            countSeats(props),
             warnings:         getText(props, 'zjcl'),
             registrationLink: getText(props, ']HCL'),
             show:             getText(props, 'u<SL') === 'Yes',
@@ -115,7 +123,7 @@ async function fetchGames() {
     });
 }
 
-async function fetchGamebyUID(uid) {
+async function fetchGameByUID(uid) {
     const games = await fetchGames();
     return games.find(g => g.uid === uid) || null;
 }
@@ -131,7 +139,7 @@ function getArtURL(props) {
     }
 }
 
-module.exports = { fetchGames, getText, fetchGamebyUID };
+module.exports = { fetchGames, getText, fetchGameByUID };
 
 fetchGames().then(games => {
     console.log(games);
