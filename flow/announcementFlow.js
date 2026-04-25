@@ -266,7 +266,7 @@ module.exports = (client) => {
                 session.game.artURL = attachment.url;
                 session.step = null;
 
-                try { await message.delete(); } catch {}
+                // try { await message.delete(); } catch {}
 
                 const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announcementHelper');
 
