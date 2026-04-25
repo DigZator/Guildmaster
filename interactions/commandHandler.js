@@ -1,4 +1,4 @@
-const { gameAutoComplete } = require('../utils/gameAutoComplete');
+const { gameAutocomplete } = require('../utils/gameAutoComplete');
 
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
