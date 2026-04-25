@@ -45,7 +45,7 @@ module.exports = async (interaction, client) => {
     const n = interaction.options.getInteger('n')
     const isPublic = interaction.options.getBoolean('public') ?? false;
 
-    await interaction.deferReply({ ephemeral: isPublic});
+    await interaction.deferReply({ flags: isPublic ? 0 : 64 });
 
     try {
         const allGames = await fetchGames();
@@ -73,7 +73,7 @@ module.exports = async (interaction, client) => {
                 .setDisabled(totalPages <= 1)
         );
 
-        client.listGameSessions = client.listGamesSessions ?? new Map();
+        client.listGamesSessions = client.listGamesSessions ?? new Map();
         client.listGamesSessions.set(interaction.user.id, { sorted, isPublic });
 
         await interaction.editReply({ embeds: [embed], components: [row] });
