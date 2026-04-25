@@ -6,7 +6,9 @@ function formatGameLine(game, isAdmin) {
     const lock = !game.activate ? ' 🔒' : '';
     const level = game.level === '0' ? 'N/A' : game.level;
 
-    return `${hidden}**${game.title.trim()}** | ${game.format} ${game.type} | ${game.system} | Lvl ${level} ${game.experienceLevel} | ${game.date} | ${seatsLeft} seats left${lock} | \`${game.uid}\``;
+    return `${hidden}🎲 **${game.title.trim()}**\n` +
+        `🌐 ${game.format} ${game.type} | ⚔️ ${game.system} | 📊 Lvl ${level} ${game.experienceLevel}\n` +
+        `📅 ${game.date} | 💺 ${seatsLeft} seats left${lock} | 🔑 \`${game.uid}\``;
 }
 
 function buildEmbed(games, page, isAdmin) {

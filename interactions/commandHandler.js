@@ -4,7 +4,7 @@ module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
 
         if (interaction.isAutocomplete()) {
-            if (interaction.commandName === 'list_games' || interaction.commandName === 'announce_game') {
+            if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game') {
                 await gameAutocomplete(interaction);
             }
             return;

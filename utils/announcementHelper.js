@@ -1,3 +1,5 @@
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+
 const DIFFICULTY_COLORS = {
     'Newbies': 0x5DADEC,
     'Intermediates': 0xF1C40F,
