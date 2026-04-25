@@ -141,8 +141,8 @@ function getArtURL(props) {
 
 module.exports = { fetchGames, getText, fetchGameByUID };
 
-fetchGames().then(games => {
-    console.log(games);
-}).catch(err => {
-    console.error('Error fetching games:', err);
-});
+// fetchGames().then(games => {
+//     console.log(games);
+// }).catch(err => {
+//     console.error('Error fetching games:', err);
+// });
