@@ -255,14 +255,14 @@ module.exports = (client) => {
                     await interaction.reply({ content: '❌ Session expired. Run the command again.', ephemeral: true });
                     return;
                 }
-                const { embed, totalPage } = buildEmbed(session.sorted, page, session.isAdmin);
+                const { embed, totalPages } = buildEmbed(session.sorted, page, session.isAdmin);
 
                 const row =  new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`list_page_prev_${page}_${userId}`)
+                    .setCustomId(`list_games_prev_${page}_${userId}`)
                     .setLabel('◀')
                     .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(false),
+                    .setDisabled(page <= 0),
                 new ButtonBuilder()
                     .setCustomId(`list_games_next_${page}_${userId}`)
                     .setLabel('▶')
@@ -282,14 +282,14 @@ module.exports = (client) => {
                     await interaction.reply({ content: '❌ Session expired. Run the command again.', ephemeral: true });
                     return;
                 }
-                const { embed, totalPage } = buildEmbed(session.sorted, page);
+                const { embed, totalPages } = buildEmbed(session.sorted, page, session.isAdmin);
 
                 const row =  new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`list_page_prev_${page}_${userId}`)
+                    .setCustomId(`list_games_prev_${page}_${userId}`)
                     .setLabel('◀')
                     .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(false),
+                    .setDisabled(page <= 0),
                 new ButtonBuilder()
                     .setCustomId(`list_games_next_${page}_${userId}`)
                     .setLabel('▶')
