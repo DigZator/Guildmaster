@@ -1,17 +1,15 @@
-
+const { gameAutocomplete } = require('../utils/gameAutocomplete');
 
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
 
         if (interaction.isAutoComplete()) {
-            if (interaction.commandName === 'list_game') {
-                await require('../utils/gameAutoComplete')(interaction);
-            } else if (interaction.commandName === 'announce_game') {
-                await require('../utils/gameAutoComplete')(interaction);
+            if (interaction.commandName === 'list_games' || interaction.commandName === 'announce_game') {
+                await gameAutocomplete(interaction);
             }
             return;
         }
-        
+
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.guild) return;
 
@@ -30,8 +28,12 @@ module.exports = (client) => {
                 require('../commands/announce_game')(interaction, client);
             }
 
-            if (command === 'list_game') {
+            if (command === 'list_games') {
                 require('../commands/list_games')(interaction, client);
+            }
+
+            if (command === 'game_info') {
+                require('../commands/game_info')(interaction, client);
             }
 
         } catch (error) {
