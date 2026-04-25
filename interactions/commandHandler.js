@@ -3,7 +3,7 @@ const { gameAutocomplete } = require('../utils/gameAutoComplete');
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
 
-        if (interaction.isAutoComplete()) {
+        if (interaction.isAutocomplete()) {
             if (interaction.commandName === 'list_games' || interaction.commandName === 'announce_game') {
                 await gameAutocomplete(interaction);
             }
