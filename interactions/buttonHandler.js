@@ -1,7 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder} = require('discord.js');
 const { buildEmbed } = require('../utils/listGamesHelper')
 const memorialDrafts = require('../utils/memorialDrafts');
-const { buildAnnouncementEmbed, buildWhatsApp, getRoleMention, getPreviewButtons } = require('../utils/announcementHelper');
+const { buildAnnouncementEmbed, buildWhatsApp, getRoleMention, getPreviewButtons, clearSessionTimeout } = require('../utils/announcementHelper');
 
 const memorialModButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -252,7 +252,7 @@ module.exports = (client) => {
 
                 const session = client.listGamesSessions?.get(userId);
                 if (!session) {
-                    await interaction.reply({ content: '❌ Session expired. Run the command again.', ephemeral: true });
+                    await interaction.reply({ content: '❌ Session expired. Run the command again.', flags: 64 });
                     return;
                 }
                 const { embed, totalPages } = buildEmbed(session.sorted, page, session.isAdmin);
@@ -279,7 +279,7 @@ module.exports = (client) => {
 
                 const session = client.listGamesSessions?.get(userId);
                 if (!session) {
-                    await interaction.reply({ content: '❌ Session expired. Run the command again.', ephemeral: true });
+                    await interaction.reply({ content: '❌ Session expired. Run the command again.', flags: 64 });
                     return;
                 }
                 const { embed, totalPages } = buildEmbed(session.sorted, page, session.isAdmin);
@@ -301,7 +301,7 @@ module.exports = (client) => {
             }
 
             if (interaction.customId === 'announce_confirm') {
-                 await interaction.deferUpdate();
+                await interaction.deferUpdate();
 
                 const session = client.announcementSessions?.get(interaction.user.id);
                 if (!session) {
@@ -318,27 +318,36 @@ module.exports = (client) => {
                     return;
                 }
 
-                const roleMention = getRoleMention(session.roleMention, interaction.guild);
+                if (!session.game) {
+                    // manual flow
+                    await outputChannel.send({
+                        content: session.roleMention || '',
+                        embeds: [session.embedAnnounce],
+                        allowedMentions: { roles: session.roleMention ? [session.roleMention.match(/\d+/)[0]] : [] }
+                    });
+                } else {
+                    // notion flow
+                    const roleMention = getRoleMention(session.game, interaction.guild);
+                    await outputChannel.send({
+                        content: roleMention || '',
+                        embeds: [session.embed],
+                        allowedMentions: { roles: roleMention ? [roleMention.match(/\d+/)[0]] : [] }
+                    });
+                }
 
-                await outputChannel.send({
-                    content: roleMention || ``,
-                    embeds: [session.embed],
-                    allowedMentions: {
-                        roles: roleMention ? [session.roleMention.match(/\d+/)[0]] : []
-                    }
-                });
-                
                 await interaction.editReply({
                     content: `✅ Posted in <#${outputChannel.id}>!`,
                     embeds: [],
                     components: []
                 });
 
+                clearSessionTimeout(client, interaction.user.id);
                 client.announcementSessions.delete(interaction.user.id);
             }
 
             if (interaction.customId === 'announce_cancel') {
                 await interaction.deferUpdate();
+                clearSessionTimeout(client, interaction.user.id);
                 client.announcementSessions?.delete(interaction.user.id);
                 await interaction.editReply({
                     content: '❌ Announcement cancelled.',

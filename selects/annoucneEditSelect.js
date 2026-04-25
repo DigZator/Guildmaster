@@ -3,7 +3,7 @@ module.exports = async (interaction, client) => {
     const session = client.announcementSessions?.get(interaction.user.id);
 
     if (!session) {
-        await interaction.reply({ content: '❌ Session expired.', ephemeral: true });
+        await interaction.reply({ content: '❌ Session expired.', flags: 64 });
         return;
     }
 

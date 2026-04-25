@@ -5,7 +5,7 @@ const { buildAnnouncementEmbed, buildWhatsApp, getRoleMention, getPreviewButtons
 
 module.exports = async (interaction, client) => {
     if (!isAdminChannel(interaction)) {
-        await interaction.reply({ content: '❌ This command can only be used in mod channels.', ephemeral: true });
+        await interaction.reply({ content: '❌ This command can only be used in mod channels.', flags: 64 });
         return;
     }
 
@@ -24,17 +24,17 @@ module.exports = async (interaction, client) => {
         await interaction.reply({
             content: '📝 **Game Announcement - Manual Mode**\n\n' +
                      'Please send your announcement message wrapped in triple backticks (``` ```).',
-            ephemeral: true
+            flags: 64
         });
         return;
     }
 
     if (!uid) {
-        await interaction.reply({ content: '❌ Please select a game from the dropdown.', ephemeral: true });
+        await interaction.reply({ content: '❌ Please select a game from the dropdown.', flags: 64 });
         return;
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
 
     try {
         const game = await fetchGameByUID(uid);
