@@ -5,9 +5,10 @@ function formatGameLine(game, isAdmin) {
     const seatsLeft = game.seats - game.taken;
     const lock = !game.activate ? ' 🔒' : '';
     const level = game.level === '0' ? 'N/A' : game.level;
+    const levelinfo = game.type === 'Workshop' ? `` :  `📊 Lvl ${level} ${game.experienceLevel}`;
 
     return `${hidden}🎲 **${game.title.trim()}**\n` +
-        `🌐 ${game.format} ${game.type} | ⚔️ ${game.system} | 📊 Lvl ${level} ${game.experienceLevel}\n` +
+        `🌐 ${game.format} ${game.type} | ⚔️ ${game.system} | ${levelinfo}\n` +
         `📅 ${game.date} | 💺 ${seatsLeft} seats left${lock} | 🔑 \`${game.uid}\``;
 }
 

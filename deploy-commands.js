@@ -79,6 +79,7 @@ const commands = [
                     { name: 'One-Shots', value: 'One-Shot' },
                     { name: 'Mini-Adventures', value: 'Mini-Adventure' },
                     { name: 'Campaigns', value: 'Campaign' },
+                    { name: 'Workshops', value: 'Workshop' },
                 )
             )
         .addBooleanOption(option =>
