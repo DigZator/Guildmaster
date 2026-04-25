@@ -1,6 +1,7 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder} = require('discord.js');
 const { buildEmbed } = require('../utils/listGamesHelper')
 const memorialDrafts = require('../utils/memorialDrafts');
+const { buildAnnouncementEmbed, buildWhatsApp, getRoleMention, getPreviewButtons } = require('../utils/announcementHelper');
 
 const memorialModButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -297,6 +298,95 @@ module.exports = (client) => {
                 );
 
                 await interaction.update({embeds: [embed], components: [row]});
+            }
+
+            if (interaction.customId === 'announce_confirm') {
+                 await interaction.deferUpdate();
+
+                const session = client.announcementSessions?.get(interaction.user.id);
+                if (!session) {
+                    await interaction.editReply({ content: '❌ Session expired.', components: [] });
+                    return;
+                }
+
+                const isDev = process.env.DEV_MODE === 'true';
+                const chanName = isDev ? 'bot-debugging' : 'quest-board';
+                const outputChannel = interaction.guild.channels.cache.find(ch => ch.name === chanName);
+
+                if (!outputChannel) {
+                    await interaction.editReply({ content: '❌ Output channel not found.', components: [] });
+                    return;
+                }
+
+                const roleMention = getRoleMention(session.roleMention, interaction.guild);
+
+                await outputChannel.send({
+                    content: roleMention || ``,
+                    embeds: [session.embed],
+                    allowedMentions: {
+                        roles: roleMention ? [session.roleMention.match(/\d+/)[0]] : []
+                    }
+                });
+                
+                await interaction.editReply({
+                    content: `✅ Posted in <#${outputChannel.id}>!`,
+                    embeds: [],
+                    components: []
+                });
+
+                client.announcementSessions.delete(interaction.user.id);
+            }
+
+            if (interaction.customId === 'announce_cancel') {
+                await interaction.deferUpdate();
+                client.announcementSessions?.delete(interaction.user.id);
+                await interaction.editReply({
+                    content: '❌ Announcement cancelled.',
+                    embeds: [],
+                    components: []
+                });
+            }
+
+            if (interaction.customId === 'announce_edit') {
+                await interaction.deferUpdate();
+
+                const session = client.announcementSessions?.get(interaction.user.id);
+                if (!session) {
+                    await interaction.editReply({ content: '❌ Session expired.', components: [] });
+                    return;
+                }
+
+                const selectMenu = new StringSelectMenuBuilder()
+                    .setCustomId('announce_edit_select')
+                    .setPlaceholder('Select a field to edit')
+                    .addOptions(
+                        { label: 'Title', value: 'title' },
+                        { label: 'Blurb', value: 'blurb' },
+                        { label: 'DM', value: 'dm' },
+                        { label: 'System', value: 'system' },
+                        { label: 'Date', value: 'date' },
+                        { label: 'Time', value: 'time' },
+                        { label: 'Location / Venue', value: 'location' },
+                        { label: 'Classes Allowed', value: 'classes' },
+                        { label: 'Species Allowed', value: 'species' },
+                        { label: 'Level', value: 'level' },
+                        { label: 'Experience Level', value: 'experienceLevel' },
+                        { label: 'Content Warnings', value: 'warnings' },
+                        { label: 'Other Notes', value: 'notes' },
+                        { label: 'Art Credits', value: 'artist' },
+                        { label: 'Cover Art', value: 'artURL' },
+                        { label: 'Registration Link', value: 'registrationLink' },
+                        { label: 'Price', value: 'price' },
+                        { label: `Register Line`, value: `rline`}
+                    );
+                
+                const row = new ActionRowBuilder().addComponents(selectMenu);
+
+                await interaction.editReply({
+                    content: `**Select a field to edit**`,
+                    embeds: [],
+                    components: [row]
+                });
             }
 
         } catch (error) {

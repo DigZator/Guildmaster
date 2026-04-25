@@ -35,7 +35,17 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('announce_game')
-        .setDescription('Announce a new game!'),
+        .setDescription('Announce a game to the quest board')
+        .addStringOption(option =>
+            option
+                .setName('game')
+                .setDescription('Select a game to announce')
+                .setAutocomplete(true))
+        .addBooleanOption(option =>
+            option
+                .setName('manual')
+                .setDescription('Manually input announcement details instead of using game info')
+        ),
     
     new SlashCommandBuilder()
         .setName('list_games')
@@ -47,7 +57,7 @@ const commands = [
                 .addChoices(
                     { name: 'Online', value: 'Online' },
                     { name: 'In-Person', value: 'In-Person' },
-                    { name: 'Play-by-Post', value: 'Play-by-Post' },
+                    { name: 'Play-by-Post', value: 'Play-By-Post' },
                 )
             )
         .addStringOption(option =>
@@ -77,6 +87,21 @@ const commands = [
                 .setName('public')
                 .setDescription('Show results publicly in the channel (default: only you can see)')
             ),
+
+    new SlashCommandBuilder()
+        .setName('game_info')
+        .setDescription('Get detailed info about a game')
+        .addStringOption(option =>
+            option
+                .setName('uid')
+                .setDescription('Search for game by name')
+                .setRequired(true)
+                .setAutocomplete(true))
+        .addBooleanOption(option =>
+            option
+                .setName('public')
+                .setDescription('Show results public in channel (default: false)'),
+        )
 ].map(cmd => cmd.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);

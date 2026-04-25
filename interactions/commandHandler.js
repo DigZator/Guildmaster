@@ -1,5 +1,17 @@
+
+
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
+
+        if (interaction.isAutoComplete()) {
+            if (interaction.commandName === 'list_game') {
+                await require('../utils/gameAutoComplete')(interaction);
+            } else if (interaction.commandName === 'announce_game') {
+                await require('../utils/gameAutoComplete')(interaction);
+            }
+            return;
+        }
+        
         if (!interaction.isChatInputCommand()) return;
         if (!interaction.guild) return;
 

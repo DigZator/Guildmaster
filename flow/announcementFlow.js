@@ -1,5 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const parseAnnouncement = require('../utils/announcementParser');
+const { setSessionTimeout, italizeBlurb, bulletizeNotes } = require('../utils/announcementHelper');
 
 const previewButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -23,6 +24,7 @@ module.exports = (client) => {
 
         try {
             if (session.step === 'awaiting_message') {
+                setSessionTimeout(client, message.author.id);
                 const match = message.content.match(/```([\s\S]*?)```/);
 
                 if (!match) {
@@ -54,6 +56,7 @@ module.exports = (client) => {
             }
 
             else if (session.step === 'awaiting_image') {
+                setSessionTimeout(client, message.author.id);
                 if (message.attachments.size === 0) {
                     const reply = await message.reply('❌ Please upload an image.');
                     setTimeout(() => reply.delete().catch(() => {}), 10000);
@@ -70,7 +73,7 @@ module.exports = (client) => {
                 const imageUrl = attachment.url;
 
                 const isDev = process.env.DEV_MODE === 'true';
-                const chanName = isDev ? 'test-out' : 'quest-board';
+                const chanName = isDev ? 'bot-debugging' : 'quest-board';
                 const outputChannel = message.guild.channels.cache.find(
                     ch => ch.name === chanName
                 );
@@ -203,6 +206,77 @@ module.exports = (client) => {
                     content: previewContent,
                     embeds: [embedAnnounce],
                     components: [previewButtons]
+                });
+            }
+
+            else if (session.step === "awaiting_edit") {
+                setSessionTimeout(client, message.author.id);
+                const match = message.content.match(/`([^`]+)`/);
+
+                if (!match) {
+                    const reply = await message.reply('❌ Please wrap your new value in backticks.');
+                    setTimeout(() => reply.delete().catch(() => {}), 10000);
+                    return;
+                }
+
+                const newValue = match[1].trim();
+                
+                let processedVal = newValue;
+                if (session.editingField === 'blurb') {
+                    processedVal = italizeBlurb(newValue);
+                } else if (session.editingField === 'notes') {
+                    processedVal = bulletizeNotes(newValue);
+                }
+                
+                session.game[session.editingField] = processedVal;
+                session.step = null;
+                session.editingField = null;
+
+                try {
+                    await message.delete();
+                } catch {}
+
+                const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announcementHelper')
+
+
+                session.embed = buildAnnouncementEmbed(session.game, message.guild);
+                session.whatsapp = buildWhatsApp(session.game);
+
+                await message.channel.send({
+                    content: `✅ Updated! Here's the new preview:\n\`\`\`\n${session.whatsapp}\n\`\`\``,
+                    embeds: [session.embed],
+                    components: [getPreviewButtons()]
+                });
+            }
+            else if (session.step === "awaiting_art") {
+                setSessionTimeout(client, message.author.id);
+                if (message.attachments.size === 0) {
+                    const reply = await message.reply('❌ Please upload an image.');
+                    setTimeout(() => reply.delete().catch(() => {}), 10000);
+                    return;
+                }
+
+                const attachment = message.attachments.first();
+                if (!attachment.contentType?.startsWith('image/')) {
+                    const reply = await message.reply('❌ Must be an image file.');
+                    setTimeout(() => reply.delete().catch(() => {}), 10000);
+                    return;
+                }
+
+                session.game.artURL = attachment.url;
+                session.step = null;
+
+                try { await message.delete(); } catch {}
+
+                const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announceHelper');
+
+                session.embed = buildAnnouncementEmbed(session.game, message.guild);
+                session.whatsapp = buildWhatsApp(session.game);
+
+                await message.channel.send({
+                    content: `✅ Cover art updated! Here's the new preview:\n\`\`\`\n${session.whatsapp}\n\`\`\``,
+                    embeds: [session.embed],
+                    components: [getPreviewButtons()]
                 });
             }
 

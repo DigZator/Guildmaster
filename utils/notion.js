@@ -109,11 +109,29 @@ async function fetchGames() {
             registrationLink: getText(props, ']HCL'),
             show:             getText(props, 'u<SL') === 'Yes',
             activate:         getText(props, '?:QW') === 'Yes',
+            artURL:           getArtURL(props),
+            rline:            `*!! Register by clicking the link below !!*`,
         };
     });
 }
 
-module.exports = { fetchGames, getText };
+async function fetchGamebyUID(uid) {
+    const games = await fetchGames();
+    return games.find(g => g.uid === uid) || null;
+}
+
+function getArtURL(props) {
+    try {
+        const raw = props['>>mS'][0];
+        const link = raw[1][0][1];
+        if (link.startsWith('http')) return link;
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+module.exports = { fetchGames, getText, fetchGamebyUID };
 
 fetchGames().then(games => {
     console.log(games);
