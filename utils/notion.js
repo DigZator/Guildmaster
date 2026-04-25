@@ -118,7 +118,7 @@ async function fetchGames() {
             show:             getText(props, 'u<SL') === 'Yes',
             activate:         getText(props, '?:QW') === 'Yes',
             artURL:           getArtURL(props),
-            rline:            `*!! Register by clicking the link below !!*`,
+            rline:            `**!! Register by clicking the link below !!**`,
         };
     });
 }

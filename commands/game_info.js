@@ -66,8 +66,8 @@ module.exports = async (interaction, client) => {
         ].join('\n');
 
         const section5 = game.registrationLink
-            ? `*!! Register by clicking the link below !!*\n${game.registrationLink}`
-            : `*!! Register by clicking the link below !!*\nhttps://adventuringguildmumbai.fillout.com/player-sign-up`;
+            ? `**!! Register by clicking the link below !!**\n${game.registrationLink}`
+            : `**!! Register by clicking the link below !!**\nhttps://adventuringguildmumbai.fillout.com/player-sign-up`;
 
         const embed = new EmbedBuilder()
             .setTitle(game.title.trim())
