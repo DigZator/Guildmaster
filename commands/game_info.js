@@ -5,7 +5,7 @@ module.exports = async (interaction, client) => {
     const uid = interaction.options.getString('uid');
     const isPublic = interaction.options.getBoolean('public') ?? false;
 
-    await interaction.deferReply({ ephemeral: !isPublic });
+    await interaction.deferReply({ flags: isPublic ? 0 : 64 });
 
     try {
         const game = await fetchGameByUID(uid);
@@ -16,23 +16,15 @@ module.exports = async (interaction, client) => {
         }
 
         const seatsLeft = game.seats - game.taken;
-        const blurb = game.blurb.length > 4000
+
+        const formattedBlurb = game.blurb.length > 4000
             ? game.blurb.slice(0, 3997) + '... [truncated]'
             : game.blurb;
 
-        const formattedBlurb = game.blurb
+        const blurb = formattedBlurb
             .split('\n')
             .map(line => line.trim() ? `_${line.trim()}_` : '')
             .join('\n');
-
-        if (game.notes) {
-            game.notes = game.notes.split('\n').forEach(line => {
-                if (line.trim()) {
-                    const cleaned = line.trim().replace(/^[-•]\s*/, '');
-                    section3Parts.push(`- ${cleaned}`); 
-                }
-            });
-        }
 
         const section1 = [
             `**${game.format} ${game.type}** for *${game.experienceLevel}*`,
@@ -55,12 +47,14 @@ module.exports = async (interaction, client) => {
         const section3Parts = [`**Other Notes:**`];
         if (game.notes) {
             game.notes.split('\n').forEach(line => {
-                if (line.trim()) section3Parts.push(line.trim());
+                if (line.trim()) {
+                    const cleaned = line.trim().replace(/^[-•]\s*/, '');
+                    section3Parts.push(`- ${cleaned}`);
+                }
             });
         } else {
             section3Parts.push('-');
         }
-        const section3 = section3Parts.join('\n');
 
         const section4 = [
             `**Session Type:** ${game.format} ${game.type}`,
@@ -81,15 +75,13 @@ module.exports = async (interaction, client) => {
             .addFields(
                 { name: '\u200B', value: section1, inline: false },
                 { name: '\u200B', value: section2, inline: false },
-                { name: '\u200B', value: section3, inline: false },
+                { name: '\u200B', value: section3Parts.join('\n'), inline: false },
                 { name: '\u200B', value: section4, inline: false },
                 { name: '\u200B', value: section5, inline: false },
             )
-            .setFooter({ text: `Art: ${game.artist || 'N/A'} • UID: ${game.uid}` })
-        
-        if (game.artURL) {
-            embed.setImage(game.artURL);
-        }
+            .setFooter({ text: `Art: ${game.artist || 'N/A'} • UID: ${game.uid}` });
+
+        if (game.artURL) embed.setImage(game.artURL);
 
         await interaction.editReply({ embeds: [embed] });
 
