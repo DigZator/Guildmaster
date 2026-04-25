@@ -236,7 +236,7 @@ module.exports = (client) => {
                     await message.delete();
                 } catch {}
 
-                const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announcementHelper')
+                const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announcementHelper');
 
 
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
@@ -268,7 +268,7 @@ module.exports = (client) => {
 
                 try { await message.delete(); } catch {}
 
-                const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announceHelper');
+                const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announcementHelper');
 
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
                 session.whatsapp = buildWhatsApp(session.game);
