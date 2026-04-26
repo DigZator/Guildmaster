@@ -158,7 +158,7 @@ function countOpenSeats(seatBlocks, uid) {
     const seats = seatBlocks.filter(b => {
         const props = b.value.value.properties;
         const gameId = props[']b~|']?.[0]?.[1]?.[0]?.[1];
-        return gameId && getUID(gameId) === uid;
+        return gameId && gameId === uid;
     });
     return seats.filter(b => !b.value.value.properties['^IxV']).length;
 }
