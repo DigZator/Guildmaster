@@ -62,7 +62,7 @@ module.exports = async (interaction, client) => {
             `**Cost:** ${game.price === 'Free' ? 'FREE' : game.price}`,
             `**Date:** ${game.date}`,
             `**Time:** ${game.time}`,
-            `**Seats:** ${seatsLeft}/${game.seats} remaining`,
+            `**Seats:** ${seatsLeft} remaining`,
         ].join('\n');
 
         const section5 = game.registrationLink

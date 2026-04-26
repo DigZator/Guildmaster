@@ -80,14 +80,6 @@ function formatTime(str, timezone = 'UTC') {
     });
 }
 
-function countSeats(props) {
-    try {
-        return props['xLmb'].filter(item => item[0] === '‣').length;
-    } catch {
-        return 0;
-    }
-}
-
 async function fetchGames() {
     const blocks = await fetchRaw();
     const seatBlocks = await fetchSeats();
@@ -122,7 +114,7 @@ async function fetchGames() {
             artistLink:       getText(props, 'kFtu'),
             location:         getText(props, 'Plyx'),
             price:            getText(props, 'IiTI'),
-            openSeats:        countOpenSeats(seatBlocks, block.id.split('-').pop()),
+            openSeats:        countOpenSeats(seatBlocks, block.id),
             warnings:         getText(props, 'zjcl'),
             registrationLink: getText(props, ']HCL'),
             show:             getText(props, 'u<SL') === 'Yes',

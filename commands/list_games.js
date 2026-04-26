@@ -12,7 +12,7 @@ function applyFilters(games, { formatFilter, typeFilter, browsing, isAdmin }) {
 
     if (!browsing) {
         filtered = filtered.filter(g => g.activate);
-        filtered = filtered.filter(g => (g.seats - g.taken) > 0);
+        filtered = filtered.filter(g => g.openSeats > 0);
     }
 
     if (formatFilter) {
