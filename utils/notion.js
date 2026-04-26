@@ -18,6 +18,15 @@ const PAYLOAD = {
     isMobile: false,
 };
 
+const SEATS_PAYLOAD = {
+    collectionView: { id: "2292380d-35ca-8097-a7f8-000c060689e1", spaceId: "" },
+    collectionViewBlock: { id: "2292380d-35ca-80b9-b299-f60953997601", spaceId: "" },
+    clientType: "notion_app",
+    userTimeZone: "Asia/Kolkata",
+    isFullScreen: true,
+    isMobile: false,
+};
+
 async function fetchRaw() {
     const response = await fetch(URL, {
         method: 'POST',
@@ -81,6 +90,8 @@ function countSeats(props) {
 
 async function fetchGames() {
     const blocks = await fetchRaw();
+    const seatBlocks = await fetchSeats();
+
     
     return blocks.map(b => {
         const block = b.value.value;
@@ -111,8 +122,7 @@ async function fetchGames() {
             artistLink:       getText(props, 'kFtu'),
             location:         getText(props, 'Plyx'),
             price:            getText(props, 'IiTI'),
-            seats:            parseInt(getText(props, 'jenY')) || 0,
-            taken:            countSeats(props),
+            openSeats:        countOpenSeats(seatBlocks, block.id.split('-').pop()),
             warnings:         getText(props, 'zjcl'),
             registrationLink: getText(props, ']HCL'),
             show:             getText(props, 'u<SL') === 'Yes',
@@ -139,10 +149,36 @@ function getArtURL(props) {
     }
 }
 
-module.exports = { fetchGames, getText, fetchGameByUID };
+async function fetchSeats() {
+    const response = await fetch(URL, {
+        method: 'POST',
+        headers: HEADERS,
+        body: JSON.stringify(SEATS_PAYLOAD)
+    });
+    const data = await response.json();
+    return Object.values(data.recordMap.block).filter(b =>
+        b.value?.value?.parent_table === 'collection' &&
+        b.value?.value?.type === 'page'
+    );
+}
+
+function countOpenSeats(seatBlocks, uid) {
+    const seats = seatBlocks.filter(b => {
+        const props = b.value.value.properties;
+        const gameId = props[']b~|']?.[0]?.[1]?.[0]?.[1];
+        return gameId && getUID(gameId) === uid;
+    });
+    return seats.filter(b => !b.value.value.properties['^IxV']).length;
+}
+
+module.exports = { fetchGames, getText, fetchGameByUID, fetchSeats, countOpenSeats };
 
 // fetchGames().then(games => {
 //     console.log(games);
 // }).catch(err => {
 //     console.error('Error fetching games:', err);
+// });
+
+// fetchSeats().then(blocks => {
+//     console.log(JSON.stringify(blocks[0], null, 2));
 // });

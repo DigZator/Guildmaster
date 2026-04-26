@@ -15,7 +15,7 @@ module.exports = async (interaction, client) => {
             return;
         }
 
-        const seatsLeft = game.seats - game.taken;
+        const seatsLeft = game.openSeats !== undefined ? game.openSeats : 'N/A';
 
         const formattedBlurb = game.blurb.length > 4000
             ? game.blurb.slice(0, 3997) + '... [truncated]'
