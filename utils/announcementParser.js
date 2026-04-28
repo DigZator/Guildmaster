@@ -75,6 +75,7 @@ module.exports = function parseAnnouncement(text) {
 
     const DIFFICULTY_COLORS = {
         newbies: 0x5DADEC,        // Light Blue
+        beginners: 0x52BE80,
         intermediates: 0xF1C40F,  // Yellow
         veterans: 0xE74C3C        // Red
     };

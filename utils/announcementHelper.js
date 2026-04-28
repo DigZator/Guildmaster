@@ -2,6 +2,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('
 
 const DIFFICULTY_COLORS = {
     'Newbies': 0x5DADEC,
+    'Beginners': 0x52BE80,
     'Intermediates': 0xF1C40F,
     'Veterans': 0xE74C3C
 };
