@@ -67,6 +67,7 @@ module.exports = function parseAnnouncement(text) {
     let difficulty = null;
     if (format !== 'Workshop') {
         if (rightMeta && rightMeta.includes('newbie')) difficulty = 'newbies';
+        else if (rightMeta && rightMeta.includes('beginners')) difficulty = 'beginners';
         else if (rightMeta && rightMeta.includes('intermediate')) difficulty = 'intermediates';
         else if (rightMeta && rightMeta.includes('veteran')) difficulty = 'veterans';
     
