@@ -100,8 +100,39 @@ const commands = [
         .addBooleanOption(option =>
             option
                 .setName('public')
-                .setDescription('Show results public in channel (default: false)'),
-        )
+                .setDescription('Show results public in channel (default: false)')
+        ),
+
+    new SlashCommandBuilder()
+        .setName('rss')
+        .setDescription('Manage RSS feeds')
+        .addSubcommand(sub => sub
+            .setName('add')
+            .setDescription('Add a new RSS feed')
+            .addStringOption(opt => opt
+                .setName('url')
+                .setDescription('The RSS feed URL')
+                .setRequired(true))
+            .addStringOption(opt => opt
+                .setName('name')
+                .setDescription('Display name for the feed')
+                .setRequired(true))
+            .addChannelOption(opt => opt
+                .setName('channel')
+                .setDescription('Channel to post to (defaults to #feeds)')
+                .setRequired(false)))
+        .addSubcommand(sub => sub
+            .setName('remove')
+            .setDescription('Remove an RSS feed')
+            .addStringOption(opt => opt
+                .setName('query')
+                .setDescription('Feed name or URL to remove')
+                .setRequired(true)))
+        .addSubcommand(sub => sub
+            .setName('list')
+            .setDescription('List all RSS feeds')),
+
+        
 ].map(cmd => cmd.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);

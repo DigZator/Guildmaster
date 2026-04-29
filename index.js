@@ -19,6 +19,7 @@ require('./interactions/modalHandler')(client);
 require('./flow/announcementFlow')(client);
 require('./flow/tlrSubmissionFlow')(client);
 require('./interactions/selectHandler')(client);
+require('./flow/rssFlow')(client);
 
 const token = process.env.DISCORD_TOKEN;
 

@@ -36,6 +36,10 @@ module.exports = (client) => {
                 require('../commands/game_info')(interaction, client);
             }
 
+            if (command === 'rss') {
+                require('../commands/rss')(interaction, client);
+            }
+
         } catch (error) {
             console.error('Error handling interaction:', error);
             if (!interaction.replied) {
