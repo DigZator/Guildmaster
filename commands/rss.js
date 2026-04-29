@@ -1,14 +1,14 @@
 const { EmbedBuilder } = require('discord.js');
 const { getFeeds, addFeed, removeFeed } = require('../utils/rssStore');
 const Parser = require('rss-parser');
+const { isAdminChannel } = require('../utils/isAdminChannel');
 
 const parser = new Parser();
 
 const DEFAULT_CHANNEL_NAME = 'feeds';
 
 module.exports = async (interaction, client) => {
-    const isMod = interaction.member.roles.cache.some(r => r.name === 'Mods');
-    if (!isMod) {
+    if (!isAdminChannel(interaction)) {
         return interaction.reply({ content: '❌ You do not have permission to manage RSS feeds.', flags: 64 });
     }
 
