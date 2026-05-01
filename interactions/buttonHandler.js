@@ -2,6 +2,7 @@ const memorial     = require('../buttons/memorial');
 const announcement = require('../buttons/announcement');
 const listGames    = require('../buttons/listGames');
 const deletions    = require('../buttons/confirmDelete');
+const anonMessages = require('../buttons/anonMessages');
 
 const exactHandlers = {
     ...memorial.exact,
