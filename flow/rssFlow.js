@@ -1,9 +1,9 @@
 const { pollAllFeeds } = require('../utils/rssFetcher');
 
-const INTERVAL_MS = 3 * 60 * 60 * 1000; // 3 hours
+const INTERVAL_MS = 1 * 60 * 60 * 1000; // 1 hour
 
 module.exports = (client) => {
-    client.once('ready', () => {
+    client.once('clientReady', () => {
         pollAllFeeds(client);
 
         setInterval(() => {

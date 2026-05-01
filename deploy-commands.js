@@ -132,6 +132,41 @@ const commands = [
             .setName('list')
             .setDescription('List all RSS feeds')),
 
+    new SlashCommandBuilder()
+        .setName('anon_msg')
+        .setDescription('Manage anonymous messages')
+        .addSubcommand(sub => sub
+            .setName('add')
+            .setDescription('Send a new anonymous message')
+            .addStringOption(opt => opt
+                .setName('key')
+                .setDescription('Unique key to identify this message')
+                .setRequired(true))
+            .addStringOption(opt => opt
+                .setName('content')
+                .setDescription('Message content')
+                .setRequired(true))
+            .addChannelOption(opt => opt
+                .setName('channel')
+                .setDescription('Channel to post in')
+                .setRequired(true)))
+        .addSubcommand(sub => sub
+            .setName('rmv')
+            .setDescription('Remove an anonymous message')
+            .addStringOption(opt => opt
+                .setName('key')
+                .setDescription('Key of the message to remove')
+                .setRequired(true)
+                .setAutocomplete(true)))
+        .addSubcommand(sub => sub
+            .setName('edit')
+            .setDescription('Edit an anonymous message')
+            .addStringOption(opt => opt
+                .setName('key')
+                .setDescription('Key of the message to edit')
+                .setRequired(true)
+                .setAutocomplete(true))),
+
         
 ].map(cmd => cmd.toJSON());
 

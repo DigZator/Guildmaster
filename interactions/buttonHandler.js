@@ -11,6 +11,7 @@ const exactHandlers = {
 const prefixHandlers = {
     ...listGames.prefix,
     ...deletions.prefix,
+    ...anonMessages.prefix,
 };
 
 module.exports = (client) => {

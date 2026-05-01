@@ -7,6 +7,15 @@ module.exports = (client) => {
             if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game') {
                 await gameAutocomplete(interaction);
             }
+            if (interaction.commandName === 'anon_msg') {
+                const { getKeys } = require('../utils/anonStore');
+                const focused = interaction.options.getFocused().toLowerCase();
+                const choices = getKeys()
+                    .filter(k => k.toLowerCase().includes(focused))
+                    .slice(0, 25)
+                    .map(k => ({ name: k, value: k }));
+                await interaction.respond(choices);
+            }
             return;
         }
 
@@ -38,6 +47,10 @@ module.exports = (client) => {
 
             if (command === 'rss') {
                 require('../commands/rss')(interaction, client);
+            }
+
+            if (command === 'anon_msg') {
+                require('../commands/anon_msg')(interaction, client);
             }
 
         } catch (error) {
