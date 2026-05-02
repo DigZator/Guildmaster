@@ -7,6 +7,7 @@ const anonMessages = require('../buttons/anonMessages');
 const exactHandlers = {
     ...memorial.exact,
     ...announcement.exact,
+    ...anonMessages.exact,
 };
 
 const prefixHandlers = {

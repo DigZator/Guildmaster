@@ -3,6 +3,7 @@ token.txt
 url.txt
 .env
 data/
+temp/
 
 # Dependencies
 node_modules/

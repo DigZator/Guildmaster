@@ -140,16 +140,20 @@ const commands = [
             .setDescription('Send a new anonymous message')
             .addStringOption(opt => opt
                 .setName('key')
-                .setDescription('Unique key to identify this message')
-                .setRequired(true))
-            .addStringOption(opt => opt
-                .setName('content')
-                .setDescription('Message content')
-                .setRequired(true))
+                .setDescription('Unique key to identify this message (required for edit)')
+                .setRequired(false))
             .addChannelOption(opt => opt
                 .setName('channel')
                 .setDescription('Channel to post in')
-                .setRequired(true)))
+                .setRequired(true))
+            .addStringOption(opt => opt
+                .setName('content')
+                .setDescription('Message content (single line)')
+                .setRequired(false))
+            .addBooleanOption(opt => opt
+                .setName('multiline')
+                .setDescription('Provide content interactively in triple backticks')
+                .setRequired(false)))
         .addSubcommand(sub => sub
             .setName('rmv')
             .setDescription('Remove an anonymous message')
