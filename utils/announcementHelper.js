@@ -63,7 +63,7 @@ function buildAnnouncementEmbed(game, guild) {
     const section4 = [
         `**Session Type:** ${sessionTypeLabel}`,
         `**Venue:** ${game.location || 'TBD'}`,
-        `**Cost:** ${game.price === 'Free' ? 'FREE' : game.price}`,
+        `**Cost:** ${game.price === 'Free' ? 'FREE' : game.price === 'Paid (Transport Fee only)' ? 'Transport Fee' : game.price}`,
         `**Date:** ${game.date}`,
         `**Time:** ${game.time}`,
     ].join('\n');
@@ -118,53 +118,13 @@ ${notesLines}
 
 *Session Type:* ${sessionTypeLabel}
 *Venue:* ${game.location || 'TBD'}
-*Cost:* ${game.price === 'Free' ? 'FREE' : game.price}
+*Cost:* ${game.price === 'Free' ? 'FREE' : game.price === 'Paid (Transport Fee only)' ? 'Transport Fee' : game.price}
 *Date:* ${game.date}
 *Time:* ${game.time}
 
 *Art Credits:* _${game.artist || 'N/A'}_
 
 ${game.rline}
-${registrationLink}`;
-}
-
-function buildWhatsApp(game) {
-    const sessionTypeLabel = `${game.format} ${game.type}`;
-    const registrationLink = game.registrationLink || 'https://adventuringguildmumbai.fillout.com/player-sign-up';
-
-    const notesLines = game.notes
-        ? game.notes.split('\n')
-            .filter(line => line.trim())
-            .map(line => `- ${line.trim().replace(/^[-•]\s*/, '')}`)
-            .join('\n')
-        : '-';
-
-    return `*${game.title.trim()}*
-_${sessionTypeLabel}_ for *${game.experienceLevel}*
-*${game.date}*
-*${game.time}*
-
-${game.blurb.split('\n').map(line => line.trim() ? `_${line.trim()}_` : '').join('\n')}
-
-*CW:* ${game.warnings || 'None'}
-*DM:* ${game.dm || '-'}
-*System:* ${game.system || '-'}
-*Level:* ${game.level === '0' ? 'N/A' : game.level}
-*Classes Allowed:* ${game.classes || '-'}
-*Species Allowed:* ${game.species || '-'}
-
-*Other Notes:*
-${notesLines}
-
-*Session Type:* ${sessionTypeLabel}
-*Venue:* ${game.location || 'TBD'}
-*Cost:* ${game.price === 'Free' ? 'FREE' : game.price}
-*Date:* ${game.date}
-*Time:* ${game.time}
-
-*Art Credits:* _${game.artist || 'N/A'}_
-
-*!! Register by clicking the link below !!*
 ${registrationLink}`;
 }
 

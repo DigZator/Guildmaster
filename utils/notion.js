@@ -155,13 +155,17 @@ async function fetchSeats() {
 }
 
 function countOpenSeats(seatBlocks, uid) {
-    const seats = seatBlocks.filter(b => {
-        const props = b.value.value.properties;
+    const normalize = id => id?.toLowerCase().replace(/-/g, '');
+    const normalizedUid = normalize(uid);
+
+    return seatBlocks.filter(b => {
+        const props = b?.value?.value?.properties;
+        if (!props) return false;
         const gameId = props[']b~|']?.[0]?.[1]?.[0]?.[1];
-        return gameId && gameId === uid;
-    });
-    return seats.filter(b => !b.value.value.properties['^IxV']).length;
+        return normalize(gameId) === normalizedUid && !props['^IxV'];
+    }).length;
 }
+
 
 module.exports = { fetchGames, getText, fetchGameByUID, fetchSeats, countOpenSeats };
 

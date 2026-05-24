@@ -5,6 +5,7 @@ async function gameAutocomplete(interaction) {
     const allGames = await fetchGames();
 
     const filtered = allGames
+	.sort((a,b) => b.createdTime - a.createdTime)
         .filter(g => g.title.toLowerCase().includes(focusedValue))
         .slice(0, 25)
         .map(g => ({
