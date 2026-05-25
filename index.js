@@ -23,4 +23,7 @@ require('./flow/rssFlow')(client);
 
 const token = process.env.DISCORD_TOKEN;
 
+const { refreshCache } = require('./utils/cache');
+client.once('clientReady', () => refreshCache());
+
 client.login(token);

@@ -1,5 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const { getRoleMention, clearSessionTimeout } = require('../utils/announcementHelper');
+const { invalidateCache } = require('../utils/cache');
 
 module.exports = {
 
@@ -52,6 +53,7 @@ module.exports = {
             }
 
             await interaction.editReply({ content: `✅ Posted in <#${outputChannel.id}>!`, embeds: [], components: [] });
+            invalidateCache();
             clearSessionTimeout(client, interaction.user.id);
             client.announcementSessions.delete(interaction.user.id);
         },

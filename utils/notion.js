@@ -126,7 +126,9 @@ async function fetchGames() {
 }
 
 async function fetchGameByUID(uid) {
-    const games = await fetchGames();
+    // const games = await fetchGames();
+    const { getCachedGames } = require('./cache');
+    const games = await getCachedGames();
     return games.find(g => g.uid === uid) || null;
 }
 

@@ -1,8 +1,10 @@
-const { fetchGames } = require('./notion');
+// const { fetchGames } = require('./notion');
+const { getCachedGames } = require('./cache');
 
 async function gameAutocomplete(interaction) {
     const focusedValue = interaction.options.getFocused().toLowerCase();
-    const allGames = await fetchGames();
+    // const allGames = await fetchGames();
+    const allGames = await getCachedGames();
 
     const filtered = allGames
 	.sort((a,b) => b.createdTime - a.createdTime)
