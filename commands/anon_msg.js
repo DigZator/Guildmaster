@@ -175,12 +175,28 @@
                 return interaction.editReply({ content: `⚠️ Message for \`${key}\` was not found on Discord. The entry has been removed.` });
             }
 
+			const chunks = [];
+			for (let i = 0; i < currentContent.length; i += 1800) {
+				chunks.push(currentContent.slice(i, i + 1800));
+			}
+
             await interaction.editReply({
-                content: `**Current content for \`${key}\`:**\n\`\`\`\n${currentContent}\n\`\`\`\nSend your new message below. You have 5 minutes.`
+                content: `**Current content for \`${key}\`:**`
             });
+
+            for (const chunk of chunks) {
+            	await interaction.followUp({ content: `\`\`\`\n${chunk}\n\`\`\``, flags: 64});
+            }
+
+            await interaction.followUp({
+                content: `Send your new message below. You have 5 minutes.`,
+                flags: 64
+            });
+                        
 
             const filter = m => m.author.id === interaction.user.id;
             try {
+            	console.log('channel:', interaction.channel?.id, '| channelId', interaction.channelId);
                 const collected = await interaction.channel.awaitMessages({ filter, max: 1, time: TIMEOUT_MS, errors: ['time'] });
                 const reply     = collected.first();
                 let newContent  = reply.content;
