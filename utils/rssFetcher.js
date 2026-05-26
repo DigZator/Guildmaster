@@ -2,11 +2,7 @@ const Parser = require('rss-parser');
 const { EmbedBuilder } = require('discord.js');
 const { getFeeds, updateFeed } = require('./rssStore');
 
-const parser = new Parser({
-	headers: {
-		`User-Agent`: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36`
-	}
-});
+const parser = new Parser();
 
 async function pollFeed(feed, client) {
     let parsed;
