@@ -9,7 +9,7 @@ function formatGameLine(game, isAdmin) {
 
     return `${hidden}🎲 **${game.title.trim()}**\n` +
         `🌐 ${game.format} ${game.type} | ⚔️ ${game.system} | ${levelinfo}\n` +
-        `📅 ${game.date} | 💺 ${seatsLeft} seats left${lock} | 🔑 \`${game.uid}\``;
+        `📅 ${game.date} | 💺 ${seatsLeft} seats left`;
 }
 
 function buildEmbed(games, page, isAdmin) {
