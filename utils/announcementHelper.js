@@ -49,6 +49,16 @@ function buildAnnouncementEmbed(game, guild) {
     ].join('\n');
 
     const section3Parts = [`**Other Notes:**`];
+	const structuredNotes = [
+		game.tone,
+		game.tableExpect,
+		game.expDetailed,
+		game.addRestrict,
+	].filter(Boolean);
+
+	structuredNotes.forEach(line => {
+		section3Parts.push(`- ${line.trim().replace(/^[-•]\s*/, '')}`);
+	})
     if (game.notes) {
         game.notes.split('\n').forEach(line => {
             if (line.trim()) {
@@ -91,13 +101,20 @@ function buildAnnouncementEmbed(game, guild) {
 function buildWhatsApp(game) {
     const sessionTypeLabel = `${game.format} ${game.type}`;
     const registrationLink = game.registrationLink || 'https://adventuringguildmumbai.fillout.com/player-sign-up';
+	const structuredNotes = [
+		game.tone,
+		game.tableExpect,
+		game.expDetailed,
+		game.addRestrict,
+	].filter(Boolean).map(line => `- ${line.trim().replace(/^[-•]\s*/, '')}`);
 
-    const notesLines = game.notes
-        ? game.notes.split('\n')
-            .filter(line => line.trim())
-            .map(line => `- ${line.trim().replace(/^[-•]\s*/, '')}`)
-            .join('\n')
-        : '-';
+	const freeformNotes = game.notes
+		? game.notes.split('\n')
+			.filter(line => line.trim())
+			.map(line => `- ${line.trim().replace(/^[-•]\s*/, '')}`)
+		: [];
+	
+    const notesLines = [...structuredNotes, ...freeformNotes].join('\n') || '-';
 
     return `*${game.title.trim()}*
 _${sessionTypeLabel}_ for *${game.experienceLevel}*
