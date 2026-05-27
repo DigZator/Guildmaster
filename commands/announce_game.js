@@ -66,6 +66,10 @@ module.exports = async (interaction, client) => {
             components: [getPreviewButtons()]
         });
 
+        if (game.artURL) {
+        	await interaction.followUp({ files: [game.artURL]})
+        }
+
     } catch (error) {
         console.error('announce_game error:', error);
         await interaction.editReply({ content: '❌ Something went wrong. Please try again.' });
