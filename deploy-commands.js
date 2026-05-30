@@ -138,14 +138,14 @@ const commands = [
         .addSubcommand(sub => sub
             .setName('add')
             .setDescription('Send a new anonymous message')
-            .addStringOption(opt => opt
-                .setName('key')
-                .setDescription('Unique key to identify this message (required for edit)')
-                .setRequired(false))
             .addChannelOption(opt => opt
                 .setName('channel')
                 .setDescription('Channel to post in')
                 .setRequired(true))
+            .addStringOption(opt => opt
+                .setName('key')
+                .setDescription('Unique key to identify this message (required for edit)')
+                .setRequired(false))
             .addStringOption(opt => opt
                 .setName('content')
                 .setDescription('Message content (single line)')
@@ -171,6 +171,49 @@ const commands = [
                 .setRequired(true)
                 .setAutocomplete(true))),
 
+        new SlashCommandBuilder()
+            .setName('schedule_activation')
+            .setDescription('Manage the game activation schedule')
+            .addSubcommand(sub => sub
+                .setName('add')
+                .setDescription('Add a game to the activation queue')
+                .addStringOption(opt => opt
+                    .setName('game')
+                    .setDescription('Select a game to queue for activation')
+                    .setRequired(true)
+                    .setAutocomplete(true)))
+            .addSubcommand(sub => sub
+                .setName('remove')
+                .setDescription('Remove a game from the activation queue')
+                .addStringOption(opt => opt
+                    .setName('game')
+                    .setDescription('Select a game to remove from the queue')
+                    .setRequired(true)
+                    .setAutocomplete(true)))
+            .addSubcommand(sub => sub
+                .setName('view')
+                .setDescription('View the current activation queue'))
+            .addSubcommand(sub => sub
+                .setName('set-reminder-time')
+                .setDescription('Set the daily reminder time (IST, 24hr)')
+                .addStringOption(opt => opt
+                    .setName('time')
+                    .setDescription('Time in HH:MM format e.g. 19:00')
+                    .setRequired(true)))
+            .addSubcommand(sub => sub
+                .setName('set-activation-time')
+                .setDescription('Set the activation time (IST, 24hr)')
+                .addStringOption(opt => opt
+                    .setName('time')
+                    .setDescription('Time in HH:MM format e.g. 21:00')
+                    .setRequired(true)))
+            .addSubcommand(sub => sub
+                .setName('toggle-reminder')
+                .setDescription('Enable or disable the daily reminder'))
+            .addSubcommand(sub => sub
+                .setName('status')
+                .setDescription('Show current schedule settings and queue')),
+
         
 ].map(cmd => cmd.toJSON());
 
@@ -185,6 +228,6 @@ const rest = new REST({ version: '10' }).setToken(token);
         );
         console.log('Commands successfully registered.');
     } catch (error) {
-        console.error('Failed to register commands:', error?.rawError ?? error);
+        console.error('Failed to register commands:', JSON.stringify(error?.rawError ?? error, null, 2));
     }
 })();

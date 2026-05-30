@@ -7,6 +7,7 @@ module.exports = (client) => {
             if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game') {
                 await gameAutocomplete(interaction);
             }
+
             if (interaction.commandName === 'anon_msg') {
                 const { getKeys } = require('../utils/anonStore');
                 const focused = interaction.options.getFocused().toLowerCase();
@@ -15,7 +16,37 @@ module.exports = (client) => {
                     .slice(0, 25)
                     .map(k => ({ name: k, value: k }));
                 await interaction.respond(choices);
+                
             }
+
+            if (interaction.commandName === 'schedule_activation') {
+                const sub = interaction.options.getSubcommand();
+                const { getCachedGames } = require('../utils/cache');
+                const { getQueue } = require('../utils/activationQueue');
+                const focused = interaction.options.getFocused().toLowerCase();
+                const games = await getCachedGames();
+            
+                if (sub === 'add') {
+                    const filtered = games
+                        .filter(g => !g.activate && g.title.toLowerCase().includes(focused))
+                        .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
+                        .slice(0, 25)
+                        .map(g => ({ name: `${g.title.trim()} (${g.date})`, value: g.uid }));
+                    await interaction.respond(filtered);
+                    return;
+                }
+            
+                if (sub === 'remove') {
+                    const queue = getQueue().queue;
+                    const filtered = queue
+                        .filter(g => g.title.toLowerCase().includes(focused))
+                        .slice(0, 25)
+                        .map(g => ({ name: g.title, value: g.uid }));
+                    await interaction.respond(filtered);
+                    return;
+                }
+            }
+            
             return;
         }
 
@@ -51,6 +82,10 @@ module.exports = (client) => {
 
             if (command === 'anon_msg') {
                 require('../commands/anon_msg')(interaction, client);
+            }
+
+            if (command === 'schedule_activation') {
+            	require('../commands/schedule_activation')(interaction, client);
             }
 
         } catch (error) {

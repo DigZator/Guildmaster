@@ -6,14 +6,24 @@ let cache = [];
 let lastFetched = 0;
 let isFetching = false;
 
+const postRefreshCallbacks = [];
+
+function onCacheRefresh(fn) {
+	postRefreshCallbacks.push(fn);
+}
+
 async function refreshCache() {
     if (isFetching) return;
     isFetching = true;
+    const previous = [...cache];
     try {
         cache = await fetchGames();
         cache.sort((a, b) => b.createdTime - a.createdTime);
         lastFetched = Date.now();
         console.log(`[Cache] Refreshed at ${new Date().toLocaleTimeString()}`);
+        for (const fn of postRefreshCallbacks) {
+        	try { await fn(previous, cache); } catch (e) { console.error('[Cache] Callback error:', e); }
+        }
     } catch (err) {
         console.error('[Cache] Failed to refresh:', err);
     } finally {
@@ -35,4 +45,4 @@ function invalidateCache() {
 
 setInterval(refreshCache, CACHE_TTL);
 
-module.exports = { getCachedGames, invalidateCache, refreshCache };
+module.exports = { getCachedGames, invalidateCache, refreshCache, onCacheRefresh };
