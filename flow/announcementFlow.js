@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const parseAnnouncement = require('../utils/announcementParser');
-const { setSessionTimeout, italizeBlurb, bulletizeNotes } = require('../utils/announcementHelper');
+const { buildAnnouncementEmbed, setSessionTimeout, italizeBlurb, bulletizeNotes, getPreviewButtons } = require('../utils/announcementHelper');
 
 const previewButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -24,6 +24,7 @@ module.exports = (client) => {
 
         try {
             if (session.step === 'awaiting_message') {
+                // ── MANUAL MODE — untouched ──────────────────────────────
                 setSessionTimeout(client, message.author.id);
                 const match = message.content.match(/```([\s\S]*?)```/);
 
@@ -46,7 +47,7 @@ module.exports = (client) => {
                 try {
                     await message.delete();
                 } catch (error) {
-                    console.log('Could not delete message')
+                    console.log('Could not delete message');
                 }
 
                 await message.channel.send({
@@ -70,143 +71,132 @@ module.exports = (client) => {
                     return;
                 }
 
-                const imageUrl = attachment.url;
+                if (session.announcementText) {
+                    // ── MANUAL MODE: parse freeform text ────────────────
+                    const imageUrl = attachment.url;
 
-                const isDev = process.env.DEV_MODE === 'true';
-                const chanName = isDev ? 'bot-debugging' : 'quest-board';
-                const outputChannel = message.guild.channels.cache.find(
-                    ch => ch.name === chanName
-                );
-
-                if (!outputChannel) {
-                    await message.channel.send(
-                        `<@${message.author.id}> ❌ Output channel not found.`
+                    const isDev = process.env.DEV_MODE === 'true';
+                    const chanName = isDev ? 'bot-debugging' : 'quest-board';
+                    const outputChannel = message.guild.channels.cache.find(
+                        ch => ch.name === chanName
                     );
-                    client.announcementSessions.delete(message.author.id);
-                    return;
-                }
 
-                const parsed = parseAnnouncement(session.announcementText);
+                    if (!outputChannel) {
+                        await message.channel.send(
+                            `<@${message.author.id}> ❌ Output channel not found.`
+                        );
+                        client.announcementSessions.delete(message.author.id);
+                        return;
+                    }
 
-                const SESSION_TYPE_ROLES = {
-                    'In-Person One-Shot': 'In-Person One-Shots',
-                    'In-Person Mini-Adventure': 'In-Person Mini-Adventures',
-                    'In-Person Campaign': 'In-Person Campaigns',
-                    'In-Person Workshop': 'Workshops',
-                    'Online One-Shot': 'Online One-Shots',
-                    'Online Mini-Adventure': 'Online Mini-Adventures',
-                    'Online Campaign': 'Online Campaigns',
-                    'Online Workshop': 'Workshops',
-                    'Play-By-Post One-Shot': 'Play-By-Post One-Shots',
-                    'Play-By-Post Mini-Adventure': 'Play-By-Post Mini-Adventures',
-                    'Play-By-Post Campaign': 'Play-By-Post Campaigns'
-                };
+                    const parsed = parseAnnouncement(session.announcementText);
 
-                let roleMention = '';
-                const roleName = SESSION_TYPE_ROLES[parsed.sessionTypeLabel];
+                    const SESSION_TYPE_ROLES = {
+                        'In-Person One-Shot': 'In-Person One-Shots',
+                        'In-Person Mini-Adventure': 'In-Person Mini-Adventures',
+                        'In-Person Campaign': 'In-Person Campaigns',
+                        'In-Person Workshop': 'Workshops',
+                        'Online One-Shot': 'Online One-Shots',
+                        'Online Mini-Adventure': 'Online Mini-Adventures',
+                        'Online Campaign': 'Online Campaigns',
+                        'Online Workshop': 'Workshops',
+                        'Play-By-Post One-Shot': 'Play-By-Post One-Shots',
+                        'Play-By-Post Mini-Adventure': 'Play-By-Post Mini-Adventures',
+                        'Play-By-Post Campaign': 'Play-By-Post Campaigns'
+                    };
 
-                if (roleName) {
-                    const role = message.guild.roles.cache.find(r => r.name === roleName);
-                    if (role) roleMention = `<@&${role.id}>`;
-                }
-                
-                const embedAnnounce = new EmbedBuilder()
-                    .setTitle(parsed.title)
-                    .setImage(imageUrl)
-                    .setColor(parsed.embedColor ?? 0x5865F2);
+                    let roleMention = '';
+                    const roleName = SESSION_TYPE_ROLES[parsed.sessionTypeLabel];
+                    if (roleName) {
+                        const role = message.guild.roles.cache.find(r => r.name === roleName);
+                        if (role) roleMention = `<@&${role.id}>`;
+                    }
 
-                const descriptionParts1 = [
-                    parsed.format === 'Workshop' ? `**${parsed.sessionTypeLabel}**` :
-                    `**${parsed.sessionTypeLabel}** for *${parsed.difficulty ? parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase() : `N/A`}*`,
-                    `**${parsed.date}**`,
-                    `**${parsed.time}**`,
-                    ``,
-                    parsed.blurb];
-                
-                const descriptionParts2 = [
-                    `**Content Warnings:** ${parsed.contentWarnings ? parsed.contentWarnings : ""}`,
-                    ``,
-                    `**DM:** ${parsed.dm ?? `-`}`,
-                    `**System:** ${parsed.system ?? `-`}`,
-                    `**Level:** ${parsed.level ?? `-`}`,
-                    `**Classes Allowed:** ${parsed.classesAllowed ?? `-`}`,
-                    `**Species Allowed:** ${parsed.speciesAllowed ?? `-`}`];
-                
-                const descriptionParts3 = [
-                    `**Other Notes:**`,
-                ];
+                    const embedAnnounce = new EmbedBuilder()
+                        .setTitle(parsed.title)
+                        .setImage(imageUrl)
+                        .setColor(parsed.embedColor ?? 0x5865F2);
 
-                if (parsed.otherNotes?.length) {
-                    parsed.otherNotes.forEach(note =>{
-                        descriptionParts3.push(`- ${note}`);
+                    const descriptionParts1 = [
+                        parsed.format === 'Workshop' ? `**${parsed.sessionTypeLabel}**` :
+                        `**${parsed.sessionTypeLabel}** for *${parsed.difficulty ? parsed.difficulty.charAt(0).toUpperCase() + parsed.difficulty.slice(1).toLowerCase() : `N/A`}*`,
+                        `**${parsed.date}**`,
+                        `**${parsed.time}**`,
+                        ``,
+                        parsed.blurb];
+
+                    const descriptionParts2 = [
+                        `**Content Warnings:** ${parsed.contentWarnings ? parsed.contentWarnings : ""}`,
+                        ``,
+                        `**DM:** ${parsed.dm ?? `-`}`,
+                        `**System:** ${parsed.system ?? `-`}`,
+                        `**Level:** ${parsed.level ?? `-`}`,
+                        `**Classes Allowed:** ${parsed.classesAllowed ?? `-`}`,
+                        `**Species Allowed:** ${parsed.speciesAllowed ?? `-`}`];
+
+                    const descriptionParts3 = [`**Other Notes:**`];
+                    if (parsed.otherNotes?.length) {
+                        parsed.otherNotes.forEach(note => {
+                            descriptionParts3.push(`- ${note}`);
+                        });
+                    }
+                    descriptionParts3.push(``);
+
+                    embedAnnounce.addFields(
+                        { name: `\u200B`, value: descriptionParts1.join(`\n`), inline: false },
+                        { name: `\u200B`, value: descriptionParts2.join(`\n`), inline: false },
+                        { name: `\u200B`, value: descriptionParts3.join(`\n`), inline: false }
+                    );
+
+                    const sessionInfo = [
+                        `**Session Type:** ${parsed.sessionTypeLabel}`,
+                        `**Venue:** ${parsed.venue ?? ``}`,
+                        `**Cost:** ${parsed.cost ?? '—'}`,
+                        `**Date:** ${parsed.date}`,
+                        `**Time:** ${parsed.time}`
+                    ].filter(Boolean);
+
+                    embedAnnounce.addFields(
+                        { name: '\u200B', value: sessionInfo.join('\n'), inline: false },
+                        { name: `\u200B`, value: parsed.registrationText + "\n" + parsed.registrationLink, inline: false }
+                    );
+
+                    embedAnnounce.setFooter({ text: `Art: ${parsed.artCredits}` });
+
+                    session.embedAnnounce = embedAnnounce;
+                    session.roleMention = roleMention;
+                    session.outputChannelId = outputChannel.id;
+                    session.step = 'preview_confirmation';
+
+                    let previewContent = "";
+                    if (parsed.hasErrors) {
+                        previewContent += `⚠️ **Validation Warnings:**\n`;
+                        parsed.errors.forEach(err => {
+                            previewContent += `- ${err}\n`;
+                        });
+                    }
+                    previewContent += `\n**Here's a preview of your announcement. Please confirm:**`;
+
+                    await message.channel.send({
+                        content: previewContent,
+                        embeds: [embedAnnounce],
+                        components: [previewButtons]
+                    });
+
+                } else {
+                    // ── AUTO MODE: game object already in session ────────
+                    session.game.artURL = attachment.url;
+
+                    const embed = buildAnnouncementEmbed(session.game, message.guild);
+                    session.embed = embed;
+                    session.step = 'preview_confirmation';
+
+                    await message.channel.send({
+                        content: `**Here's a preview of your announcement. Please confirm:**`,
+                        embeds: [embed],
+                        components: [previewButtons]
                     });
                 }
-
-                descriptionParts3.push(``);
-
-                //descriptionParts3.push(`**Campaign Link:** ${parsed.campaignLink ?? ``}`);
-
-                embedAnnounce.addFields({
-                    name: `\u200B`,
-                    value: descriptionParts1.join(`\n`),
-                    inline: false
-                });
-
-                embedAnnounce.addFields({
-                    name: `\u200B`,
-                    value: descriptionParts2.join(`\n`),
-                    inline: false
-                });
-
-                embedAnnounce.addFields({
-                    name: `\u200B`,
-                    value: descriptionParts3.join(`\n`),
-                    inline: false
-                });
-
-                const sessionInfo = [
-                    `**Session Type:** ${parsed.sessionTypeLabel}`,
-                    `**Venue:** ${parsed.venue ?? ``}`,
-                    `**Cost:** ${parsed.cost ?? '—'}`,
-                    `**Date:** ${parsed.date}`,
-                    `**Time:** ${parsed.time}`
-                ].filter(Boolean);
-
-                embedAnnounce.addFields({
-                    name: '\u200B',
-                    value: sessionInfo.join('\n'),
-                    inline: false
-                });
-
-                embedAnnounce.addFields({
-                    name: `\u200B`,
-                    value: parsed.registrationText + "\n" + parsed.registrationLink,
-                    inline: false
-                });
-
-                embedAnnounce.setFooter({ text: `Art: ${parsed.artCredits}`});
-
-                session.embedAnnounce = embedAnnounce;
-                session.roleMention = roleMention;
-                session.outputChannelId = outputChannel.id;
-                session.step = 'preview_confirmation';
-
-                let previewContent = "";
-
-                if (parsed.hasErrors) {
-                    previewContent += `⚠️ **Validation Warnings:**\n`;
-                    parsed.errors.forEach(err => {
-                        previewContent += `- ${err}\n`;
-                    });
-                }
-
-                previewContent += `\n**Here’s a preview of your announcement. Please confirm:**`;
-
-                await message.channel.send({
-                    content: previewContent,
-                    embeds: [embedAnnounce],
-                    components: [previewButtons]
-                });
             }
 
             else if (session.step === "awaiting_edit") {
@@ -220,14 +210,14 @@ module.exports = (client) => {
                 }
 
                 const newValue = match[1].trim();
-                
+
                 let processedVal = newValue;
                 if (session.editingField === 'blurb') {
                     processedVal = italizeBlurb(newValue);
                 } else if (session.editingField === 'notes') {
                     processedVal = bulletizeNotes(newValue);
                 }
-                
+
                 session.game[session.editingField] = processedVal;
                 session.step = null;
                 session.editingField = null;
@@ -236,8 +226,7 @@ module.exports = (client) => {
                     await message.delete();
                 } catch {}
 
-                const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announcementHelper');
-
+                const { buildWhatsApp } = require('../utils/announcementHelper');
 
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
                 session.whatsapp = buildWhatsApp(session.game);
@@ -248,6 +237,7 @@ module.exports = (client) => {
                     components: [getPreviewButtons()]
                 });
             }
+
             else if (session.step === "awaiting_art") {
                 setSessionTimeout(client, message.author.id);
                 if (message.attachments.size === 0) {
@@ -266,9 +256,7 @@ module.exports = (client) => {
                 session.game.artURL = attachment.url;
                 session.step = null;
 
-                // try { await message.delete(); } catch {}
-
-                const { buildAnnouncementEmbed, buildWhatsApp, getPreviewButtons } = require('../utils/announcementHelper');
+                const { buildWhatsApp } = require('../utils/announcementHelper');
 
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
                 session.whatsapp = buildWhatsApp(session.game);

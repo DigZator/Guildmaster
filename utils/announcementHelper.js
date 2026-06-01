@@ -21,7 +21,7 @@ const SESSION_TYPE_ROLES = {
     'Play-By-Post Campaign': 'Play-By-Post Campaigns'
 };
 
-function buildAnnouncementEmbed(game, guild) {
+function buildAnnouncementEmbed(game, guild, opts = {}) {
     const color = DIFFICULTY_COLORS[game.experienceLevel] ?? 0x5865F2;
     const sessionTypeLabel = `${game.format} ${game.type}`;
 
@@ -66,17 +66,21 @@ function buildAnnouncementEmbed(game, guild) {
                 section3Parts.push(`- ${cleaned}`);
             }
         });
-    } else {
+    } else if (!structuredNotes.length){
         section3Parts.push('-');
     }
 
-    const section4 = [
+    const section4Parts = [
         `**Session Type:** ${sessionTypeLabel}`,
         `**Venue:** ${game.location || 'TBD'}`,
         `**Cost:** ${game.price === 'Free' ? 'FREE' : game.price === 'Paid (Transport Fee only)' ? 'Transport Fee' : game.price}`,
         `**Date:** ${game.date}`,
         `**Time:** ${game.time}`,
-    ].join('\n');
+    ];
+    if (opts.showSeats) {
+    	const seats = game.openSeats != undefined ? game.openSeats : 'N/A';
+    	section4Parts.push(`**Seats:** ${seats} remaining`);
+    }
 
     const registrationLink = game.registrationLink || 'https://adventuringguildmumbai.fillout.com/player-sign-up';
     const section5 = `${game.rline}\n${registrationLink}`;
@@ -88,7 +92,7 @@ function buildAnnouncementEmbed(game, guild) {
             { name: '\u200B', value: section1, inline: false },
             { name: '\u200B', value: section2, inline: false },
             { name: '\u200B', value: section3Parts.join('\n'), inline: false },
-            { name: '\u200B', value: section4, inline: false },
+            { name: '\u200B', value: section4Parts.join('\n'), inline: false },
             { name: '\u200B', value: section5, inline: false },
         )
         .setFooter({ text: `Art: ${game.artist || 'N/A'}` });
