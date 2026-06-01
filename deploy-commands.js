@@ -214,6 +214,10 @@ const commands = [
                 .setName('status')
                 .setDescription('Show current schedule settings and queue')),
 
+        new SlashCommandBuilder()
+        	.setName('help')
+        	.setDescription('Show all Guildmaster commands'),
+
         
 ].map(cmd => cmd.toJSON());
 

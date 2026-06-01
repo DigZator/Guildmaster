@@ -88,6 +88,10 @@ module.exports = (client) => {
             	require('../commands/schedule_activation')(interaction, client);
             }
 
+            if (command === 'help') {
+                require('../commands/help')(interaction);
+            } 
+
         } catch (error) {
             console.error('Error handling interaction:', error);
             if (!interaction.replied) {
