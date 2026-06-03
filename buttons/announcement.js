@@ -1,6 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const { getRoleMention, clearSessionTimeout } = require('../utils/announcementHelper');
 const { invalidateCache } = require('../utils/cache');
+const { updateGameProperties } = require('../utils/notion');
 
 module.exports = {
 
@@ -53,6 +54,15 @@ module.exports = {
             }
 
             await interaction.editReply({ content: `✅ Posted in <#${outputChannel.id}>!`, embeds: [], components: [] });
+
+			if (session.game) {
+				try {
+					await updateGameProperties(session.game.uid, { "Show": { checkbox: true } });
+				} catch (e) {
+					console.error('[Announcement] Failed to set Show on Notion:', e);
+				}
+			}
+
             invalidateCache();
             clearSessionTimeout(client, interaction.user.id);
             client.announcementSessions.delete(interaction.user.id);

@@ -103,4 +103,11 @@ async function fetchGameByUID(uid) {
 	return games.find(g => g.uid === uid) || null;
 }
 
-module.exports = { fetchGames, fetchGameByUID }
+async function updateGameProperties(uid, properties) {
+	await notion.pages.update({
+		page_id: uid,
+		properties,
+	});
+}
+
+module.exports = { fetchGames, fetchGameByUID, updateGameProperties }

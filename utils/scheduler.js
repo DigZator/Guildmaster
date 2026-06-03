@@ -1,8 +1,10 @@
-const { getCachedGames } = require('./cache');
+const { getCachedGames, invalidateCache } = require('./cache');
 const { getQueue, clearQueue } = require('./activationQueue');
+const { updateGameProperties } = require('./notion');
 
 let ctrlChannel = null;
 let schedulerInterval = null;
+let lastTick = null;
 
 function toISTMinutes(timeStr) {
     const [h, m] = timeStr.split(':').map(Number);
@@ -78,8 +80,8 @@ async function runActivationJob() {
             continue;
         }
         try {
-            // await notion.pages.update({ page_id: entry.uid, properties: { Activate: { checkbox: true } } });
-            // invalidateCache();
+            await updateGameProperties(entry.uid, { "Activate": { checkbox: true } });
+            invalidateCache();
             results.processed.push(entry.title);
             // results.failed.push(entry.title);
         } catch (e) {
@@ -105,11 +107,20 @@ async function runActivationJob() {
 function tick() {
     const data = getQueue();
     const now = currentISTMinutes();
-    const reminderAt = toISTMinutes(data.reminderTime);
-    const activateAt = toISTMinutes(data.activationTime);
 
-    if (now === reminderAt) runReminderJob().catch(e => console.error('[Scheduler] Reminder error:', e));
-    if (now === activateAt) runActivationJob().catch(e => console.error('[Scheduler] Activation error:', e));
+    if (lastTick !== null){
+	    const reminderAt = toISTMinutes(data.reminderTime);
+	    const activateAt = toISTMinutes(data.activationTime);
+	    if (timeInWindow(reminderAt, lastTick, now)) runReminderJob().catch(e => console.error('[Scheduler] Reminder error:', e));
+	    if (timeInWindow(activateAt, lastTick, now)) runActivationJob().catch(e => console.error('[Scheduler] Activation error:', e));
+    }
+
+    lastTick = now;
+}
+
+function timeInWindow(target, last, now) {
+	if (last<now) return target > last && target <= now;
+	return target > last || target <= now;
 }
 
 async function runStartupCheck(client) {
