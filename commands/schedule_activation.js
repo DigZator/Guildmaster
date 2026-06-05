@@ -6,7 +6,8 @@ const {
     removeFromQueue,
     setReminderTime,
     setActivationTime,
-    toggleReminder
+    toggleReminder,
+    toggleAutoSchedule
 } = require('../utils/activationQueue');
 
 function toDiscordTimestamp(timeStr) {
@@ -25,10 +26,13 @@ function buildQueueSummary(data) {
     const reminderTs = toDiscordTimestamp(data.reminderTime);
     const activationTs = toDiscordTimestamp(data.activationTime);
     const reminderStatus = data.reminderEnabled ? '✅ Enabled' : '❌ Disabled';
+    const autoStatus = data.autoSchedule ? '✅ Enabled' : '❌ Disabled';
+        
 
     let msg = `**Activation Queue Status**\n`;
     msg += `Reminder: <t:${reminderTs}:t> — ${reminderStatus}\n`;
-    msg += `Activation: <t:${activationTs}:t>\n\n`;
+    msg += `Activation: <t:${activationTs}:t>\n`;
+    msg += `Auto-schedule: ${autoStatus}\n\n`;
 
     if (data.queue.length === 0) {
         msg += `Queue is empty.`;
@@ -136,4 +140,12 @@ module.exports = async (interaction, client) => {
     else if (sub === 'status') {
         await interaction.reply({ content: buildQueueSummary(getQueue()), flags: 64 });
     }
+
+    else if (sub === 'toggle-auto') {
+       const enabled = toggleAutoSchedule();
+       await interaction.reply({
+           content: `✅ Auto-scheduler  is now **${enabled ? 'enabled' : 'disabled'}**.`,
+           flags: 64
+       });
+   }
 };

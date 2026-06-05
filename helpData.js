@@ -1,6 +1,11 @@
 const helpData = {
   player: [
     {
+      name: '/ping',
+      description: 'Check if Guildmaster is online.',
+      options: [],
+    },
+    {
       name: '/list_games',
       description: 'Browse upcoming games with open seats.',
       options: [
@@ -20,9 +25,12 @@ const helpData = {
       ],
     },
     {
-      name: '/ping',
-      description: 'Check if Guildmaster is online.',
-      options: [],
+      name: '/the_long_rest',
+      description: 'Start a fallen-character obituary. Posts after mod approval.',
+      options: [
+        '`add` — begin a new memorial',
+        '`remove` — remove a memorial by message ID',
+      ],
     },
   ],
 
@@ -36,14 +44,6 @@ const helpData = {
       ],
     },
     {
-      name: '/the_long_rest',
-      description: 'Start a fallen-character obituary. Posts after mod approval.',
-      options: [
-        '`add` — begin a new memorial',
-        '`remove` — remove a memorial by message ID',
-      ],
-    },
-    {
       name: '/schedule_activation',
       description: 'Manage the scheduled activation queue for games.',
       options: [
@@ -53,6 +53,7 @@ const helpData = {
         '`set-reminder-time` — set daily reminder time in HH:MM IST',
         '`set-activation-time` — set activation time in HH:MM IST',
         '`toggle-reminder` — enable or disable the daily reminder',
+        '`toggle-auto` — enable or disable the auto-scheduler',
         '`status` — show current schedule settings and queue',
       ],
     },

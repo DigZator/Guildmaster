@@ -2,6 +2,9 @@ const { getCachedGames, invalidateCache } = require('./cache');
 const { getQueue, clearQueue } = require('./activationQueue');
 const { updateGameProperties } = require('./notion');
 
+const REGISTRATION_LINK = 'https://adventuringguildmumbai.fillout.com/player-sign-up';
+const QUEST_BOARD_NAME = process.env.DEV_MODE === 'true' ? 'bot-debugging' : 'quest-board';
+
 let ctrlChannel = null;
 let schedulerInterval = null;
 let lastTick = null;
@@ -99,9 +102,18 @@ async function runActivationJob() {
     if (results.skipped.length) msg += `**Already active (skipped):**\n${results.skipped.map(t => `- ${t}`).join('\n')}\n\n`;
     if (results.failed.length) msg += `**Failed:**\n${results.failed.map(t => `- ${t}`).join('\n')}\n\n`;
 
-    // future quest board ping goes here
+    const questChannel = ctrlChannel.guild.channels.cache.find(ch => ch.name === QUEST_BOARD_NAME);
 
     await ctrlChannel.send(msg);
+    if (results.processed.length) {
+    	const titleList = results.processed.map(t => `- ${t}`).join(`\n`);
+
+    	const questMsg = `‼️ **Registrations for the following game/s are now live** ‼️\n\n${titleList}\n\nRegistration Link - ${REGISTRATION_LINK}`;
+    	const waMsg = `‼️ *Registrations for the following game/s are now live* ‼️\n\n${titleList}\n\nRegistration Link - ${REGISTRATION_LINK}`;
+
+    	if (questChannel) await questChannel.send(questMsg);
+    	await ctrlChannel.send(`📋 **WhatsApp copy:**\n\`\`\`\n${waMsg}\n\`\`\``);
+    }	
 }
 
 function tick() {

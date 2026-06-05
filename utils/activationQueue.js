@@ -7,6 +7,7 @@ const DEFAULT_QUEUE = {
     reminderTime: "19:00",
     activationTime: "21:00",
     reminderEnabled: true,
+    autoSchedule: false,
     queue: [],
     flaggedUids: [],
     lastActivationRun: []
@@ -100,6 +101,13 @@ function toggleReminder() {
     return data.reminderEnabled;
 }
 
+function toggleAutoSchedule() {
+    const data = getQueue();
+    data.autoSchedule = !data.autoSchedule;
+    writeQueue(data);
+    return data.autoSchedule;
+}
+
 module.exports = {
     getQueue,
     addToQueue,
@@ -110,5 +118,6 @@ module.exports = {
     isFlagged,
     setReminderTime,
     setActivationTime,
-    toggleReminder
+    toggleReminder,
+    toggleAutoSchedule
 };

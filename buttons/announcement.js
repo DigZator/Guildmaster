@@ -2,6 +2,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } 
 const { getRoleMention, clearSessionTimeout } = require('../utils/announcementHelper');
 const { invalidateCache } = require('../utils/cache');
 const { updateGameProperties } = require('../utils/notion');
+const { addToQueue, getQueue } = require('../utils/activationQueue');
 
 module.exports = {
 
@@ -60,6 +61,13 @@ module.exports = {
 					await updateGameProperties(session.game.uid, { "Show": { checkbox: true } });
 				} catch (e) {
 					console.error('[Announcement] Failed to set Show on Notion:', e);
+				}
+			}
+
+			if (session.game) {
+				const queueData = getQueue();
+				if (queueData.autoSchedule) {
+					addToQueue(session.game, interaction.user.id);
 				}
 			}
 

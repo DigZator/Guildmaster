@@ -211,6 +211,9 @@ const commands = [
                 .setName('toggle-reminder')
                 .setDescription('Enable or disable the daily reminder'))
             .addSubcommand(sub => sub
+            	.setName('toggle-auto')
+            	.setDescription('Enable or disable auto-scheduling games on announcement'))
+            .addSubcommand(sub => sub
                 .setName('status')
                 .setDescription('Show current schedule settings and queue')),
 
