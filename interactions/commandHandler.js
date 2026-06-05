@@ -1,4 +1,16 @@
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
+const { getKeys } = require('../utils/anonStore');
+const { getCachedGames } = require('../utils/cache');
+const { getQueue } = require('../utils/activationQueue');
+const ping = require('../commands/ping');
+const the_long_rest = require('../commands/the_long_rest');
+const announce_game = require('../commands/announce_game');
+const list_games = require('../commands/list_games');
+const game_info = require('../commands/game_info');
+const rss = require('../commands/rss');
+const anon_msg = require('../commands/anon_msg');
+const schedule_activation = require('../commands/schedule_activation');
+const help = require('../commands/help');
 
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
@@ -9,7 +21,6 @@ module.exports = (client) => {
             }
 
             if (interaction.commandName === 'anon_msg') {
-                const { getKeys } = require('../utils/anonStore');
                 const focused = interaction.options.getFocused().toLowerCase();
                 const choices = getKeys()
                     .filter(k => k.toLowerCase().includes(focused))
@@ -21,8 +32,6 @@ module.exports = (client) => {
 
             if (interaction.commandName === 'schedule_activation') {
                 const sub = interaction.options.getSubcommand();
-                const { getCachedGames } = require('../utils/cache');
-                const { getQueue } = require('../utils/activationQueue');
                 const focused = interaction.options.getFocused().toLowerCase();
                 const games = await getCachedGames();
             
@@ -56,49 +65,27 @@ module.exports = (client) => {
         const command = interaction.commandName;
 
         try {
-            if (command === 'ping') {
-                require('../commands/ping')(interaction);
-            }
-
-            if (command === 'the_long_rest') {
-                require('../commands/the_long_rest')(interaction, client);
-            }
-
-            if (command === 'announce_game') {
-                require('../commands/announce_game')(interaction, client);
-            }
-
-            if (command === 'list_games') {
-                require('../commands/list_games')(interaction, client);
-            }
-
-            if (command === 'game_info') {
-                require('../commands/game_info')(interaction, client);
-            }
-
-            if (command === 'rss') {
-                require('../commands/rss')(interaction, client);
-            }
-
-            if (command === 'anon_msg') {
-                require('../commands/anon_msg')(interaction, client);
-            }
-
-            if (command === 'schedule_activation') {
-            	require('../commands/schedule_activation')(interaction, client);
-            }
-
-            if (command === 'help') {
-                require('../commands/help')(interaction);
-            } 
-
+            if (command === 'ping') ping(interaction);
+            if (command === 'the_long_rest') the_long_rest(interaction, client);
+            if (command === 'announce_game') announce_game(interaction, client);
+            if (command === 'list_games') list_games(interaction, client);
+            if (command === 'game_info') game_info(interaction, client);
+            if (command === 'rss') rss(interaction, client);
+            if (command === 'anon_msg') anon_msg(interaction, client);
+            if (command === 'schedule_activation') schedule_activation(interaction, client);
+            if (command === 'help') help(interaction);
         } catch (error) {
             console.error('Error handling interaction:', error);
-            if (!interaction.replied) {
+            if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({
                     content: 'There was an error while executing this command!',
                     flags: 64
                 });
+            } else {
+            	await interaction.followUp({
+            		content: 'There was an error while executing this command!',
+            		flags: 64
+            	});
             }
         }
     });
