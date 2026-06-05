@@ -220,6 +220,22 @@ const commands = [
         new SlashCommandBuilder()
         	.setName('help')
         	.setDescription('Show all Guildmaster commands'),
+        
+        new SlashCommandBuilder()
+            .setName('edit_game')
+            .setDescription('Edit a field on a game in Notion')
+            .addStringOption(option =>
+                option
+                    .setName('game')
+                    .setDescription('Select a game to edit')
+                    .setRequired(true)
+                    .setAutocomplete(true))
+            .addStringOption(option =>
+                option
+                    .setName('field')
+                    .setDescription('Select a field to edit')
+                    .setRequired(true)
+                    .setAutocomplete(true)),
 
         
 ].map(cmd => cmd.toJSON());

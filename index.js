@@ -20,6 +20,7 @@ require('./flow/announcementFlow')(client);
 require('./flow/tlrSubmissionFlow')(client);
 require('./interactions/selectHandler')(client);
 require('./flow/rssFlow')(client);
+require('./flow/editGameFlow')(client);
 require('./utils/cacheWatcher').init(client);
 require('./utils/scheduler').init(client);
 

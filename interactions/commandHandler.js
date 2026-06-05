@@ -2,6 +2,7 @@ const { gameAutocomplete } = require('../utils/gameAutoComplete');
 const { getKeys } = require('../utils/anonStore');
 const { getCachedGames } = require('../utils/cache');
 const { getQueue } = require('../utils/activationQueue');
+const gameFields = require('../data/gameFields.json');
 const ping = require('../commands/ping');
 const the_long_rest = require('../commands/the_long_rest');
 const announce_game = require('../commands/announce_game');
@@ -11,6 +12,7 @@ const rss = require('../commands/rss');
 const anon_msg = require('../commands/anon_msg');
 const schedule_activation = require('../commands/schedule_activation');
 const help = require('../commands/help');
+const edit_game = require('../commands/edit_game');
 
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
@@ -27,7 +29,6 @@ module.exports = (client) => {
                     .slice(0, 25)
                     .map(k => ({ name: k, value: k }));
                 await interaction.respond(choices);
-                
             }
 
             if (interaction.commandName === 'schedule_activation') {
@@ -55,6 +56,25 @@ module.exports = (client) => {
                     return;
                 }
             }
+
+            if (interaction.commandName === 'edit_game') {
+                const focused = interaction.options.getFocused(true);
+
+                if (focused.name === 'game') {
+                    await gameAutocomplete(interaction);
+                    return;
+                }
+
+                if (focused.name === 'field') {
+                    const query = focused.value.toLowerCase();
+                    const choices = Object.keys(gameFields)
+                        .filter(f => f.toLowerCase().includes(query))
+                        .slice(0, 25)
+                        .map(f => ({ name: f, value: f }));
+                    await interaction.respond(choices);
+                    return;
+                }
+            }
             
             return;
         }
@@ -74,6 +94,7 @@ module.exports = (client) => {
             if (command === 'anon_msg') anon_msg(interaction, client);
             if (command === 'schedule_activation') schedule_activation(interaction, client);
             if (command === 'help') help(interaction);
+            if (command === 'edit_game') edit_game(interaction, client);
         } catch (error) {
             console.error('Error handling interaction:', error);
             if (!interaction.replied && !interaction.deferred) {
@@ -82,10 +103,10 @@ module.exports = (client) => {
                     flags: 64
                 });
             } else {
-            	await interaction.followUp({
-            		content: 'There was an error while executing this command!',
-            		flags: 64
-            	});
+                await interaction.followUp({
+                    content: 'There was an error while executing this command!',
+                    flags: 64
+                });
             }
         }
     });
