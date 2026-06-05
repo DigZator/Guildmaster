@@ -1,6 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const parseAnnouncement = require('../utils/announcementParser');
-const { buildAnnouncementEmbed, setSessionTimeout, italizeBlurb, bulletizeNotes, getPreviewButtons } = require('../utils/announcementHelper');
+const { buildWhatsApp, buildAnnouncementEmbed, setSessionTimeout, italizeBlurb, bulletizeNotes, getPreviewButtons, SESSION_TYPE_ROLES } = require('../utils/announcementHelper');
+const { sessions } = require('../utils/sessionStore');
 
 const previewButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -16,16 +17,16 @@ const previewButtons = new ActionRowBuilder().addComponents(
 module.exports = (client) => {
     client.on('messageCreate', async (message) => {
         if (message.author.bot) return;
-        if (!client.announcementSessions) return;
+        
+        const session = sessions.get(message.author.id);
 
-        const session = client.announcementSessions.get(message.author.id);
         if (!session) return;
         if (message.channelId !== session.channelId) return;
 
         try {
             if (session.step === 'awaiting_message') {
-                // ── MANUAL MODE — untouched ──────────────────────────────
-                setSessionTimeout(client, message.author.id);
+                // MANUAL MODE 
+                setSessionTimeout(message.author.id, 600000);
                 const match = message.content.match(/```([\s\S]*?)```/);
 
                 if (!match) {
@@ -57,7 +58,7 @@ module.exports = (client) => {
             }
 
             else if (session.step === 'awaiting_image') {
-                setSessionTimeout(client, message.author.id);
+                setSessionTimeout(message.author.id, 600000);
                 if (message.attachments.size === 0) {
                     const reply = await message.reply('❌ Please upload an image.');
                     setTimeout(() => reply.delete().catch(() => {}), 10000);
@@ -72,7 +73,7 @@ module.exports = (client) => {
                 }
 
                 if (session.announcementText) {
-                    // ── MANUAL MODE: parse freeform text ────────────────
+                    // MANUAL MODE: parse freeform text 
                     const imageUrl = attachment.url;
 
                     const isDev = process.env.DEV_MODE === 'true';
@@ -85,25 +86,11 @@ module.exports = (client) => {
                         await message.channel.send(
                             `<@${message.author.id}> ❌ Output channel not found.`
                         );
-                        client.announcementSessions.delete(message.author.id);
+                        sessions.delete(message.author.id);
                         return;
                     }
 
                     const parsed = parseAnnouncement(session.announcementText);
-
-                    const SESSION_TYPE_ROLES = {
-                        'In-Person One-Shot': 'In-Person One-Shots',
-                        'In-Person Mini-Adventure': 'In-Person Mini-Adventures',
-                        'In-Person Campaign': 'In-Person Campaigns',
-                        'In-Person Workshop': 'Workshops',
-                        'Online One-Shot': 'Online One-Shots',
-                        'Online Mini-Adventure': 'Online Mini-Adventures',
-                        'Online Campaign': 'Online Campaigns',
-                        'Online Workshop': 'Workshops',
-                        'Play-By-Post One-Shot': 'Play-By-Post One-Shots',
-                        'Play-By-Post Mini-Adventure': 'Play-By-Post Mini-Adventures',
-                        'Play-By-Post Campaign': 'Play-By-Post Campaigns'
-                    };
 
                     let roleMention = '';
                     const roleName = SESSION_TYPE_ROLES[parsed.sessionTypeLabel];
@@ -166,6 +153,7 @@ module.exports = (client) => {
                     session.embedAnnounce = embedAnnounce;
                     session.roleMention = roleMention;
                     session.outputChannelId = outputChannel.id;
+                    setSessionTimeout(message.author.id, 600000);
                     session.step = 'preview_confirmation';
 
                     let previewContent = "";
@@ -184,11 +172,12 @@ module.exports = (client) => {
                     });
 
                 } else {
-                    // ── AUTO MODE: game object already in session ────────
+                    // AUTO MODE: game object already in session
                     session.game.artURL = attachment.url;
 
                     const embed = buildAnnouncementEmbed(session.game, message.guild);
                     session.embed = embed;
+                    setSessionTimeout(message.author.id, 600000);
                     session.step = 'preview_confirmation';
 
                     await message.channel.send({
@@ -200,7 +189,7 @@ module.exports = (client) => {
             }
 
             else if (session.step === "awaiting_edit") {
-                setSessionTimeout(client, message.author.id);
+                setSessionTimeout(message.author.id, 600000);
                 const match = message.content.match(/`([^`]+)`/);
 
                 if (!match) {
@@ -226,8 +215,6 @@ module.exports = (client) => {
                     await message.delete();
                 } catch {}
 
-                const { buildWhatsApp } = require('../utils/announcementHelper');
-
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
                 session.whatsapp = buildWhatsApp(session.game);
 
@@ -239,7 +226,7 @@ module.exports = (client) => {
             }
 
             else if (session.step === "awaiting_art") {
-                setSessionTimeout(client, message.author.id);
+                setSessionTimeout(message.author.id, 600000);
                 if (message.attachments.size === 0) {
                     const reply = await message.reply('❌ Please upload an image.');
                     setTimeout(() => reply.delete().catch(() => {}), 10000);
@@ -256,8 +243,6 @@ module.exports = (client) => {
                 session.game.artURL = attachment.url;
                 session.step = null;
 
-                const { buildWhatsApp } = require('../utils/announcementHelper');
-
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
                 session.whatsapp = buildWhatsApp(session.game);
 
@@ -273,7 +258,7 @@ module.exports = (client) => {
             await message.channel.send(
                 `<@${message.author.id}> ❌ Error: ${error.message}`
             );
-            client.announcementSessions.delete(message.author.id);
+            sessions.delete(message.author.id);
         }
     });
 };

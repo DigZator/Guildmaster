@@ -1,6 +1,8 @@
+const { sessions } = require('../utils/sessionStore');
+
 module.exports = async (interaction, client) => {
     const field = interaction.values[0];
-    const session = client.announcementSessions?.get(interaction.user.id);
+    const session = sessions.get(interaction.user.id);
 
     if (!session) {
         await interaction.reply({ content: '❌ Session expired.', flags: 64 });

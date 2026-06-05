@@ -1,4 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { sessions, timeouts } = require('./sessionStore');
 
 const DIFFICULTY_COLORS = {
     'Newbies': 0x5DADEC,
@@ -190,26 +191,26 @@ function bulletizeNotes(text) {
         .join('\n');
 }
 
-function setSessionTimeout(client, userId, ms = 120000) {
-    if (client.announcementTimeouts?.get(userId)) {
-        clearTimeout(client.announcementTimeouts.get(userId));
+function setSessionTimeout(userId, ms = 120000) {
+    if (timeouts.get(userId)) {
+    	clearTimeout(timeouts.get(userId));
     }
-    client.announcementTimeouts = client.announcementTimeouts ?? new Map();
     const timeout = setTimeout(() => {
-        client.announcementSessions?.delete(userId);
-        client.announcementTimeouts?.delete(userId);
+    	sessions.delete(userId);
+    	timeouts.delete(userId);
     }, ms);
-    client.announcementTimeouts.set(userId, timeout);
+    timeouts.set(userId, timeout);
 }
 
-function clearSessionTimeout(client, userId) {
-    if (client.announcementTimeouts?.get(userId)) {
-        clearTimeout(client.announcementTimeouts.get(userId));
-        client.announcementTimeouts?.delete(userId);
+function clearSessionTimeout(userId) {
+    if (timeouts.get(userId)) {
+        clearTimeout(timeouts.get(userId));
+        timeouts.delete(userId);
     }
 }
 
 module.exports = {
+	SESSION_TYPE_ROLES,
     buildAnnouncementEmbed,
     buildWhatsApp,
     getRoleMention,

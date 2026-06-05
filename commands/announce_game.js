@@ -2,6 +2,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelect
 const { fetchGameByUID } = require('../utils/notion');
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const { buildAnnouncementEmbed, buildWhatsApp, getRoleMention, getPreviewButtons, setSessionTimeout } = require('../utils/announcementHelper');
+const { sessions } = require('../utils/sessionStore');
 
 module.exports = async (interaction, client) => {
     if (!isAdminChannel(interaction)) {
@@ -14,9 +15,8 @@ module.exports = async (interaction, client) => {
 
     if (isManual) {
         // Store session and hand off to old manual flow
-        client.announcementSessions = client.announcementSessions ?? new Map();
-        setSessionTimeout(client, interaction.user.id);
-        client.announcementSessions.set(interaction.user.id, {
+        setSessionTimeout(interaction.user.id);
+        sessions.set(interaction.user.id, {
             step: 'awaiting_message',
             channelId: interaction.channel.id
         });
@@ -52,8 +52,7 @@ module.exports = async (interaction, client) => {
         const embed = buildAnnouncementEmbed(game, interaction.guild);
         const whatsapp = buildWhatsApp(game);
 
-        client.announcementSessions = client.announcementSessions ?? new Map();
-        client.announcementSessions.set(interaction.user.id, {
+        sessions.set(interaction.user.id, {
             game,
             embed,
             whatsapp,

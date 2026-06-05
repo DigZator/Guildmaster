@@ -3,6 +3,7 @@ const { getRoleMention, clearSessionTimeout } = require('../utils/announcementHe
 const { invalidateCache } = require('../utils/cache');
 const { updateGameProperties } = require('../utils/notion');
 const { addToQueue, getQueue } = require('../utils/activationQueue');
+const { sessions } = require('../utils/sessionStore');
 
 module.exports = {
 
@@ -10,7 +11,7 @@ module.exports = {
 
         announcement_preview_confirm: async (interaction, client) => {
             await interaction.deferUpdate();
-            const session = client.announcementSessions.get(interaction.user.id);
+            const session = sessions.get(interaction.user.id);
             if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
 
             const outputChannel = interaction.guild.channels.cache.get(session.outputChannelId);
@@ -21,18 +22,18 @@ module.exports = {
             });
 
             await interaction.editReply({ content: `✅ **Posted in <#${outputChannel.id}>!**`, embeds: [], components: [] });
-            client.announcementSessions.delete(interaction.user.id);
+            sessions.delete(interaction.user.id);
         },
 
         announcement_preview_cancel: async (interaction, client) => {
             await interaction.deferUpdate();
             await interaction.editReply({ content: '❌ Announcement cancelled. You can start over anytime.', embeds: [], components: [] });
-            client.announcementSessions.delete(interaction.user.id);
+            sessions.delete(interaction.user.id);
         },
 
         announce_confirm: async (interaction, client) => {
             await interaction.deferUpdate();
-            const session = client.announcementSessions?.get(interaction.user.id);
+            const session = sessions.get(interaction.user.id);
             if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
 
             const chanName = process.env.DEV_MODE === 'true' ? 'bot-debugging' : 'quest-board';
@@ -72,20 +73,20 @@ module.exports = {
 			}
 
             invalidateCache();
-            clearSessionTimeout(client, interaction.user.id);
-            client.announcementSessions.delete(interaction.user.id);
+            clearSessionTimeout(interaction.user.id);
+            sessions.delete(interaction.user.id);
         },
 
         announce_cancel: async (interaction, client) => {
             await interaction.deferUpdate();
-            clearSessionTimeout(client, interaction.user.id);
-            client.announcementSessions?.delete(interaction.user.id);
+            clearSessionTimeout(interaction.user.id);
+            sessions.delete(interaction.user.id);
             await interaction.editReply({ content: '❌ Announcement cancelled.', embeds: [], components: [] });
         },
 
         announce_edit: async (interaction, client) => {
             await interaction.deferUpdate();
-            const session = client.announcementSessions?.get(interaction.user.id);
+            const session = sessions.get(interaction.user.id);
             if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
 
             const selectMenu = new StringSelectMenuBuilder()

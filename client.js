@@ -13,6 +13,6 @@ client.once('clientReady', () => {
 });
 
 // client.tempSubmissions = new Map();
-client.announcementSessions = new Map();
+// client.announcementSessions = new Map();
 
 module.exports = client;
