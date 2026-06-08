@@ -71,6 +71,23 @@ function buildAnnouncementEmbed(game, guild, opts = {}) {
         section3Parts.push('-');
     }
 
+    const noteFields=[];
+    let current = [];
+    let currentLength = 0;
+
+    for (const line of section3Parts) {
+    	const lineLenght = line.length + 1;
+
+    	if (currentLength + lineLenght > 1024 && current.length>0) {
+    		noteFields.push(current.join('\n'));
+    		current = [];
+    		currentLength = 0;
+    	}
+    	current.push(line);
+    	currentLength += lineLenght; 
+    }
+    if (current.length > 0) noteFields.push(current.join('\n'));
+
     const section4Parts = [
         `**Session Type:** ${sessionTypeLabel}`,
         `**Venue:** ${game.location || 'TBD'}`,
@@ -92,7 +109,7 @@ function buildAnnouncementEmbed(game, guild, opts = {}) {
         .addFields(
             { name: '\u200B', value: section1, inline: false },
             { name: '\u200B', value: section2, inline: false },
-            { name: '\u200B', value: section3Parts.join('\n'), inline: false },
+            ...noteFields.map(chunk => ({ name: '\u200B', value: chunk, inline: false })),
             { name: '\u200B', value: section4Parts.join('\n'), inline: false },
             { name: '\u200B', value: section5, inline: false },
         )

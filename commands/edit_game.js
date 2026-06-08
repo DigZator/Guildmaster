@@ -1,5 +1,5 @@
 const { isAdminChannel } = require('../utils/isAdminChannel');
-const { getCache } = require('../utils/cache');
+const { getCachedGames } = require('../utils/cache');
 const gameFields = require('../data/gameFields.json');
 const editGameSession = require('../utils/editGameSession');
 
@@ -23,7 +23,7 @@ module.exports = async (interaction) => {
         return;
     }
 
-    const games = getCache();
+    const games = await getCachedGames();
     const game = games?.find(g => g.uid === gameUID);
     if (!game) {
         await interaction.reply({ content: '❌ Game not found.', flags: 64 });
