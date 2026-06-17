@@ -4,13 +4,23 @@ const { invalidateCache } = require('../utils/cache');
 const { updateGameProperties } = require('../utils/notion');
 const { addToQueue, getQueue } = require('../utils/activationQueue');
 const { sessions } = require('../utils/sessionStore');
+const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
 module.exports = {
 
     exact: {
 
         announcement_preview_confirm: async (interaction, client) => {
-            await interaction.deferUpdate();
+            try {
+                await interaction.deferUpdate();
+            } catch (deferError) {
+                if (deferError.code === 10062) {
+                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
+                    return;
+                }
+                throw deferError;
+            }
+
             const session = sessions.get(interaction.user.id);
             if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
 
@@ -26,18 +36,37 @@ module.exports = {
         },
 
         announcement_preview_cancel: async (interaction, client) => {
-            await interaction.deferUpdate();
+            try {
+                await interaction.deferUpdate();
+            } catch (deferError) {
+                if (deferError.code === 10062) {
+                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
+                    return;
+                }
+                throw deferError;
+            }
+
             await interaction.editReply({ content: '❌ Announcement cancelled. You can start over anytime.', embeds: [], components: [] });
             sessions.delete(interaction.user.id);
         },
 
         announce_confirm: async (interaction, client) => {
-            await interaction.deferUpdate();
+            try {
+                await interaction.deferUpdate();
+            } catch (deferError) {
+                if (deferError.code === 10062) {
+                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
+                    return;
+                }
+                throw deferError;
+            }
+
             const session = sessions.get(interaction.user.id);
             if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
 
-            const chanName = process.env.DEV_MODE === 'true' ? 'bot-debugging' : 'quest-board';
-            const outputChannel = interaction.guild.channels.cache.find(ch => ch.name === chanName);
+            const outputChannelId = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
+            const outputChannel = interaction.guild.channels.cache.get(outputChannelId);
+            
             if (!outputChannel) return interaction.editReply({ content: '❌ Output channel not found.', components: [] });
 
             if (!session.game) {
@@ -57,20 +86,20 @@ module.exports = {
 
             await interaction.editReply({ content: `✅ Posted in <#${outputChannel.id}>!`, embeds: [], components: [] });
 
-			if (session.game) {
-				try {
-					await updateGameProperties(session.game.uid, { "Show": { checkbox: true } });
-				} catch (e) {
-					console.error('[Announcement] Failed to set Show on Notion:', e);
-				}
-			}
+            if (session.game) {
+                try {
+                    await updateGameProperties(session.game.uid, { "Show": { checkbox: true } });
+                } catch (e) {
+                    console.error('[Announcement] Failed to set Show on Notion:', e);
+                }
+            }
 
-			if (session.game) {
-				const queueData = getQueue();
-				if (queueData.autoSchedule) {
-					addToQueue(session.game, interaction.user.id);
-				}
-			}
+            if (session.game) {
+                const queueData = getQueue();
+                if (queueData.autoSchedule) {
+                    addToQueue(session.game, interaction.user.id);
+                }
+            }
 
             invalidateCache();
             clearSessionTimeout(interaction.user.id);
@@ -78,14 +107,32 @@ module.exports = {
         },
 
         announce_cancel: async (interaction, client) => {
-            await interaction.deferUpdate();
+            try {
+                await interaction.deferUpdate();
+            } catch (deferError) {
+                if (deferError.code === 10062) {
+                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
+                    return;
+                }
+                throw deferError;
+            }
+
             clearSessionTimeout(interaction.user.id);
             sessions.delete(interaction.user.id);
             await interaction.editReply({ content: '❌ Announcement cancelled.', embeds: [], components: [] });
         },
 
         announce_edit: async (interaction, client) => {
-            await interaction.deferUpdate();
+            try {
+                await interaction.deferUpdate();
+            } catch (deferError) {
+                if (deferError.code === 10062) {
+                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
+                    return;
+                }
+                throw deferError;
+            }
+
             const session = sessions.get(interaction.user.id);
             if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
 

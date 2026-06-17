@@ -32,9 +32,18 @@ module.exports = (client) => {
         try {
             await handler(interaction, client);
         } catch (error) {
-            console.error(`Error handling button "${id}":`, error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: 'There was an error processing your request!', flags: 64 });
+        	if (error.code === 10062) {
+        		console.warn(`[buttonHandler] Interaction expired before we could respond: ${interaction.customId}`);
+        		return;
+        	}
+        	try {
+                if (interaction.replied || interaction.deferred) {
+                	await interaction.followUp({ content: 'Something went wrong.', flags:64 });
+                } else {
+                	await interaction.reply({ content: 'Something went wrong.', flags:64 });
+                }
+            } catch (replyError) {
+                console.warn('[buttonHandler] Fallback reply also failed:', replyError.message);
             }
         }
     });

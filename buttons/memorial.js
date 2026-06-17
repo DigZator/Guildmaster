@@ -1,5 +1,6 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const memorialDrafts = require('../utils/memorialDrafts');
+const { THE_LONG_REST_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID } = require('../data/channels');
 
 const modButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId('memorial_mod_approve').setLabel('Approve').setStyle(ButtonStyle.Success),
@@ -37,7 +38,7 @@ module.exports = {
             const storedData = memorialDrafts.get(interaction.user.id);
             if (!storedData) return interaction.editReply({ content: '❌ Session expired. Please start over.', flags: 64 });
 
-            const outputChannel = interaction.guild.channels.cache.find(c => c.name === 'tlr-control');
+            const outputChannel = interaction.guild.channels.cache.get(TLR_CONTROL_CHANNEL_ID);
             if (!outputChannel) return interaction.editReply({ content: '❌ Mod channel not found. Contact an admin.', flags: 64 });
 
             await interaction.editReply({ content: '✅ Submitted for moderator review.', components: [] });
@@ -58,7 +59,7 @@ module.exports = {
         memorial_mod_approve: async (interaction) => {
             await interaction.deferUpdate();
             const modData = interaction.message.embeds[0];
-            const outputChannel = interaction.guild.channels.cache.find(c => c.name === 'the-long-rest');
+            const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
             if (!outputChannel) return interaction.editReply({ content: '❌ Output channel not found. Contact an admin.', flags: 64 });
 
             const characterName = modData.title || 'Character';

@@ -1,5 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const memorialDrafts = require('../utils/memorialDrafts');
+const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
 
 const previewButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -44,9 +45,7 @@ module.exports = async (interaction, client) => {
         }
     }
 
-    const outputChannel = interaction.guild.channels.cache.find(
-        channel => channel.name === 'the-long-rest'
-    );
+    const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
 
     if (!outputChannel) {
         await interaction.editReply({

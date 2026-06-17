@@ -4,7 +4,7 @@ url.txt
 .env
 data/
 temp/
-test-*
+test/
 
 # Dependencies
 node_modules/

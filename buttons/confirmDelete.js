@@ -1,10 +1,12 @@
+const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
+
 module.exports = {
 
     prefix: {
 
         'confirm_remove_': async (interaction) => {
             const messageId = interaction.customId.replace('confirm_remove_', '');
-            const outputChannel = interaction.guild.channels.cache.find(c => c.name === 'the-long-rest');
+            const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
 
             if (!outputChannel) return interaction.reply({ content: 'Output channel not found. Contact an admin.', flags: 64 });
 

@@ -2,10 +2,9 @@ const { EmbedBuilder } = require('discord.js');
 const { getFeeds, addFeed, removeFeed } = require('../utils/rssStore');
 const Parser = require('rss-parser');
 const { isAdminChannel } = require('../utils/isAdminChannel');
+const { FEEDS_CHANNEL_ID } = require('../data/channels');
 
 const parser = new Parser();
-
-const DEFAULT_CHANNEL_NAME = 'feeds';
 
 module.exports = async (interaction, client) => {
     if (!isAdminChannel(interaction)) {
@@ -18,10 +17,10 @@ module.exports = async (interaction, client) => {
         const url     = interaction.options.getString('url');
         const name    = interaction.options.getString('name');
         const channel = interaction.options.getChannel('channel')
-            ?? interaction.guild.channels.cache.find(c => c.name === DEFAULT_CHANNEL_NAME);
+            ?? interaction.guild.channels.cache.get(FEEDS_CHANNEL_ID);
 
         if (!channel) {
-            return interaction.reply({ content: `❌ Could not find a #${DEFAULT_CHANNEL_NAME} channel. Please specify one.`, flags: 64 });
+            return interaction.reply({ content: `❌ Could not find the feeds channel. Please specify one.`, flags: 64 });
         }
 
         await interaction.deferReply({ flags: 64 });

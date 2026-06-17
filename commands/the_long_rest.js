@@ -1,4 +1,5 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID } = require('../data/channels');
 
 module.exports = async (interaction, client) => {
     if (!interaction.isChatInputCommand()) return;
@@ -16,9 +17,7 @@ module.exports = async (interaction, client) => {
                 return;
             }
 
-            const outputChannel = interaction.guild.channels.cache.find(
-                channel => channel.name === 'the-long-rest'
-            );
+            const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
 
             if (!outputChannel) {
                 await interaction.reply({
@@ -76,8 +75,8 @@ module.exports = async (interaction, client) => {
         }
 
         if (subcommand === 'remove') {
-            const allowedChannel = ['tlr-submission', 'tlr-control'];
-            if (!allowedChannel.includes(interaction.channel.name)) {
+            const allowedChannel = [TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID];
+            if (!allowedChannel.includes(interaction.channel.id)) {
                 await interaction.reply({
                     content: 'This command can only be used in the `tlr-submission` channel.',
                     flags: 64
@@ -95,9 +94,7 @@ module.exports = async (interaction, client) => {
                 return;
             }
             
-            const outputChannel = interaction.guild.channels.cache.find(
-                channel => channel.name === 'the-long-rest'
-            );
+            const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
 
             if (!outputChannel) {
                 await interaction.editReply({

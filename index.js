@@ -23,6 +23,7 @@ require('./flow/rssFlow')(client);
 require('./flow/editGameFlow')(client);
 require('./utils/cacheWatcher').init(client);
 require('./utils/scheduler').init(client);
+require('./utils/trapChannel')(client);
 
 const token = process.env.DISCORD_TOKEN;
 

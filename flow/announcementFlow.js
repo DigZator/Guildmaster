@@ -2,6 +2,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('
 const parseAnnouncement = require('../utils/announcementParser');
 const { buildWhatsApp, buildAnnouncementEmbed, setSessionTimeout, italizeBlurb, bulletizeNotes, getPreviewButtons, SESSION_TYPE_ROLES } = require('../utils/announcementHelper');
 const { sessions } = require('../utils/sessionStore');
+const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
 const previewButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -13,6 +14,40 @@ const previewButtons = new ActionRowBuilder().addComponents(
         .setLabel("Cancel")
         .setStyle(ButtonStyle.Danger)
 );
+
+async function sendChunkedWhatsApp(channel, whatsapp, embed, prefix = '') {
+    const previewText = `${prefix}\`\`\`\n${whatsapp}\n\`\`\``;
+
+    if (previewText.length <= 2000) {
+        await channel.send({
+            content: previewText,
+            embeds: [embed],
+            components: [getPreviewButtons()]
+        });
+    } else {
+        await channel.send({
+            content: prefix || null,
+            embeds: [embed],
+            components: [getPreviewButtons()]
+        });
+
+        const chunkSize = 1900;
+        const lines = whatsapp.split('\n');
+        let currentChunk = '';
+
+        for (const line of lines) {
+            if ((currentChunk + '\n' + line).length > chunkSize && currentChunk.length > 0) {
+                await channel.send({ content: `\`\`\`\n${currentChunk}\n\`\`\`` });
+                currentChunk = line;
+            } else {
+                currentChunk = currentChunk ? currentChunk + '\n' + line : line;
+            }
+        }
+        if (currentChunk) {
+            await channel.send({ content: `\`\`\`\n${currentChunk}\n\`\`\`` });
+        }
+    }
+}
 
 module.exports = (client) => {
     client.on('messageCreate', async (message) => {
@@ -77,10 +112,8 @@ module.exports = (client) => {
                     const imageUrl = attachment.url;
 
                     const isDev = process.env.DEV_MODE === 'true';
-                    const chanName = isDev ? 'bot-debugging' : 'quest-board';
-                    const outputChannel = message.guild.channels.cache.find(
-                        ch => ch.name === chanName
-                    );
+                    const outputChannelId = isDev ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
+                    const outputChannel = message.guild.channels.cache.get(outputChannelId);
 
                     if (!outputChannel) {
                         await message.channel.send(
@@ -218,11 +251,12 @@ module.exports = (client) => {
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
                 session.whatsapp = buildWhatsApp(session.game);
 
-                await message.channel.send({
-                    content: `✅ Updated! Here's the new preview:\n\`\`\`\n${session.whatsapp}\n\`\`\``,
-                    embeds: [session.embed],
-                    components: [getPreviewButtons()]
-                });
+                await sendChunkedWhatsApp(
+                    message.channel,
+                    session.whatsapp,
+                    session.embed,
+                    '✅ Updated! Here\'s the new preview:\n'
+                );
             }
 
             else if (session.step === "awaiting_art") {
@@ -246,11 +280,12 @@ module.exports = (client) => {
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
                 session.whatsapp = buildWhatsApp(session.game);
 
-                await message.channel.send({
-                    content: `✅ Cover art updated! Here's the new preview:\n\`\`\`\n${session.whatsapp}\n\`\`\``,
-                    embeds: [session.embed],
-                    components: [getPreviewButtons()]
-                });
+                await sendChunkedWhatsApp(
+                    message.channel,
+                    session.whatsapp,
+                    session.embed,
+                    '✅ Cover art updated! Here\'s the new preview:\n'
+                );
             }
 
         } catch (error) {

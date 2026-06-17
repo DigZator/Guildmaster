@@ -1,9 +1,11 @@
 const { getCachedGames, invalidateCache } = require('./cache');
 const { getQueue, clearQueue } = require('./activationQueue');
 const { updateGameProperties } = require('./notion');
+const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
+
+const QUEST_BOARD_ID = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
 const REGISTRATION_LINK = 'https://adventuringguildmumbai.fillout.com/player-sign-up';
-const QUEST_BOARD_NAME = process.env.DEV_MODE === 'true' ? 'bot-debugging' : 'quest-board';
 
 let ctrlChannel = null;
 let schedulerInterval = null;
@@ -102,7 +104,7 @@ async function runActivationJob() {
     if (results.skipped.length) msg += `**Already active (skipped):**\n${results.skipped.map(t => `- ${t}`).join('\n')}\n\n`;
     if (results.failed.length) msg += `**Failed:**\n${results.failed.map(t => `- ${t}`).join('\n')}\n\n`;
 
-    const questChannel = ctrlChannel.guild.channels.cache.find(ch => ch.name === QUEST_BOARD_NAME);
+    const questChannel = ctrlChannel.guild.channels.cache.get(QUEST_BOARD_ID);
 
     await ctrlChannel.send(msg);
     if (results.processed.length) {
@@ -136,8 +138,8 @@ function timeInWindow(target, last, now) {
 }
 
 async function runStartupCheck(client) {
-    const chanName = process.env.DEV_MODE === 'true' ? 'bot-debugging' : 'guildmaster-ctrl';
-    ctrlChannel = client.channels.cache.find(ch => ch.name === chanName);
+    const ctrlChannelId = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : GUILDMASTER_CTRL_CHANNEL_ID;
+    ctrlChannel = client.channels.cache.get(ctrlChannelId);
     if (!ctrlChannel) {
         console.warn('[Scheduler] Control channel not found.');
         return;

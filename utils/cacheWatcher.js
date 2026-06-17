@@ -1,13 +1,14 @@
 const { onCacheRefresh } = require('./cache');
 const { isFlagged, addFlaggedUid, getQueue } = require('./activationQueue');
+const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
 let ctrlChannel = null;
 
 function init(client) {
-    const chanName = 'guildmaster-ctrl';
+    const ctrlChannelId = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : GUILDMASTER_CTRL_CHANNEL_ID;
     
     client.once('clientReady', () => {
-        ctrlChannel = client.channels.cache.find(ch => ch.name === chanName);
+        ctrlChannel = client.channels.cache.get(ctrlChannelId);
         if (!ctrlChannel) console.warn('[CacheWatcher] Control channel not found.');
     });
 
