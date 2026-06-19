@@ -4,6 +4,7 @@ const { TRAP_CHANNEL_ID, BOT_LOG_CHANNEL_ID, INCIDENT_REPORT_CHANNEL_ID } = requ
 const LOOKBACK_MS = 3 * 60 * 1000; // 3 minutes
 const FETCH_LIMIT = 20; // Discord's max per channel.messages.fetch() call
 const DESCRIPTION_LIMIT = 3500; // headroom under embed description's 4096 char cap
+const VIOLATION_DM_MESSAGE = `You're receiving this because you posted in a channel on **Adventuring Guild Mumbai** that was clearly marked as off-limits. As a result, you've been removed from the server.\n\nIf you believe this was a mistake, or you didn't see the warning, you're welcome to reach out to a moderator to explain, and we're happy to look into it.`;
 
 function truncateField(text, max = 1000) {
     if (!text) return '*[no text content]*';
@@ -66,6 +67,17 @@ module.exports = (client) => {
                 ? Math.floor(message.member.joinedTimestamp / 1000)
                 : null;
 
+            try {
+            	await message.member?.send(VIOLATION_DM_MESSAGE);
+            } catch (err) {
+            	console.warn(`[trapChannel] Failed to DM member:`, err.message);
+            }
+
+            // --- Enforcement (disabled during testing phase) ---
+            if (message.member) {
+                await message.member?.kick('Triggered trap channel').catch((err) => console.warn('[trapChannel] Failed to kick member:', err.message));
+            }
+            
             const compiledLog = await compileRecentMessages(message.guild, message.author.id, client);
 
             const logText = compiledLog.length
@@ -98,15 +110,11 @@ module.exports = (client) => {
             await postIncidentReport(client, embed, attachment);
 
             // --- Cleanup (disabled during testing phase) ---
-            // await message.delete().catch((err) => console.warn('[trapChannel] Failed to delete trap message:', err.message));
-            // for (const m of compiledLog) {
-            //     await m.messageRef.delete().catch((err) => console.warn('[trapChannel] Failed to delete compiled message:', err.message));
-            // }
+            await message.delete().catch((err) => console.warn('[trapChannel] Failed to delete trap message:', err.message));
+            for (const m of compiledLog) {
+                await m.messageRef.delete().catch((err) => console.warn('[trapChannel] Failed to delete compiled message:', err.message));
+            }
 
-            // --- Enforcement (disabled during testing phase) ---
-            // if (message.member) {
-            //     await message.member.kick('Triggered trap channel').catch((err) => console.warn('[trapChannel] Failed to kick member:', err.message));
-            // }
         } catch (error) {
             console.error('[trapChannel] Failed to process trap trigger:', error);
         }
