@@ -25,6 +25,18 @@ function init(client) {
             const justFilled = old.openSeats > 0 && game.openSeats === 0 && game.activate;
             const justFreedUp = old.openSeats === 0 && game.openSeats > 0 && !game.activate;
 
+            if (old.openSeats > game.openSeats) {
+            	try {
+            		if (ctrlChannel) {
+            			await ctrlChannel.send(
+            				`🔴  A Seat has been reserved in \`${game.title}\`. **Seats open:** \`${game.openSeats}\``
+            			);
+            		}
+            	} catch (err) {
+            		console.error(`[Deactivator] Failed to send seat-reserved notice for "\`${game.title}\`":`, err);
+            	}
+            }
+
             if (justFilled) {
                 try {
                     await updateGameProperties(game.uid, { "Activate": { checkbox: false } });
