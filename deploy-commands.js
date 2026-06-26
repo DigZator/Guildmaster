@@ -237,6 +237,22 @@ const commands = [
                     .setRequired(true)
                     .setAutocomplete(true)),
 
+        new SlashCommandBuilder()
+        	.setName('league')
+        	.setDescription("Adventurer's Guild League Commands")
+        	.addSubcommand(sub =>
+        		sub.setName('create').setDescription(`Register your character in the Adventure's Guild League`))
+        	.addSubcommand(sub =>
+        	    sub.setName('profile').setDescription(`Register your character in the Adventure's Guild League`))
+        	.addSubcommand(sub =>
+        	    sub.setName('inventory').setDescription(`Register your character in the Adventure's Guild League`))
+        	.addSubcommand(sub =>
+        		sub.setName('shop').setDescription(`Register your character in the Adventure's Guild League`))
+        	.addSubcommand(sub =>
+        	    sub.setName('marketplace').setDescription(`Register your character in the Adventure's Guild League`))
+        	.addSubcommand(sub =>
+        	    sub.setName('log').setDescription(`Register your character in the Adventure's Guild League`)),
+
         
 ].map(cmd => cmd.toJSON());
 

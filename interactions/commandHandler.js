@@ -13,6 +13,8 @@ const anon_msg = require('../commands/anon_msg');
 const schedule_activation = require('../commands/schedule_activation');
 const help = require('../commands/help');
 const edit_game = require('../commands/edit_game');
+const { league } = require('../commands/league');
+
 
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
@@ -95,6 +97,7 @@ module.exports = (client) => {
             if (command === 'schedule_activation') schedule_activation(interaction, client);
             if (command === 'help') help(interaction);
             if (command === 'edit_game') edit_game(interaction, client);
+            if (command === 'league') league(interaction, client);
         } catch (error) {
             console.error('Error handling interaction:', error);
             if (!interaction.replied && !interaction.deferred) {
