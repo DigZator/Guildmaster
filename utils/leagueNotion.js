@@ -12,6 +12,15 @@ const DB = {
   // marketplace: process.env.PLAYER_MARKETPLACE_DB_ID,
 };
 
+// ─── helper ───────────────────────────────────────────────────────
+
+async function updatePageProperty(pageId, properties) {
+	return await notion.pages.update({
+		page_id: pageId,
+		properties,
+	});
+}
+
 // ─── league_characters ───────────────────────────────────────────────────────
 
 async function getActiveCharacter(discordId) {
@@ -139,6 +148,13 @@ async function setCharacterLevel(pageId, level) {
     },
   });
 }
+
+async function updateCharacterArt(pageId, artURL) {
+    return await updatePageProperty(pageId, {
+        'CharArtURL': { url: artURL },
+    });
+}
+
 
 // ─── league_inventory ────────────────────────────────────────────────────────
 
@@ -445,6 +461,9 @@ async function createTrade(opts) {
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
 module.exports = {
+	  // Helper
+	  updatePageProperty,
+	  
 	  // Characters
 	  getActiveCharacter,
 	  getCharactersByDiscordId,
@@ -452,6 +471,7 @@ module.exports = {
 	  setCharacterStatus,
 	  adjustCharacterNumber,
 	  setCharacterLevel,
+	  updateCharacterArt,
 
 	  // Inventory
 	  createInventoryItem,

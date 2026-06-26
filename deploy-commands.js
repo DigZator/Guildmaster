@@ -238,21 +238,68 @@ const commands = [
                     .setAutocomplete(true)),
 
         new SlashCommandBuilder()
-        	.setName('league')
-        	.setDescription("Adventurer's Guild League Commands")
-        	.addSubcommand(sub =>
-        		sub.setName('create').setDescription(`Register your character in the Adventure's Guild League`))
-        	.addSubcommand(sub =>
-        	    sub.setName('profile').setDescription(`Register your character in the Adventure's Guild League`))
-        	.addSubcommand(sub =>
-        	    sub.setName('inventory').setDescription(`Register your character in the Adventure's Guild League`))
-        	.addSubcommand(sub =>
-        		sub.setName('shop').setDescription(`Register your character in the Adventure's Guild League`))
-        	.addSubcommand(sub =>
-        	    sub.setName('marketplace').setDescription(`Register your character in the Adventure's Guild League`))
-        	.addSubcommand(sub =>
-        	    sub.setName('log').setDescription(`Register your character in the Adventure's Guild League`)),
-
+		    .setName('league')
+		    .setDescription("Adventurer's Guild League Commands")
+		    .addSubcommand(sub =>
+		        sub.setName('create')
+		            .setDescription('Register your character in the Adventurer\'s Guild League'))
+		    .addSubcommand(sub =>
+		        sub.setName('profile')
+		            .setDescription('View your character profile')
+		            .addUserOption(opt => opt
+		                .setName('user')
+		                .setDescription('View another player\'s character profile')
+		                .setRequired(false)))
+		    .addSubcommand(sub =>
+		    	sub.setName('edit')
+		    		.setDescription('Edit your character details')
+		    		.addStringOption(opt => opt
+		    			.setName('name')
+		    			.setDescription('Update your character\'s name')
+		    			.setRequired(false))
+  		    		.addStringOption(opt => opt
+  		    			.setName('class')
+  		    			.setDescription('Update your character\'s class (e.g. Bladesinger Wizard)')
+  		    			.setRequired(false))
+ 		    		.addStringOption(opt => opt
+ 		    			.setName('background')
+ 		    			.setDescription('Update your character\'s background')
+ 		    			.setRequired(false))
+ 		    		.addStringOption(opt => opt
+ 		    			.setName('charsheet')
+ 		    			.setDescription('Update your character sheet link')
+ 		    			.setRequired(false)))
+		    .addSubcommand(sub =>
+		    	sub.setName('setart')
+		    		.setDescription('Set your character profile art')
+		    		.addAttachmentOption(opt => opt
+		    			.setName('image')
+		    			.setDescription('Your character art (no AI-generated images)')
+		    			.setRequired(true)))
+		    .addSubcommand(sub =>
+		        sub.setName('inv')
+		            .setDescription('View your inventory'))
+		    .addSubcommand(sub =>
+		        sub.setName('item')
+		            .setDescription('View details of a specific item in your inventory')
+		            .addIntegerOption(opt => opt
+		                .setName('id')
+		                .setDescription('The item number from your inventory list (e.g. 3)')
+		                .setRequired(true)
+		                .setMinValue(1))
+		            .addBooleanOption(opt => opt
+		                .setName('public')
+		                .setDescription('Show this to everyone in the channel? (default: private)')
+		                .setRequired(false)))
+		    .addSubcommand(sub =>
+		        sub.setName('shop')
+		            .setDescription('Browse the guild shop'))
+		    .addSubcommand(sub =>
+		        sub.setName('marketplace')
+		            .setDescription('Browse the player marketplace'))
+		    .addSubcommand(sub =>
+		        sub.setName('log')
+		            .setDescription('View your quest log')),
         
 ].map(cmd => cmd.toJSON());
 

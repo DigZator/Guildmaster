@@ -3,6 +3,7 @@ const announcement = require('../buttons/announcement');
 const listGames    = require('../buttons/listGames');
 const deletions    = require('../buttons/confirmDelete');
 const anonMessages = require('../buttons/anonMessages');
+const inventory    = require('../buttons/inventory');
 
 const exactHandlers = {
     ...memorial.exact,
@@ -14,6 +15,7 @@ const prefixHandlers = {
     ...listGames.prefix,
     ...deletions.prefix,
     ...anonMessages.prefix,
+    ...inventory.prefix,
 };
 
 module.exports = (client) => {
