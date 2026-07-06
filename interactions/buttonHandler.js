@@ -1,9 +1,12 @@
-const memorial     = require('../buttons/memorial');
-const announcement = require('../buttons/announcement');
-const listGames    = require('../buttons/listGames');
-const deletions    = require('../buttons/confirmDelete');
-const anonMessages = require('../buttons/anonMessages');
-const inventory    = require('../buttons/inventory');
+const memorial     	= require('../buttons/memorial');
+const announcement 	= require('../buttons/announcement');
+const listGames     = require('../buttons/listGames');
+const deletions     = require('../buttons/confirmDelete');
+const anonMessages  = require('../buttons/anonMessages');
+const inventory     = require('../buttons/inventory');
+const questComplete = require('../buttons/questComplete');
+const shopSearch 	= require('../buttons/shopSearch');
+const shopBrowse = require('../buttons/shopBrowse');
 
 const exactHandlers = {
     ...memorial.exact,
@@ -16,6 +19,9 @@ const prefixHandlers = {
     ...deletions.prefix,
     ...anonMessages.prefix,
     ...inventory.prefix,
+    ...questComplete.prefix,
+    ...shopSearch.prefix,
+    ...shopBrowse.prefix,
 };
 
 module.exports = (client) => {

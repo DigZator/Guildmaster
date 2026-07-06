@@ -1,17 +1,56 @@
 const { EmbedBuilder } = require('discord.js');
-const { createCharacter } = require('../utils/leagueNotion');
+const { createCharacter, getActiveCharacter } = require('../utils/leagueNotion');
+const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+
+function isValidInput(input) {
+	try {
+		const parts = input.split(",").map(s => s.trim());
+
+		if (parts.length !== 6) return false;
+		const numbers = parts.map(Number);
+		if (numbers.some(Number.isNaN)) return false;
+		const sum = numbers.reduce((a, b) => a + b, 0);
+		return sum === 72;
+	} catch (err) {
+		return false;
+	}
+}
 
 async function handleLeagueCreate(interaction, client) {
 	  const characterName = interaction.fields.getTextInputValue('characterName').trim();
 	  const classLevels   = interaction.fields.getTextInputValue('classLevels').trim();
 	  const species       = interaction.fields.getTextInputValue('species').trim();
 	  const background    = interaction.fields.getTextInputValue('background').trim();
+	  const scores 		  = interaction.fields.getTextInputValue('scores').trim();
 
 	  const discordId       = interaction.user.id;
 	  const discordUsername = interaction.user.tag;
 	  const forumThreadId   = interaction.channelId;
 
-	  await interaction.deferReply({ ephemeral: true });
+	  await interaction.deferReply({ flags : 64 });
+
+	  if (!isValidInput(scores)) {
+	  	return interaction.editReply({
+	  		content: 'You entered an incorrect ability score array. Please ensure the **6** sccores are comma(,) separated, and add up to 72.'
+	  	});
+	  }
+	  
+	  let existingCharacter;
+	  try {
+		    existingCharacter = await getActiveCharacter(discordId);
+	  } catch (err) {
+		    console.error('[leagueCreate modal] Notion error during re-check:', err);
+		    return interaction.editReply({
+			      content: 'Could not reach the database right now. Please try again in a moment.',
+		    });
+	  }
+
+	  if (existingCharacter) {
+		    const existingName = existingCharacter.properties['Character Name']?.title?.[0]?.plain_text ?? 'your character';
+		    return interaction.editReply({
+			      content: `You already have an active character: **${existingName}**. You can only register a new character after your current one is retired or deceased.`,
+		    });
+	  }
 
 	  let characterPage;
 	  try {
@@ -55,7 +94,7 @@ async function handleLeagueCreate(interaction, client) {
 
 	  // ── Ping admin in #league-admin ───────────────────────────────────────────
 
-	  const adminChannelId = process.env.LEAGUE_ADMIN_CHANNEL_ID;
+	  const adminChannelId = LEAGUE_ADMIN_CHANNEL_ID;
 	  if (!adminChannelId) {
 		    console.warn('[leagueCreate modal] LEAGUE_ADMIN_CHANNEL_ID not set — skipping admin ping.');
 		    return;

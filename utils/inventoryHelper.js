@@ -14,7 +14,7 @@ async function sendItemDetail(interaction) {
     const serial  = interaction.options.getInteger('id');
     const isPublic = interaction.options.getBoolean('public') ?? false;
 
-    await interaction.deferReply({ ephemeral: !isPublic });
+    await interaction.deferReply({ flags: isPublic ? 0 : 64 });
 
     let character;
     try {

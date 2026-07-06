@@ -1,15 +1,16 @@
 const { Client } = require('@notionhq/client');
+const { randomBytes } = require('crypto');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
 const DB = {
   characters:  process.env.LEAGUE_CHARACTERS_DB_ID,
-  // inventory:   process.env.LEAGUE_INVENTORY_DB_ID,
-  // questLog:    process.env.LEAGUE_QUEST_LOG_DB_ID,
-  // downtime:    process.env.LEAGUE_DOWNTIME_DB_ID,
-  // trades:      process.env.LEAGUE_TRADES_DB_ID,
-  // shop:        process.env.GUILD_SHOP_DB_ID,
-  // marketplace: process.env.PLAYER_MARKETPLACE_DB_ID,
+  inventory:   process.env.LEAGUE_INVENTORY_DB_ID,
+  questLog:    process.env.LEAGUE_QUEST_LOG_DB_ID,
+  downtime:    process.env.LEAGUE_DOWNTIME_DB_ID,
+  trades:      process.env.LEAGUE_TRADES_DB_ID,
+  shop:        process.env.GUILD_SHOP_DB_ID,
+  marketplace: process.env.PLAYER_MARKETPLACE_DB_ID,
 };
 
 // ─── helper ───────────────────────────────────────────────────────
@@ -19,6 +20,21 @@ async function updatePageProperty(pageId, properties) {
 		page_id: pageId,
 		properties,
 	});
+}
+
+async function getCharacterGold(characterId) {
+	const page = await notion.pages.retrieve({ page_id: characterId});
+	return page.properties['Gold']?.number ?? 0;
+}
+
+async function setCharacterGold(characterId, amount) {
+	return await updatePageProperty(characterId, {
+		'Gold': { number:amount },
+	});
+}
+
+async function getPageById(pageId) {
+    return notion.pages.retrieve({ page_id: pageId });
 }
 
 // ─── league_characters ───────────────────────────────────────────────────────
@@ -168,6 +184,7 @@ async function createInventoryItem(opts) {
     source,
     sourceQuestId,
     itemValue,
+    status,
     notes,
   } = opts;
 
@@ -175,30 +192,24 @@ async function createInventoryItem(opts) {
     'Item Name': {
       title: [{ text: { content: itemName } }],
     },
-    'Character': {
-      relation: [{ id: characterPageId }],
-    },
     'Rarity': {
       select: { name: rarity },
     },
     'Type': {
       select: { name: type },
     },
-    'Source': {
-      select: { name: source },
-    },
     'Date Acquired': {
       date: { start: new Date().toISOString().split('T')[0] },
     },
-    'Status': {
-      select: { name: 'Active' },
-    },
   };
 
-  if (subtype) properties['Subtype'] = { select: { name: subtype } };
-  if (sourceQuestId) properties['Source Quest'] = { relation: [{ id: sourceQuestId }] };
-  if (itemValue != null) properties['Item Value'] = { number: itemValue };
-  if (notes) properties['Notes'] = { rich_text: [{ text: { content: notes } }] };
+  if (subtype) 				properties['Subtype'] 		= { select: { name: subtype } };
+  if (sourceQuestId) 		properties['Source Quest'] 	= { relation: [{ id: sourceQuestId }] };
+  if (itemValue != null) 	properties['Item Value'] 	= { number: itemValue };
+  if (characterPageId) 		properties['Character'] 	= { relation: [{ id: characterPageId }] };
+  if (source)          		properties['Source'] 		= { select: { name: source } };
+  if (status)          		properties['Status'] 		= { select: { name: status } };
+  if (notes) 				properties['Notes'] 		= { rich_text: [{ text: { content: notes } }] };
 
   return notion.pages.create({
     parent: { data_source_id: DB.inventory },
@@ -217,7 +228,7 @@ async function getCharacterInventory(characterPageId) {
         },
         {
           property: 'Status',
-          select: { equals: 'Active' },
+          select: { equals: 'Owned' },
         },
       ],
     },
@@ -348,42 +359,102 @@ async function createDowntimeProgress(opts) {
 	});
 }
 
+async function getDowntimeProgressById(dtaId) {
+    const response = await notion.dataSources.query({
+        data_source_id: DB.downtime,
+        filter: { property: 'DTA ID', rich_text: { equals: dtaId.toUpperCase() } },
+        page_size: 1,
+    });
+    return response.results[0] ?? null;
+}
+
+async function getActiveDowntimeForCharacter(characterPageId) {
+    const response = await notion.dataSources.query({
+        data_source_id: DB.downtime,
+        filter: {
+            and: [
+                { property: 'Character', relation: { contains: characterPageId } },
+                { property: 'Status', select: { equals: 'In Progress' } },
+            ],
+        },
+    });
+    return response.results;
+}
+
+async function investDowntimeProgress(pageId, { daysInvested, goldInvested }) {
+    const props = {};
+    if (daysInvested != null) props['Days Invested'] = { number: daysInvested };
+    if (goldInvested != null) props['Gold Invested'] = { number: goldInvested };
+    return notion.pages.update({ page_id: pageId, properties: props });
+}
+
+async function setDowntimeStatus(pageId, status) {
+    return notion.pages.update({
+        page_id: pageId,
+        properties: { 'Status': { select: { name: status } } },
+    });
+}
+
 // ─── guild_shop ──────────────────────────────────────────────────────────────
 
-async function getShopItems(playerTier) {
-  const response = await notion.dataSources.query({
-    data_source_id: DB.shop,
-    filter: {
-      and: [
-        {
-          property: 'Available',
-          checkbox: { equals: true },
-        },
-        {
-          property: 'Tier Minimum',
-          formula: { number: { less_than_or_equal_to: playerTier } },
-        },
-      ],
-    },
-    sorts: [{ property: 'Rarity', direction: 'ascending' }],
-  });
+async function getShopItemByCatalogueCode(code) {
+    const response = await notion.dataSources.query({
+        data_source_id: DB.shop,
+        filter: { property: 'Open5e Code', rich_text: { equals: code.toLowerCase() } },
+        page_size: 1,
+    });
+    return response.results[0] ?? null;
+}
 
-  return response.results;
+async function getAllShopItems() {
+    const response = await notion.dataSources.query({ data_source_id: DB.shop });
+    return response.results;
 }
 
 // ─── player_marketplace ──────────────────────────────────────────────────────
 
-async function getOpenListings() {
-  const response = await notion.dataSources.query({
-    data_source_id: DB.marketplace,
-    filter: {
-      property: 'Status',
-      select: { equals: 'Open' },
-    },
-    sorts: [{ property: 'Listed Date', direction: 'descending' }],
-  });
+async function getOpenListings({ rarity, sortBy } = {}) {
+    const filters = [{ property: 'Status', select: { equals: 'Open' } }];
+    if (rarity) filters.push({ property: 'Rarity', select: { equals: rarity } });
 
-  return response.results;
+    const response = await notion.dataSources.query({
+        data_source_id: DB.marketplace,
+        filter: { and: filters },
+        sorts: [{ property: sortBy ?? 'Listed Date', direction: 'descending' }],
+    });
+
+    // Enrich each listing with item data
+    const enriched = await Promise.all(response.results.map(async listing => {
+        const itemPageId = listing.properties['Item']?.relation?.[0]?.id ?? null;
+        if (!itemPageId) return listing;
+        try {
+            const itemPage = await notion.pages.retrieve({ page_id: itemPageId });
+            listing._itemName   = itemPage.properties['Item Name']?.title?.[0]?.plain_text ?? 'Unknown';
+            listing._itemRarity = itemPage.properties['Rarity']?.select?.name ?? '—';
+            listing._itemType   = itemPage.properties['Type']?.select?.name ?? '—';
+        } catch {
+            listing._itemName   = 'Unknown';
+            listing._itemRarity = '—';
+            listing._itemType   = '—';
+        }
+        return listing;
+    }));
+
+    return enriched;
+}
+
+async function getListingById(listingId) {
+    const response = await notion.dataSources.query({
+        data_source_id: DB.marketplace,
+        filter: {
+            and: [
+                { property: 'Listing ID', title: { equals: listingId.toUpperCase() } },
+                { property: 'Status',     select: { equals: 'Open' } },
+            ],
+        },
+        page_size: 1,
+    });
+    return response.results[0] ?? null;
 }
 
 async function createListing(opts) {
@@ -414,6 +485,15 @@ async function createListing(opts) {
     parent: { data_source_id: DB.marketplace },
     properties,
   });
+}
+
+async function generateListingId() {
+    let id, exists;
+    do {
+        id = randomBytes(2).toString('hex').toUpperCase();
+        exists = await getListingById(id).catch(() => null);
+    } while (exists);
+    return id;
 }
 
 // ─── league_trades ───────────────────────────────────────────────────────────
@@ -461,38 +541,44 @@ async function createTrade(opts) {
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
 module.exports = {
-	  // Helper
-	  updatePageProperty,
-	  
-	  // Characters
-	  getActiveCharacter,
-	  getCharactersByDiscordId,
-	  createCharacter,
-	  setCharacterStatus,
-	  adjustCharacterNumber,
-	  setCharacterLevel,
-	  updateCharacterArt,
+	// Helper
+	updatePageProperty,
+	getCharacterGold,
+	setCharacterGold,
+	getPageById,
 
-	  // Inventory
-	  createInventoryItem,
-	  getCharacterInventory,
-	  destroyAllCharacterItems,
-	  setItemStatus,
+	// Characters
+	getActiveCharacter,
+	getCharactersByDiscordId,
+	createCharacter,
+	setCharacterStatus,
+	adjustCharacterNumber,
+	setCharacterLevel,
+	updateCharacterArt,
 
-	  // Quest Log
-	  createQuestLogEntry,
-	  getCharacterQuestLog,
+	// Inventory
+	createInventoryItem,
+	getCharacterInventory,
+	destroyAllCharacterItems,
+	setItemStatus,
 
-	  // Downtime
-	  createDowntimeProgress,
+	// Quest Log
+	createQuestLogEntry,
+	getCharacterQuestLog,
 
-	  // Shop
-	  getShopItems,
+	// Downtime
+	createDowntimeProgress,
+	getDowntimeProgressById,
+	getActiveDowntimeForCharacter,
+	investDowntimeProgress,
+	setDowntimeStatus,
 
-	  // Marketplace
-	  getOpenListings,
-	  createListing,
+	// Marketplace
+	getOpenListings,
+	createListing,
+	getListingById,
+	generateListingId,
 
-	  // Trades
-	  createTrade,
+	// Trades
+	createTrade,
 };

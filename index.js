@@ -23,6 +23,7 @@ require('./flow/rssFlow')(client);
 require('./flow/editGameFlow')(client);
 require('./utils/cacheWatcher').init(client);
 require('./utils/scheduler').init(client);
+require('./utils/restockScheduler').init(client);
 require('./utils/trapChannel')(client);
 require('./utils/deactivator').init(client);
 

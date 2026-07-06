@@ -34,11 +34,20 @@ function buildLeagueCreateModal() {
     .setRequired(true)
     .setMaxLength(100);
 
+  const scores = new TextInputBuilder()
+  	.setCustomId('scores')
+  	.setLabel('Enter your ability scores before background bonuses.')
+  	.setStyle(TextInputStyle.Short)
+  	.setRequired(true)
+  	.setPlaceholder('e.g. 15,15,15,8,8,8 , 15,14,13,12,10,8 ')
+  	.setMaxLength(100);
+  	
   modal.addComponents(
     new ActionRowBuilder().addComponents(characterName),
     new ActionRowBuilder().addComponents(classLevel),
     new ActionRowBuilder().addComponents(species),
     new ActionRowBuilder().addComponents(background),
+    new ActionRowBuilder().addComponents(scores)
   );
 
   return modal;

@@ -14,7 +14,8 @@ const schedule_activation = require('../commands/schedule_activation');
 const help = require('../commands/help');
 const edit_game = require('../commands/edit_game');
 const { league } = require('../commands/league');
-
+const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
+const { questLinkAutocomplete } = require('../commands/leagueQuest');
 
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
@@ -77,7 +78,16 @@ module.exports = (client) => {
                     return;
                 }
             }
-            
+
+            if (interaction.commandName === 'leaguedm') {
+                const group   = interaction.options.getSubcommandGroup(false);
+                const sub     = interaction.options.getSubcommand();
+
+                if (group === 'quest' && sub === 'link') {
+                    await questLinkAutocomplete(interaction);
+                    return;
+                }
+            }            
             return;
         }
 
@@ -98,6 +108,8 @@ module.exports = (client) => {
             if (command === 'help') help(interaction);
             if (command === 'edit_game') edit_game(interaction, client);
             if (command === 'league') league(interaction, client);
+            if (command === 'leagueadmin') leagueAdmin(interaction, client);
+            if (command === 'leaguedm') leagueDM(interaction, client);
         } catch (error) {
             console.error('Error handling interaction:', error);
             if (!interaction.replied && !interaction.deferred) {

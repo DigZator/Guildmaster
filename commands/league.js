@@ -1,55 +1,68 @@
 const { EmbedBuilder } = require('discord.js');
-const { getActiveCharacter, updateCharacterArt, updatePageProperty } = require('../utils/leagueNotion');
+const { getActiveCharacter, updateCharacterArt, updatePageProperty, getCharacterGold, setCharacterGold } = require('../utils/leagueNotion');
 const { buildLeagueCreateModal } = require('../modals/leagueCreate');
-const { sendInventory } = require('../buttons/inventory')
-const { sendItemDetail } = require('../utils/inventoryHelper')
+const { sendInventory } = require('../buttons/inventory');
+const { sendItemDetail } = require('../utils/inventoryHelper');
+const { LEAGUE_ADMIN_CHANNEL_ID, LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_FORUM_ID } = require('../data/channels');
+const { leagueShop, leagueMarketplace } = require('./leagueShop');
+const { listQuests } = require('./leagueQuest');
+const { leagueDowntime } = require('./leagueDowntime');
+const { formatCurrency } = require('../utils/currency');
+
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
 
 async function league(interaction, client) {
-	  const sub = interaction.options.getSubcommand();
+	const group = interaction.options.getSubcommandGroup(false);
+	const sub = interaction.options.getSubcommand();
 
-	  switch (sub) {
-		    case 'create':
-		      	return handleCreate(interaction);
+	if (group === 'shop') return leagueShop(interaction);
+	if (group === 'marketplace') return leagueMarketplace(interaction);
+	if (group === 'downtime') return leagueDowntime(interaction);
+	if (group === 'quest') return handleQuestGroup(interaction);
+	
+	switch (sub) {
+		case 'create':
+			return handleCreate(interaction);
 
-		    case 'profile':
-		    	return showProfile(interaction);
+		case 'profile':
+			return showProfile(interaction);
 
-			case 'edit':
-				return editCharacter(interaction);
-				
-		    case 'setart':
-		    	return setCharacterArt(interaction);
-		    	
-		    case 'inv':
-				return sendInventory(interaction);
+		case 'edit':
+			return editCharacter(interaction);
 
-			case 'item':
-				return sendItemDetail(interaction);
+		case 'setart':
+			return setCharacterArt(interaction, client);
 
-		    case 'shop':	
-				
+		case 'inv':
+			return sendInventory(interaction);
 
-		    case 'marketplace':
-			
+		case 'item':
+			return sendItemDetail(interaction);
 
-		    case 'log':
-		      	return interaction.reply({
-		        	content: `The \`/league ${sub}\` command is coming soon!`,
-		        	flags: 64,
-		      	});
+		case 'gold':
+			return transferGold(interaction);
 
-		    default:
-			      return interaction.reply({
-				        content: 'Unknown subcommand.',
-				        flags: 64,
-			      });
-	  }
+		case 'balance':
+			return showBalance(interaction);
+
+		case 'log':
+			return interaction.reply({
+				content: `The \`/league ${sub}\` command is coming soon!`,
+				flags: 64,
+			});
+
+		default:
+			return interaction.reply({
+				content: 'Unknown subcommand.',
+				flags: 64,
+			});
+	}
 }
 
 // ─── /league create ──────────────────────────────────────────────────────────
 
 async function handleCreate(interaction) {
-	  const forumId = process.env.LEAGUE_PROFILES_FORUM_ID;
+	  const forumId = LEAGUE_PROFILES_FORUM_ID;
 
 	  const channel = interaction.channel;
 	  const isThread = channel?.isThread?.();
@@ -147,26 +160,38 @@ async function showProfile(interaction) {
 	return interaction.reply({ embeds: [profileEmbed] });
 }
 
-async function setCharacterArt(interaction) {
-	const channel = interaction.channel;
-	const isThread = channel?.isThread?.();
-	const parentId = channel?.parentId;
+// ─── /league setart ─────────────────────────────────────────────────────────
 
-	if (!isThread || parentId !== process.env.LEAGUE_PROFILES_FORUM_ID){
-		return interaction.reply({
-			content: 'You need to run `/league setart` inside your character profile thread in the **#characters** forum.',
-			flags: 64,
-		});
-	}
-	
+async function setCharacterArt(interaction, client) {
+    const channel  = interaction.channel;
+    const isThread = channel?.isThread?.();
+    const parentId = channel?.parentId;
+
+    if (!isThread || parentId !== LEAGUE_PROFILES_FORUM_ID) {
+        return interaction.reply({
+            content: 'You need to run `/league setart` inside your character profile thread in the **#characters** forum.',
+            flags: 64,
+        });
+    }
+
     await interaction.deferReply({ flags: 64 });
+
+    const attachment = interaction.options.getAttachment('image');
+
+    if (!attachment.contentType?.startsWith('image/')) {
+        return interaction.editReply({ content: '❌ That file doesn\'t look like an image. Please upload a PNG, JPG, or GIF.' });
+    }
+
+    if (attachment.size > MAX_IMAGE_SIZE) {
+        return interaction.editReply({ content: `❌ Image is too large. Maximum size is 8MB.` });
+    }
 
     let character;
     try {
         character = await getActiveCharacter(interaction.user.id);
     } catch (err) {
         console.error('[setart] Notion error fetching character:', err);
-        return interaction.editReply({ content: 'Could not reach the database. Please try again.' });
+        return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
     }
 
     if (!character) {
@@ -175,20 +200,29 @@ async function setCharacterArt(interaction) {
         });
     }
 
-    const attachment = interaction.options.getAttachment('image');
+    const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
 
-    if (!attachment.contentType?.startsWith('image/')) {
-        return interaction.editReply({ content: '❌ That file doesn\'t look like an image. Please upload a PNG, JPG, or GIF.' });
+    // Re-host image in archive thread
+    let permanentUrl;
+    try {
+        const archiveThread = await client.channels.fetch(LEAGUE_ART_ARCHIVE_THREAD_ID);
+        const archiveMsg = await archiveThread.send({
+            content: `**${characterName}** — \`<@${interaction.user.id}>\``,
+            files: [{ attachment: attachment.url, name: attachment.name }],
+        });
+        permanentUrl = archiveMsg.attachments.first()?.url;
+        if (!permanentUrl) throw new Error('No URL returned from archive message');
+    } catch (err) {
+        console.error('[setart] Failed to archive image:', err);
+        return interaction.editReply({ content: '❌ Failed to store your image. Please try again.' });
     }
 
     try {
-        await updateCharacterArt(character.id, attachment.url);
+        await updateCharacterArt(character.id, permanentUrl);
     } catch (err) {
         console.error('[setart] Notion error updating art:', err);
-        return interaction.editReply({ content: 'Failed to save your art. Please try again.' });
+        return interaction.editReply({ content: '❌ Failed to save your art. Please try again.' });
     }
-
-    const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'your character';
 
     return interaction.editReply({
         embeds: [
@@ -198,14 +232,14 @@ async function setCharacterArt(interaction) {
                 .setDescription([
                     `**${characterName}'s** profile art has been saved.`,
                     '',
-                    '⚠️ **Do not delete the message containing this image** — Discord uses it to display your art. If lost, rerun `/league setart`.',
-                    '',
                     '🎨 **Reminder:** AI-generated artwork is not permitted.',
                 ].join('\n'))
-                .setThumbnail(attachment.url),
+                .setThumbnail(permanentUrl),
         ],
     });
 }
+
+// ─── /league edit ─────────────────────────────────────────────────────────
 
 async function editCharacter(interaction) {
     const name          = interaction.options.getString('name');
@@ -259,7 +293,7 @@ async function editCharacter(interaction) {
         charSheetLink && `**Sheet Link:** ${charSheetLink}`,
     ].filter(Boolean);
 
-    const adminChannelId = process.env.LEAGUE_ADMIN_CHANNEL_ID;
+    const adminChannelId = LEAGUE_ADMIN_CHANNEL_ID;
     const adminChannel   = interaction.guild.channels.cache.get(adminChannelId);
     if (adminChannel) {
         await adminChannel.send({
@@ -276,7 +310,7 @@ async function editCharacter(interaction) {
             ],
         });
     } else {
-        console.warn('[edit] Admin log channel not found — ADMIN_LOG_CHANNEL_ID may not be set.');
+        console.warn('[edit] Admin log channel not found — LEAGUE_ADMIN_CHANNEL_ID may not be set.');
     }
 
     return interaction.editReply({
@@ -288,6 +322,174 @@ async function editCharacter(interaction) {
                 .setTimestamp(),
         ],
     });
+}
+
+// ─── /league gold ─────────────────────────────────────────────────────────
+
+async function transferGold(interaction) {
+    const targetUser = interaction.options.getUser('player');
+    const amount     = interaction.options.getInteger('amount');
+
+    if (targetUser.id === interaction.user.id) {
+        return interaction.reply({
+            content: '❌ You cannot transfer gold to yourself.',
+            flags: 64,
+        });
+    }
+
+    await interaction.deferReply({ flags: 64 });
+
+    const adminChannelId = LEAGUE_ADMIN_CHANNEL_ID;
+    const adminChannel   = interaction.guild.channels.cache.get(adminChannelId);
+
+    let senderChar, receiverChar;
+    try {
+        [senderChar, receiverChar] = await Promise.all([
+            getActiveCharacter(interaction.user.id),
+            getActiveCharacter(targetUser.id),
+        ]);
+    } catch (err) {
+        console.error('[gold] Notion error fetching characters:', err);
+        return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
+    }
+
+    if (!senderChar) {
+        return interaction.editReply({ content: '❌ You do not have an active character.' });
+    }
+    if (!receiverChar) {
+        return interaction.editReply({ content: `❌ **${targetUser.displayName}** does not have an active character.` });
+    }
+
+    const senderName   = senderChar.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
+    const receiverName = receiverChar.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
+
+    let senderGold, receiverGold;
+    try {
+        [senderGold, receiverGold] = await Promise.all([
+            getCharacterGold(senderChar.id),
+            getCharacterGold(receiverChar.id),
+        ]);
+    } catch (err) {
+        console.error('[gold] Notion error fetching gold:', err);
+        return interaction.editReply({ content: '❌ Could not read gold balances. Please try again.' });
+    }
+
+    if (senderGold < amount) {
+        return interaction.editReply({
+            content: `❌ You do not have enough gold. Current balance: **${formatCurrency(senderGold)}**.`,
+        });
+    }
+
+    const newSenderGold   = senderGold   - amount;
+    const newReceiverGold = receiverGold + amount;
+
+    try {
+        await Promise.all([
+            setCharacterGold(senderChar.id,   newSenderGold),
+            setCharacterGold(receiverChar.id, newReceiverGold),
+        ]);
+    } catch (err) {
+        console.error('[gold] Notion error during transfer:', err);
+
+        let actualSenderGold   = '?';
+        let actualReceiverGold = '?';
+        try {
+            [actualSenderGold, actualReceiverGold] = await Promise.all([
+                getCharacterGold(senderChar.id),
+                getCharacterGold(receiverChar.id),
+            ]);
+        } catch (_) {}
+
+        if (adminChannel) {
+            await adminChannel.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(0xff0000)
+                        .setTitle('🚨 Gold Transfer Error')
+                        .setDescription('A gold transfer failed mid-execution. Manual review may be required.')
+                        .addFields(
+                            { name: 'Sender',               value: `<@${interaction.user.id}> (${senderName})`,  inline: true },
+                            { name: 'Receiver',             value: `<@${targetUser.id}> (${receiverName})`,      inline: true },
+                            { name: 'Amount',               value: `${formatCurrency(amount)}`,                               inline: true },
+                            { name: 'Sender Before',        value: `${formatCurrency(senderGold)}`,                           inline: true },
+                            { name: 'Receiver Before',      value: `${formatCurrency(receiverGold)}`,                         inline: true },
+                            { name: '\u200b',               value: '\u200b',                                     inline: true },
+                            { name: 'Sender After (actual)',   value: `${formatCurrency(actualSenderGold)}`,                  inline: true },
+                            { name: 'Receiver After (actual)', value: `${formatCurrency(actualReceiverGold)}`,                inline: true },
+                            { name: 'Error',                value: `\`${err.message}\``,                         inline: false },
+                        )
+                        .setTimestamp(),
+                ],
+            });
+        }
+
+        return interaction.editReply({
+            content: '❌ The transfer failed partway through. Admins have been notified to review the balances.',
+        });
+    }
+
+    if (adminChannel) {
+        await adminChannel.send({
+            embeds: [
+                new EmbedBuilder()
+                    .setColor(0xffd700)
+                    .setTitle('💰 Gold Transfer')
+                    .addFields(
+                        { name: 'From',   value: `<@${interaction.user.id}> (${senderName})`,                    inline: true },
+                        { name: 'To',     value: `<@${targetUser.id}> (${receiverName})`,                        inline: true },
+                        { name: 'Amount', value: `${formatCurrency(amount)}`,                                                 inline: true },
+                        { name: `${senderName} Balance`,   value: `${formatCurrency(senderGold)} → ${formatCurrency(newSenderGold)}`,     inline: true },
+                        { name: `${receiverName} Balance`, value: `${formatCurrency(receiverGold)} → ${formatCurrency(newReceiverGold)}`, inline: true },
+                    )
+                    .setTimestamp(),
+            ],
+        });
+    }
+
+    return interaction.editReply({
+        embeds: [
+            new EmbedBuilder()
+                .setColor(0x57f287)
+                .setTitle('💰 Gold Transferred')
+                .setDescription(`Successfully sent **${formatCurrency(amount)}** to **${receiverName}**.`)
+                .addFields(
+                    { name: 'Your new balance', value: `${formatCurrency(newSenderGold)}`, inline: true },
+                )
+                .setTimestamp(),
+        ],
+    });
+}
+
+// ─── /league balance ─────────────────────────────────────────────────────────
+async function showBalance(interaction) {
+	await interaction.deferReply({ flags: 64 });
+
+	const char = await getActiveCharacter(interaction.user.id);
+	if (!char) {
+		return interaction.editReply({ content: '❌ No active character found.' });
+	}
+
+	const p = char.properties;
+	const name        = p['Character Name'].title[0]?.plain_text ?? 'Unknown';
+	const gold        = p['Gold'].number ?? 0;
+	const rep         = p['Reputation Points'].number ?? 0;
+	const milestones  = p['Milestones'].number ?? 0;
+
+	const embed = new EmbedBuilder()
+		.setTitle(`${name}'s Balance`)
+		.addFields(
+			{ name: '💰 Gold',             value: `${formatCurrency(gold)}`,        inline: true },
+			{ name: '⭐ Reputation',        value: `${rep} pts`,        inline: true },
+			{ name: '🏆 Milestones',        value: `${milestones}`,     inline: true },
+		)
+		.setColor(0xF1C40F);
+
+	return interaction.editReply({ embeds: [embed] });
+}
+
+async function handleQuestGroup(interaction) {
+	const sub = interaction.options.getSubcommand();
+	if (sub === 'list') return listQuests(interaction);
 }
 
 module.exports = { league };

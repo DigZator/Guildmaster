@@ -33,7 +33,172 @@ const helpData = {
       ],
     },
   ],
+  
+  league: [
+    {
+      name: '/league create',
+      description: 'Register your character in the Adventuring Guild League.',
+      options: [],
+    },
+    {
+      name: '/league profile',
+      description: 'View your character profile.',
+      options: [
+        '`user` — view another player\'s profile',
+      ],
+    },
+    {
+      name: '/league edit',
+      description: 'Edit your character details.',
+      options: [
+        '`name` — update character name',
+        '`art` — update character art URL',
+      ],
+    },
+    {
+      name: '/league balance',
+      description: 'Check your gold, reputation, and milestones.',
+      options: [],
+    },
+    {
+      name: '/league quest list',
+      description: 'View the 15 most recent league quests with status and date.',
+      options: [],
+    },
+  ],
 
+  leaguedm: [
+    {
+      name: '/leaguedm quest link',
+      description: 'Link an announced game to the league quest log (pending admin approval).',
+      options: [
+        '`game` — autocomplete search by game name',
+        '`notes` — optional notes for the admin',
+      ],
+    },
+    {
+      name: '/leaguedm quest add',
+      description: 'Add players to a quest\'s character roster.',
+      options: [
+        '`quest_id` — the Quest ID',
+        '`user1`–`user6` — players to add',
+      ],
+    },
+    {
+      name: '/leaguedm quest remove',
+      description: 'Remove a player from a quest\'s character roster.',
+      options: [
+        '`quest_id` — the Quest ID',
+        '`user` — player to remove',
+      ],
+    },
+    {
+      name: '/leaguedm quest clear',
+      description: 'Remove all players from a quest\'s character roster.',
+      options: [
+        '`quest_id` — the Quest ID',
+      ],
+    },
+    {
+      name: '/leaguedm quest complete',
+      description: 'Submit a quest for completion (requires admin approval). Shows a summary before confirming.',
+      options: [
+        '`quest_id` — the Quest ID',
+        '`milestones` — total milestones given out this quest',
+        '`reputation` — total reputation given out this quest',
+      ],
+    },
+    {
+      name: '/leaguedm gold',
+      description: 'Submit a gold grant for one or more players (pending admin approval).',
+      options: [
+        '`quest_id` — Quest ID this grant is tied to',
+        '`user1`–`user6` + `amount1`–`amount6` — players and amounts',
+      ],
+    },
+    {
+      name: '/leaguedm rep',
+      description: 'Submit a reputation grant for one or more players (pending admin approval).',
+      options: [
+        '`quest_id` — Quest ID this grant is tied to',
+        '`user1`–`user6` + `amount1`–`amount6` — players and amounts (max 2 each)',
+      ],
+    },
+    {
+      name: '/leaguedm milestone',
+      description: 'Submit a milestone grant for one or more players (pending admin approval).',
+      options: [
+        '`quest_id` — Quest ID this grant is tied to',
+        '`user1`–`user6` + `amount1`–`amount6` — players and amounts',
+      ],
+    },
+    {
+      name: '/leaguedm item create',
+      description: 'Submit an item grant for a player (pending admin approval).',
+      options: [
+        '`quest_id` — Quest ID this item is tied to',
+        '`name`, `type`, `rarity` — item details',
+        '`player` — target player',
+        '`subtype`, `source`, `value`, `notes` — optional details',
+      ],
+    },
+  ],
+
+  leagueadmin: [
+    {
+      name: '/leagueadmin pending',
+      description: 'List all pending DM grant actions awaiting approval.',
+      options: [],
+    },
+    {
+      name: '/leagueadmin approve',
+      description: 'Approve one or more pending actions.',
+      options: [
+        '`id` — action ID or comma-separated list of IDs',
+      ],
+    },
+    {
+      name: '/leagueadmin reject',
+      description: 'Reject one or more pending actions.',
+      options: [
+        '`id` — action ID or comma-separated list of IDs',
+      ],
+    },
+    {
+      name: '/leagueadmin gold',
+      description: 'Directly grant or deduct gold from a character (no approval needed).',
+      options: [
+        '`user` — target player',
+        '`amount` — amount in gp (can be negative)',
+      ],
+    },
+    {
+      name: '/leagueadmin rep',
+      description: 'Directly grant reputation to a character (no approval needed).',
+      options: [
+        '`user` — target player',
+        '`amount` — amount (max 2)',
+      ],
+    },
+    {
+      name: '/leagueadmin milestone',
+      description: 'Directly grant milestones to a character (no approval needed).',
+      options: [
+        '`user` — target player',
+        '`amount` — number of milestones',
+      ],
+    },
+    {
+      name: '/leagueadmin item create',
+      description: 'Create and optionally assign an inventory item directly.',
+      options: [
+        '`name`, `type`, `rarity` — item details',
+        '`player` — assign to a player (optional)',
+        '`subtype`, `source`, `value`, `notes` — optional details',
+      ],
+    },
+  ],
+    
   admin: [
     {
       name: '/announce_game',
