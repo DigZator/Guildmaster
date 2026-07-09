@@ -12,25 +12,33 @@ function getBlueprint(activityId) {
     return loadBlueprints()[activityId] ?? null;
 }
 
-function getBlueprintById(UID){
-	const bp = loadBlueprints();
-	let ids = [];
-	for (var k in bp) {
-		ids.push(k);
-		console.log(bp[k]);
-	}
+// Get blueprint and tier directly from UID (no separate params needed)
+function getBlueprintById(UID) {
+    const bp = loadBlueprints();
+    const firstLetter = UID.charAt(0).toUpperCase();
+    
+    // Stage 1: Find blueprints matching the first letter
+    const matchingByFirstLetter = [];
+    for (const key in bp) {
+        if (key.charAt(0).toUpperCase() === firstLetter) {
+            matchingByFirstLetter.push({ key, blueprint: bp[key] });
+        }
+    }
+    
+    // Stage 2: Check tiers within matching blueprints for second character match
+    const secondChar = UID.charAt(1)?.toUpperCase();
+    for (const { key, blueprint } of matchingByFirstLetter) {
+        if (blueprint.tiers) {
+            for (const tier of blueprint.tiers) {
+                if (tier.value !== undefined && String(tier.value).charAt(0).toUpperCase() === secondChar) {
+                    return { key, blueprint, tier };
+                }
+            }
+        }
+    }
+    
+    return null;
 }
-
-// getBlueprintById(5);
-
-// console.log(JSON.parse(fs.readFileSync(BLUEPRINTS_PATH, 'utf8')).blueprints);
-// 
-// const bp_list = JSON.parse(fs.readFileSync(BLUEPRINTS_PATH, 'utf8')).blueprints;
-// 
-// let a =711;
-// console.log((bp.) => {
-// 	
-// });
 
 function nextDtaId() {
     let used = [];
@@ -121,6 +129,43 @@ function resolveCost(blueprint, params = {}) {
     };
 }
 
+// Resolve cost from UID directly (tier is embedded in the UID)
+function resolveCostFromUID(UID, params = {}) {
+    const result = getBlueprintById(UID);
+    if (!result) return null;
+    
+    const { key, blueprint, tier } = result;
+    
+    // Special handling for "catch-up" - requires additional validation
+    if (key.toLowerCase() === 'catch-up' || blueprint.costModel === 'catch-up') {
+        // catch-up needs real parameter checks
+        if (!params.currentLevel || !params.targetLevel) {
+            throw new Error('catch-up activity requires currentLevel and targetLevel parameters');
+        }
+        // Validate parameters as needed
+        if (params.targetLevel <= params.currentLevel) {
+            throw new Error('targetLevel must be greater than currentLevel');
+        }
+    }
+    
+    // If tier exists, use its cost data directly
+    if (tier) {
+        const daysRequired = tier.daysRequired;
+        const costs = tier.costs ?? (tier.flatGp != null ? [{ type: 'gp', value: tier.flatGp }] : []);
+        const { gpTotal, gpPerDay } = sumCosts(costs, params);
+        const finalGpTotal = gpTotal + (gpPerDay ? gpPerDay * daysRequired : 0);
+        
+        return {
+            daysRequired,
+            gpTotal: finalGpTotal,
+            gpPerDay: gpPerDay || (daysRequired ? finalGpTotal / daysRequired : 0),
+            tierValue: tier.value ?? null,
+        };
+    }
+    
+    return null;
+}
+
 async function applyDowntimeOutput({ output, characterPageId, activityName, tierValue }, notion) {
     if (!output) return null;
 
@@ -164,4 +209,4 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
     }
 }
 
-module.exports = { loadBlueprints, getBlueprint, nextDtaId, resolveCost, applyDowntimeOutput, getParamName };
+module.exports = { loadBlueprints, getBlueprint, getBlueprintById, nextDtaId, resolveCost, resolveCostFromUID, applyDowntimeOutput, getParamName };
