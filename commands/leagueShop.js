@@ -1,6 +1,7 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const {
     getActiveCharacter,
+    adjustCharacterNumber,
     getOpenListings,
     getListingById,
     generateListingId,
@@ -29,6 +30,8 @@ const {
     decrementStock,
 } = require('../utils/shopFloor');
 const { formatCurrency } = require('../utils/currency');
+const { availableDiscounts } = require('../config/reputationDiscounts');
+const { setPendingBuy } = require('../utils/shopBuySessions');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
 
 const PAGE_SIZE = 12;
@@ -165,7 +168,7 @@ async function handleShopInfo(interaction) {
             .addFields(
                 { name: 'Code',   value: `\`${stocked.code}\``, inline: true },
                 { name: 'Rarity', value: stocked.rarity, inline: true },
-                { name: 'Price',  value: `${formatCurrency(stocked.price)} gp`, inline: true },
+                { name: 'Price',  value: `${formatCurrency(stocked.price)}`, inline: true },
                 { name: 'Stock',  value: `${stocked.quantity}`, inline: true },
             )
             .setFooter({ text: 'Currently on the shop floor — use /league shop buy to purchase.' })
@@ -185,6 +188,70 @@ async function handleShopInfo(interaction) {
 
 // ─── /league shop buy ─────────────────────────────────────────────────────────
 
+async function finalizePurchase(interaction, { char, characterName, code, entry, currentGold, discount = 0, rpCost = 0, currentRep = 0 }) {
+    const finalPrice = Math.max(0, Math.round(entry.price * (1 - discount / 100)));
+
+    if (currentGold < finalPrice) {
+        return interaction.editReply({ content: `❌ Not enough gold. **${entry.name}** costs **${formatCurrency(finalPrice)}** but you only have **${formatCurrency(currentGold)}**.`, components: [] });
+    }
+    if (rpCost > 0 && currentRep < rpCost) {
+        return interaction.editReply({ content: `❌ Not enough reputation for that discount anymore. You need **${rpCost} RP** but have **${currentRep}**.`, components: [] });
+    }
+
+    const updated = decrementStock(code);
+    if (!updated) return interaction.editReply({ content: `❌ **${entry.name}** is out of stock.`, components: [] });
+
+    try {
+        const writes = [
+            setCharacterGold(char.id, currentGold - finalPrice),
+            createInventoryItem({
+                itemName: entry.name,
+                type: entry.type,
+                rarity: entry.rarity,
+                source: 'Shop Purchase',
+                characterPageId: char.id,
+                status: 'Owned',
+            }),
+        ];
+        if (rpCost > 0) writes.push(adjustCharacterNumber(char.id, 'Reputation Points', -rpCost));
+        await Promise.all(writes);
+    } catch (err) {
+        console.error('[league shop buy] Notion write error:', err);
+        return interaction.editReply({ content: '❌ Purchase failed. Please try again.', components: [] });
+    }
+
+    const logFields = [
+        { name: 'Item',      value: entry.name,                   inline: true },
+        { name: 'Rarity',    value: entry.rarity,                 inline: true },
+        { name: 'Price',     value: discount > 0
+            ? `~~${formatCurrency(entry.price)}~~ ${formatCurrency(finalPrice)} (${discount}% off)`
+            : `${formatCurrency(entry.price)}`,                   inline: true },
+        { name: 'Character', value: characterName,                inline: true },
+        { name: 'Player',    value: `<@${interaction.user.id}>`,  inline: true },
+        { name: '\u200b',    value: '\u200b',                     inline: true },
+        { name: 'Code',      value: `\`${code}\``,                inline: false },
+    ];
+    if (rpCost > 0) {
+        logFields.push({ name: 'RP Spent', value: `${rpCost} (balance: ${currentRep - rpCost})`, inline: true });
+    }
+
+    await sendAdminLog(interaction.guild, new EmbedBuilder()
+        .setColor(0xf1c40f)
+        .setTitle('🏪 Shop Purchase')
+        .addFields(...logFields)
+        .setTimestamp()
+    );
+
+    const priceLine = discount > 0
+        ? `~~${formatCurrency(entry.price)}~~ **${formatCurrency(finalPrice)}** (${discount}% off, ${rpCost} RP spent)`
+        : `**${formatCurrency(finalPrice)}**`;
+
+    return interaction.editReply({
+        content: `✅ Purchased **${entry.name}** for ${priceLine}. New balance: **${formatCurrency(currentGold - finalPrice)}**.`,
+        components: [],
+    });
+}
+
 async function handleShopBuy(interaction) {
     await interaction.deferReply({ flags: 64 });
 
@@ -195,6 +262,7 @@ async function handleShopBuy(interaction) {
 
     const characterName = char.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
     const charTier      = char.properties['Tier']?.formula?.number ?? 1;
+    const currentRep     = char.properties['Reputation Points']?.number ?? 0;
 
     const entry = getShopEntry(code);
     if (!entry) return interaction.editReply({ content: `❌ No available item with code \`${code}\`.` });
@@ -206,47 +274,26 @@ async function handleShopBuy(interaction) {
 
     const currentGold = await getCharacterGold(char.id).catch(() => 0);
     if (currentGold < entry.price) {
-        return interaction.editReply({ content: `❌ Not enough gold. **${entry.name}** costs **${formatCurrency(entry.price)} gp** but you only have **${currentGold} gp**.` });
+        return interaction.editReply({ content: `❌ Not enough gold. **${entry.name}** costs **${formatCurrency(entry.price)}** but you only have **${formatCurrency(currentGold)}**.` });
     }
     if (entry.quantity <= 0) return interaction.editReply({ content: `❌ **${entry.name}** is out of stock.` });
 
-    const updated = decrementStock(code);
-    if (!updated) return interaction.editReply({ content: `❌ **${entry.name}** is out of stock.` });
+    const discounts = availableDiscounts(currentRep, entry.rarity);
 
-    try {
-        await Promise.all([
-            setCharacterGold(char.id, currentGold - entry.price),
-            createInventoryItem({
-                itemName: entry.name,
-                type: entry.type,
-                rarity: entry.rarity,
-                source: 'Shop Purchase',
-                characterPageId: char.id,
-                status: 'Owned',
-            }),
-        ]);
-    } catch (err) {
-        console.error('[league shop buy] Notion write error:', err);
-        return interaction.editReply({ content: '❌ Purchase failed. Please try again.' });
+    if (discounts.length === 0) {
+        return finalizePurchase(interaction, { char, characterName, code, entry, currentGold });
     }
 
-    await sendAdminLog(interaction.guild, new EmbedBuilder()
-        .setColor(0xf1c40f)
-        .setTitle('🏪 Shop Purchase')
-        .addFields(
-            { name: 'Item',      value: entry.name,                   inline: true },
-            { name: 'Rarity',    value: entry.rarity,                 inline: true },
-            { name: 'Price',     value: `${formatCurrency(entry.price)}`,          inline: true },
-            { name: 'Character', value: characterName,                inline: true },
-            { name: 'Player',    value: `<@${interaction.user.id}>`,  inline: true },
-            { name: '\u200b',    value: '\u200b',                     inline: true },
-            { name: 'Code',      value: `\`${code}\``,                inline: false },
-        )
-        .setTimestamp()
+    setPendingBuy(interaction.user.id, { char, characterName, code, entry, currentGold, currentRep, discounts });
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('shopbuy_discount_yes').setLabel('Use reputation for a discount').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId('shopbuy_discount_no').setLabel('No, buy at full price').setStyle(ButtonStyle.Secondary),
     );
 
     return interaction.editReply({
-        content: `✅ Purchased **${entry.name}** for **${formatCurrency(entry.price)}**. New balance: **${formatCurrency(currentGold - entry.price)}**.`,
+        content: `**${entry.name}** — ${formatCurrency(entry.price)} gp.\nYou have **${currentRep} RP**, eligible for up to **${discounts[discounts.length - 1].discount}% off** on this item. Use reputation for a discount?`,
+        components: [row],
     });
 }
 
@@ -609,4 +656,4 @@ async function leagueMarketplace(interaction) {
     }
 }
 
-module.exports = { leagueShop, leagueMarketplace, leagueAdminShop, leagueAdminCatalogue, buildShopEmbed, buildMarketEmbed };
+module.exports = { leagueShop, leagueMarketplace, leagueAdminShop, leagueAdminCatalogue, buildShopEmbed, buildMarketEmbed, finalizePurchase };

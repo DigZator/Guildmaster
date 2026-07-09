@@ -218,7 +218,18 @@ const commands = [
 	//help
 	new SlashCommandBuilder()
 		.setName('help')
-		.setDescription('Show all Guildmaster commands'),
+		.setDescription('Show Guildmaster commands, organized by section')
+		.addStringOption(opt => opt.setName('group').setDescription('Which command group to see help for').setRequired(true)
+			.addChoices(
+				{ name: 'Help (about the help command)', value: 'help' },
+				{ name: 'Player',        value: 'player' },
+				{ name: 'Admin',         value: 'admin' },
+				{ name: 'League',        value: 'league' },
+				{ name: 'League DM',     value: 'leaguedm' },
+				{ name: 'League Admin',  value: 'leagueadmin' },
+			)
+		)
+		.addStringOption(opt => opt.setName('family').setDescription('Which section within that group').setRequired(true).setAutocomplete(true)),
 
 	//edit_game
 	new SlashCommandBuilder()
@@ -398,7 +409,7 @@ const commands = [
 		        .setName('start')
 		        .setDescription('Begin a downtime activity')
 		        .addStringOption(opt => opt.setName('activity').setDescription('Activity ID').setRequired(true))
-		        .addIntegerOption(opt => opt.setName('param').setDescription('Activity-specific parameter (e.g. spell level)').setRequired(false)))
+		        .addStringOption(opt => opt.setName('param').setDescription('Activity-specific parameter (e.g. spell level, rarity)').setRequired(false)))
 		    .addSubcommand(sub => sub
 		        .setName('progress')
 		        .setDescription('Invest days into an active downtime activity')
@@ -406,7 +417,13 @@ const commands = [
 		        .addIntegerOption(opt => opt.setName('days').setDescription('Days to invest').setRequired(true).setMinValue(1)))
 		    .addSubcommand(sub => sub
 		        .setName('list')
-		        .setDescription('View your active downtime activities'))),
+		        .setDescription('View your active downtime activities'))
+		    .addSubcommand(sub => sub
+		        .setName('buy-days')
+		        .setDescription('Spend 1 reputation point for 10 more downtime days'))
+		    .addSubcommand(sub => sub
+		        .setName('activities')
+		        .setDescription('List all downtime activity IDs you can use with /league downtime start'))),
 
 	//leageuadmin
 	new SlashCommandBuilder()

@@ -10,6 +10,7 @@ const { leagueAdminShop, leagueAdminCatalogue } = require('./leagueShop');
 const { leagueDowntime } = require('./leagueDowntime');
 const { getRequest, removeRequest } = require('../utils/downtimeApprovals');
 const { getDowntimeProgressById, setDowntimeStatus, createDowntimeProgress } = require('../utils/leagueNotion');
+const leagueNotion = require('../utils/leagueNotion');
 const { getBlueprint, nextDtaId, resolveCost } = require('../utils/downtime');
 
 const DM_ROLE_ID = process.env.DM_ROLE_ID;
@@ -26,6 +27,10 @@ const INSPIRING_QUOTES = [
     { quote: 'What we do in life echoes in eternity.', author: 'Marcus Aurelius' },
     { quote: 'Wheresoever you go, go with all your heart.', author: 'Confucius' },
     { quote: "chair", author: ''},
+    { quote: "Believe in the ideal, not the idol.", author: 'Serra'},
+    { quote: "Each year that passes rings you inwardly with memory and might. Wield your heart, and the world will tremble.", author: 'Doran'},
+    { quote: "The thing I once imagined would be my greatest achievements were only the first steps toward a future I can only begin to fathom.", author: 'Jace Beleren'},
+    { quote: "To care for yourself, cultivate the world. To care for the world, cultivate yourself.", author: ''},
 ];
 
 function randomQuote() {
@@ -771,22 +776,21 @@ async function handleAdminDowntimeApprove(interaction) {
     await interaction.deferReply({ flags: 64 });
     const id = interaction.options.getString('id').toUpperCase();
 
-    // Try as a pending-start request first
     const startReq = getRequest(id);
     if (startReq) {
         const blueprint = getBlueprint(startReq.activityId);
-        const cost = resolveCost(blueprint, { [blueprint.paramName]: startReq.paramValue });
+        const paramName = getParamName(blueprint);
+        const cost = resolveCost(blueprint, { [paramName]: startReq.paramValue });
         const dtaId = nextDtaId();
         await createDowntimeProgress({
-            dtaId, activityName: blueprint.name, characterPageId: startReq.characterPageId,
+            dtaId, activityId: startReq.activityId, activityName: blueprint.name, characterPageId: startReq.characterPageId,
             activityType: blueprint.category, daysRequired: cost.daysRequired,
-            daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0,
+            daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: startReq.paramValue,
         });
         removeRequest(id);
         return interaction.editReply({ content: `✅ Approved start request \`${id}\` — **${blueprint.name}** created as \`${dtaId}\`.` });
     }
 
-    // Otherwise treat as a completion approval — DTA ID directly
     const progress = await getDowntimeProgressById(id).catch(() => null);
     if (!progress) return interaction.editReply({ content: `❌ No pending request or downtime activity found for \`${id}\`.` });
 
@@ -796,7 +800,32 @@ async function handleAdminDowntimeApprove(interaction) {
     }
 
     await setDowntimeStatus(progress.id, 'Completed');
-    return interaction.editReply({ content: `✅ Completion approved for \`${id}\`. Remember to create any resulting item/output manually.` });
+
+    const p = progress.properties;
+    const activityId = p['Activity ID']?.rich_text?.[0]?.plain_text ?? null;
+    const activityName = p['Activity Name']?.title?.[0]?.plain_text ?? 'Unknown';
+    const characterRelId = p['Character']?.relation?.[0]?.id ?? null;
+    const storedParam = p['Param Value']?.rich_text?.[0]?.plain_text ?? null;
+
+    let outputMsg = null;
+    const blueprint = activityId ? getBlueprint(activityId) : null;
+    if (blueprint?.output && characterRelId) {
+        const rawParam = storedParam != null && !isNaN(Number(storedParam)) ? Number(storedParam) : storedParam;
+        const tierValue = blueprint.costModel === 'parameterized'
+            ? resolveCost(blueprint, { [getParamName(blueprint)]: rawParam })?.tierValue
+            : null;
+        try {
+            outputMsg = await applyDowntimeOutput({
+                output: blueprint.output, characterPageId: characterRelId, activityName, tierValue,
+            }, leagueNotion);
+        } catch (err) {
+            console.error('[downtime approve] Failed to apply output:', err);
+        }
+    }
+
+    return interaction.editReply({
+        content: `✅ Completion approved for \`${id}\`.${outputMsg ? ` ${outputMsg}.` : blueprint?.output ? ' ⚠️ Output could not be auto-applied — apply manually.' : ''}`,
+    });
 }
 
 // ─── /leagueadmin item create ──────────────────────────────────────────────────────────────────
@@ -866,13 +895,6 @@ async function handleAdminItemCreate(interaction) {
 }
 
 // ─── Catalogue → inventory item mapping ────────────────────────────────────────
-//
-// Type and rarity come straight from the catalogue — the Notion "Type" select
-// mirrors the catalogue's own mechanical types (Armor, Wand, Potion, etc. — see
-// TYPE_NAMES in utils/5etoolsCatalogue.js), so there's nothing to infer or
-// override there. Subtype is a finer-grained distinction the catalogue doesn't
-// track directly (Potion / Spell Scroll / Ammo / Gear / Other), so it's derived
-// here from the catalogue type.
 
 const SUBTYPE_BY_CATALOGUE_TYPE = { Potion: 'Potion', Scroll: 'Spell Scroll', Ammunition: 'Ammo' };
 
@@ -894,8 +916,6 @@ function resolveCatalogueImport(code, overrides = {}) {
         catalogueCode: catalogueItem.code,
     };
 }
-
-
 
 // ─── /leagueadmin item import ───────────────────────────────────────────────────────────────
 

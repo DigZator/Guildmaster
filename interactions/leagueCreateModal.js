@@ -9,8 +9,23 @@ function isValidInput(input) {
 		if (parts.length !== 6) return false;
 		const numbers = parts.map(Number);
 		if (numbers.some(Number.isNaN)) return false;
-		const sum = numbers.reduce((a, b) => a + b, 0);
-		return sum === 72;
+
+		const pb = {
+			8: 	0,
+			9: 	1,
+			10: 2,
+			11: 3,
+			12: 4,
+			13: 5,
+			14: 7,
+			15: 9,
+		};
+		
+		const sum = numbers.reduce((sum, score) => {
+			return sum + (pb[score] ?? 0);
+		}, 0);
+
+		return sum === 27;
 	} catch (err) {
 		return false;
 	}

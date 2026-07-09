@@ -6,12 +6,16 @@ const anonMessages  = require('../buttons/anonMessages');
 const inventory     = require('../buttons/inventory');
 const questComplete = require('../buttons/questComplete');
 const shopSearch 	= require('../buttons/shopSearch');
-const shopBrowse = require('../buttons/shopBrowse');
+const shopBrowse 	= require('../buttons/shopBrowse');
+const shopDiscount 	= require('../buttons/shopDiscount')
+const downtimeBuyDays = require('../buttons/downtimeBuyDays');
 
 const exactHandlers = {
     ...memorial.exact,
     ...announcement.exact,
     ...anonMessages.exact,
+    ...shopDiscount.exact,
+    ...downtimeBuyDays.exact,
 };
 
 const prefixHandlers = {

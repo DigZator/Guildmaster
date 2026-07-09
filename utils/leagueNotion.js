@@ -321,6 +321,8 @@ async function getCharacterQuestLog(characterPageId) {
 
 async function createDowntimeProgress(opts) {
 	const {
+		  dtaId,
+		  activityId,
 		  activityName,
 		  characterPageId,
 		  activityType,
@@ -328,9 +330,13 @@ async function createDowntimeProgress(opts) {
 		  daysInvested,
 		  goldRequired,
 		  goldInvested,
+		  paramValue,
 	} = opts;
 
 	const properties = {
+		  'DTA ID': {
+			    rich_text: [{ text: { content: dtaId } }],
+		  },
 		  'Activity Name': {
 			    title: [{ text: { content: activityName } }],
 		  },
@@ -350,6 +356,8 @@ async function createDowntimeProgress(opts) {
 		  },
 	};
 
+	if (activityId) properties['Activity ID'] = { rich_text: [{ text: { content: activityId } }] };
+	if (paramValue != null) properties['Param Value'] = { rich_text: [{ text: { content: String(paramValue) } }] };
 	if (goldRequired != null) properties['Gold Required'] = { number: goldRequired };
 	if (goldInvested != null) properties['Gold Invested'] = { number: goldInvested };
 

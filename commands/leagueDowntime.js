@@ -1,7 +1,6 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const {
     getActiveCharacter,
-    getPageById,
     createDowntimeProgress,
     getDowntimeProgressById,
     getActiveDowntimeForCharacter,
@@ -9,12 +8,18 @@ const {
     setDowntimeStatus,
     getCharacterGold,
     setCharacterGold,
-    createInventoryItem,
+    adjustCharacterNumber,
 } = require('../utils/leagueNotion');
 const { createStartRequest } = require('../utils/downtimeApprovals');
-const { loadBlueprints, getBlueprint, nextDtaId, resolveCost } = require('../utils/downtime');
+const { loadBlueprints, getBlueprint, nextDtaId, resolveCost, applyDowntimeOutput, getParamName } = require('../utils/downtime');
+const leagueNotion = require('../utils/leagueNotion');
 const { formatCurrency } = require('../utils/currency');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+
+function coerceParam(raw) {
+    if (raw == null) return null;
+    return raw !== '' && !isNaN(Number(raw)) ? Number(raw) : raw;
+}
 
 async function sendAdminLog(guild, embed) {
     const channel = guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);
@@ -34,16 +39,21 @@ async function handleDowntimeStart(interaction) {
     await interaction.deferReply({ flags: 64 });
 
     const activityId = interaction.options.getString('activity');
-    const paramValue  = interaction.options.getInteger('param');
+    const paramValue  = coerceParam(interaction.options.getString('param'));
 
     const blueprint = getBlueprint(activityId);
     if (!blueprint) return interaction.editReply({ content: `❌ No downtime activity found for \`${activityId}\`.` });
 
+    const paramName = getParamName(blueprint);
+    if (paramName && paramValue == null) {
+        return interaction.editReply({ content: `❌ **${blueprint.name}** requires a \`param\` value (${paramName}).` });
+    }
+
     const char = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!char) return interaction.editReply({ content: '❌ No active character found.' });
 
-    const cost = resolveCost(blueprint, { [blueprint.paramName]: paramValue });
-    if (!cost) return interaction.editReply({ content: `❌ Could not resolve a valid cost tier for this activity${blueprint.paramName ? ` — check your \`${blueprint.paramName}\` value` : ''}.` });
+    const cost = resolveCost(blueprint, { [paramName]: paramValue });
+    if (!cost) return interaction.editReply({ content: `❌ Could not resolve a valid cost tier for this activity${paramName ? ` — check your \`${paramName}\` value` : ''}.` });
 
     if (blueprint.approval?.pre) {
         const reqId = createStartRequest({ activityId, characterPageId: char.id, discordUserId: interaction.user.id, paramValue });
@@ -64,17 +74,21 @@ async function handleDowntimeStart(interaction) {
     const dtaId = nextDtaId();
     try {
         await createDowntimeProgress({
-            dtaId, activityName: blueprint.name, characterPageId: char.id,
+            dtaId, activityId, activityName: blueprint.name, characterPageId: char.id,
             activityType: blueprint.category, daysRequired: cost.daysRequired,
-            daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0,
+            daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue,
         });
     } catch (err) {
         console.error('[downtime start] Notion error:', err);
         return interaction.editReply({ content: '❌ Failed to start activity. Please try again.' });
     }
 
+    const checksNote = blueprint.checks
+        ? `\n🎲 Requires ${blueprint.checks.successesRequired}/${blueprint.checks.attempts} successful ${blueprint.checks.skill} checks (DC ${blueprint.checks.dc}) — tracked by your GM, not the bot.`
+        : '';
+
     return interaction.editReply({
-        content: `✅ Started **${blueprint.name}** — DTA ID \`${dtaId}\`. Requires ${cost.daysRequired} day(s)${cost.gpTotal != null ? ` and ${formatCurrency(cost.gpTotal)}` : ''}.\nUse \`/league downtime progress\` to invest days.`,
+        content: `✅ Started **${blueprint.name}** — DTA ID \`${dtaId}\`. Requires ${cost.daysRequired} day(s)${cost.gpTotal != null ? ` and ${formatCurrency(cost.gpTotal)}` : ''}.${checksNote}\nUse \`/league downtime progress\` to invest days.`,
     });
 }
 
@@ -100,11 +114,17 @@ async function handleDowntimeProgress(interaction) {
     const daysInvested  = p['Days Invested']?.number ?? 0;
     const goldRequired  = p['Gold Required']?.number ?? null;
     const activityName  = p['Activity Name']?.title?.[0]?.plain_text ?? 'Unknown';
+    const activityId    = p['Activity ID']?.rich_text?.[0]?.plain_text ?? null;
+    const storedParam   = p['Param Value']?.rich_text?.[0]?.plain_text ?? null;
 
     const remainingDays = daysRequired - daysInvested;
     if (days > remainingDays) return interaction.editReply({ content: `❌ Only ${remainingDays} day(s) remain on this activity.` });
 
-    // gp cost is spread evenly across required days when a flat/parameterized total exists
+    const currentDowntimeDays = char.properties['Downtime Days']?.number ?? 0;
+    if (currentDowntimeDays < days) {
+        return interaction.editReply({ content: `❌ Not enough downtime days. This costs **${days}** day(s), you have **${currentDowntimeDays}** banked.` });
+    }
+
     const gpPerDay = goldRequired != null ? goldRequired / daysRequired : 0;
     const gpCost = Math.round(gpPerDay * days * 100) / 100;
 
@@ -117,17 +137,21 @@ async function handleDowntimeProgress(interaction) {
     const newGoldInvested = (p['Gold Invested']?.number ?? 0) + gpCost;
     const isComplete = newDaysInvested >= daysRequired;
 
-    const blueprints = loadBlueprints();
-    const matches = Object.entries(blueprints).filter(([, bp]) => bp.name === activityName);
-    if (matches.length > 1) {
-        console.warn(`[downtime progress] Ambiguous activity name "${activityName}" matches multiple blueprints: ${matches.map(([id]) => id).join(', ')}`);
+    let blueprint = activityId ? getBlueprint(activityId) : null;
+    if (!blueprint) {
+        const blueprints = loadBlueprints();
+        const matches = Object.entries(blueprints).filter(([, bp]) => bp.name === activityName);
+        if (matches.length > 1) {
+            console.warn(`[downtime progress] Ambiguous activity name "${activityName}" matches multiple blueprints: ${matches.map(([id]) => id).join(', ')}`);
+        }
+        blueprint = matches[0]?.[1] ?? null;
     }
-    const blueprint = matches[0]?.[1] ?? null;
     const needsCompletionApproval = isComplete && blueprint?.approval?.post;
 
     try {
         await Promise.all([
             setCharacterGold(char.id, currentGold - gpCost),
+            adjustCharacterNumber(char.id, 'Downtime Days', -days),
             investDowntimeProgress(progress.id, { daysInvested: newDaysInvested, goldInvested: newGoldInvested }),
         ]);
         if (isComplete) await setDowntimeStatus(progress.id, needsCompletionApproval ? 'Pending Completion Approval' : 'Completed');
@@ -135,7 +159,21 @@ async function handleDowntimeProgress(interaction) {
         console.error('[downtime progress] Notion error:', err);
         return interaction.editReply({ content: '❌ Failed to log progress. Please try again.' });
     }
-    
+
+    let outputMsg = null;
+    if (isComplete && !needsCompletionApproval && blueprint?.output) {
+        const tierValue = blueprint.costModel === 'parameterized'
+            ? resolveCost(blueprint, { [getParamName(blueprint)]: coerceParam(storedParam) })?.tierValue
+            : null;
+        try {
+            outputMsg = await applyDowntimeOutput({
+                output: blueprint.output, characterPageId: char.id, activityName, tierValue,
+            }, leagueNotion);
+        } catch (err) {
+            console.error('[downtime progress] Failed to apply output:', err);
+        }
+    }
+
     if (needsCompletionApproval) {
         await sendAdminLog(interaction.guild, new EmbedBuilder()
             .setColor(0xe67e22)
@@ -156,15 +194,48 @@ async function handleDowntimeProgress(interaction) {
             { name: 'DTA ID', value: `\`${dtaId}\``, inline: true },
             { name: 'Days',   value: `${newDaysInvested} / ${daysRequired}`, inline: true },
             { name: 'Spent',  value: formatCurrency(gpCost), inline: true },
+            ...(outputMsg ? [{ name: 'Output', value: outputMsg, inline: false }] : []),
         )
         .setTimestamp();
 
     await postToCharacterThread(interaction.client, char, embed);
 
     return interaction.editReply({
-        content: isComplete
-            ? `🎉 **${activityName}** complete!`
-            : `✅ Logged ${days} day(s) on **${activityName}** (${newDaysInvested}/${daysRequired}). Spent ${formatCurrency(gpCost)}.`,
+        content: (isComplete
+            ? `🎉 **${activityName}** complete!${outputMsg ? ` ${outputMsg}.` : ''}`
+            : `✅ Logged ${days} day(s) on **${activityName}** (${newDaysInvested}/${daysRequired}). Spent ${formatCurrency(gpCost)}.`)
+            + ` (${currentDowntimeDays - days} downtime day(s) remaining)`,
+    });
+}
+
+// ─── /league downtime buy-days ─────────────────────────────────────────────────
+
+const REP_COST_PER_TOPUP = 1;
+const DAYS_PER_TOPUP = 10;
+
+async function handleDowntimeBuyDays(interaction) {
+    await interaction.deferReply({ flags: 64 });
+
+    const char = await getActiveCharacter(interaction.user.id).catch(() => null);
+    if (!char) return interaction.editReply({ content: '❌ No active character found.' });
+
+    const currentRep = char.properties['Reputation Points']?.number ?? 0;
+    const currentDowntimeDays = char.properties['Downtime Days']?.number ?? 0;
+
+    if (currentRep < REP_COST_PER_TOPUP) {
+        return interaction.editReply({ content: `❌ You need **${REP_COST_PER_TOPUP} reputation point** to do this, you have **${currentRep}**.` });
+    }
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('dtbuy_confirm').setLabel('Confirm').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId('dtbuy_cancel').setLabel('Cancel').setStyle(ButtonStyle.Secondary),
+    );
+
+    return interaction.editReply({
+        content: `Spend **${REP_COST_PER_TOPUP} reputation point** for **+${DAYS_PER_TOPUP} downtime days**?\n` +
+            `Current: ${currentRep} RP, ${currentDowntimeDays} downtime day(s).\n` +
+            `After: ${currentRep - REP_COST_PER_TOPUP} RP, ${currentDowntimeDays + DAYS_PER_TOPUP} downtime day(s).`,
+        components: [row],
     });
 }
 
@@ -191,15 +262,67 @@ async function handleDowntimeList(interaction) {
     return interaction.editReply({ content: `📋 **Active Downtime Activities**\n${rows.join('\n')}` });
 }
 
+// ─── /league downtime activities ───────────────────────────────────────────────
+
+async function handleDowntimeActivities(interaction) {
+    await interaction.deferReply({ flags: 64 });
+
+    const blueprints = loadBlueprints();
+    const entries = Object.entries(blueprints);
+    if (entries.length === 0) return interaction.editReply({ content: '📋 No downtime activities configured.' });
+
+    const byCategory = {};
+    for (const [id, bp] of entries) {
+        const category = bp.category ?? 'Uncategorized';
+        (byCategory[category] ??= []).push({ id, bp });
+    }
+
+    const sections = Object.keys(byCategory).sort().map(category => {
+        const lines = byCategory[category]
+            .sort((a, b) => a.bp.name.localeCompare(b.bp.name))
+            .map(({ id, bp }) => {
+                const paramName = getParamName(bp);
+                const approvalNote = bp.approval?.pre ? ' 🔒pre' : bp.approval?.post ? ' 🔒post' : '';
+                return `\`${id}\`  ${bp.name}${paramName ? ` *(param: ${paramName})*` : ''}${approvalNote}`;
+            });
+        return `**${category}**\n${lines.join('\n')}`;
+    });
+
+    const content = `📋 **Downtime Activities** (use the \`activity\` ID with \`/league downtime start\`)\n\n${sections.join('\n\n')}`;
+
+    // Discord message content limit is 2000 chars; split if needed.
+    if (content.length <= 2000) {
+        return interaction.editReply({ content });
+    }
+    const chunks = [];
+    let current = '';
+    for (const section of sections) {
+        if ((current + '\n\n' + section).length > 1900) {
+            chunks.push(current);
+            current = section;
+        } else {
+            current = current ? `${current}\n\n${section}` : section;
+        }
+    }
+    if (current) chunks.push(current);
+
+    await interaction.editReply({ content: `📋 **Downtime Activities** (use the \`activity\` ID with \`/league downtime start\`)\n\n${chunks[0]}` });
+    for (const chunk of chunks.slice(1)) {
+        await interaction.followUp({ content: chunk, flags: 64 });
+    }
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 async function leagueDowntime(interaction) {
     const sub = interaction.options.getSubcommand();
     switch (sub) {
-        case 'start':    return handleDowntimeStart(interaction);
-        case 'progress': return handleDowntimeProgress(interaction);
-        case 'list':     return handleDowntimeList(interaction);
+        case 'start':      return handleDowntimeStart(interaction);
+        case 'progress':   return handleDowntimeProgress(interaction);
+        case 'list':       return handleDowntimeList(interaction);
+        case 'buy-days':   return handleDowntimeBuyDays(interaction);
+        case 'activities': return handleDowntimeActivities(interaction);
     }
 }
 
-module.exports = { leagueDowntime };
+module.exports = { leagueDowntime, REP_COST_PER_TOPUP, DAYS_PER_TOPUP };

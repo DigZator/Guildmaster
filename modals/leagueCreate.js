@@ -36,7 +36,7 @@ function buildLeagueCreateModal() {
 
   const scores = new TextInputBuilder()
   	.setCustomId('scores')
-  	.setLabel('Enter your ability scores before background bonuses.')
+  	.setLabel('Ability Scores (before background bonuses)')
   	.setStyle(TextInputStyle.Short)
   	.setRequired(true)
   	.setPlaceholder('e.g. 15,15,15,8,8,8 , 15,14,13,12,10,8 ')

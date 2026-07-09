@@ -16,6 +16,7 @@ const edit_game = require('../commands/edit_game');
 const { league } = require('../commands/league');
 const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
 const { questLinkAutocomplete } = require('../commands/leagueQuest');
+const helpData = require('../helpData');
 
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
@@ -78,6 +79,26 @@ module.exports = (client) => {
                     return;
                 }
             }
+
+            if (interaction.commandName === 'help') {
+				const focused = interaction.options.getFocused(true);
+
+				if (focused.name === 'family') {
+					const group = interaction.options.getString('group');
+					const groupData = helpData[group];
+					const query = focused.value.toLowerCase();
+
+					const choices = groupData
+						? Object.entries(groupData)
+							.filter(([key, fam]) => key.toLowerCase().includes(query) || fam.label.toLowerCase().includes(query))
+							.slice(0, 25)
+							.map(([key, fam]) => ({ name: fam.label, value: key }))
+						: [{ name: 'Pick a group first', value: 'none' }];
+
+					await interaction.respond(choices);
+					return;
+				}
+			}
 
             if (interaction.commandName === 'leaguedm') {
                 const group   = interaction.options.getSubcommandGroup(false);

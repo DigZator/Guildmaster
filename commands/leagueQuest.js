@@ -445,11 +445,23 @@ async function approveQuestLink(entry, interaction) {
     return { questId, pageId: page.id };
 }
 
+const DOWNTIME_DAYS_ON_QUEST_COMPLETE = 10;
+
 async function approveQuestComplete(entry, interaction) {
     const { questId, questName, questPageId } = entry.quest;
     const { milestones, reputation } = entry.payload;
 
     await updatePageProperty(questPageId, { 'Status': { select: { name: 'Completed' } } });
+
+    const quest = await getQuestById(questId).catch(() => null);
+    const characterIds = quest?.properties['Characters']?.relation?.map(r => r.id) ?? [];
+    const resetResults = await Promise.allSettled(
+        characterIds.map(id => updatePageProperty(id, { 'Downtime Days': { number: DOWNTIME_DAYS_ON_QUEST_COMPLETE } }))
+    );
+    const resetFailures = resetResults.filter(r => r.status === 'rejected').length;
+    if (resetFailures > 0) {
+        console.error(`[approveQuestComplete] Failed to reset downtime days for ${resetFailures}/${characterIds.length} character(s) on quest ${questId}.`);
+    }
 
     await sendAdminLog(interaction.guild, new EmbedBuilder()
         .setColor(0x57f287)
@@ -460,6 +472,7 @@ async function approveQuestComplete(entry, interaction) {
             { name: 'Reputation',   value: `${reputation}`,                 inline: true },
             { name: 'Approved By',  value: `<@${interaction.user.id}>`,     inline: true },
             { name: 'Requested By', value: `<@${entry.dm.discordId}>`,      inline: true },
+            { name: 'Downtime Days', value: `Reset to ${DOWNTIME_DAYS_ON_QUEST_COMPLETE} for ${characterIds.length - resetFailures}/${characterIds.length} roster character(s)`, inline: false },
             { name: 'Action ID',    value: `\`${entry.id}\``,               inline: false },
         )
         .setTimestamp()
