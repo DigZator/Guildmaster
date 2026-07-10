@@ -779,15 +779,43 @@ async function handleAdminDowntimeApprove(interaction) {
     const startReq = getRequest(id);
     if (startReq) {
         const blueprint = getBlueprint(startReq.activityId);
+        if (!blueprint) {
+            return interaction.editReply({ content: `❌ Request \`${id}\` refers to an activity (\`${startReq.activityId}\`) that no longer exists. It was not approved — you may want to reject it instead.` });
+        }
+
         const paramName = getParamName(blueprint);
         const cost = resolveCost(blueprint, { [paramName]: startReq.paramValue });
+        if (!cost) {
+            return interaction.editReply({ content: `❌ Could not resolve a valid cost tier for **${blueprint.name}**${paramName ? ` — check the \`${paramName}\` value on request \`${id}\`` : ''}. It was not approved.` });
+        }
+
         const dtaId = nextDtaId();
-        await createDowntimeProgress({
-            dtaId, activityId: startReq.activityId, activityName: blueprint.name, characterPageId: startReq.characterPageId,
-            activityType: blueprint.category, daysRequired: cost.daysRequired,
-            daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: startReq.paramValue,
-        });
+        try {
+            await createDowntimeProgress({
+                dtaId, activityId: startReq.activityId, activityName: blueprint.name, characterPageId: startReq.characterPageId,
+                activityType: blueprint.category, daysRequired: cost.daysRequired,
+                daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: startReq.paramValue,
+            });
+        } catch (err) {
+            console.error('[downtime approve] Notion error:', err);
+            return interaction.editReply({ content: `❌ Failed to create the downtime activity for request \`${id}\`. Please try again.` });
+        }
+
         removeRequest(id);
+
+        await sendAdminLog(interaction.guild, new EmbedBuilder()
+            .setColor(0x2ecc71)
+            .setTitle('✅ Downtime Start Approved')
+            .addFields(
+                { name: 'Request ID', value: `\`${id}\``, inline: true },
+                { name: 'DTA ID',     value: `\`${dtaId}\``, inline: true },
+                { name: 'Activity',   value: blueprint.name, inline: true },
+                { name: 'Player',     value: `<@${startReq.discordUserId}>`, inline: true },
+                { name: 'Approved By',value: `<@${interaction.user.id}>`, inline: true },
+            )
+            .setTimestamp()
+        );
+
         return interaction.editReply({ content: `✅ Approved start request \`${id}\` — **${blueprint.name}** created as \`${dtaId}\`.` });
     }
 

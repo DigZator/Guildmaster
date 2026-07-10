@@ -13,6 +13,21 @@ const DB = {
   marketplace: process.env.PLAYER_MARKETPLACE_DB_ID,
 };
 
+// ─── per-page lock ────────────────────────────────────────────────
+
+const pageLocks = new Map(); // pageId -> Promise chain tail
+
+function withPageLock(pageId, fn) {
+	const previous = pageLocks.get(pageId) ?? Promise.resolve();
+	const run = previous.then(fn, fn); // run fn regardless of prior success/failure
+	const tail = run.catch(() => {});
+	pageLocks.set(pageId, tail);
+	tail.finally(() => {
+		if (pageLocks.get(pageId) === tail) pageLocks.delete(pageId);
+	});
+	return run;
+}
+
 // ─── helper ───────────────────────────────────────────────────────
 
 async function updatePageProperty(pageId, properties) {
@@ -144,16 +159,22 @@ async function setCharacterStatus(pageId, status) {
 }
 
 async function adjustCharacterNumber(pageId, field, delta) {
-  const page = await notion.pages.retrieve({ page_id: pageId });
-  const current = page.properties[field]?.number ?? 0;
-  const updated = current + delta;
+  return withPageLock(pageId, () => adjustCharacterNumbersUnlocked(pageId, { [field]: delta }));
+}
 
-  return notion.pages.update({
-    page_id: pageId,
-    properties: {
-      [field]: { number: updated },
-    },
-  });
+async function adjustCharacterNumbers(pageId, deltas) {
+  return withPageLock(pageId, () => adjustCharacterNumbersUnlocked(pageId, deltas));
+}
+
+
+async function adjustCharacterNumbersUnlocked(pageId, deltas) {
+  const page = await notion.pages.retrieve({ page_id: pageId });
+  const properties = {};
+  for (const [field, delta] of Object.entries(deltas)) {
+    const current = page.properties[field]?.number ?? 0;
+    properties[field] = { number: current + delta };
+  }
+  return notion.pages.update({ page_id: pageId, properties });
 }
 
 async function setCharacterLevel(pageId, level) {
@@ -431,7 +452,6 @@ async function getOpenListings({ rarity, sortBy } = {}) {
         sorts: [{ property: sortBy ?? 'Listed Date', direction: 'descending' }],
     });
 
-    // Enrich each listing with item data
     const enriched = await Promise.all(response.results.map(async listing => {
         const itemPageId = listing.properties['Item']?.relation?.[0]?.id ?? null;
         if (!itemPageId) return listing;
@@ -561,6 +581,8 @@ module.exports = {
 	createCharacter,
 	setCharacterStatus,
 	adjustCharacterNumber,
+	adjustCharacterNumbers,
+	adjustCharacterNumbersUnlocked,
 	setCharacterLevel,
 	updateCharacterArt,
 
@@ -573,6 +595,9 @@ module.exports = {
 	// Quest Log
 	createQuestLogEntry,
 	getCharacterQuestLog,
+
+	// Concurrency
+	withPageLock,
 
 	// Downtime
 	createDowntimeProgress,

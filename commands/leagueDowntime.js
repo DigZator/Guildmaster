@@ -7,8 +7,8 @@ const {
     investDowntimeProgress,
     setDowntimeStatus,
     getCharacterGold,
-    setCharacterGold,
-    adjustCharacterNumber,
+    adjustCharacterNumbersUnlocked,
+    withPageLock,
 } = require('../utils/leagueNotion');
 const { createStartRequest } = require('../utils/downtimeApprovals');
 const { loadBlueprints, getBlueprint, nextDtaId, resolveCost, applyDowntimeOutput, getParamName } = require('../utils/downtime');
@@ -128,15 +128,6 @@ async function handleDowntimeProgress(interaction) {
     const gpPerDay = goldRequired != null ? goldRequired / daysRequired : 0;
     const gpCost = Math.round(gpPerDay * days * 100) / 100;
 
-    const currentGold = await getCharacterGold(char.id).catch(() => 0);
-    if (currentGold < gpCost) {
-        return interaction.editReply({ content: `❌ Not enough gold. This costs **${formatCurrency(gpCost)}** for ${days} day(s), you have **${formatCurrency(currentGold)}**.` });
-    }
-
-    const newDaysInvested = daysInvested + days;
-    const newGoldInvested = (p['Gold Invested']?.number ?? 0) + gpCost;
-    const isComplete = newDaysInvested >= daysRequired;
-
     let blueprint = activityId ? getBlueprint(activityId) : null;
     if (!blueprint) {
         const blueprints = loadBlueprints();
@@ -146,16 +137,30 @@ async function handleDowntimeProgress(interaction) {
         }
         blueprint = matches[0]?.[1] ?? null;
     }
+
+    const newDaysInvested = daysInvested + days;
+    const newGoldInvested = (p['Gold Invested']?.number ?? 0) + gpCost;
+    const isComplete = newDaysInvested >= daysRequired;
     const needsCompletionApproval = isComplete && blueprint?.approval?.post;
 
+    let currentGold;
     try {
-        await Promise.all([
-            setCharacterGold(char.id, currentGold - gpCost),
-            adjustCharacterNumber(char.id, 'Downtime Days', -days),
-            investDowntimeProgress(progress.id, { daysInvested: newDaysInvested, goldInvested: newGoldInvested }),
-        ]);
-        if (isComplete) await setDowntimeStatus(progress.id, needsCompletionApproval ? 'Pending Completion Approval' : 'Completed');
+        currentGold = await withPageLock(char.id, async () => {
+            const gold = await getCharacterGold(char.id);
+            if (gold < gpCost) {
+                throw Object.assign(new Error('insufficient-gold'), { code: 'INSUFFICIENT_GOLD', gold });
+            }
+            await Promise.all([
+                adjustCharacterNumbersUnlocked(char.id, { 'Gold': -gpCost, 'Downtime Days': -days }),
+                investDowntimeProgress(progress.id, { daysInvested: newDaysInvested, goldInvested: newGoldInvested }),
+            ]);
+            if (isComplete) await setDowntimeStatus(progress.id, needsCompletionApproval ? 'Pending Completion Approval' : 'Completed');
+            return gold;
+        });
     } catch (err) {
+        if (err.code === 'INSUFFICIENT_GOLD') {
+            return interaction.editReply({ content: `❌ Not enough gold. This costs **${formatCurrency(gpCost)}** for ${days} day(s), you have **${formatCurrency(err.gold)}**.` });
+        }
         console.error('[downtime progress] Notion error:', err);
         return interaction.editReply({ content: '❌ Failed to log progress. Please try again.' });
     }
@@ -290,7 +295,6 @@ async function handleDowntimeActivities(interaction) {
 
     const content = `📋 **Downtime Activities** (use the \`activity\` ID with \`/league downtime start\`)\n\n${sections.join('\n\n')}`;
 
-    // Discord message content limit is 2000 chars; split if needed.
     if (content.length <= 2000) {
         return interaction.editReply({ content });
     }

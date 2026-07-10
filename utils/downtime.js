@@ -12,31 +12,27 @@ function getBlueprint(activityId) {
     return loadBlueprints()[activityId] ?? null;
 }
 
-// Get blueprint and tier directly from UID (no separate params needed)
 function getBlueprintById(UID) {
+    if (UID == null) return null;
+    const target = String(UID).toUpperCase();
     const bp = loadBlueprints();
-    const firstLetter = UID.charAt(0).toUpperCase();
-    
-    // Stage 1: Find blueprints matching the first letter
-    const matchingByFirstLetter = [];
+
     for (const key in bp) {
-        if (key.charAt(0).toUpperCase() === firstLetter) {
-            matchingByFirstLetter.push({ key, blueprint: bp[key] });
-        }
-    }
-    
-    // Stage 2: Check tiers within matching blueprints for second character match
-    const secondChar = UID.charAt(1)?.toUpperCase();
-    for (const { key, blueprint } of matchingByFirstLetter) {
+        const blueprint = bp[key];
+
         if (blueprint.tiers) {
             for (const tier of blueprint.tiers) {
-                if (tier.value !== undefined && String(tier.value).charAt(0).toUpperCase() === secondChar) {
+                if (tier.id != null && String(tier.id).toUpperCase() === target) {
                     return { key, blueprint, tier };
                 }
             }
         }
+
+        if (blueprint.id != null && String(blueprint.id).toUpperCase() === target) {
+            return { key, blueprint, tier: null };
+        }
     }
-    
+
     return null;
 }
 
@@ -129,32 +125,18 @@ function resolveCost(blueprint, params = {}) {
     };
 }
 
-// Resolve cost from UID directly (tier is embedded in the UID)
 function resolveCostFromUID(UID, params = {}) {
     const result = getBlueprintById(UID);
     if (!result) return null;
-    
-    const { key, blueprint, tier } = result;
-    
-    // Special handling for "catch-up" - requires additional validation
-    if (key.toLowerCase() === 'catch-up' || blueprint.costModel === 'catch-up') {
-        // catch-up needs real parameter checks
-        if (!params.currentLevel || !params.targetLevel) {
-            throw new Error('catch-up activity requires currentLevel and targetLevel parameters');
-        }
-        // Validate parameters as needed
-        if (params.targetLevel <= params.currentLevel) {
-            throw new Error('targetLevel must be greater than currentLevel');
-        }
-    }
-    
-    // If tier exists, use its cost data directly
+
+    const { blueprint, tier } = result;
+
     if (tier) {
         const daysRequired = tier.daysRequired;
         const costs = tier.costs ?? (tier.flatGp != null ? [{ type: 'gp', value: tier.flatGp }] : []);
         const { gpTotal, gpPerDay } = sumCosts(costs, params);
         const finalGpTotal = gpTotal + (gpPerDay ? gpPerDay * daysRequired : 0);
-        
+
         return {
             daysRequired,
             gpTotal: finalGpTotal,
@@ -162,7 +144,24 @@ function resolveCostFromUID(UID, params = {}) {
             tierValue: tier.value ?? null,
         };
     }
-    
+
+    if (blueprint.costModel === 'flat' || blueprint.costModel === 'perDay') {
+        const daysRequired = blueprint.daysRequired;
+        const costs = blueprint.costs ?? [
+            ...(blueprint.flatGp != null ? [{ type: 'gp', value: blueprint.flatGp }] : []),
+            ...(blueprint.gpPerDay != null ? [{ type: 'gpPerDay', value: blueprint.gpPerDay }] : []),
+        ];
+        const { gpTotal, gpPerDay } = sumCosts(costs, params);
+        const finalGpTotal = gpTotal + (gpPerDay ? gpPerDay * daysRequired : 0);
+
+        return {
+            daysRequired,
+            gpTotal: finalGpTotal,
+            gpPerDay: gpPerDay || (daysRequired ? finalGpTotal / daysRequired : 0),
+            tierValue: null,
+        };
+    }
+
     return null;
 }
 
