@@ -139,10 +139,14 @@ async function handleShopSearch(interaction) {
     await interaction.deferReply({ flags: 64 });
 
     const query = interaction.options.getString('name');
-    const results = searchCatalogue(query, { limit: 100 });
+    const catalogueMatches = searchCatalogue(query, { limit: 100 });
+
+    const results = catalogueMatches
+        .map(item => getShopEntry(item.code))
+        .filter(entry => entry && entry.available);
 
     if (results.length === 0) {
-        return interaction.editReply({ content: `🔎 No items in the catalogue match \`${query}\`.` });
+        return interaction.editReply({ content: `🔎 No stocked items match \`${query}\`.` });
     }
 
     return require('../buttons/shopSearch').sendResults(interaction, query, results);
@@ -378,8 +382,6 @@ async function handleMarketplaceBuy(interaction) {
     const sellerGold = await getCharacterGold(sellerPageId).catch(() => 0);
     const buyerName  = buyerChar.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
 
-    // Tax is based on the item's actual value, not whatever the seller listed it for
-    // (falls back to the asking price if the item has no recorded value).
     const taxBase      = itemValue ?? askingPrice;
     const taxAmount     = Math.round(taxBase * MARKETPLACE_TAX_RATE * 100) / 100;
     const sellerPayout  = Math.max(0, askingPrice - taxAmount);

@@ -3,14 +3,14 @@ const LEVEL_CONFIG = {
 	1:  { tier: 1, milestoneCost: 1 },
 	2:  { tier: 1, milestoneCost: 1 },
 	3:  { tier: 1, milestoneCost: 1 },
-	4:  { tier: 1, milestoneCost: 1 },
+	4:  { tier: 1, milestoneCost: 2 },
 	// Tier 2 (levels 5-10)
 	5:  { tier: 2, milestoneCost: 2 },
 	6:  { tier: 2, milestoneCost: 2 },
 	7:  { tier: 2, milestoneCost: 2 },
 	8:  { tier: 2, milestoneCost: 2 },
 	9:  { tier: 2, milestoneCost: 2 },
-	10: { tier: 2, milestoneCost: 2 },
+	10: { tier: 2, milestoneCost: 3 },
 	// Tier 3 (levels 11-16)
 	11: { tier: 3, milestoneCost: 3 },
 	12: { tier: 3, milestoneCost: 3 },

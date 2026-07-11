@@ -1,4 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const { formatCurrency } = require('../utils/currency');
 
 const PAGE_SIZE = 10;
 const TIMEOUT_MS = 10 * 60 * 1000;
@@ -23,7 +24,7 @@ function buildSearchEmbed(query, results, page, totalPages) {
         const code   = item.code.padEnd(5);
         const name   = item.name.padEnd(28).slice(0, 28);
         const rarity = (item.rarity ?? '—').padEnd(10);
-        const price  = item.priceGp != null ? `${item.priceGp} gp` : '—';
+        const price  = formatCurrency(item.price);
         return `${code} ${rarityEmoji(item.rarity)} ${name} ${rarity} ${price}`;
     });
 

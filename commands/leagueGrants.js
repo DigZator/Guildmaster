@@ -11,7 +11,7 @@ const { leagueDowntime } = require('./leagueDowntime');
 const { getRequest, removeRequest } = require('../utils/downtimeApprovals');
 const { getDowntimeProgressById, setDowntimeStatus, createDowntimeProgress } = require('../utils/leagueNotion');
 const leagueNotion = require('../utils/leagueNotion');
-const { getBlueprint, nextDtaId, resolveCost } = require('../utils/downtime');
+const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../utils/downtime');
 
 const DM_ROLE_ID = process.env.DM_ROLE_ID;
 const REP_MAX    = 2;
@@ -778,23 +778,23 @@ async function handleAdminDowntimeApprove(interaction) {
 
     const startReq = getRequest(id);
     if (startReq) {
-        const blueprint = getBlueprint(startReq.activityId);
-        if (!blueprint) {
-            return interaction.editReply({ content: `❌ Request \`${id}\` refers to an activity (\`${startReq.activityId}\`) that no longer exists. It was not approved — you may want to reject it instead.` });
+        const resolved = getBlueprintById(startReq.uid);
+        if (!resolved) {
+            return interaction.editReply({ content: `❌ Request \`${id}\` refers to a UID (\`${startReq.uid}\`) that no longer exists. It was not approved — you may want to reject it instead.` });
         }
+        const { key, blueprint } = resolved;
 
-        const paramName = getParamName(blueprint);
-        const cost = resolveCost(blueprint, { [paramName]: startReq.paramValue });
+        const cost = resolveCostFromUID(startReq.uid);
         if (!cost) {
-            return interaction.editReply({ content: `❌ Could not resolve a valid cost tier for **${blueprint.name}**${paramName ? ` — check the \`${paramName}\` value on request \`${id}\`` : ''}. It was not approved.` });
+            return interaction.editReply({ content: `❌ Could not resolve a valid cost for **${blueprint.name}** (UID \`${startReq.uid}\`). It was not approved.` });
         }
 
         const dtaId = nextDtaId();
         try {
             await createDowntimeProgress({
-                dtaId, activityId: startReq.activityId, activityName: blueprint.name, characterPageId: startReq.characterPageId,
+                dtaId, activityId: key, activityName: blueprint.name, characterPageId: startReq.characterPageId,
                 activityType: blueprint.category, daysRequired: cost.daysRequired,
-                daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: startReq.paramValue,
+                daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: cost.tierValue,
             });
         } catch (err) {
             console.error('[downtime approve] Notion error:', err);
@@ -835,24 +835,32 @@ async function handleAdminDowntimeApprove(interaction) {
     const characterRelId = p['Character']?.relation?.[0]?.id ?? null;
     const storedParam = p['Param Value']?.rich_text?.[0]?.plain_text ?? null;
 
-    let outputMsg = null;
+    let outputResult = null;
     const blueprint = activityId ? getBlueprint(activityId) : null;
     if (blueprint?.output && characterRelId) {
-        const rawParam = storedParam != null && !isNaN(Number(storedParam)) ? Number(storedParam) : storedParam;
-        const tierValue = blueprint.costModel === 'parameterized'
-            ? resolveCost(blueprint, { [getParamName(blueprint)]: rawParam })?.tierValue
-            : null;
+        const tierValue = storedParam != null && !isNaN(Number(storedParam)) ? Number(storedParam) : storedParam;
         try {
-            outputMsg = await applyDowntimeOutput({
-                output: blueprint.output, characterPageId: characterRelId, activityName, tierValue,
-            }, leagueNotion);
+            outputResult = await applyDowntimeOutput({ output: blueprint.output, characterPageId: characterRelId, activityName, tierValue }, leagueNotion);
         } catch (err) {
             console.error('[downtime approve] Failed to apply output:', err);
         }
     }
-
+    
+    if (outputResult) {
+        await sendAdminLog(interaction.guild, new EmbedBuilder()
+            .setColor(outputResult.needsManualGrant ? 0xe67e22 : 0x2ecc71)
+            .setTitle(outputResult.needsManualGrant ? '🎒 Downtime Output — Manual Grant Needed' : '🎁 Downtime Output Applied')
+            .addFields(
+                { name: 'Request ID', value: `\`${id}\``, inline: true },
+                { name: 'Activity',   value: activityName, inline: true },
+                { name: 'Output',     value: outputResult.message, inline: false },
+            )
+            .setTimestamp()
+        );
+    }
+    
     return interaction.editReply({
-        content: `✅ Completion approved for \`${id}\`.${outputMsg ? ` ${outputMsg}.` : blueprint?.output ? ' ⚠️ Output could not be auto-applied — apply manually.' : ''}`,
+        content: `✅ Completion approved for \`${id}\`.${outputResult ? ` ${outputResult.message}` : ''}`,
     });
 }
 

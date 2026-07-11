@@ -406,10 +406,9 @@ const commands = [
 		    .setName('downtime')
 		    .setDescription('Downtime activities')
 		    .addSubcommand(sub => sub
-		        .setName('start')
-		        .setDescription('Begin a downtime activity')
-		        .addStringOption(opt => opt.setName('activity').setDescription('Activity ID').setRequired(true))
-		        .addStringOption(opt => opt.setName('param').setDescription('Activity-specific parameter (e.g. spell level, rarity)').setRequired(false)))
+	            .setName('start')
+	            .setDescription('Begin a downtime activity')
+	            .addStringOption(opt => opt.setName('activity').setDescription('Activity UID (see /league downtime activities)').setRequired(true)))
 		    .addSubcommand(sub => sub
 		        .setName('progress')
 		        .setDescription('Invest days into an active downtime activity')

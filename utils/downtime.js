@@ -125,13 +125,15 @@ function resolveCost(blueprint, params = {}) {
     };
 }
 
-function resolveCostFromUID(UID, params = {}) {
+function resolveCostFromUID(UID) {
     const result = getBlueprintById(UID);
     if (!result) return null;
 
     const { blueprint, tier } = result;
+    const paramName = getParamName(blueprint);
 
     if (tier) {
+        const params = paramName && tier.value != null ? { [paramName]: tier.value } : {};
         const daysRequired = tier.daysRequired;
         const costs = tier.costs ?? (tier.flatGp != null ? [{ type: 'gp', value: tier.flatGp }] : []);
         const { gpTotal, gpPerDay } = sumCosts(costs, params);
@@ -151,15 +153,10 @@ function resolveCostFromUID(UID, params = {}) {
             ...(blueprint.flatGp != null ? [{ type: 'gp', value: blueprint.flatGp }] : []),
             ...(blueprint.gpPerDay != null ? [{ type: 'gpPerDay', value: blueprint.gpPerDay }] : []),
         ];
-        const { gpTotal, gpPerDay } = sumCosts(costs, params);
+        const { gpTotal, gpPerDay } = sumCosts(costs, {});
         const finalGpTotal = gpTotal + (gpPerDay ? gpPerDay * daysRequired : 0);
 
-        return {
-            daysRequired,
-            gpTotal: finalGpTotal,
-            gpPerDay: gpPerDay || (daysRequired ? finalGpTotal / daysRequired : 0),
-            tierValue: null,
-        };
+        return { daysRequired, gpTotal: finalGpTotal, gpPerDay: gpPerDay || (daysRequired ? finalGpTotal / daysRequired : 0), tierValue: null };
     }
 
     return null;
@@ -175,21 +172,18 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
             const itemName = output.type === 'item'
                 ? (output.grants || activityName)
                 : `${activityName}${tierValue ? ` (${tierValue})` : ''}`;
-            await notion.createInventoryItem({
-                itemName,
-                characterPageId,
-                rarity: output.type === 'item' ? 'Common' : (typeof tierValue === 'string' ? tierValue : 'Common'),
-                type: output.type === 'spellScroll' ? 'Scroll' : (output.type === 'magicItem' ? 'Magic Item' : 'Item'),
-                source: 'Downtime',
-                notes: `Auto-granted from downtime activity: ${activityName}`,
-            });
-            return `Granted item: ${itemName}`;
+            const rarity = output.type === 'item' ? 'Common' : (typeof tierValue === 'string' ? tierValue : 'Common');
+            const type = output.type === 'spellScroll' ? 'Scroll' : (output.type === 'magicItem' ? 'Magic Item' : 'Item');
+            return {
+                needsManualGrant: true,
+                message: `⚠️ **Manual grant needed:** ${itemName} (${type}, ${rarity}) — from downtime activity "${activityName}". Use \`/leagueadmin item create\`.`,
+            };
         }
         case 'level': {
             const char = await notion.getPageById(characterPageId);
             const currentLevel = char.properties['Level']?.number ?? 1;
             await notion.setCharacterLevel(characterPageId, currentLevel + 1);
-            return `Level increased to ${currentLevel + 1}`;
+            return { needsManualGrant: false, message: `Level increased to ${currentLevel + 1}` };
         }
         case 'language':
         case 'proficiency':
@@ -201,7 +195,7 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
             await notion.updatePageProperty(characterPageId, {
                 'Notes': { rich_text: [{ text: { content: existingNotes ? `${existingNotes}\n${entry}` : entry } }] },
             });
-            return entry;
+            return { needsManualGrant: false, message: entry };
         }
         default:
             return null;

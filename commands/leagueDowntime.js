@@ -11,7 +11,7 @@ const {
     withPageLock,
 } = require('../utils/leagueNotion');
 const { createStartRequest } = require('../utils/downtimeApprovals');
-const { loadBlueprints, getBlueprint, nextDtaId, resolveCost, applyDowntimeOutput, getParamName } = require('../utils/downtime');
+const { loadBlueprints, resolveCostFromUID, getBlueprint, getBlueprintById, nextDtaId, resolveCost, applyDowntimeOutput, getParamName } = require('../utils/downtime');
 const leagueNotion = require('../utils/leagueNotion');
 const { formatCurrency } = require('../utils/currency');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
@@ -35,28 +35,47 @@ async function postToCharacterThread(client, char, embed) {
 
 // ─── /league downtime start ────────────────────────────────────────────────────
 
+const CATCH_UP_LEVEL_BRACKETS = [
+    { min: 1,  max: 4,  tier: 1 },
+    { min: 5,  max: 10, tier: 2 },
+    { min: 11, max: 16, tier: 3 },
+    { min: 17, max: 20, tier: 4 },
+];
+
+function getCatchUpTier(level) {
+    return CATCH_UP_LEVEL_BRACKETS.find(b => level >= b.min && level <= b.max)?.tier ?? null;
+}
+
 async function handleDowntimeStart(interaction) {
     await interaction.deferReply({ flags: 64 });
 
-    const activityId = interaction.options.getString('activity');
-    const paramValue  = coerceParam(interaction.options.getString('param'));
+    const uid = interaction.options.getString('activity').toUpperCase();
+    const resolved = getBlueprintById(uid);
+    if (!resolved) return interaction.editReply({ content: `❌ No downtime activity found for UID \`${uid}\`.` });
 
-    const blueprint = getBlueprint(activityId);
-    if (!blueprint) return interaction.editReply({ content: `❌ No downtime activity found for \`${activityId}\`.` });
-
-    const paramName = getParamName(blueprint);
-    if (paramName && paramValue == null) {
-        return interaction.editReply({ content: `❌ **${blueprint.name}** requires a \`param\` value (${paramName}).` });
-    }
+    const { key, blueprint } = resolved;
 
     const char = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!char) return interaction.editReply({ content: '❌ No active character found.' });
 
-    const cost = resolveCost(blueprint, { [paramName]: paramValue });
-    if (!cost) return interaction.editReply({ content: `❌ Could not resolve a valid cost tier for this activity${paramName ? ` — check your \`${paramName}\` value` : ''}.` });
+    let cost, effectiveUid = uid;
+
+    if (key === 'catch-up-level') {
+        const currentLevel = char.properties['Level']?.number ?? 1;
+        const tierNum = getCatchUpTier(currentLevel);
+        if (!tierNum) return interaction.editReply({ content: `❌ Could not determine a catch-up tier for level ${currentLevel}.` });
+        const tierResolved = getBlueprintById(`00${tierNum}`);
+        if (!tierResolved) return interaction.editReply({ content: '❌ Catch-up tier configuration error.' });
+        effectiveUid = `00${tierNum}`;
+        cost = resolveCostFromUID(effectiveUid);
+    } else {
+        cost = resolveCostFromUID(uid);
+    }
+
+    if (!cost) return interaction.editReply({ content: `❌ Could not resolve a valid cost for UID \`${uid}\`.` });
 
     if (blueprint.approval?.pre) {
-        const reqId = createStartRequest({ activityId, characterPageId: char.id, discordUserId: interaction.user.id, paramValue });
+        const reqId = createStartRequest({ uid: effectiveUid, characterPageId: char.id, discordUserId: interaction.user.id });
         await sendAdminLog(interaction.guild, new EmbedBuilder()
             .setColor(0xe67e22)
             .setTitle('⏳ Downtime Start Approval Requested')
@@ -74,9 +93,9 @@ async function handleDowntimeStart(interaction) {
     const dtaId = nextDtaId();
     try {
         await createDowntimeProgress({
-            dtaId, activityId, activityName: blueprint.name, characterPageId: char.id,
+            dtaId, activityId: key, activityName: blueprint.name, characterPageId: char.id,
             activityType: blueprint.category, daysRequired: cost.daysRequired,
-            daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue,
+            daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: cost.tierValue,
         });
     } catch (err) {
         console.error('[downtime start] Notion error:', err);
@@ -165,18 +184,28 @@ async function handleDowntimeProgress(interaction) {
         return interaction.editReply({ content: '❌ Failed to log progress. Please try again.' });
     }
 
-    let outputMsg = null;
+    let outputResult = null;
     if (isComplete && !needsCompletionApproval && blueprint?.output) {
-        const tierValue = blueprint.costModel === 'parameterized'
-            ? resolveCost(blueprint, { [getParamName(blueprint)]: coerceParam(storedParam) })?.tierValue
-            : null;
+        const tierValue = coerceParam(storedParam);
         try {
-            outputMsg = await applyDowntimeOutput({
-                output: blueprint.output, characterPageId: char.id, activityName, tierValue,
-            }, leagueNotion);
+            outputResult = await applyDowntimeOutput({ output: blueprint.output, characterPageId: char.id, activityName, tierValue }, leagueNotion);
         } catch (err) {
             console.error('[downtime progress] Failed to apply output:', err);
         }
+    }
+    
+    if (outputResult) {
+        await sendAdminLog(interaction.guild, new EmbedBuilder()
+            .setColor(outputResult.needsManualGrant ? 0xe67e22 : 0x2ecc71)
+            .setTitle(outputResult.needsManualGrant ? '🎒 Downtime Output — Manual Grant Needed' : '🎁 Downtime Output Applied')
+            .addFields(
+                { name: 'DTA ID',   value: `\`${dtaId}\``, inline: true },
+                { name: 'Activity', value: activityName, inline: true },
+                { name: 'Player',   value: `<@${interaction.user.id}>`, inline: true },
+                { name: 'Output',   value: outputResult.message, inline: false },
+            )
+            .setTimestamp()
+        );
     }
 
     if (needsCompletionApproval) {
@@ -199,15 +228,15 @@ async function handleDowntimeProgress(interaction) {
             { name: 'DTA ID', value: `\`${dtaId}\``, inline: true },
             { name: 'Days',   value: `${newDaysInvested} / ${daysRequired}`, inline: true },
             { name: 'Spent',  value: formatCurrency(gpCost), inline: true },
-            ...(outputMsg ? [{ name: 'Output', value: outputMsg, inline: false }] : []),
+            ...(outputResult ? [{ name: 'Output', value: outputResult.message, inline: false }] : []),
         )
         .setTimestamp();
-
+    
     await postToCharacterThread(interaction.client, char, embed);
-
+    
     return interaction.editReply({
         content: (isComplete
-            ? `🎉 **${activityName}** complete!${outputMsg ? ` ${outputMsg}.` : ''}`
+            ? `🎉 **${activityName}** complete!${outputResult ? ` ${outputResult.message}` : ''}`
             : `✅ Logged ${days} day(s) on **${activityName}** (${newDaysInvested}/${daysRequired}). Spent ${formatCurrency(gpCost)}.`)
             + ` (${currentDowntimeDays - days} downtime day(s) remaining)`,
     });
@@ -277,43 +306,41 @@ async function handleDowntimeActivities(interaction) {
     if (entries.length === 0) return interaction.editReply({ content: '📋 No downtime activities configured.' });
 
     const byCategory = {};
-    for (const [id, bp] of entries) {
-        const category = bp.category ?? 'Uncategorized';
-        (byCategory[category] ??= []).push({ id, bp });
+    for (const [key, bp] of entries) {
+        (byCategory[bp.category ?? 'Uncategorized'] ??= []).push({ key, bp });
     }
 
     const sections = Object.keys(byCategory).sort().map(category => {
         const lines = byCategory[category]
             .sort((a, b) => a.bp.name.localeCompare(b.bp.name))
-            .map(({ id, bp }) => {
-                const paramName = getParamName(bp);
+            .flatMap(({ bp }) => {
                 const approvalNote = bp.approval?.pre ? ' 🔒pre' : bp.approval?.post ? ' 🔒post' : '';
-                return `\`${id}\`  ${bp.name}${paramName ? ` *(param: ${paramName})*` : ''}${approvalNote}`;
+                if (bp.tiers) {
+                    if (bp.name === 'Catch Up (Gain a Level)') {
+                        return [`\`${bp.id}\`  **${bp.name}**${approvalNote} — *tier auto-detected from your level*`];
+                    }
+                    return [
+                        `**${bp.name}**${approvalNote}`,
+                        ...bp.tiers.map(t => `  \`${t.id}\`  ${t.value ?? (t.min != null || t.max != null ? `${t.min ?? '–'}–${t.max ?? '–'}` : '')}  · ${t.daysRequired}d`),
+                    ];
+                }
+                return [`\`${bp.id}\`  **${bp.name}**${approvalNote} — ${bp.daysRequired}d`];
             });
-        return `**${category}**\n${lines.join('\n')}`;
+        return `**__${category}__**\n${lines.join('\n')}`;
     });
 
-    const content = `📋 **Downtime Activities** (use the \`activity\` ID with \`/league downtime start\`)\n\n${sections.join('\n\n')}`;
+    const content = `📋 **Downtime Activities** (use the UID with \`/league downtime start\`)\n\n${sections.join('\n\n')}`;
 
-    if (content.length <= 2000) {
-        return interaction.editReply({ content });
-    }
+    if (content.length <= 2000) return interaction.editReply({ content });
     const chunks = [];
     let current = '';
     for (const section of sections) {
-        if ((current + '\n\n' + section).length > 1900) {
-            chunks.push(current);
-            current = section;
-        } else {
-            current = current ? `${current}\n\n${section}` : section;
-        }
+        if ((current + '\n\n' + section).length > 1900) { chunks.push(current); current = section; }
+        else current = current ? `${current}\n\n${section}` : section;
     }
     if (current) chunks.push(current);
-
-    await interaction.editReply({ content: `📋 **Downtime Activities** (use the \`activity\` ID with \`/league downtime start\`)\n\n${chunks[0]}` });
-    for (const chunk of chunks.slice(1)) {
-        await interaction.followUp({ content: chunk, flags: 64 });
-    }
+    await interaction.editReply({ content: `📋 **Downtime Activities** (use the UID with \`/league downtime start\`)\n\n${chunks[0]}` });
+    for (const chunk of chunks.slice(1)) await interaction.followUp({ content: chunk, flags: 64 });
 }
 
 // ─── Router ───────────────────────────────────────────────────────────────────
