@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { getCatalogueItemByCode, restockQtyFor, restockCadenceMsFor, applyPriceFloor } = require('./5etoolsCatalogue');
+const { getCatalogueItemByCode, restockQtyFor, restockCadenceMsFor, defaultPriceFor } = require('./5etoolsCatalogue');
 
 const FLOOR_PATH     = path.join(__dirname, '..', 'data', 'shopFloor.json');
 const OVERRIDES_PATH = path.join(__dirname, '..', 'data', 'priceOverrides.json');
@@ -19,10 +19,9 @@ function setPriceOverride(code, price) {
 }
 
 function resolvePrice(code, catalogueItem, explicitPrice) {
-    const price = explicitPrice ?? getPriceOverride(code) ?? catalogueItem.priceGp;
-    const floored = applyPriceFloor(price, catalogueItem.rarity);
-    if (explicitPrice != null) setPriceOverride(code, floored); // admin explicitly set it — remember it
-    return floored;
+    const price = explicitPrice ?? getPriceOverride(code) ?? catalogueItem.priceGp ?? defaultPriceFor(catalogueItem.rarity);
+    if (explicitPrice != null) setPriceOverride(code, price);
+    return price;
 }
 
 function getShopFloor() { return loadJson(FLOOR_PATH); }

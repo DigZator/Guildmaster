@@ -76,16 +76,6 @@ async function handleCreate(interaction) {
 		    });
 	  }
 
-	  //    Check the player doesn't already have an Active character.
-	  //    Defer the check behind an ephemeral deferral so we have time to query Notion
-	  //    before opening the modal (modals must be shown within 3 s of the interaction).
-	  //
-	  //    Strategy: query Notion first synchronously (within the 3 s window),
-	  //    then show the modal or reply with an error.
-	  //
-	  //    Notion reads are fast (< 1 s on a healthy connection), so this is safe.
-	  //    If latency ever becomes an issue, pre-validate via a button flow instead.
-
 	  let existingCharacter;
 	  try {
 	    	existingCharacter = await getActiveCharacter(interaction.user.id);
@@ -105,7 +95,6 @@ async function handleCreate(interaction) {
 	    });
 	  }
 
-	  // 3. Open the registration modal.
 	  const modal = buildLeagueCreateModal();
 	  return interaction.showModal(modal);
 }

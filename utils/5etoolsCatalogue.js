@@ -117,10 +117,9 @@ function getCatalogueMeta() {
 function restockCadenceMsFor(rarity) { return RESTOCK_CADENCE_MS[rarity] ?? RESTOCK_CADENCE_MS.Common; }
 function restockQtyFor(rarity) { return RESTOCK_QTY_BY_RARITY[rarity] ?? RESTOCK_QTY_BY_RARITY.Common; }
 function defaultPriceFor(rarity) { return DEFAULT_PRICE_BY_RARITY[rarity] ?? DEFAULT_PRICE_BY_RARITY.Common; }
-function applyPriceFloor(priceGp, rarity) { return Math.max(priceGp ?? 0, defaultPriceFor(rarity)); }
 
 module.exports = {
     syncCatalogue, loadCatalogue, searchCatalogue, getCatalogueItemByCode, getCatalogueMeta,
-    restockCadenceMsFor, restockQtyFor, defaultPriceFor, applyPriceFloor,
+    restockCadenceMsFor, restockQtyFor, defaultPriceFor,
     RESTOCK_CADENCE_MS, RESTOCK_QTY_BY_RARITY, DEFAULT_PRICE_BY_RARITY,
 };
