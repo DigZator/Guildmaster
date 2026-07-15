@@ -202,4 +202,4 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
     }
 }
 
-module.exports = { loadBlueprints, getBlueprint, getBlueprintById, nextDtaId, resolveCost, resolveCostFromUID, applyDowntimeOutput, getParamName };
+module.exports = { loadBlueprints, getBlueprint, getBlueprintById, nextDtaId, resolveCost, resolveCostFromUID, applyDowntimeOutput, getParamName, sumCosts };

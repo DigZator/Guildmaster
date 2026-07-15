@@ -1,3 +1,4 @@
+// commandHandler.js
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
 const { getKeys } = require('../utils/anonStore');
 const { getCachedGames } = require('../utils/cache');
@@ -17,6 +18,17 @@ const { league } = require('../commands/league');
 const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
 const { questLinkAutocomplete } = require('../commands/leagueQuest');
 const helpData = require('../helpData');
+const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');
+
+const CODE_AUTOCOMPLETE_TARGETS = new Set([
+    'league:shop:info',
+    'league:shop:buy',
+    'leagueadmin:shop:stock',
+    'leagueadmin:shop:unstock',
+    'leagueadmin:shop:restock',
+    'leagueadmin:item:import',
+    'leaguedm:item:import',
+]);
 
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
@@ -24,6 +36,7 @@ module.exports = (client) => {
         if (interaction.isAutocomplete()) {
             if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game') {
                 await gameAutocomplete(interaction);
+                return;
             }
 
             if (interaction.commandName === 'anon_msg') {
@@ -33,13 +46,14 @@ module.exports = (client) => {
                     .slice(0, 25)
                     .map(k => ({ name: k, value: k }));
                 await interaction.respond(choices);
+                return;
             }
 
             if (interaction.commandName === 'schedule_activation') {
                 const sub = interaction.options.getSubcommand();
                 const focused = interaction.options.getFocused().toLowerCase();
                 const games = await getCachedGames();
-            
+
                 if (sub === 'add') {
                     const filtered = games
                         .filter(g => !g.activate && g.title.toLowerCase().includes(focused))
@@ -49,7 +63,7 @@ module.exports = (client) => {
                     await interaction.respond(filtered);
                     return;
                 }
-            
+
                 if (sub === 'remove') {
                     const queue = getQueue().queue;
                     const filtered = queue
@@ -81,34 +95,48 @@ module.exports = (client) => {
             }
 
             if (interaction.commandName === 'help') {
-				const focused = interaction.options.getFocused(true);
+                const focused = interaction.options.getFocused(true);
 
-				if (focused.name === 'family') {
-					const group = interaction.options.getString('group');
-					const groupData = helpData[group];
-					const query = focused.value.toLowerCase();
+                if (focused.name === 'family') {
+                    const group = interaction.options.getString('group');
+                    const groupData = helpData[group];
+                    const query = focused.value.toLowerCase();
 
-					const choices = groupData
-						? Object.entries(groupData)
-							.filter(([key, fam]) => key.toLowerCase().includes(query) || fam.label.toLowerCase().includes(query))
-							.slice(0, 25)
-							.map(([key, fam]) => ({ name: fam.label, value: key }))
-						: [{ name: 'Pick a group first', value: 'none' }];
+                    const choices = groupData
+                        ? Object.entries(groupData)
+                            .filter(([key, fam]) => key.toLowerCase().includes(query) || fam.label.toLowerCase().includes(query))
+                            .slice(0, 25)
+                            .map(([key, fam]) => ({ name: fam.label, value: key }))
+                        : [{ name: 'Pick a group first', value: 'none' }];
 
-					await interaction.respond(choices);
-					return;
-				}
-			}
+                    await interaction.respond(choices);
+                    return;
+                }
+            }
 
-            if (interaction.commandName === 'leaguedm') {
-                const group   = interaction.options.getSubcommandGroup(false);
-                const sub     = interaction.options.getSubcommand();
+            // ─── league / leagueadmin / leaguedm ─────────────────────────────
+            if (
+                interaction.commandName === 'league' ||
+                interaction.commandName === 'leagueadmin' ||
+                interaction.commandName === 'leaguedm'
+            ) {
+                const group = interaction.options.getSubcommandGroup(false);
+                const sub   = interaction.options.getSubcommand(false);
 
-                if (group === 'quest' && sub === 'link') {
+                // Quest link autocomplete (leaguedm quest link) — distinct UID system, not a catalogue code
+                if (interaction.commandName === 'leaguedm' && group === 'quest' && sub === 'link') {
                     await questLinkAutocomplete(interaction);
                     return;
                 }
-            }            
+
+                // Everything that focuses a catalogue item code
+                const key = `${interaction.commandName}:${group}:${sub}`;
+                if (CODE_AUTOCOMPLETE_TARGETS.has(key)) {
+                    await catalogueAutocomplete(interaction);
+                    return;
+                }
+            }
+
             return;
         }
 

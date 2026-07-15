@@ -331,15 +331,33 @@ const commands = [
 		    .addSubcommand(sub => sub
 		        .setName('buy')
 		        .setDescription('Buy an item from the shop')
-		        .addStringOption(opt => opt.setName('id').setDescription('Shop item ID').setRequired(true)))
+		        .addStringOption(opt => opt
+		        	.setName('id')
+		        	.setDescription('Shop item ID')
+		        	.setRequired(true)
+		        	.setAutocomplete(true)))
+	        .addSubcommand(sub => sub
+	            .setName('sell')
+	            .setDescription('Sell item(s) from your inventory to the shop for half value')
+	            .addStringOption(opt => opt
+	                .setName('item_id')
+	                .setDescription('Inventory item # from /league inv (comma-separated for multiple, e.g. 001,003)')
+	                .setRequired(true)))
 		    .addSubcommand(sub => sub
 		        .setName('search')
 		        .setDescription('Search the full item catalogue by name')
-		        .addStringOption(opt => opt.setName('name').setDescription('Item name to search for').setRequired(true)))
+		        .addStringOption(opt => opt
+		        	.setName('name')
+		        	.setDescription('Item name to search for')
+		        	.setRequired(true)))
 		    .addSubcommand(sub => sub
 		        .setName('info')
 		        .setDescription('View full details of an item by its code')
-		        .addStringOption(opt => opt.setName('code').setDescription('Item code (from search/browse)').setRequired(true))))
+		        .addStringOption(opt => opt
+		        	.setName('code')
+		        	.setDescription('Item code (from search/browse)')
+		        	.setRequired(true)
+		        	.setAutocomplete(true))))
 		//marketplace
 		.addSubcommandGroup(group => group
 		    .setName('marketplace')
@@ -524,7 +542,7 @@ const commands = [
 			.addSubcommand(sub => sub
 				.setName('import')
 				.setDescription('Import an item directly from the 5e catalogue')
-				.addStringOption(opt => opt.setName('code').setDescription('Catalogue item code (see /league shop search)').setRequired(true))
+				.addStringOption(opt => opt.setName('code').setDescription('Catalogue item code (see /league shop search)').setRequired(true).setAutocomplete(true))
 				.addUserOption(opt => opt.setName('player').setDescription('Assign to a player (optional)').setRequired(false))
 				.addIntegerOption(opt => opt.setName('value').setDescription('Override the catalogue price (gp)').setRequired(false).setMinValue(0))
 				.addStringOption(opt => opt.setName('source').setDescription('How the item was obtained').setRequired(false)
@@ -543,7 +561,7 @@ const commands = [
 			.addSubcommand(sub => sub
 				.setName('stock')
 				.setDescription('Add/update an item on the shop floor from the catalogue')
-				.addStringOption(opt => opt.setName('code').setDescription('Catalogue item code').setRequired(true))
+				.addStringOption(opt => opt.setName('code').setDescription('Catalogue item code').setRequired(true).setAutocomplete(true))
 				.addIntegerOption(opt => opt.setName('quantity').setDescription('Quantity to stock').setRequired(true).setMinValue(0))
 				.addIntegerOption(opt => opt.setName('price').setDescription('Override price in gp (defaults to official SRD price)').setRequired(false).setMinValue(0)))
 			.addSubcommand(sub => sub
@@ -560,11 +578,11 @@ const commands = [
 	        .addSubcommand(sub => sub
 				.setName('unstock')
 				.setDescription('Remove an item from the shop floor')
-				.addStringOption(opt => opt.setName('code').setDescription('Shop item ID').setRequired(true)))
+				.addStringOption(opt => opt.setName('code').setDescription('Shop item ID').setRequired(true).setAutocomplete(true)))
 			.addSubcommand(sub => sub
 				.setName('restock')
 				.setDescription('Manually trigger a restock for an item')
-				.addStringOption(opt => opt.setName('code').setDescription('Shop item ID').setRequired(true))))
+				.addStringOption(opt => opt.setName('code').setDescription('Shop item ID').setRequired(true).setAutocomplete(true))))
 		//catalogue
 		.addSubcommandGroup(group => group
 			.setName('catalogue')
@@ -768,21 +786,20 @@ const commands = [
 				.addIntegerOption(opt => opt.setName('value').setDescription('Item value in gp').setRequired(false).setMinValue(0))
 				.addStringOption(opt => opt.setName('notes').setDescription('Additional notes').setRequired(false)))
 			.addSubcommand(sub => sub
-				.setName('import')
-				.setDescription('Import an item directly from the 5e catalogue and assign it to a player')
-				.addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID this item is tied to').setRequired(true))
-				.addStringOption(opt => opt.setName('code').setDescription('Catalogue item code (see /league shop search)').setRequired(true))
-				.addUserOption(opt => opt.setName('player').setDescription('Player to assign the item to').setRequired(true))
-				.addIntegerOption(opt => opt.setName('value').setDescription('Override the catalogue price (gp)').setRequired(false).setMinValue(0))
-				.addStringOption(opt => opt.setName('source').setDescription('How the item was obtained').setRequired(false)
-					.addChoices(
-						{ name: 'Quest Reward',  value: 'Quest Reward' },
-						{ name: 'Shop Purchase', value: 'Shop Purchase' },
-						{ name: 'Event',         value: 'Event' },
-						{ name: 'Admin Grant',   value: 'Admin Grant' },
-					)
-				)
-				.addStringOption(opt => opt.setName('notes').setDescription('Override the catalogue description').setRequired(false)))),
+							.setName('import')
+							.setDescription('Import an item directly from the 5e catalogue and assign it to a player')
+							.addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID this item is tied to').setRequired(true))
+							.addStringOption(opt => opt.setName('code').setDescription('Catalogue item code (see /league shop search)').setRequired(true).setAutocomplete(true))
+							.addUserOption(opt => opt.setName('player').setDescription('Player to assign the item to').setRequired(true))
+							.addStringOption(opt => opt.setName('source').setDescription('How the item was obtained').setRequired(false)
+								.addChoices(
+									{ name: 'Quest Reward',  value: 'Quest Reward' },
+									{ name: 'Shop Purchase', value: 'Shop Purchase' },
+									{ name: 'Event',         value: 'Event' },
+									{ name: 'Admin Grant',   value: 'Admin Grant' },
+								)
+							)
+							.addStringOption(opt => opt.setName('notes').setDescription('Override the catalogue description').setRequired(false)))),
         
 ].map(cmd => cmd.toJSON());
 

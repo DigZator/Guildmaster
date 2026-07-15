@@ -1,20 +1,22 @@
-const memorial     	= require('../buttons/memorial');
-const announcement 	= require('../buttons/announcement');
-const listGames     = require('../buttons/listGames');
-const deletions     = require('../buttons/confirmDelete');
-const anonMessages  = require('../buttons/anonMessages');
-const inventory     = require('../buttons/inventory');
-const questComplete = require('../buttons/questComplete');
-const shopSearch 	= require('../buttons/shopSearch');
-const shopBrowse 	= require('../buttons/shopBrowse');
-const shopDiscount 	= require('../buttons/shopDiscount')
-const downtimeBuyDays = require('../buttons/downtimeBuyDays');
+const memorial     		= require('../buttons/memorial');
+const announcement 		= require('../buttons/announcement');
+const listGames     	= require('../buttons/listGames');
+const deletions    		= require('../buttons/confirmDelete');
+const anonMessages  	= require('../buttons/anonMessages');
+const inventory     	= require('../buttons/inventory');
+const questComplete 	= require('../buttons/questComplete');
+const shopSearch 		= require('../buttons/shopSearch');
+const shopBrowse 		= require('../buttons/shopBrowse');
+const shopDiscount 		= require('../buttons/shopDiscount')
+const shopSell 			= require('../buttons/shopSell');
+const downtimeBuyDays 	= require('../buttons/downtimeBuyDays');
 
 const exactHandlers = {
     ...memorial.exact,
     ...announcement.exact,
     ...anonMessages.exact,
     ...shopDiscount.exact,
+    ...shopSell.exact,
     ...downtimeBuyDays.exact,
 };
 

@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getActiveCharacter, adjustCharacterNumber, setCharacterLevel, createInventoryItem } = require('../utils/leagueNotion');
-const { getCatalogueItemByCode } = require('../utils/5etoolsCatalogue');
+const { getCatalogueItemByCode, defaultPriceFor } = require('../utils/5etoolsCatalogue');
 const { resolveLevelUps, LEVEL_CONFIG } = require('../config/leagueLeveling');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
 const { addAction, getAll, getById, removeById } = require('../utils/pendingActions');
@@ -20,7 +20,6 @@ const TIER_COLORS = [0xe74c3c, 0x3498db, 0x9b59b6, 0xf1c40f, 0x2ecc71, 0xe67e22,
 const INSPIRING_QUOTES = [
     { quote: 'Not all those who wander are lost.', author: 'J.R.R. Tolkien' },
     { quote: 'Even the smallest person can change the course of the future.', author: 'J.R.R. Tolkien' },
-    { quote: 'It does not do to dwell on dreams and forget to live.', author: 'J.K. Rowling' },
     { quote: 'The cave you fear to enter holds the treasure you seek.', author: 'Joseph Campbell' },
     { quote: 'Courage is not the absence of fear, but the triumph over it.', author: 'Nelson Mandela' },
     { quote: 'Do not go where the path may lead; go instead where there is no path and leave a trail.', author: 'Ralph Waldo Emerson' },
@@ -326,6 +325,8 @@ async function handleDMRep(interaction) {
 
     const pairs = extractPairs(interaction);
     const results = [];
+    const embedFields = [];
+    let anyOffQuest = false;
 
     for (const { user, amount } of pairs) {
         if (amount > REP_MAX) {
@@ -350,6 +351,7 @@ async function handleDMRep(interaction) {
         const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
         const currentRep    = character.properties['Reputation Points']?.number ?? 0;
         const onQuest       = quest.characterIds.includes(character.id);
+        if (!onQuest) anyOffQuest = true;
 
         const entry = addAction({
             type: 'reputation',
@@ -364,29 +366,25 @@ async function handleDMRep(interaction) {
             payload: { amount, currentRep },
         });
 
-        const embedFields = [
-            { name: 'Quest',        value: `${quest.questName} (\`${quest.questId}\`)`, inline: false },
-            { name: 'Character',    value: characterName,               inline: true },
-            { name: 'Player',       value: `<@${user.id}>`,             inline: true },
-            { name: 'Requested By', value: `<@${interaction.user.id}>`, inline: true },
-            { name: 'Amount',       value: `+${amount}`,                inline: true },
-            { name: 'Current Rep',  value: `${currentRep}`,             inline: true },
-        ];
-        if (!onQuest) {
-            embedFields.push({ name: '⚠️ Warning', value: `**${characterName}** is not on the quest roster for \`${quest.questId}\`.`, inline: false });
-        }
-        embedFields.push({ name: 'Action ID', value: `\`${entry.id}\``, inline: false });
-
-        await sendAdminLog(interaction.guild, new EmbedBuilder()
-            .setColor(onQuest ? 0x5865f2 : 0xf1c40f)
-            .setTitle('⏳ Reputation Grant — Pending Approval')
-            .addFields(...embedFields)
-            .setTimestamp()
+        embedFields.push(
+            { name: characterName, value: `+${amount} (was ${currentRep})${onQuest ? '' : ' ⚠️ not on roster'}`, inline: true },
+            { name: 'Player',      value: `<@${user.id}>`,          inline: true },
+            { name: 'Action ID',   value: `\`${entry.id}\``,        inline: true },
         );
 
         results.push(onQuest
             ? `✅ **${characterName}** — pending approval. ID: \`${entry.id}\``
             : `⚠️ **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
+        );
+    }
+
+    if (embedFields.length > 0) {
+        await sendAdminLog(interaction.guild, new EmbedBuilder()
+            .setColor(anyOffQuest ? 0xf1c40f : 0x5865f2)
+            .setTitle('⏳ Reputation Grants — Pending Approval')
+            .setDescription(`Quest: ${quest.questName} (\`${quest.questId}\`)\nRequested by <@${interaction.user.id}>`)
+            .addFields(...embedFields)
+            .setTimestamp()
         );
     }
 
@@ -409,6 +407,7 @@ async function handleDMGold(interaction) {
 
     const pairs = extractPairs(interaction);
     const results = [];
+    const embedFields = [];
 
     for (const { user, amount } of pairs) {
         if (amount < 0) {
@@ -447,24 +446,11 @@ async function handleDMGold(interaction) {
             payload: { amount, currentGold },
         });
 
-        const embedFields = [
-            { name: 'Quest',        value: `${quest.questName} (\`${quest.questId}\`)`, inline: false },
-            { name: 'Character',    value: characterName,               inline: true },
-            { name: 'Player',       value: `<@${user.id}>`,             inline: true },
-            { name: 'Requested By', value: `<@${interaction.user.id}>`, inline: true },
-            { name: 'Amount',       value: `+${amount} gp`,             inline: true },
-            { name: 'Current Gold', value: `${currentGold} gp`,         inline: true },
-        ];
-        if (!onQuest) {
-            embedFields.push({ name: '⚠️ Warning', value: `**${characterName}** is not on the quest roster for \`${quest.questId}\`.`, inline: false });
-        }
-        embedFields.push({ name: 'Action ID', value: `\`${entry.id}\``, inline: false });
-
-        await sendAdminLog(interaction.guild, new EmbedBuilder()
-            .setColor(onQuest ? 0x5865f2 : 0xf1c40f)
-            .setTitle('⏳ Gold Grant — Pending Approval')
-            .addFields(...embedFields)
-            .setTimestamp()
+        embedFields.push(
+        	{ name: `${characterName}`, value: `+${amount} gp (was ${currentGold} gp)`, inline: true },
+  	        { name: 'Player', 			value: `<@${user.id}>`,             			inline: true },
+  	        { name: 'Action ID',		value: `\`${entry.id}\``,						inline: true },
+  	        ...(onQuest ? [] : [{ name: '⚠️', value: `Not on quest roster`, inline: true}]),
         );
 
         results.push(onQuest
@@ -472,6 +458,16 @@ async function handleDMGold(interaction) {
             : `⚠️ **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
         );
     }
+
+    if (embedFields.length > 0) {
+	    await sendAdminLog(interaction.guild, new EmbedBuilder()
+	        .setColor(0xf1c40f)
+	        .setTitle('⏳ Gold Grants — Pending Approval')
+	        .setDescription(`Quest: ${quest.questName} (\`${quest.questId}\`)\nRequested by <@${interaction.user.id}>`)
+	        .addFields(...embedFields)
+	        .setTimestamp()
+	    );
+	}
 
     return interaction.editReply({ content: results.join('\n') });
 }
@@ -492,6 +488,8 @@ async function handleDMMilestone(interaction) {
 
     const pairs = extractPairs(interaction);
     const results = [];
+    const embedFields = [];
+    let anyOffQuest = false;
 
     for (const { user, amount } of pairs) {
         let character;
@@ -512,6 +510,7 @@ async function handleDMMilestone(interaction) {
         const currentMilestones = character.properties['Milestones']?.number ?? 0;
         const currentLevel      = character.properties['Level']?.number ?? 1;
         const onQuest           = quest.characterIds.includes(character.id);
+        if (!onQuest) anyOffQuest = true;
 
         const entry = addAction({
             type: 'milestone',
@@ -526,30 +525,25 @@ async function handleDMMilestone(interaction) {
             payload: { amount, currentMilestones, currentLevel },
         });
 
-        const embedFields = [
-            { name: 'Quest',               value: `${quest.questName} (\`${quest.questId}\`)`, inline: false },
-            { name: 'Character',          value: characterName,               inline: true },
-            { name: 'Player',             value: `<@${user.id}>`,             inline: true },
-            { name: 'Requested By',       value: `<@${interaction.user.id}>`, inline: true },
-            { name: 'Amount',             value: `+${amount}`,                inline: true },
-            { name: 'Current Milestones', value: `${currentMilestones}`,      inline: true },
-            { name: 'Current Level',      value: `${currentLevel}`,           inline: true },
-        ];
-        if (!onQuest) {
-            embedFields.push({ name: '⚠️ Warning', value: `**${characterName}** is not on the quest roster for \`${quest.questId}\`.`, inline: false });
-        }
-        embedFields.push({ name: 'Action ID', value: `\`${entry.id}\``, inline: false });
-
-        await sendAdminLog(interaction.guild, new EmbedBuilder()
-            .setColor(onQuest ? 0x5865f2 : 0xf1c40f)
-            .setTitle('⏳ Milestone Grant — Pending Approval')
-            .addFields(...embedFields)
-            .setTimestamp()
+        embedFields.push(
+            { name: characterName, value: `+${amount} (Lvl ${currentLevel}, was ${currentMilestones} ms)${onQuest ? '' : ' ⚠️ not on roster'}`, inline: true },
+            { name: 'Player',      value: `<@${user.id}>`,   inline: true },
+            { name: 'Action ID',   value: `\`${entry.id}\``, inline: true },
         );
 
         results.push(onQuest
             ? `✅ **${characterName}** — pending approval. ID: \`${entry.id}\``
             : `⚠️ **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
+        );
+    }
+
+    if (embedFields.length > 0) {
+        await sendAdminLog(interaction.guild, new EmbedBuilder()
+            .setColor(anyOffQuest ? 0xf1c40f : 0x5865f2)
+            .setTitle('⏳ Milestone Grants — Pending Approval')
+            .setDescription(`Quest: ${quest.questName} (\`${quest.questId}\`)\nRequested by <@${interaction.user.id}>`)
+            .addFields(...embedFields)
+            .setTimestamp()
         );
     }
 
@@ -947,7 +941,7 @@ function resolveCatalogueImport(code, overrides = {}) {
         type:     catalogueItem.type,
         rarity:   catalogueItem.rarity,
         subtype:  inferSubtype(catalogueItem),
-        itemValue: overrides.itemValue ?? catalogueItem.priceGp ?? undefined,
+        itemValue: overrides.itemValue ?? catalogueItem.priceGp ?? defaultPriceFor(catalogueItem.rarity),
         notes:    overrides.notes ?? (catalogueItem.description ? catalogueItem.description.slice(0, 500) : undefined),
         catalogueCode: catalogueItem.code,
     };
@@ -1117,12 +1111,11 @@ async function handleDMItemImport(interaction) {
 
     const code       = interaction.options.getString('code');
     const targetUser = interaction.options.getUser('player');
-    const valueOverride   = interaction.options.getInteger('value');
     const source          = interaction.options.getString('source');
     const notesOverride   = interaction.options.getString('notes');
 
     const resolved = resolveCatalogueImport(code, {
-        itemValue: valueOverride, notes: notesOverride,
+        notes: notesOverride,
     });
     if (resolved.error) return interaction.editReply({ content: resolved.error });
 

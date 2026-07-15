@@ -11,7 +11,7 @@ const {
     withPageLock,
 } = require('../utils/leagueNotion');
 const { createStartRequest } = require('../utils/downtimeApprovals');
-const { loadBlueprints, resolveCostFromUID, getBlueprint, getBlueprintById, nextDtaId, resolveCost, applyDowntimeOutput, getParamName } = require('../utils/downtime');
+const { loadBlueprints, resolveCostFromUID, getBlueprint, getBlueprintById, nextDtaId, resolveCost, applyDowntimeOutput, getParamName, sumCosts } = require('../utils/downtime');
 const leagueNotion = require('../utils/leagueNotion');
 const { formatCurrency } = require('../utils/currency');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
@@ -21,9 +21,19 @@ function coerceParam(raw) {
     return raw !== '' && !isNaN(Number(raw)) ? Number(raw) : raw;
 }
 
+function formatGpCost(costs, params) {
+    const { gpTotal, gpPerDay } = sumCosts(costs ?? [], params ?? {});
+    const parts = [];
+    if (gpTotal > 0) parts.push(formatCurrency(gpTotal));
+    if (gpPerDay > 0) parts.push(`${formatCurrency(gpPerDay)}/day`);
+    const hasAssistantCost = (costs ?? []).some(c => c.target === 'assistant');
+    return (parts.length ? parts.join(' + ') : 'free') + (hasAssistantCost ? ' (+ assistant pay)' : '');
+}
+
 async function sendAdminLog(guild, embed) {
     const channel = guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);
     if (channel) await channel.send({ embeds: [embed] });
+    else console.warn('[leagueDowntime] LEAGUE_ADMIN_CHANNEL_ID not found in cache — admin log message dropped.');
 }
 
 async function postToCharacterThread(client, char, embed) {
@@ -235,10 +245,12 @@ async function handleDowntimeProgress(interaction) {
     await postToCharacterThread(interaction.client, char, embed);
     
     return interaction.editReply({
-        content: (isComplete
-            ? `🎉 **${activityName}** complete!${outputResult ? ` ${outputResult.message}` : ''}`
-            : `✅ Logged ${days} day(s) on **${activityName}** (${newDaysInvested}/${daysRequired}). Spent ${formatCurrency(gpCost)}.`)
-            + ` (${currentDowntimeDays - days} downtime day(s) remaining)`,
+        content: (needsCompletionApproval
+            ? `⏳ **${activityName}** — all ${daysRequired} day(s) logged! This activity requires an Admin sign-off before it finalizes. A completion approval request has been sent to the admins.`
+            : isComplete
+	            ? `🎉 **${activityName}** complete!${outputResult ? ` ${outputResult.message}` : ''}`
+	            : `✅ Logged ${days} day(s) on **${activityName}** (${newDaysInvested}/${daysRequired}). Spent ${formatCurrency(gpCost)}.`)
+			+ ` (${currentDowntimeDays - days} downtime day(s) remaining)`,
     });
 }
 
@@ -317,14 +329,17 @@ async function handleDowntimeActivities(interaction) {
                 const approvalNote = bp.approval?.pre ? ' 🔒pre' : bp.approval?.post ? ' 🔒post' : '';
                 if (bp.tiers) {
                     if (bp.name === 'Catch Up (Gain a Level)') {
-                        return [`\`${bp.id}\`  **${bp.name}**${approvalNote} — *tier auto-detected from your level*`];
+                        return [`\`${bp.id}\`  **${bp.name}**${approvalNote} — *tier auto-detected from your level* · free`];
                     }
                     return [
                         `**${bp.name}**${approvalNote}`,
-                        ...bp.tiers.map(t => `  \`${t.id}\`  ${t.value ?? (t.min != null || t.max != null ? `${t.min ?? '–'}–${t.max ?? '–'}` : '')}  · ${t.daysRequired}d`),
+                        ...bp.tiers.map(t => {
+                            const pName = getParamName(bp);
+                            return `  \`${t.id}\`  ${t.value ?? (t.min != null || t.max != null ? `${t.min ?? '–'}–${t.max ?? '–'}` : '')}  · ${t.daysRequired}d · ${formatGpCost(t.costs, pName ? { [pName]: t.value } : {})}`;
+                        }),
                     ];
                 }
-                return [`\`${bp.id}\`  **${bp.name}**${approvalNote} — ${bp.daysRequired}d`];
+                return [`\`${bp.id}\`  **${bp.name}**${approvalNote} — ${bp.daysRequired}d · ${formatGpCost(bp.costs, {})}`];
             });
         return `**__${category}__**\n${lines.join('\n')}`;
     });

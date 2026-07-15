@@ -104,6 +104,17 @@ function searchCatalogue(query, { limit = 100 } = {}) {
     return loadCatalogue().items.filter(i => i.name.toLowerCase().includes(q)).slice(0, limit);
 }
 
+function getCatalogueItemByName(name) {
+    const target = name.trim().toLowerCase();
+    const matches = loadCatalogue().items.filter(i => i.name.toLowerCase() === target);
+    if (matches.length === 0) return null;
+    return matches.reduce((cheapest, item) => {
+        if (item.priceGp == null) return cheapest;
+        if (cheapest == null || cheapest.priceGp == null) return item;
+        return item.priceGp < cheapest.priceGp ? item : cheapest;
+    }, null) ?? matches[0];
+}
+
 function getCatalogueItemByCode(code) {
     const c = code.trim().toUpperCase();
     return loadCatalogue().items.find(i => i.code === c) ?? null;
@@ -119,7 +130,7 @@ function restockQtyFor(rarity) { return RESTOCK_QTY_BY_RARITY[rarity] ?? RESTOCK
 function defaultPriceFor(rarity) { return DEFAULT_PRICE_BY_RARITY[rarity] ?? DEFAULT_PRICE_BY_RARITY.Common; }
 
 module.exports = {
-    syncCatalogue, loadCatalogue, searchCatalogue, getCatalogueItemByCode, getCatalogueMeta,
+    syncCatalogue, loadCatalogue, searchCatalogue, getCatalogueItemByCode, getCatalogueItemByName, getCatalogueMeta,
     restockCadenceMsFor, restockQtyFor, defaultPriceFor,
     RESTOCK_CADENCE_MS, RESTOCK_QTY_BY_RARITY, DEFAULT_PRICE_BY_RARITY,
 };

@@ -18,7 +18,9 @@ const {
     syncCatalogue,
     searchCatalogue,
     getCatalogueItemByCode,
+    getCatalogueItemByName,
     getCatalogueMeta,
+    defaultPriceFor,
 } = require('../utils/5etoolsCatalogue');
 const {
     tierMinFor,
@@ -33,6 +35,7 @@ const { formatCurrency } = require('../utils/currency');
 const { availableDiscounts } = require('../config/reputationDiscounts');
 const { setPendingBuy } = require('../utils/shopBuySessions');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+const { setPendingSell } = require('../utils/shopSellSessions');
 
 const PAGE_SIZE = 12;
 const MARKETPLACE_TAX_RATE = 0.25; // 25% — deducted from the seller's proceeds, removed from the economy (sink)
@@ -212,6 +215,7 @@ async function finalizePurchase(interaction, { char, characterName, code, entry,
                 itemName: entry.name,
                 type: entry.type,
                 rarity: entry.rarity,
+                itemValue: entry.price,
                 source: 'Shop Purchase',
                 characterPageId: char.id,
                 status: 'Owned',
@@ -297,6 +301,100 @@ async function handleShopBuy(interaction) {
 
     return interaction.editReply({
         content: `**${entry.name}** — ${formatCurrency(entry.price)} gp.\nYou have **${currentRep} RP**, eligible for up to **${discounts[discounts.length - 1].discount}% off** on this item. Use reputation for a discount?`,
+        components: [row],
+    });
+}
+
+// ─── /league shop sell ─────────────────────────────────────────────────────────
+
+async function handleShopSell(interaction) {
+    await interaction.deferReply({ flags: 64 });
+
+    const itemIdInput = interaction.options.getString('item_id').replace('#', '').trim();
+    const rawIds = itemIdInput.split(',').map(s => s.trim()).filter(Boolean);
+
+    const sellerChar = await getActiveCharacter(interaction.user.id).catch(() => null);
+    if (!sellerChar) return interaction.editReply({ content: '❌ No active character found.' });
+
+    const serials = [];
+    for (const raw of rawIds) {
+        const serial = parseInt(raw, 10);
+        if (isNaN(serial) || serial < 1) {
+            return interaction.editReply({ content: `❌ Invalid item ID \`${raw}\`. Use the \`#\` number(s) shown in \`/league inv\`, e.g. \`001\` or \`001,003\`.` });
+        }
+        serials.push(serial);
+    }
+
+    let inventory;
+    try {
+        inventory = await getCharacterInventory(sellerChar.id);
+    } catch (err) {
+        console.error('[league shop sell] Notion error:', err);
+        return interaction.editReply({ content: '❌ Could not fetch your inventory. Please try again.' });
+    }
+
+    const items = [];
+    for (const serial of serials) {
+        const item = inventory[serial - 1];
+        if (!item) {
+            return interaction.editReply({ content: `❌ No item at position \`#${String(serial).padStart(3, '0')}\` in your inventory.` });
+        }
+
+        const itemStatus = item.properties['Status']?.select?.name;
+        if (itemStatus !== 'Owned') {
+            return interaction.editReply({ content: `❌ Item \`#${String(serial).padStart(3, '0')}\` cannot be sold (current status: ${itemStatus}).` });
+        }
+
+        const itemName  = item.properties['Item Name']?.title?.[0]?.plain_text ?? 'Unknown';
+        let itemValue   = item.properties['Item Value']?.number ?? null;
+
+        // console.log(`Item Name - ${itemName}, Item Value - ${itemValue}`);
+
+        if (itemValue == null) {
+            const catalogueItem = getCatalogueItemByName(itemName);
+            if (catalogueItem) {
+                itemValue = catalogueItem.priceGp ?? defaultPriceFor(catalogueItem.rarity);
+            }
+        }
+
+        // console.log(`Catalgouge check - Item Name - ${itemName}, Item Value - ${itemValue}`);
+
+        if (itemValue == null) {
+            return interaction.editReply({ content: `❌ **${itemName}** (\`#${String(serial).padStart(3, '0')}\`) has no value on file and cannot be sold. Contact an admin.` });
+        }
+
+        items.push({
+            serial,
+            pageId: item.id,
+            name: itemName,
+            value: itemValue,
+            sellPrice: Math.round(itemValue / 2),
+        });
+    }
+
+    const uniquePageIds = new Set(items.map(i => i.pageId));
+    if (uniquePageIds.size !== items.length) {
+        return interaction.editReply({ content: '❌ Duplicate item ID in your list.' });
+    }
+
+    const totalPrice = items.reduce((sum, i) => sum + i.sellPrice, 0);
+
+    setPendingSell(interaction.user.id, {
+        char: sellerChar,
+        characterName: sellerChar.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown',
+        items,
+        totalPrice,
+    });
+
+    const lines = items.map(i => `**${i.name}** (\`#${String(i.serial).padStart(3, '0')}\`) — ${formatCurrency(i.value)} → sells for **${formatCurrency(i.sellPrice)}**`);
+
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('shopsell_confirm_yes').setLabel('Confirm sale').setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId('shopsell_confirm_no').setLabel('Cancel').setStyle(ButtonStyle.Secondary),
+    );
+
+    return interaction.editReply({
+        content: `${lines.join('\n')}\n\nTotal payout: **${formatCurrency(totalPrice)}**. Confirm sale?`,
         components: [row],
     });
 }
@@ -624,10 +722,11 @@ async function handleAdminCatalogueSync(interaction) {
 async function leagueShop(interaction) {
     const sub = interaction.options.getSubcommand();
     switch (sub) {
-        case 'browse': return handleShopBrowse(interaction);
-        case 'search': return handleShopSearch(interaction);
-        case 'info':   return handleShopInfo(interaction);
-        case 'buy':    return handleShopBuy(interaction);
+        case 'browse': 	return handleShopBrowse(interaction);
+        case 'search': 	return handleShopSearch(interaction);
+        case 'info': 	return handleShopInfo(interaction);
+        case 'buy': 	return handleShopBuy(interaction);
+        case 'sell':	return handleShopSell(interaction);
     }
 }
 

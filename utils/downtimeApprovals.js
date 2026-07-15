@@ -8,8 +8,8 @@ function save(data) { fs.mkdirSync(path.dirname(PATH_), { recursive: true }); fs
 function createStartRequest({ uid, characterPageId, discordUserId }) {
     const pending = load();
     let n = 0;
-    while (pending[n.toString(16).toUpperCase().padStart(4, '0')]) n++;
-    const id = n.toString(16).toUpperCase().padStart(4, '0');
+    while (pending[`S${n.toString(16).toUpperCase().padStart(4, '0')}`]) n++;
+    const id = `S${n.toString(16).toUpperCase().padStart(4, '0')}`;
     pending[id] = { kind: 'start', uid, characterPageId, discordUserId, createdAt: new Date().toISOString() };
     save(pending);
     return id;

@@ -196,7 +196,7 @@ async function handleQuestLink(interaction) {
     );
 
     return interaction.editReply({
-        content: `✅ Quest link for **${adventureName}** submitted for approval. Action ID: \`${entry.id}\``,
+        content: `✅ Quest link for **${adventureName}** submitted for approval. Action ID (For Admins): \`${entry.id}\``,
     });
 }
 
