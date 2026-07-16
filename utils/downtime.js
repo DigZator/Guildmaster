@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { applyMilestones } = require('./milestones');
 
 const BLUEPRINTS_PATH = path.join(__dirname, '..', 'data', 'downtimeBlueprints.json');
 const SEQUENCE_PATH    = path.join(__dirname, '..', 'data', 'downtimeSequence.json');
@@ -162,10 +163,22 @@ function resolveCostFromUID(UID) {
     return null;
 }
 
-async function applyDowntimeOutput({ output, characterPageId, activityName, tierValue }, notion) {
+async function applyDowntimeOutput({ output, characterPageId, activityName, tierValue }, notion, client = null, guild = null) {
     if (!output) return null;
 
     switch (output.type) {
+        case 'milestone': {
+            const amount = output.amount ?? 1;
+            const char = await notion.getPageById(characterPageId);
+            const characterName = char.properties['Character Name']?.title?.[0]?.plain_text ?? activityName;
+
+            const { newLevel, levelUps } = await applyMilestones(client, guild, char, characterName, amount);
+
+            const message = levelUps > 0
+                ? `Gained ${amount} milestone${amount === 1 ? '' : 's'} — leveled up to ${newLevel}!`
+                : `Gained ${amount} milestone${amount === 1 ? '' : 's'}.`;
+            return { needsManualGrant: false, message };
+        }
         case 'item':
         case 'spellScroll':
         case 'magicItem': {

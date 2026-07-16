@@ -198,7 +198,7 @@ async function handleDowntimeProgress(interaction) {
     if (isComplete && !needsCompletionApproval && blueprint?.output) {
         const tierValue = coerceParam(storedParam);
         try {
-            outputResult = await applyDowntimeOutput({ output: blueprint.output, characterPageId: char.id, activityName, tierValue }, leagueNotion);
+            outputResult = await applyDowntimeOutput({ output: blueprint.output, characterPageId: char.id, activityName, tierValue }, leagueNotion, interaction.client, interaction.guild);
         } catch (err) {
             console.error('[downtime progress] Failed to apply output:', err);
         }
@@ -328,8 +328,11 @@ async function handleDowntimeActivities(interaction) {
             .flatMap(({ bp }) => {
                 const approvalNote = bp.approval?.pre ? ' 🔒pre' : bp.approval?.post ? ' 🔒post' : '';
                 if (bp.tiers) {
-                    if (bp.name === 'Catch Up (Gain a Level)') {
-                        return [`\`${bp.id}\`  **${bp.name}**${approvalNote} — *tier auto-detected from your level* · free`];
+                    if (bp.name === 'Catch Up (Gain a Milestone)') {
+                        return [
+                            `**${bp.name}**${approvalNote} — *tier auto-detected from your level*`,
+                            ...bp.tiers.map(t => `  \`${t.id}\`  Tier ${t.value}  · ${t.daysRequired}d · ${formatGpCost(t.costs, {})}`),
+                        ];
                     }
                     return [
                         `**${bp.name}**${approvalNote}`,

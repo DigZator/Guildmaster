@@ -214,6 +214,10 @@ module.exports = {
           name: '/league shop buy <id>',
           description: 'Buy an item from the shop by its shop listing ID.',
         },
+        {
+          name: '/league shop sell <id>',
+          description: 'Sell an item from your inventory to the shop by its inventory ID.',
+        },
       ],
     },
     marketplace: {
@@ -243,8 +247,8 @@ module.exports = {
       description: 'Run downtime activities between quests.',
       commands: [
         {
-          name: '/league downtime start <activity> [param]',
-          description: 'Begin a downtime activity by its ID. `param` is used by activities that need an extra input (e.g. spell level).',
+          name: '/league downtime start <activity>',
+          description: 'Begin a downtime activity by its ID.',
         },
         {
           name: '/league downtime progress <id> <days>',
