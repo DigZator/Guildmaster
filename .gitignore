@@ -2,7 +2,9 @@
 token.txt
 url.txt
 .env
-data/
+data/*
+!data/channels.js
+!data/downtimeBlueprints.json
 temp/
 test/
 

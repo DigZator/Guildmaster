@@ -1,0 +1,695 @@
+{
+  "blueprints": {
+    "craft-magic-item": {
+      "name": "Craft a Magic Item",
+      "category": "Crafting",
+      "id": "1",
+      "costModel": "parameterized",
+      "parameter": "rarity",
+      "tiers": [
+        {
+          "value": "Common",
+          "id": "101",
+          "daysRequired": 5,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 50
+            }
+          ]
+        },
+        {
+          "value": "Uncommon",
+          "id": "102",
+          "daysRequired": 10,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 200
+            }
+          ]
+        },
+        {
+          "value": "Rare",
+          "id": "103",
+          "daysRequired": 50,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 2000
+            }
+          ]
+        },
+        {
+          "value": "Very Rare",
+          "id": "104",
+          "daysRequired": 125,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 20000
+            }
+          ]
+        },
+        {
+          "value": "Legendary",
+          "id": "105",
+          "daysRequired": 250,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 100000
+            }
+          ]
+        }
+      ],
+      "checks": {
+        "skill": "Arcana",
+        "attempts": 5,
+        "successesRequired": 3,
+        "dc": 10
+      },
+      "approval": {
+        "pre": false,
+        "post": false
+      },
+      "prerequisites": [
+        {
+          "type": "selfAttested",
+          "description": "Crafter must have Arcana proficiency."
+        }
+      ],
+      "output": {
+        "type": "magicItem"
+      }
+    },
+    "craft-magic-item-assisted": {
+      "name": "Craft a Magic Item (Assistant)",
+      "category": "Crafting",
+      "id": "2",
+      "costModel": "parameterized",
+      "parameter": "rarity",
+      "tiers": [
+        {
+          "value": "Common",
+          "id": "201",
+          "daysRequired": 3,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 50
+            },
+            {
+              "type": "gpPerDay",
+              "value": 1,
+              "target": "assistant"
+            }
+          ]
+        },
+        {
+          "value": "Uncommon",
+          "id": "202",
+          "daysRequired": 5,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 200
+            },
+            {
+              "type": "gpPerDay",
+              "value": 1,
+              "target": "assistant"
+            }
+          ]
+        },
+        {
+          "value": "Rare",
+          "id": "203",
+          "daysRequired": 25,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 2000
+            },
+            {
+              "type": "gpPerDay",
+              "value": 1,
+              "target": "assistant"
+            }
+          ]
+        },
+        {
+          "value": "Very Rare",
+          "id": "204",
+          "daysRequired": 63,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 20000
+            },
+            {
+              "type": "gpPerDay",
+              "value": 1,
+              "target": "assistant"
+            }
+          ]
+        },
+        {
+          "value": "Legendary",
+          "id": "205",
+          "daysRequired": 125,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 100000
+            },
+            {
+              "type": "gpPerDay",
+              "value": 1,
+              "target": "assistant"
+            }
+          ]
+        }
+      ],
+      "checks": {
+        "skill": "Arcana",
+        "attempts": 5,
+        "successesRequired": 3,
+        "dc": 10,
+        "advantageIf": [
+          "bothArcanaProficient"
+        ]
+      },
+      "approval": {
+        "pre": false,
+        "post": false
+      },
+      "prerequisites": [
+        {
+          "type": "selfAttested",
+          "description": "Crafter or assistant must have Arcana proficiency."
+        }
+      ],
+      "output": {
+        "type": "magicItem"
+      }
+    },
+    "catch-up-level": {
+      "name": "Catch Up (Gain a Milestone)",
+      "category": "Progression",
+      "id": "0",
+      "costModel": "parameterized",
+      "parameter": "tier",
+      "tiers": [
+        {
+          "value": 1,
+          "id": "001",
+          "daysRequired": 10,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 6
+            }
+          ]
+        },
+        {
+          "value": 2,
+          "id": "002",
+          "daysRequired": 10,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 30
+            }
+          ]
+        },
+        {
+          "value": 3,
+          "id": "003",
+          "daysRequired": 10,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 200
+            }
+          ]
+        },
+        {
+          "value": 4,
+          "id": "004",
+          "daysRequired": 10,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 2000
+            }
+          ]
+        }
+      ],
+      "approval": {
+        "pre": false,
+        "post": false
+      },
+      "prerequisites": [],
+      "output": {
+        "type": "milestone",
+        "amount": 1
+      }
+    },
+    "copy-spell": {
+      "name": "Copy a Spell",
+      "category": "SpellCopying",
+      "id": "3",
+      "costModel": "parameterized",
+      "parameter": "spellLevel",
+      "tiers": [
+          { "id": "300", "value": 0, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "301", "value": 1, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "302", "value": 2, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "303", "value": 3, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "304", "value": 4, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "305", "value": 5, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "306", "value": 6, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "307", "value": 7, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "308", "value": 8, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] },
+          { "id": "309", "value": 9, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] }
+        ],
+      "approval": {
+        "pre": false,
+        "post": false
+      },
+      "prerequisites": [
+        {
+          "type": "selfAttested",
+          "description": "Wizard with access to the source spell."
+        }
+      ],
+      "output": {
+        "type": "spellbookEntry"
+      }
+    },
+    "scribe-spell-scroll": {
+      "name": "Scribe a Spell Scroll",
+      "category": "Crafting",
+      "id": "4",
+      "costModel": "parameterized",
+      "parameter": "spellLevel",
+      "tiers": [
+        {
+          "id": "400",
+          "value": 0,
+          "daysRequired": 1,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 15
+            }
+          ]
+        },
+        {
+          "id": "401",
+          "value": 1,
+          "daysRequired": 1,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 25
+            }
+          ]
+        },
+        {
+          "id": "402",
+          "value": 2,
+          "daysRequired": 3,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 100
+            }
+          ]
+        },
+        {
+          "id": "403",
+          "value": 3,
+          "daysRequired": 5,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 150
+            }
+          ]
+        },
+        {
+          "id": "404",
+          "value": 4,
+          "daysRequired": 10,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 1000
+            }
+          ]
+        },
+        {
+          "id": "405",
+          "value": 5,
+          "daysRequired": 25,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 1500
+            }
+          ]
+        },
+        {
+          "id": "406",
+          "value": 6,
+          "daysRequired": 40,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 10000
+            }
+          ]
+        },
+        {
+          "id": "407",
+          "value": 7,
+          "daysRequired": 50,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 12500
+            }
+          ]
+        },
+        {
+          "id": "408",
+          "value": 8,
+          "daysRequired": 60,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 15000
+            }
+          ]
+        },
+        {
+          "id": "409",
+          "value": 9,
+          "daysRequired": 120,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 50000
+            }
+          ]
+        }
+      ],
+      "approval": {
+        "pre": false,
+        "post": false
+      },
+      "prerequisites": [
+        {
+          "type": "proficiency",
+          "description": "Arcana proficiency."
+        }
+      ],
+      "output": {
+        "type": "spellScroll"
+      }
+    },
+    "brew-healing-potion": {
+      "name": "Brew a Potion of Healing",
+      "category": "Crafting",
+      "id": "500",
+      "costModel": "flat",
+      "daysRequired": 1,
+      "costs": [
+        {
+          "type": "gp",
+          "value": 25
+        }
+      ],
+      "approval": {
+        "pre": false,
+        "post": false
+      },
+      "prerequisites": [
+        {
+          "type": "proficiency",
+          "description": "Herbalism Kit proficiency."
+        }
+      ],
+      "output": {
+        "type": "item",
+        "grants": "Potion of Healing",
+        "quantity": 1
+      }
+    },
+    "learn-language": {
+      "name": "Learn a Language",
+      "category": "Training",
+      "id": "6",
+      "costModel": "parameterized",
+      "parameter": "rarity",
+      "tiers": [
+        {
+          "id": "601",
+          "value": "Common",
+          "daysRequired": 45,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "602",
+          "value": "Rare",
+          "daysRequired": 120,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 5
+            }
+          ]
+        }
+      ],
+      "approval": {
+        "pre": false,
+        "post": false
+      },
+      "prerequisites": [],
+      "output": {
+        "type": "language"
+      }
+    },
+    "learn-tool-proficiency": {
+      "name": "Learn a Tool Proficiency",
+      "category": "Training",
+      "id": "7",
+      "costModel": "parameterized",
+      "parameter": "tool",
+      "tiers": [
+        {
+          "id": "701",
+          "value": "Alchemist's Supplies",
+          "daysRequired": 90,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 3
+            }
+          ]
+        },
+        {
+          "id": "702",
+          "value": "Brewer's Supplies",
+          "daysRequired": 45,
+          "costs": [
+            {
+              "type": "spPerDay",
+              "value": 5
+            }
+          ]
+        },
+        {
+          "id": "703",
+          "value": "Calligrapher's Supplies",
+          "daysRequired": 90,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "704",
+          "value": "Carpenter's Tools",
+          "daysRequired": 30,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "705",
+          "value": "Cartographer's Tools",
+          "daysRequired": 75,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 3
+            }
+          ]
+        },
+        {
+          "id": "706",
+          "value": "Cobbler's Tools",
+          "daysRequired": 30,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "707",
+          "value": "Cook's Utensils",
+          "daysRequired": 45,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "708",
+          "value": "Glassblower's Tools",
+          "daysRequired": 45,
+          "costs": [
+            {
+              "type": "spPerDay",
+              "value": 5
+            }
+          ]
+        },
+        {
+          "id": "709",
+          "value": "Jeweler's Tools",
+          "daysRequired": 60,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 3
+            }
+          ]
+        },
+        {
+          "id": "70A",
+          "value": "Leatherworker's Tools",
+          "daysRequired": 60,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "70B",
+          "value": "Mason's Tools",
+          "daysRequired": 75,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "id": "70C",
+          "value": "Painter's Supplies",
+          "daysRequired": 45,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 2
+            }
+          ]
+        },
+        {
+          "id": "70D",
+          "value": "Potter's Tools",
+          "daysRequired": 30,
+          "costs": [
+            {
+              "type": "spPerDay",
+              "value": 5
+            }
+          ]
+        },
+        {
+          "id": "70E",
+          "value": "Smith's Tools",
+          "daysRequired": 90,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 3
+            }
+          ]
+        },
+        {
+          "id": "710",
+          "value": "Tinker's Tools",
+          "daysRequired": 30,
+          "costs": [
+            {
+              "type": "spPerDay",
+              "value": 5
+            }
+          ]
+        },
+        {
+          "id": "71A",
+          "value": "Weaver's Tools",
+          "daysRequired": 60,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 2
+            }
+          ]
+        },
+        {
+          "id": "71B",
+          "value": "Woodcarver's Tools",
+          "daysRequired": 30,
+          "costs": [
+            {
+              "type": "gpPerDay",
+              "value": 1
+            }
+          ]
+        }
+      ],
+      "approval": {
+        "pre": false,
+        "post": false
+      },
+      "prerequisites": [],
+      "output": {
+        "type": "proficiency"
+      }
+    }
+  }
+}
