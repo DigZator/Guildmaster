@@ -1,21 +1,18 @@
-const fs = require('fs');
 const path = require('path');
+const { createJsonStore } = require('./jsonStore');
 const { getCatalogueItemByCode, restockQtyFor, restockCadenceMsFor, defaultPriceFor } = require('./5etoolsCatalogue');
 
-const FLOOR_PATH     = path.join(__dirname, '..', 'data', 'shopFloor.json');
-const OVERRIDES_PATH = path.join(__dirname, '..', 'data', 'priceOverrides.json');
+const floorStore     = createJsonStore(path.join(__dirname, '..', 'data', 'shopFloor.json'), {});
+const overridesStore = createJsonStore(path.join(__dirname, '..', 'data', 'priceOverrides.json'), {});
 
 const TIER_MIN_BY_RARITY = { Common: 1, Uncommon: 1, Rare: 2, 'Very Rare': 3, Legendary: 4 };
 function tierMinFor(rarity) { return TIER_MIN_BY_RARITY[rarity] ?? 1; }
 
-function loadJson(p) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return {}; } }
-function saveJson(p, data) { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(data, null, 2)); }
-
-function getPriceOverride(code) { return loadJson(OVERRIDES_PATH)[code] ?? null; }
+function getPriceOverride(code) { return overridesStore.load()[code] ?? null; }
 function setPriceOverride(code, price) {
-    const overrides = loadJson(OVERRIDES_PATH);
+    const overrides = overridesStore.load();
     overrides[code] = price;
-    saveJson(OVERRIDES_PATH, overrides);
+    overridesStore.save(overrides);
 }
 
 function resolvePrice(code, catalogueItem, explicitPrice) {
@@ -24,7 +21,7 @@ function resolvePrice(code, catalogueItem, explicitPrice) {
     return price;
 }
 
-function getShopFloor() { return loadJson(FLOOR_PATH); }
+function getShopFloor() { return floorStore.load(); }
 
 function getShopEntry(code) {
     const floor = getShopFloor();
@@ -61,7 +58,7 @@ function stockItem(code, { quantity, price } = {}) {
         lastRestocked: new Date().toISOString(),
         available: qty > 0,
     };
-    saveJson(FLOOR_PATH, floor);
+    floorStore.save(floor);
     return { ...catalogueItem, code: c, ...floor[c] };
 }
 
@@ -70,7 +67,7 @@ function unstockItem(code) {
     const c = code.toUpperCase();
     if (!floor[c]) return null;
     floor[c].available = false;
-    saveJson(FLOOR_PATH, floor);
+    floorStore.save(floor);
     return floor[c];
 }
 
@@ -81,7 +78,7 @@ function restockItem(code) {
     floor[c].quantity = floor[c].restockQuantity;
     floor[c].available = floor[c].quantity > 0;
     floor[c].lastRestocked = new Date().toISOString();
-    saveJson(FLOOR_PATH, floor);
+    floorStore.save(floor);
     return floor[c];
 }
 
@@ -91,7 +88,7 @@ function decrementStock(code) {
     if (!floor[c] || floor[c].quantity <= 0) return null;
     floor[c].quantity -= 1;
     if (floor[c].quantity === 0) floor[c].available = false;
-    saveJson(FLOOR_PATH, floor);
+    floorStore.save(floor);
     return floor[c];
 }
 
@@ -109,7 +106,7 @@ function runRestockCheck() {
             restocked.push({ code, name: catalogueItem.name });
         }
     }
-    saveJson(FLOOR_PATH, floor);
+    floorStore.save(floor);
     return restocked;
 }
 

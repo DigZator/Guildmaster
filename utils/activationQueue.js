@@ -1,7 +1,5 @@
-const fs = require('fs');
 const path = require('path');
-
-const FILE = path.join(__dirname, '../data/activationQueue.json');
+const { createJsonStore } = require('./jsonStore');
 
 const DEFAULT_QUEUE = {
     reminderTime: "19:00",
@@ -13,30 +11,17 @@ const DEFAULT_QUEUE = {
     lastActivationRun: []
 };
 
+const store = createJsonStore(path.join(__dirname, '../data/activationQueue.json'), DEFAULT_QUEUE);
+
 function getQueue() {
-	try {
-    	return JSON.parse(fs.readFileSync(FILE, 'utf8'));
-	} catch (err) {
-		if (err.code === 'ENOENT') {
-			// File doesnt exist
-			return { ...DEFAULT_QUEUE };
-		}
-		// File is malformed
-		console.error('activationQueue.json is malformed, using defaults:', err);
-		return { ...DEFAULT_QUEUE };
-	}
+    return store.load();
 }
 
 function writeQueue(data) {
-    try {
-    	fs.writeFileSync(FILE, JSON.stringify(data, null, 4), 'utf8');
-    } catch	(err) {
-    	console.error('Failed to write activationQueue.json:', err);
-    	throw err;
-    }
+    store.save(data);
 }
 
-function addToQueue(game, userId) { //false - already present cannot add, true - added 
+function addToQueue(game, userId) {
     const data = getQueue();
     if (data.queue.find(g => g.uid === game.uid)) return false;
     data.queue.push({
@@ -49,7 +34,7 @@ function addToQueue(game, userId) { //false - already present cannot add, true -
     return true;
 }
 
-function removeFromQueue(uid) { //false - could not delete/not found, true - entry deleted
+function removeFromQueue(uid) {
     const data = getQueue();
     const before = data.queue.length;
     data.queue = data.queue.filter(g => g.uid !== uid);

@@ -1,22 +1,14 @@
-const fs   = require('fs');
 const path = require('path');
+const { createJsonStore } = require('./jsonStore');
 
-const STORE_PATH = path.join(__dirname, '../data/rssFeeds.json');
-
-function ensureStore() {
-    const dir = path.dirname(STORE_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    if (!fs.existsSync(STORE_PATH)) fs.writeFileSync(STORE_PATH, '[]');
-}
+const store = createJsonStore(path.join(__dirname, '../data/rssFeeds.json'), []);
 
 function getFeeds() {
-    ensureStore();
-    return JSON.parse(fs.readFileSync(STORE_PATH, 'utf-8'));
+    return store.load();
 }
 
 function saveFeeds(feeds) {
-    ensureStore();
-    fs.writeFileSync(STORE_PATH, JSON.stringify(feeds, null, 2));
+    store.save(feeds);
 }
 
 function addFeed({ url, name, channelId }) {

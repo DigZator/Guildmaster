@@ -1,22 +1,14 @@
-const fs   = require('fs');
 const path = require('path');
+const { createJsonStore } = require('./jsonStore');
 
-const STORE_PATH = path.join(__dirname, '../data/anonMessages.json');
-
-function ensureStore() {
-    const dir = path.dirname(STORE_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    if (!fs.existsSync(STORE_PATH)) fs.writeFileSync(STORE_PATH, '[]');
-}
+const store = createJsonStore(path.join(__dirname, '../data/anonMessages.json'), []);
 
 function getMessages() {
-    ensureStore();
-    return JSON.parse(fs.readFileSync(STORE_PATH, 'utf-8'));
+    return store.load();
 }
 
 function saveMessages(messages) {
-    ensureStore();
-    fs.writeFileSync(STORE_PATH, JSON.stringify(messages, null, 2));
+    store.save(messages);
 }
 
 function addMessage({ key, channelId, messageId }) {
