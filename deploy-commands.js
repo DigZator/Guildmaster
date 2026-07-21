@@ -416,6 +416,38 @@ const commands = [
 			.addStringOption(opt => opt
 				.setName('quest_id')
 				.setDescription('View details and allies for a specific quest')))
+		//leaderboard
+		.addSubcommand(sub => sub
+			.setName('leaderboard')
+			.setDescription('View the character leaderboard')
+			.addStringOption(opt => opt
+				.setName('sort_by')
+				.setDescription('What to sort by (default: level)')
+				.addChoices(
+					{ name: 'Level', value: 'level' },
+					{ name: 'Gold', value: 'gold' },
+					{ name: 'Reputation', value: 'reputation' },
+					{ name: 'Milestones', value: 'milestones' },
+				))
+			.addStringOption(opt => opt
+				.setName('order')
+				.setDescription('Sort order (default: descending)')
+				.addChoices(
+					{ name: 'Descending', value: 'descending' },
+					{ name: 'Ascending', value: 'ascending' },
+				))
+			.addStringOption(opt => opt
+				.setName('class')
+				.setDescription('Filter by class (partial match)'))
+			.addStringOption(opt => opt
+				.setName('species')
+				.setDescription('Filter by species (partial match)'))
+			.addStringOption(opt => opt
+				.setName('status')
+				.setDescription('Filter by status (e.g. Active, Retired)'))
+			.addBooleanOption(opt => opt
+				.setName('public')
+				.setDescription('Show the result to everyone (default: only you)')))
 		//gold
 		.addSubcommand(sub => sub
 			.setName('gold')

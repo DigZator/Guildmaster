@@ -100,6 +100,31 @@ async function searchCharactersByName(nameQuery) {
   return response.results;
 }
 
+const LEADERBOARD_SORT_FIELDS = {
+  level:      'Level',
+  gold:       'Gold',
+  reputation: 'Reputation Points',
+  milestones: 'Milestones',
+};
+
+async function queryLeaderboard({ sortBy = 'level', order = 'descending', className = null, species = null, status = null } = {}) {
+  const sortProperty = LEADERBOARD_SORT_FIELDS[sortBy] ?? 'Level';
+
+  const filters = [];
+  if (className) filters.push({ property: 'Class', rich_text: { contains: className } });
+  if (species)   filters.push({ property: 'Species', rich_text: { contains: species } });
+  if (status)    filters.push({ property: 'Status', select: { equals: status } });
+
+  const response = await notion.dataSources.query({
+    data_source_id: DB.characters,
+    ...(filters.length > 0 ? { filter: filters.length === 1 ? filters[0] : { and: filters } } : {}),
+    sorts: [{ property: sortProperty, direction: order }],
+    page_size: 25,
+  });
+
+  return response.results;
+}
+
 async function createCharacter(opts) {
   const {
     characterName,
@@ -592,6 +617,7 @@ module.exports = {
 	getActiveCharacter,
 	getCharactersByDiscordId,
 	searchCharactersByName,
+	queryLeaderboard,
 	createCharacter,
 	setCharacterStatus,
 	adjustCharacterNumber,

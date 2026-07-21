@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getActiveCharacter, updateCharacterArt, updatePageProperty, getCharacterGold, setCharacterGold, getCharactersByDiscordId, searchCharactersByName, getCharacterQuestLog, getPageById } = require('../utils/leagueNotion');
+const { getActiveCharacter, updateCharacterArt, updatePageProperty, getCharacterGold, setCharacterGold, getCharactersByDiscordId, searchCharactersByName, queryLeaderboard, getCharacterQuestLog, getPageById } = require('../utils/leagueNotion');
 const { buildLeagueCreateModal } = require('../modals/leagueCreate');
 const { sendInventory } = require('../buttons/inventory');
 const { sendItemDetail } = require('../utils/inventoryHelper');
@@ -51,6 +51,9 @@ async function league(interaction, client) {
 
 		case 'log':
 			return showQuestLog(interaction);
+
+		case 'leaderboard':
+			return showLeaderboard(interaction);
 
 		default:
 			return interaction.reply({
@@ -473,6 +476,76 @@ async function showBalance(interaction) {
 			{ name: '🏆 Milestones',        value: `${milestones}`,     inline: true },
 		)
 		.setColor(0xF1C40F);
+
+	return interaction.editReply({ embeds: [embed] });
+}
+
+// ─── /league leaderboard ───────────────────────────────────────────────────────
+
+const LEADERBOARD_LABELS = {
+	level: 'Level',
+	gold: 'Gold',
+	reputation: 'Reputation',
+	milestones: 'Milestones',
+};
+
+async function showLeaderboard(interaction) {
+	const sortBy   = interaction.options.getString('sort_by') ?? 'level';
+	const order    = interaction.options.getString('order') ?? 'descending';
+	const className = interaction.options.getString('class');
+	const species   = interaction.options.getString('species');
+	const status    = interaction.options.getString('status');
+	const isPublic  = interaction.options.getBoolean('public') ?? false;
+
+	await interaction.deferReply({ flags: isPublic ? undefined : 64 });
+
+	const characters = await queryLeaderboard({ sortBy, order, className, species, status });
+
+	if (characters.length === 0) {
+		return interaction.editReply({ content: 'No characters match those filters.' });
+	}
+
+	const rows = characters.map((char, i) => {
+		const p = char.properties;
+		return {
+			rank:  `${i + 1}`,
+			name:  p['Character Name']?.title?.[0]?.plain_text ?? 'Unknown',
+			level: `${p['Level']?.number ?? 0}`,
+			gold:  `${p['Gold']?.number ?? 0}`,
+			rep:   `${p['Reputation Points']?.number ?? 0}`,
+			cls:   p['Class']?.rich_text?.[0]?.plain_text ?? '—',
+		};
+	});
+
+	const truncate = (str, max) => str.length > max ? str.slice(0, max - 1) + '…' : str;
+	rows.forEach(r => { r.name = truncate(r.name, 20); r.cls = truncate(r.cls, 18); });
+
+	const rankWidth  = Math.max(4, ...rows.map(r => r.rank.length));
+	const nameWidth  = Math.max(9, ...rows.map(r => r.name.length));
+	const clsWidth   = Math.max(5, ...rows.map(r => r.cls.length));
+	const lvlWidth   = Math.max(3, ...rows.map(r => r.level.length));
+	const goldWidth  = Math.max(4, ...rows.map(r => r.gold.length));
+	const repWidth   = Math.max(3, ...rows.map(r => r.rep.length));
+
+	const header  = `${'#'.padEnd(rankWidth)}  ${'Character'.padEnd(nameWidth)}  ${'Class'.padEnd(clsWidth)}  ${'Lvl'.padEnd(lvlWidth)}  ${'Gold'.padEnd(goldWidth)}  Rep`;
+	const divider = `${'-'.repeat(rankWidth)}  ${'-'.repeat(nameWidth)}  ${'-'.repeat(clsWidth)}  ${'-'.repeat(lvlWidth)}  ${'-'.repeat(goldWidth)}  ${'-'.repeat(repWidth)}`;
+	const body    = rows.map(r =>
+		`${r.rank.padEnd(rankWidth)}  ${r.name.padEnd(nameWidth)}  ${r.cls.padEnd(clsWidth)}  ${r.level.padEnd(lvlWidth)}  ${r.gold.padEnd(goldWidth)}  ${r.rep}`
+	);
+
+	const table = '```\n' + [header, divider, ...body].join('\n') + '\n```';
+
+	const filterNotes = [];
+	if (className) filterNotes.push(`Class: ${className}`);
+	if (species)   filterNotes.push(`Species: ${species}`);
+	if (status)    filterNotes.push(`Status: ${status}`);
+
+	const embed = new EmbedBuilder()
+		.setColor(0xF1C40F)
+		.setTitle(`🏆 Character Leaderboard — sorted by ${LEADERBOARD_LABELS[sortBy] ?? sortBy}`)
+		.setDescription(table)
+		.setFooter({ text: filterNotes.length ? filterNotes.join(' • ') : 'Showing top 25' })
+		.setTimestamp();
 
 	return interaction.editReply({ embeds: [embed] });
 }

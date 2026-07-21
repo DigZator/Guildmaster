@@ -292,7 +292,11 @@ module.exports = {
         },
         {
           name: '/league log',
-          description: 'View your personal quest log. (Coming soon)',
+          description: 'View a character\'s quest history, or drill into a specific quest with quest_id for full details and allies.',
+        },
+        {
+          name: '/league leaderboard',
+          description: 'View the character leaderboard, sortable by level/gold/reputation/milestones and filterable by class/species/status.',
         },
       ],
     },
