@@ -405,7 +405,17 @@ const commands = [
 		//log
 		.addSubcommand(sub =>sub
 			.setName('log')
-			.setDescription('View your quest log'))
+			.setDescription('View a quest log')
+			.addUserOption(opt => opt
+				.setName('player')
+				.setDescription('Whose quest log to view (defaults to you)'))
+			.addStringOption(opt => opt
+				.setName('character')
+				.setDescription('Which character (defaults to their active character)')
+				.setAutocomplete(true))
+			.addStringOption(opt => opt
+				.setName('quest_id')
+				.setDescription('View details and allies for a specific quest')))
 		//gold
 		.addSubcommand(sub => sub
 			.setName('gold')
@@ -684,6 +694,10 @@ const commands = [
    		        .addSubcommand(sub => sub
    		            .setName('clear')
    		            .setDescription('Remove all players from a quest')
+   		            .addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID').setRequired(true)))
+   		        .addSubcommand(sub => sub
+   		            .setName('players')
+   		            .setDescription('List the players on a quest')
    		            .addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID').setRequired(true))))
 	    .addSubcommand(sub => sub
 			.setName('rep')

@@ -1,4 +1,3 @@
-// commandHandler.js
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
 const { getKeys } = require('../utils/anonStore');
 const { getCachedGames } = require('../utils/cache');
@@ -14,7 +13,7 @@ const anon_msg = require('../commands/anon_msg');
 const schedule_activation = require('../commands/schedule_activation');
 const help = require('../commands/help');
 const edit_game = require('../commands/edit_game');
-const { league } = require('../commands/league');
+const { league, characterLogAutocomplete } = require('../commands/league');
 const { backgroundAutocomplete } = require('../commands/leagueStarterItems');
 const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
 const { questLinkAutocomplete } = require('../commands/leagueQuest');
@@ -140,6 +139,15 @@ module.exports = (client) => {
                     return;
                 }
 
+                // Character autocomplete (league log)
+                if (interaction.commandName === 'league' && sub === 'log') {
+                    const focused = interaction.options.getFocused(true);
+                    if (focused.name === 'character') {
+                        await characterLogAutocomplete(interaction);
+                        return;
+                    }
+                }
+
                 // Everything that focuses a catalogue item code
                 const key = `${interaction.commandName}:${group}:${sub}`;
                 if (CODE_AUTOCOMPLETE_TARGETS.has(key)) {
@@ -157,33 +165,42 @@ module.exports = (client) => {
         const command = interaction.commandName;
 
         try {
-            if (command === 'ping') ping(interaction);
-            if (command === 'the_long_rest') the_long_rest(interaction, client);
-            if (command === 'announce_game') announce_game(interaction, client);
-            if (command === 'list_games') list_games(interaction, client);
-            if (command === 'game_info') game_info(interaction, client);
-            if (command === 'rss') rss(interaction, client);
-            if (command === 'anon_msg') anon_msg(interaction, client);
-            if (command === 'schedule_activation') schedule_activation(interaction, client);
-            if (command === 'help') help(interaction);
-            if (command === 'edit_game') edit_game(interaction, client);
-            if (command === 'league') league(interaction, client);
-            if (command === 'leagueadmin') leagueAdmin(interaction, client);
-            if (command === 'leaguedm') leagueDM(interaction, client);
-            if (command === 'get_players') get_players(interaction, client);
-           	// if (command === 'get_players') return;             
+            if (command === 'ping') await ping(interaction);
+            if (command === 'the_long_rest') await the_long_rest(interaction, client);
+            if (command === 'announce_game') await announce_game(interaction, client);
+            if (command === 'list_games') await list_games(interaction, client);
+            if (command === 'game_info') await game_info(interaction, client);
+            if (command === 'rss') await rss(interaction, client);
+            if (command === 'anon_msg') await anon_msg(interaction, client);
+            if (command === 'schedule_activation') await schedule_activation(interaction, client);
+            if (command === 'help') await help(interaction);
+            if (command === 'edit_game') await edit_game(interaction, client);
+            if (command === 'league') await league(interaction, client);
+            if (command === 'leagueadmin') await leagueAdmin(interaction, client);
+            if (command === 'leaguedm') await leagueDM(interaction, client);
+            if (command === 'get_players') await get_players(interaction, client);
         } catch (error) {
             console.error('Error handling interaction:', error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({
-                    content: 'There was an error while executing this command!',
-                    flags: 64
-                });
-            } else {
-                await interaction.followUp({
-                    content: 'There was an error while executing this command!',
-                    flags: 64
-                });
+
+            if (error.code === 10062) {
+                console.warn(`[commandHandler] Interaction expired before we could respond: ${command}`);
+                return;
+            }
+
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({
+                        content: 'There was an error while executing this command!',
+                        flags: 64
+                    });
+                } else {
+                    await interaction.followUp({
+                        content: 'There was an error while executing this command!',
+                        flags: 64
+                    });
+                }
+            } catch (replyError) {
+                console.warn('[commandHandler] Fallback reply also failed:', replyError.message);
             }
         }
     });

@@ -29,8 +29,8 @@ async function backgroundAutocomplete(interaction) {
         .filter(b => b.name.toLowerCase().includes(focused))
         .slice(0, 25)
         .map(b => ({
-            name: `${b.name} (${b.source}) — ${b.preview}`,
-            value: b.key,
+	        name: `${b.name} (${b.source})`,
+	        value: b.key,
         }));
 
     await interaction.respond(choices);

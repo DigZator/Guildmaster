@@ -328,6 +328,10 @@ module.exports = {
           description: 'Remove every player from a quest\'s roster.',
         },
         {
+          name: '/leaguedm quest players <quest_id>',
+          description: 'View the roster for a quest — Discord player, character name, class, species, and level.',
+        },
+        {
           name: '/leaguedm quest complete <quest_id> <milestones> <reputation>',
           description: 'Mark a quest as completed, logging the total milestones/reputation given out this quest for admin review. Do this last, after rewards are granted — this only logs the totals, it does not distribute them; use gold/rep/milestone/item for that.',
         },

@@ -87,6 +87,19 @@ async function getCharactersByDiscordId(discordId) {
   return response.results;
 }
 
+async function searchCharactersByName(nameQuery) {
+  const response = await notion.dataSources.query({
+    data_source_id: DB.characters,
+    filter: {
+      property: 'Character Name',
+      title: { contains: nameQuery },
+    },
+    page_size: 25,
+  });
+
+  return response.results;
+}
+
 async function createCharacter(opts) {
   const {
     characterName,
@@ -578,6 +591,7 @@ module.exports = {
 	// Characters
 	getActiveCharacter,
 	getCharactersByDiscordId,
+	searchCharactersByName,
 	createCharacter,
 	setCharacterStatus,
 	adjustCharacterNumber,
