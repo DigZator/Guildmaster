@@ -107,7 +107,7 @@ const LEADERBOARD_SORT_FIELDS = {
   milestones: 'Milestones',
 };
 
-async function queryLeaderboard({ sortBy = 'level', order = 'descending', className = null, species = null, status = null } = {}) {
+async function queryLeaderboard({ sortBy = 'level', order = 'descending', className = null, species = null, status = null, limit = 100 } = {}) {
   const sortProperty = LEADERBOARD_SORT_FIELDS[sortBy] ?? 'Level';
 
   const filters = [];
@@ -119,7 +119,7 @@ async function queryLeaderboard({ sortBy = 'level', order = 'descending', classN
     data_source_id: DB.characters,
     ...(filters.length > 0 ? { filter: filters.length === 1 ? filters[0] : { and: filters } } : {}),
     sorts: [{ property: sortProperty, direction: order }],
-    page_size: 25,
+    page_size: limit,
   });
 
   return response.results;

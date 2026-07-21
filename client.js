@@ -15,5 +15,6 @@ client.once('clientReady', () => {
 
 // client.tempSubmissions = new Map();
 // client.announcementSessions = new Map();
+client.leaderboardSessions = new Map();
 
 module.exports = client;

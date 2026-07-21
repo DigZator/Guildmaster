@@ -17,6 +17,9 @@ const INSPIRING_QUOTES = [
     { quote: "Each year that passes rings you inwardly with memory and might. Wield your heart, and the world will tremble.", author: 'Doran'},
     { quote: "The thing I once imagined would be my greatest achievements were only the first steps toward a future I can only begin to fathom.", author: 'Jace Beleren'},
     { quote: "To care for yourself, cultivate the world. To care for the world, cultivate yourself.", author: ''},
+    { quote: "What doesn't kill me, isn't trying hard enough.", author: 'Robote Gulliman' },
+    { quote: "No matter how much you try to understand other people's hearts, people aren't able to change others. Every time, you have to change yourself.", author: 'Isagi Yoichi' },
+    { quote: "What we think to be our greatest weakness can sometimes be our biggest strength.", author: 'Sarah J. Maas' },
 ];
 
 function randomQuote() {
