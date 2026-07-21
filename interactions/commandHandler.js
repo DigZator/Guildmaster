@@ -15,10 +15,12 @@ const schedule_activation = require('../commands/schedule_activation');
 const help = require('../commands/help');
 const edit_game = require('../commands/edit_game');
 const { league } = require('../commands/league');
+const { backgroundAutocomplete } = require('../commands/leagueStarterItems');
 const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
 const { questLinkAutocomplete } = require('../commands/leagueQuest');
 const helpData = require('../helpData');
 const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');
+const get_players = require('../commands/get_players');
 
 const CODE_AUTOCOMPLETE_TARGETS = new Set([
     'league:shop:info',
@@ -34,7 +36,7 @@ module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
 
         if (interaction.isAutocomplete()) {
-            if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game') {
+            if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game' || interaction.commandName === 'get_players') {
                 await gameAutocomplete(interaction);
                 return;
             }
@@ -123,6 +125,15 @@ module.exports = (client) => {
                 const group = interaction.options.getSubcommandGroup(false);
                 const sub   = interaction.options.getSubcommand(false);
 
+                // Starter-items background autocomplete
+                if (interaction.commandName === 'league' && sub === 'starter-items') {
+                    const focused = interaction.options.getFocused(true);
+                    if (focused.name === 'background') {
+                        await backgroundAutocomplete(interaction);
+                        return;
+                    }
+                }
+
                 // Quest link autocomplete (leaguedm quest link) — distinct UID system, not a catalogue code
                 if (interaction.commandName === 'leaguedm' && group === 'quest' && sub === 'link') {
                     await questLinkAutocomplete(interaction);
@@ -159,6 +170,8 @@ module.exports = (client) => {
             if (command === 'league') league(interaction, client);
             if (command === 'leagueadmin') leagueAdmin(interaction, client);
             if (command === 'leaguedm') leagueDM(interaction, client);
+            if (command === 'get_players') get_players(interaction, client);
+           	// if (command === 'get_players') return;             
         } catch (error) {
             console.error('Error handling interaction:', error);
             if (!interaction.replied && !interaction.deferred) {

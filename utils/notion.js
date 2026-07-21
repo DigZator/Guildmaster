@@ -53,6 +53,7 @@ async function fetchGames() {
                 location:         p['Location'].rich_text[0]?.plain_text ?? '',
                 price:            p['Price Type'].select?.name ?? '',
                 openSeats:        countOpenSeats(seatRecords, page.id),
+                totalSeats:       seatRecords.filter(s => s.gameId === page.id).length,
                 warnings:         p['Content Warnings'].multi_select.map(o => o.name).join(', '),
                 registrationLink: p['Campaign Link'].url ?? '',
                 show:             p['Show'].checkbox,

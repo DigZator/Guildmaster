@@ -10,6 +10,7 @@ const shopBrowse 		= require('../buttons/shopBrowse');
 const shopDiscount 		= require('../buttons/shopDiscount')
 const shopSell 			= require('../buttons/shopSell');
 const downtimeBuyDays 	= require('../buttons/downtimeBuyDays');
+const starterItems 	= require('../buttons/starterItems');
 
 const exactHandlers = {
     ...memorial.exact,
@@ -18,6 +19,7 @@ const exactHandlers = {
     ...shopDiscount.exact,
     ...shopSell.exact,
     ...downtimeBuyDays.exact,
+    ...starterItems.exact,
 };
 
 const prefixHandlers = {
@@ -28,6 +30,7 @@ const prefixHandlers = {
     ...questComplete.prefix,
     ...shopSearch.prefix,
     ...shopBrowse.prefix,
+    ...starterItems.prefix,
 };
 
 module.exports = (client) => {

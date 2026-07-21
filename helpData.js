@@ -78,6 +78,10 @@ module.exports = {
           name: '/edit_game <game> <field>',
           description: 'Edit a field on a game in Notion. Both `game` and `field` autocomplete.',
         },
+        {
+          name: '/get_players <game>',
+          description: 'Get the list of players who have registered for a game.',
+        },
       ],
     },
     scheduling: {
@@ -177,6 +181,10 @@ module.exports = {
         {
           name: '/league setart <image>',
           description: 'Set your character\'s profile art. No AI-generated images.',
+        },
+        {
+          name: '/league starter-items <class> <background>',
+          description: 'Claim your character\'s starting equipment based on class and background. Walks you through any choices (e.g. weapon or pack options) via buttons/dropdowns, then adds the resulting items and gold to your inventory. Can only be claimed once per character.',
         },
       ],
     },

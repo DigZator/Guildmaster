@@ -20,17 +20,32 @@ const RARITY_NAMES = {
     artifact: 'Legendary', unknown: 'Common', varies: 'Common',
 };
 
-const RESTOCK_QTY_BY_RARITY = { Common: 128, Uncommon: 64, Rare: 16, 'Very Rare': 4, Legendary: 1 };
-const RESTOCK_CADENCE_MS = {
-    Common: 864e5, Uncommon: 6048e5, Rare: 2592e6, 'Very Rare': 7862e6, Legendary: 31536e6,
-};
-const DEFAULT_PRICE_BY_RARITY = { Common: 75, Uncommon: 400, Rare: 4000, 'Very Rare': 40000, Legendary: 100000 };
+const SUBTYPE_BY_TYPE_NAME = { Potion: 'Potion', 'Spell Scroll': 'Spell Scroll', Ammunition: 'Ammo' };
 
-function hexCode(n) { return n.toString(16).toUpperCase().padStart(3, '0'); }
-function slugify(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
+const RESTOCK_QTY_BY_RARITY = { 
+	Common: 128, Uncommon: 64, 
+	Rare: 16, 'Very Rare': 4, 
+	Legendary: 1
+};
+
+const RESTOCK_CADENCE_MS = {
+    Common: 864e5, Uncommon: 6048e5, 
+    Rare: 2592e6, 'Very Rare': 7862e6, 
+    Legendary: 31536e6,
+};
+
+const DEFAULT_PRICE_BY_RARITY = { 
+	Common: 75, Uncommon: 400,
+	Rare: 4000, 'Very Rare': 40000,
+	Legendary: 100000
+};
+
 
 function typeName(raw) {
-    if (raw.type) return TYPE_NAMES[raw.type] ?? raw.type;
+    if (raw.type) {
+        const prefix = raw.type.split('|')[0];
+        return TYPE_NAMES[prefix] ?? raw.type;
+    }
     if (raw.wondrous) return 'Wondrous Item';
     if (raw.staff)    return 'Staff';
     if (raw.rod)      return 'Rod';
@@ -41,8 +56,18 @@ function typeName(raw) {
     return 'Gear';
 }
 
+function hexCode(n) { return n.toString(16).toUpperCase().padStart(3, '0'); }
+function slugify(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
+
 function rarityName(raw) { return RARITY_NAMES[String(raw ?? 'none').toLowerCase()] ?? 'Common'; }
 function priceGpFrom(entry) { return entry.value != null ? entry.value / 100 : null; }
+function inferSubtype(catalogueItem) { return SUBTYPE_BY_TYPE_NAME[catalogueItem.type] ?? null; }
+
+function normalizeLegacyType(rawType) {
+    if (typeof rawType !== 'string' || !rawType.includes('|')) return rawType;
+    const prefix = rawType.split('|')[0];
+    return TYPE_NAMES[prefix] ?? rawType;
+}
 
 function normalizeEntry(raw, existingCodeByKey, nextCodeRef) {
     const naturalKey = `${slugify(raw.name)}_${raw.source}`;
@@ -61,10 +86,25 @@ function normalizeEntry(raw, existingCodeByKey, nextCodeRef) {
         source: raw.source,
     };
 }
-
 function loadCatalogue() {
-    try { return JSON.parse(fs.readFileSync(CATALOGUE_PATH, 'utf8')); }
+    let data;
+    try { data = JSON.parse(fs.readFileSync(CATALOGUE_PATH, 'utf8')); }
     catch { return { syncedAt: null, items: [] }; }
+
+    let healed = false;
+    for (const item of data.items) {
+        const fixed = normalizeLegacyType(item.type);
+        if (fixed !== item.type) {
+            item.type = fixed;
+            healed = true;
+        }
+    }
+    if (healed) {
+        try { fs.writeFileSync(CATALOGUE_PATH, JSON.stringify(data, null, 2)); }
+        catch (err) { console.warn('[5etoolsCatalogue] Could not persist self-healed types:', err); }
+    }
+
+    return data;
 }
 
 async function syncCatalogue() {
@@ -130,7 +170,9 @@ function restockQtyFor(rarity) { return RESTOCK_QTY_BY_RARITY[rarity] ?? RESTOCK
 function defaultPriceFor(rarity) { return DEFAULT_PRICE_BY_RARITY[rarity] ?? DEFAULT_PRICE_BY_RARITY.Common; }
 
 module.exports = {
-    syncCatalogue, loadCatalogue, searchCatalogue, getCatalogueItemByCode, getCatalogueItemByName, getCatalogueMeta,
-    restockCadenceMsFor, restockQtyFor, defaultPriceFor,
+    syncCatalogue, loadCatalogue, searchCatalogue, getCatalogueItemByCode, 
+    getCatalogueItemByName, getCatalogueMeta,
+    restockCadenceMsFor, restockQtyFor, defaultPriceFor,inferSubtype,
+
     RESTOCK_CADENCE_MS, RESTOCK_QTY_BY_RARITY, DEFAULT_PRICE_BY_RARITY,
 };

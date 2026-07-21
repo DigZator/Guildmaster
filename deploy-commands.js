@@ -1,5 +1,6 @@
 const { REST, Routes, SlashCommandBuilder } = require('discord.js');
 require('dotenv').config();
+const { buildClassChoices } = require('./commands/leagueStarterItems');
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
@@ -72,6 +73,16 @@ const commands = [
 			.setName('public')
 			.setDescription('Show results publicly in the channel (default: only you can see)')),
 
+	//get_players
+	new SlashCommandBuilder()
+	    .setName('get_players')
+	    .setDescription('List players signed up for a table')
+	    .addStringOption(opt => opt
+	        .setName('game')
+	        .setDescription('Select a game/table')
+	        .setRequired(true)
+	        .setAutocomplete(true)),
+	        
 	//game_info
 	new SlashCommandBuilder()
 		.setName('game_info')
@@ -440,7 +451,21 @@ const commands = [
 		        .setDescription('Spend 1 reputation point for 10 more downtime days'))
 		    .addSubcommand(sub => sub
 		        .setName('activities')
-		        .setDescription('List all downtime activity IDs you can use with /league downtime start'))),
+		        .setDescription('List all downtime activity IDs you can use with /league downtime start')))
+        //starter-items
+ 		.addSubcommand(sub => sub
+ 			.setName('starter-items')
+ 			.setDescription('Get your starting equipment from class and background')
+ 			.addStringOption(opt => opt
+ 				.setName('class')
+ 				.setDescription('Your character\'s class')
+ 				.setRequired(true)
+ 				.addChoices(...buildClassChoices()))
+ 			.addStringOption(opt => opt
+ 				.setName('background')
+ 				.setDescription('Your character\'s background')
+ 				.setRequired(true)
+ 				.setAutocomplete(true))),
 
 	//leageuadmin
 	new SlashCommandBuilder()

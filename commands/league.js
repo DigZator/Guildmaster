@@ -7,6 +7,7 @@ const { LEAGUE_ADMIN_CHANNEL_ID, LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_F
 const { leagueShop, leagueMarketplace } = require('./leagueShop');
 const { listQuests } = require('./leagueQuest');
 const { leagueDowntime } = require('./leagueDowntime');
+const { leagueStarterItems } = require('./leagueStarterItems');
 const { formatCurrency } = require('../utils/currency');
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
@@ -44,6 +45,9 @@ async function league(interaction, client) {
 
 		case 'balance':
 			return showBalance(interaction);
+
+		case 'starter-items':
+            return leagueStarterItems(interaction);
 
 		case 'log':
 			return interaction.reply({
