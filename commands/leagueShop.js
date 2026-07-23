@@ -25,6 +25,7 @@ const {
 const {
     tierMinFor,
     getShopEntry,
+    getBuyableEntry,
     getAllStockedEntries,
     stockItem,
     unstockItem,
@@ -38,7 +39,7 @@ const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
 const { setPendingSell } = require('../utils/shopSellSessions');
 
 const PAGE_SIZE = 12;
-const MARKETPLACE_TAX_RATE = 0.25; // 25% — deducted from the seller's proceeds, removed from the economy (sink)
+const MARKETPLACE_TAX_RATE = 0.25;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -145,7 +146,7 @@ async function handleShopSearch(interaction) {
     const catalogueMatches = searchCatalogue(query, { limit: 100 });
 
     const results = catalogueMatches
-        .map(item => getShopEntry(item.code))
+        .map(item => getBuyableEntry(item.code))
         .filter(entry => entry && entry.available);
 
     if (results.length === 0) {
@@ -166,6 +167,21 @@ async function handleShopInfo(interaction) {
 
     if (!catalogueItem) {
         return interaction.editReply({ content: `❌ No item found for \`${code}\`. Try \`/league shop search\`.` });
+    }
+
+    if (!stocked && catalogueItem.isVariantCombo) {
+        const buyable = getBuyableEntry(code);
+        const embed = new EmbedBuilder()
+            .setColor(0xf1c40f)
+            .setTitle(`${rarityEmoji(catalogueItem.rarity)} ${catalogueItem.name}`)
+            .addFields(
+                { name: 'Code',   value: `\`${catalogueItem.code}\``, inline: true },
+                { name: 'Rarity', value: catalogueItem.rarity, inline: true },
+                { name: 'Price',  value: `${formatCurrency(buyable.price)}`, inline: true },
+            )
+            .setDescription(catalogueItem.description?.slice(0, 500) || 'No description available.')
+            .setFooter({ text: 'Magic variant — always available, use /league shop buy to purchase.' });
+        return interaction.editReply({ embeds: [embed] });
     }
 
     const embed = stocked
@@ -205,8 +221,10 @@ async function finalizePurchase(interaction, { char, characterName, code, entry,
         return interaction.editReply({ content: `❌ Not enough reputation for that discount anymore. You need **${rpCost} RP** but have **${currentRep}**.`, components: [] });
     }
 
-    const updated = decrementStock(code);
-    if (!updated) return interaction.editReply({ content: `❌ **${entry.name}** is out of stock.`, components: [] });
+    if (!entry.isVariantCombo) {
+        const updated = decrementStock(code);
+        if (!updated) return interaction.editReply({ content: `❌ **${entry.name}** is out of stock.`, components: [] });
+    }
 
     try {
         const writes = [
@@ -272,7 +290,7 @@ async function handleShopBuy(interaction) {
     const charTier      = char.properties['Tier']?.formula?.number ?? 1;
     const currentRep     = char.properties['Reputation Points']?.number ?? 0;
 
-    const entry = getShopEntry(code);
+    const entry = getBuyableEntry(code);
     if (!entry) return interaction.editReply({ content: `❌ No available item with code \`${code}\`.` });
 
     const tierMin = tierMinFor(entry.rarity);
@@ -300,7 +318,7 @@ async function handleShopBuy(interaction) {
     );
 
     return interaction.editReply({
-        content: `**${entry.name}** — ${formatCurrency(entry.price)} gp.\nYou have **${currentRep} RP**, eligible for up to **${discounts[discounts.length - 1].discount}% off** on this item. Use reputation for a discount?`,
+        content: `**${entry.name}** — ${formatCurrency(entry.price)}.\nYou have **${currentRep} RP**, eligible for up to **${discounts[discounts.length - 1].discount}% off** on this item. Use reputation for a discount?`,
         components: [row],
     });
 }

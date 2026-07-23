@@ -10,6 +10,7 @@ const { listQuests, getQuestById } = require('./leagueQuest');
 const { leagueDowntime } = require('./leagueDowntime');
 const { leagueStarterItems } = require('./leagueStarterItems');
 const { formatCurrency } = require('../utils/currency');
+const { leagueVoid } = require('./leagueVoid');
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
 
@@ -17,10 +18,11 @@ async function league(interaction, client) {
 	const group = interaction.options.getSubcommandGroup(false);
 	const sub = interaction.options.getSubcommand();
 
-	if (group === 'shop') return leagueShop(interaction);
-	if (group === 'marketplace') return leagueMarketplace(interaction);
-	if (group === 'downtime') return leagueDowntime(interaction);
-	if (group === 'quest') return handleQuestGroup(interaction);
+	if (group === 'shop') 			return leagueShop(interaction);
+	if (group === 'marketplace') 	return leagueMarketplace(interaction);
+	if (group === 'downtime') 		return leagueDowntime(interaction);
+	if (group === 'quest') 			return handleQuestGroup(interaction);
+	if (group === 'void') 			return leagueVoid(interaction);
 	
 	switch (sub) {
 		case 'create':

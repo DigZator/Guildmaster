@@ -12,15 +12,16 @@ const { getRequest, removeRequest } = require('../utils/downtimeApprovals');
 const { getDowntimeProgressById, setDowntimeStatus, createDowntimeProgress } = require('../utils/leagueNotion');
 const leagueNotion = require('../utils/leagueNotion');
 const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../utils/downtime');
+const { formatCurrency } = require('../utils/currency');
 
 const DM_ROLE_ID = process.env.DM_ROLE_ID;
 const REP_MAX    = 2;
 
-function extractPairs(interaction) {
+function extractPairs(interaction, amountGetter = 'getInteger') {
 	const pairs = [];
 	for (let i = 1; i <= 6; i++) {
 		const user   = interaction.options.getUser(`user${i}`);
-		const amount = interaction.options.getInteger(`amount${i}`);
+		const amount = interaction.options[amountGetter](`amount${i}`);
 		if (user && amount !== null) pairs.push({ user, amount });
 	}
 	return pairs;
@@ -116,7 +117,7 @@ async function handleAdminRep(interaction) {
             { name: 'Player',     value: `<@${targetUser.id}>`,       inline: true },
             { name: 'Granted By', value: `<@${interaction.user.id}>`, inline: true },
             { name: 'Amount',     value: `+${amount}`,                inline: true },
-            { name: 'New Total',  value: `${currentRep + amount}`,    inline: true },
+            { name: 'New Total',  value: `${(currentRep + amount)}`,    inline: true },
         )
         .setTimestamp()
     );
@@ -131,7 +132,7 @@ async function handleAdminGold(interaction) {
         return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
     }
 
-    const amount = interaction.options.getInteger('amount');
+    const amount = interaction.options.getNumber('amount');
     await interaction.deferReply({ flags: 64 });
 
     let resolved;
@@ -166,13 +167,13 @@ async function handleAdminGold(interaction) {
             { name: 'Character',  value: characterName,               inline: true },
             { name: 'Player',     value: `<@${targetUser.id}>`,       inline: true },
             { name: 'Granted By', value: `<@${interaction.user.id}>`, inline: true },
-            { name: 'Amount',     value: `${amount > 0 ? '+' : ''}${amount} gp`, inline: true },
-            { name: 'New Total',  value: `${newGold} gp`,             inline: true },
+            { name: 'Amount',     value: `${amount > 0 ? '+' : ''}${formatCurrency(amount)}`, inline: true },
+            { name: 'New Total',  value: `${formatCurrency(newGold)}`,             inline: true },
         )
         .setTimestamp()
     );
 
-    return interaction.editReply({ content: `✅ Adjusted gold by **${amount > 0 ? '+' : ''}${amount} gp** for **${characterName}**. New balance: **${newGold} gp**.` });
+    return interaction.editReply({ content: `✅ Adjusted gold by **${amount > 0 ? '+' : ''}${formatCurrency(amount)}** for **${characterName}**. New balance: **${formatCurrency(newGold)}**.` });
 }
 
 // ─── /leagueadmin milestone ───────────────────────────────────────────────────
@@ -327,7 +328,7 @@ async function handleDMGold(interaction) {
         return interaction.editReply({ content: quest.error });
     }
 
-    const pairs = extractPairs(interaction);
+    const pairs = extractPairs(interaction, 'getNumber');
     const results = [];
     const embedFields = [];
 

@@ -456,7 +456,7 @@ const commands = [
 				.setName('player')
 				.setDescription('The player to send gold to')
 				.setRequired(true))
-			.addIntegerOption(opt => opt
+			.addNumberOption(opt => opt
 				.setName('amount')
 				.setDescription('Amount of gold to transfer')
 				.setRequired(true)
@@ -507,7 +507,26 @@ const commands = [
  				.setName('background')
  				.setDescription('Your character\'s background')
  				.setRequired(true)
- 				.setAutocomplete(true))),
+ 				.setAutocomplete(true)))
+		.addSubcommandGroup(group => group
+		    .setName('void')
+		    .setDescription('Remove items or gold from your own character')
+	        .addSubcommand(sub => sub
+	            .setName('item')
+	            .setDescription('Void an item from your inventory')
+                .addIntegerOption(opt => opt
+                	.setName('id')
+                	.setDescription('Item # from /league inv')
+                	.setRequired(true)
+                	.setMinValue(1)))
+	        .addSubcommand(sub => sub
+	        	.setName('gold')
+	        	.setDescription('Void gold from your balance')
+                .addNumberOption(opt => opt
+                	.setName('amount')
+                	.setDescription('Amount of gold to void')
+                	.setRequired(true)
+                	.setMinValue(0.01)))),
 
 	//leageuadmin
 	new SlashCommandBuilder()
@@ -524,7 +543,7 @@ const commands = [
 			.setName('gold')
 			.setDescription('Grant gold to a character')
 			.addUserOption(opt => opt.setName('user').setDescription('Target player').setRequired(true))
-			.addIntegerOption(opt => opt.setName('amount').setDescription('Amount in gp (admin can use negative)').setRequired(true)))
+			.addNumberOption(opt => opt.setName('amount').setDescription('Amount in gp (admin can use negative)').setRequired(true)))
 		//milestone
 		.addSubcommand(sub => sub
 			.setName('milestone')

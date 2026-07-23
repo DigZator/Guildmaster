@@ -40,6 +40,11 @@ const DEFAULT_PRICE_BY_RARITY = {
 	Legendary: 100000
 };
 
+// How much of a base weapon/armor's own gp value gets added on top of the
+// rarity-tier default when pricing a synthesized magic variant combo.
+// 1 = add 100% of base value. Tune freely; see previewVariantPricing.js.
+const BASE_VALUE_PRICE_FACTOR = 1;
+
 
 function typeName(raw) {
     if (raw.type) {
@@ -84,12 +89,132 @@ function normalizeEntry(raw, existingCodeByKey, nextCodeRef) {
         requiresAttunement: !!raw.reqAttune,
         description: Array.isArray(raw.entries) ? raw.entries.filter(e => typeof e === 'string').join(' ') : '',
         source: raw.source,
+
+        rawType: raw.type ?? null,
+        rawProperty: Array.isArray(raw.property) ? raw.property : null,
+        rawWeaponOrArmor: !!(raw.weapon || raw.armor),
+        weapon: !!raw.weapon, armor: !!raw.armor, sword: !!raw.sword, axe: !!raw.axe,
+        bow: !!raw.bow, net: !!raw.net, arrow: !!raw.arrow, bolt: !!raw.bolt,
+        polearm: !!raw.polearm, crossbow: !!raw.crossbow, spear: !!raw.spear,
+        weaponCategory: raw.weaponCategory ?? null, dmgType: raw.dmgType ?? null,
+        scfType: raw.scfType ?? null,
     };
 }
+
+function stripSource(code) {
+    return typeof code === 'string' ? code.split('|')[0] : code;
+}
+
+function baseMatchesCondition(base, cond) {
+    for (const [key, val] of Object.entries(cond)) {
+        if (key === 'type') {
+            if (stripSource(base.rawType) !== stripSource(val)) return false;
+        } else if (key === 'property') {
+            const props = (base.rawProperty ?? []).map(stripSource);
+            if (!props.includes(stripSource(val))) return false;
+        } else if (key === 'name') {
+            if (base.name !== val) return false;
+        } else if (key === 'source') {
+            if (base.source !== val) return false;
+        } else {
+            if (base[key] !== val) return false;
+        }
+    }
+    return true;
+}
+
+function itemMatchesTemplate(base, template) {
+    const requires = template.requires ?? [];
+    if (!requires.some(cond => baseMatchesCondition(base, cond))) return false;
+    if (template.excludes && baseMatchesCondition(base, template.excludes)) return false;
+    return true;
+}
+
+function normalizeVariantTemplate(raw, idx) {
+    const inherits = raw.inherits ?? {};
+    return {
+        templateId: `${slugify(raw.name)}-${idx}`,
+        name: raw.name,
+        requires: raw.requires ?? [],
+        excludes: raw.excludes ?? null,
+        namePrefix: inherits.namePrefix ?? '',
+        nameSuffix: inherits.nameSuffix ?? '',
+        rarity: rarityName(inherits.rarity),
+        requiresAttunement: !!inherits.reqAttune,
+        description: Array.isArray(inherits.entries) ? inherits.entries.filter(e => typeof e === 'string').join(' ') : '',
+        source: inherits.source ?? raw.source ?? null,
+    };
+}
+
+function comboCode(naturalKey) {
+    let h = 0;
+    for (let i = 0; i < naturalKey.length; i++) {
+        h = (Math.imul(31, h) + naturalKey.charCodeAt(i)) | 0;
+    }
+    return 'V' + Math.abs(h).toString(36).toUpperCase().padStart(5, '0').slice(0, 5);
+}
+
+let comboCache = null; // { byBaseCombos: [...] } built lazily, busted on sync
+
+function invalidateComboCache() {
+    comboCache = null;
+    catalogueCache = null;
+}
+
+function buildComboCache() {
+    const { items, variantTemplates } = loadCatalogue();
+    const bases = items.filter(i => i.rawWeaponOrArmor);
+
+    const byDisplayKey = new Map();
+
+    for (const template of variantTemplates) {
+        for (const base of bases) {
+            if (!itemMatchesTemplate(base, template)) continue;
+
+            const combinedName = `${template.namePrefix}${base.name}${template.nameSuffix}`;
+            const displayKey = `${combinedName}::${base.naturalKey}`;
+            
+            if (byDisplayKey.has(displayKey)) continue;
+
+            const naturalKey = `${base.naturalKey}::${template.templateId}`;
+            const rarityDefault = DEFAULT_PRICE_BY_RARITY[template.rarity] ?? DEFAULT_PRICE_BY_RARITY.Common;
+            const baseGp = base.priceGp ?? 0;
+            const priceGp = Math.round((rarityDefault + baseGp * BASE_VALUE_PRICE_FACTOR) * 100) / 100;
+
+            byDisplayKey.set(displayKey, {
+                code: comboCode(naturalKey),
+                naturalKey,
+                name: combinedName,
+                type: base.type,
+                rarity: template.rarity,
+                priceGp,
+                isMagic: true,
+                requiresAttunement: template.requiresAttunement,
+                description: template.description,
+                source: template.source ?? base.source,
+                isVariantCombo: true,
+            });
+        }
+    }
+
+    return [...byDisplayKey.values()];
+}
+
+function getComboCache() {
+    if (!comboCache) comboCache = buildComboCache();
+    return comboCache;
+}
+
+let catalogueCache = null; // parsed catalogue.json, cached until next sync
+
 function loadCatalogue() {
+    if (catalogueCache) return catalogueCache;
+
     let data;
     try { data = JSON.parse(fs.readFileSync(CATALOGUE_PATH, 'utf8')); }
-    catch { return { syncedAt: null, items: [] }; }
+    catch { return { syncedAt: null, items: [], variantTemplates: [] }; }
+
+    if (!Array.isArray(data.variantTemplates)) data.variantTemplates = [];
 
     let healed = false;
     for (const item of data.items) {
@@ -104,6 +229,7 @@ function loadCatalogue() {
         catch (err) { console.warn('[5etoolsCatalogue] Could not persist self-healed types:', err); }
     }
 
+    catalogueCache = data;
     return data;
 }
 
@@ -130,23 +256,51 @@ async function syncCatalogue() {
         byKey.set(normalized.naturalKey, normalized);
     }
 
+    const variantsPath = path.join(DATA_DIR, 'magicvariants.json');
+    let variantTemplates = [];
+    if (fs.existsSync(variantsPath)) {
+        const body = JSON.parse(fs.readFileSync(variantsPath, 'utf8'));
+        variantTemplates = (body.magicvariant ?? [])
+            .filter(raw => SOURCES.has(raw.inherits?.source))
+            .map(normalizeVariantTemplate);
+    } else {
+        console.warn(`[5etoolsCatalogue] magicvariants.json not found at ${variantsPath} — skipping magic variant sync.`);
+    }
+
     const catalogue = {
         syncedAt: new Date().toISOString(),
         sources: [...SOURCES],
         items: Array.from(byKey.values()).sort((a, b) => a.name.localeCompare(b.name)),
+        variantTemplates,
     };
     fs.writeFileSync(CATALOGUE_PATH, JSON.stringify(catalogue, null, 2));
-    return { count: catalogue.items.length, syncedAt: catalogue.syncedAt };
+    invalidateComboCache();
+    return { count: catalogue.items.length, variantTemplateCount: variantTemplates.length, syncedAt: catalogue.syncedAt };
 }
 
 function searchCatalogue(query, { limit = 100 } = {}) {
     const q = query.toLowerCase();
-    return loadCatalogue().items.filter(i => i.name.toLowerCase().includes(q)).slice(0, limit);
+    const results = [];
+
+    for (const item of loadCatalogue().items) {
+        if (results.length >= limit) return results;
+        if (item.name.toLowerCase().includes(q)) results.push(item);
+    }
+
+    for (const combo of getComboCache()) {
+        if (results.length >= limit) return results;
+        if (combo.name.toLowerCase().includes(q)) results.push(combo);
+    }
+
+    return results;
 }
 
 function getCatalogueItemByName(name) {
     const target = name.trim().toLowerCase();
-    const matches = loadCatalogue().items.filter(i => i.name.toLowerCase() === target);
+    const matches = [
+        ...loadCatalogue().items.filter(i => i.name.toLowerCase() === target),
+        ...getComboCache().filter(c => c.name.toLowerCase() === target),
+    ];
     if (matches.length === 0) return null;
     return matches.reduce((cheapest, item) => {
         if (item.priceGp == null) return cheapest;
@@ -157,7 +311,9 @@ function getCatalogueItemByName(name) {
 
 function getCatalogueItemByCode(code) {
     const c = code.trim().toUpperCase();
-    return loadCatalogue().items.find(i => i.code === c) ?? null;
+    const found = loadCatalogue().items.find(i => i.code === c);
+    if (found) return found;
+    return getComboCache().find(combo => combo.code === c) ?? null;
 }
 
 function getCatalogueMeta() {
@@ -173,6 +329,7 @@ module.exports = {
     syncCatalogue, loadCatalogue, searchCatalogue, getCatalogueItemByCode, 
     getCatalogueItemByName, getCatalogueMeta,
     restockCadenceMsFor, restockQtyFor, defaultPriceFor,inferSubtype,
+    invalidateComboCache,
 
-    RESTOCK_CADENCE_MS, RESTOCK_QTY_BY_RARITY, DEFAULT_PRICE_BY_RARITY,
+    RESTOCK_CADENCE_MS, RESTOCK_QTY_BY_RARITY, DEFAULT_PRICE_BY_RARITY, BASE_VALUE_PRICE_FACTOR,
 };

@@ -32,6 +32,23 @@ function getShopEntry(code) {
     return { code: code.toUpperCase(), ...catalogueItem, ...entry };
 }
 
+function getBuyableEntry(code) {
+    const stocked = getShopEntry(code);
+    if (stocked) return stocked;
+
+    const catalogueItem = getCatalogueItemByCode(code);
+    if (!catalogueItem || !catalogueItem.isVariantCombo) return null;
+
+    const c = code.toUpperCase();
+    return {
+        code: c,
+        ...catalogueItem,
+        price: getPriceOverride(c) ?? catalogueItem.priceGp ?? defaultPriceFor(catalogueItem.rarity),
+        quantity: Infinity,
+        available: true,
+    };
+}
+
 function getAllStockedEntries({ availableOnly = true } = {}) {
     const floor = getShopFloor();
     const out = [];
@@ -111,6 +128,6 @@ function runRestockCheck() {
 }
 
 module.exports = {
-    tierMinFor, getShopEntry, getAllStockedEntries, stockItem, unstockItem, restockItem,
+    tierMinFor, getShopEntry, getBuyableEntry, getAllStockedEntries, stockItem, unstockItem, restockItem,
     decrementStock, runRestockCheck, getPriceOverride, setPriceOverride,
 };

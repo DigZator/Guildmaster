@@ -1,6 +1,10 @@
 const { EmbedBuilder } = require('discord.js');
-const { createCharacter, getActiveCharacter } = require('../utils/leagueNotion');
+const { createCharacter, getActiveCharacter, createInventoryItem } = require('../utils/leagueNotion');
+const { getCatalogueItemByName, defaultPriceFor } = require('../utils/5etoolsCatalogue');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+
+const LEAGUE_PLAYERS_ROLE_ID = process.env.LEAGUE_PLAYERS_ROLE_ID;
+const STARTER_POTION_NAME = 'Potion of Healing';
 
 function isValidInput(input) {
 	try {
@@ -85,6 +89,41 @@ async function handleLeagueCreate(interaction, client) {
 		    });
 	  }
 
+	  // ── Grant @League Players role ────────────────────────────────────────────
+	  let roleWarning = null;
+	  if (!LEAGUE_PLAYERS_ROLE_ID) {
+		    console.warn('[leagueCreate modal] LEAGUE_PLAYERS_ROLE_ID not set — skipping role grant.');
+		    roleWarning = 'LEAGUE_PLAYERS_ROLE_ID is not configured.';
+	  } else {
+		    try {
+			      await interaction.member.roles.add(LEAGUE_PLAYERS_ROLE_ID);
+		    } catch (err) {
+			      console.error('[leagueCreate modal] Failed to grant League Players role:', err);
+			      roleWarning = `Could not grant the role automatically (${err.message}).`;
+		    }
+	  }
+
+	  // ── Grant starting Potion of Healing ──────────────────────────────────────
+	  let potionWarning = null;
+	  try {
+		    const potionItem = getCatalogueItemByName(STARTER_POTION_NAME);
+		    await createInventoryItem({
+			      itemName: STARTER_POTION_NAME,
+			      characterPageId: characterPage.id,
+			      rarity: potionItem?.rarity ?? 'Common',
+			      type: potionItem?.type ?? 'Potion',
+			      itemValue: potionItem?.priceGp ?? defaultPriceFor('Common'),
+			      source: 'Character Creation',
+			      status: 'Owned',
+		    });
+		    if (!potionItem) {
+			      console.warn(`[leagueCreate modal] "${STARTER_POTION_NAME}" not found in catalogue — added with fallback Common values.`);
+		    }
+	  } catch (err) {
+		    console.error('[leagueCreate modal] Failed to grant starting potion:', err);
+		    potionWarning = `Could not add the starting potion automatically (${err.message}).`;
+	  }
+
 	  const confirmEmbed = new EmbedBuilder()
 	    .setColor(0x5865f2) // Discord blurple
 	    .setTitle('⚔️ Character Registered!')
@@ -130,6 +169,8 @@ async function handleLeagueCreate(interaction, client) {
 				        { name: 'Player',       value: `<@${discordId}> (${discordUsername})`, inline: false },
 				        { name: 'Thread',       value: `<#${forumThreadId}>`,      inline: false },
 				        { name: 'Notion Page',  value: characterPage.url ?? '(unknown)', inline: false },
+				        ...(roleWarning ? [{ name: '⚠️ Role grant', value: roleWarning, inline: false }] : []),
+				        ...(potionWarning ? [{ name: '⚠️ Starting potion', value: potionWarning, inline: false }] : []),
 				      )
 				      .setTimestamp();
 

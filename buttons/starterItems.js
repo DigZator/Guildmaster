@@ -214,7 +214,11 @@ module.exports = {
             const session = sessions.get(messageId);
             if (!session) return interaction.update({ content: '❌ Session expired.', embeds: [], components: [] });
 
-            await interaction.deferUpdate();
+            // Remove the buttons immediately (before any awaited work) so a
+            // spam-click can't queue up a second confirm while this one is
+            // still verifying/committing.
+            await interaction.update({ components: [] });
+            sessions.delete(messageId);
 
             let freshCharacter;
             try {
