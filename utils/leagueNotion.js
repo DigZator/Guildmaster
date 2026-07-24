@@ -15,11 +15,11 @@ const DB = {
 
 // ─── per-page lock ────────────────────────────────────────────────
 
-const pageLocks = new Map(); // pageId -> Promise chain tail
+const pageLocks = new Map();
 
 function withPageLock(pageId, fn) {
 	const previous = pageLocks.get(pageId) ?? Promise.resolve();
-	const run = previous.then(fn, fn); // run fn regardless of prior success/failure
+	const run = previous.then(fn, fn);
 	const tail = run.catch(() => {});
 	pageLocks.set(pageId, tail);
 	tail.finally(() => {
@@ -40,12 +40,6 @@ async function updatePageProperty(pageId, properties) {
 async function getCharacterGold(characterId) {
 	const page = await notion.pages.retrieve({ page_id: characterId});
 	return page.properties['Gold']?.number ?? 0;
-}
-
-async function setCharacterGold(characterId, amount) {
-	return await updatePageProperty(characterId, {
-		'Gold': { number:amount },
-	});
 }
 
 async function getPageById(pageId) {
@@ -194,6 +188,11 @@ async function setCharacterStatus(pageId, status) {
       'Status': { select: { name: status } },
     },
   });
+}
+
+function withTwoPageLocks(pageIdA, pageIdB, fn) {
+  const [first, second] = [pageIdA, pageIdB].sort();
+  return withPageLock(first, () => withPageLock(second, fn));
 }
 
 async function adjustCharacterNumber(pageId, field, delta) {
@@ -610,7 +609,6 @@ module.exports = {
 	// Helper
 	updatePageProperty,
 	getCharacterGold,
-	setCharacterGold,
 	getPageById,
 
 	// Characters
@@ -638,6 +636,7 @@ module.exports = {
 
 	// Concurrency
 	withPageLock,
+	withTwoPageLocks,
 
 	// Downtime
 	createDowntimeProgress,

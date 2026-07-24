@@ -1,4 +1,4 @@
-const { getCharacterGold, setCharacterGold, setItemStatus } = require('../utils/leagueNotion');
+const { getCharacterGold, adjustCharacterNumbersUnlocked, withPageLock, setItemStatus } = require('../utils/leagueNotion');
 const { getPendingSell, clearPendingSell } = require('../utils/shopSellSessions');
 const { formatCurrency } = require('../utils/currency');
 const { EmbedBuilder } = require('discord.js');
@@ -35,16 +35,16 @@ module.exports = {
 
             const { char, characterName, items, totalPrice } = pending;
 
-            const currentGold = await getCharacterGold(char.id).catch(() => null);
-            if (currentGold === null) {
-                return interaction.editReply({ content: '❌ Could not read your gold balance. Please try again.', components: [] });
-            }
-
+            let currentGold;
             try {
-                await Promise.all([
-                    setCharacterGold(char.id, currentGold + totalPrice),
-                    ...items.map(i => setItemStatus(i.pageId, 'Sold')),
-                ]);
+                currentGold = await withPageLock(char.id, async () => {
+                    const gold = await getCharacterGold(char.id);
+                    await Promise.all([
+                        adjustCharacterNumbersUnlocked(char.id, { Gold: totalPrice }),
+                        ...items.map(i => setItemStatus(i.pageId, 'Sold')),
+                    ]);
+                    return gold;
+                });
             } catch (err) {
                 console.error('[shopsell_confirm_yes] Notion write error:', err);
                 return interaction.editReply({ content: '❌ Sale failed partway through. Please contact an admin to verify your inventory and gold.', components: [] });

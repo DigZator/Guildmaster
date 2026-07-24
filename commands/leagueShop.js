@@ -1,7 +1,9 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const {
     getActiveCharacter,
-    adjustCharacterNumber,
+    adjustCharacterNumbersUnlocked,
+    withPageLock,
+    withTwoPageLocks,
     getOpenListings,
     getListingById,
     generateListingId,
@@ -9,7 +11,6 @@ const {
     createInventoryItem,
     setItemStatus,
     getCharacterGold,
-    setCharacterGold,
     updatePageProperty,
     getPageById,
     getCharacterInventory,
@@ -211,12 +212,9 @@ async function handleShopInfo(interaction) {
 
 // ─── /league shop buy ─────────────────────────────────────────────────────────
 
-async function finalizePurchase(interaction, { char, characterName, code, entry, currentGold, discount = 0, rpCost = 0, currentRep = 0 }) {
+async function finalizePurchase(interaction, { char, characterName, code, entry, discount = 0, rpCost = 0, currentRep = 0 }) {
     const finalPrice = Math.max(0, Math.round(entry.price * (1 - discount / 100)));
 
-    if (currentGold < finalPrice) {
-        return interaction.editReply({ content: `❌ Not enough gold. **${entry.name}** costs **${formatCurrency(finalPrice)}** but you only have **${formatCurrency(currentGold)}**.`, components: [] });
-    }
     if (rpCost > 0 && currentRep < rpCost) {
         return interaction.editReply({ content: `❌ Not enough reputation for that discount anymore. You need **${rpCost} RP** but have **${currentRep}**.`, components: [] });
     }
@@ -226,25 +224,38 @@ async function finalizePurchase(interaction, { char, characterName, code, entry,
         if (!updated) return interaction.editReply({ content: `❌ **${entry.name}** is out of stock.`, components: [] });
     }
 
+    let goldBefore;
     try {
-        const writes = [
-            setCharacterGold(char.id, currentGold - finalPrice),
-            createInventoryItem({
-                itemName: entry.name,
-                type: entry.type,
-                rarity: entry.rarity,
-                itemValue: entry.price,
-                source: 'Shop Purchase',
-                characterPageId: char.id,
-                status: 'Owned',
-            }),
-        ];
-        if (rpCost > 0) writes.push(adjustCharacterNumber(char.id, 'Reputation Points', -rpCost));
-        await Promise.all(writes);
+        goldBefore = await withPageLock(char.id, async () => {
+            const gold = await getCharacterGold(char.id);
+            if (gold < finalPrice) throw new Error('INSUFFICIENT_GOLD');
+
+            const writes = [
+                adjustCharacterNumbersUnlocked(char.id, { Gold: -finalPrice }),
+                createInventoryItem({
+                    itemName: entry.name,
+                    type: entry.type,
+                    rarity: entry.rarity,
+                    itemValue: entry.price,
+                    source: 'Shop Purchase',
+                    characterPageId: char.id,
+                    status: 'Owned',
+                }),
+            ];
+            if (rpCost > 0) writes.push(adjustCharacterNumbersUnlocked(char.id, { 'Reputation Points': -rpCost }));
+            await Promise.all(writes);
+
+            return gold;
+        });
     } catch (err) {
+        if (err.message === 'INSUFFICIENT_GOLD') {
+            return interaction.editReply({ content: `❌ Not enough gold. **${entry.name}** costs **${formatCurrency(finalPrice)}**.`, components: [] });
+        }
         console.error('[league shop buy] Notion write error:', err);
         return interaction.editReply({ content: '❌ Purchase failed. Please try again.', components: [] });
     }
+
+    const currentGold = goldBefore;
 
     const logFields = [
         { name: 'Item',      value: entry.name,                   inline: true },
@@ -488,14 +499,6 @@ async function handleMarketplaceBuy(interaction) {
         console.warn('[marketplace buy] Could not fetch item/seller details:', err.message);
     }
 
-    const buyerGold = await getCharacterGold(buyerChar.id).catch(() => 0);
-    if (buyerGold < askingPrice) {
-        return interaction.editReply({
-            content: `❌ Not enough gold. This listing costs **${formatCurrency(askingPrice)}** but you only have **${formatCurrency(buyerGold)}**.`,
-        });
-    }
-
-    const sellerGold = await getCharacterGold(sellerPageId).catch(() => 0);
     const buyerName  = buyerChar.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
 
     const taxBase      = itemValue ?? askingPrice;
@@ -503,18 +506,29 @@ async function handleMarketplaceBuy(interaction) {
     const sellerPayout  = Math.max(0, askingPrice - taxAmount);
 
     try {
-        await Promise.all([
-            setCharacterGold(buyerChar.id, buyerGold - askingPrice),
-            setCharacterGold(sellerPageId, sellerGold + sellerPayout),
-            updatePageProperty(itemPageId, {
-                'Character': { relation: [{ id: buyerChar.id }] },
-                'Status':    { select: { name: 'Owned' } },
-            }),
-            updatePageProperty(listing.id, {
-                'Status': { select: { name: 'Sold' } },
-            }),
-        ]);
+        await withTwoPageLocks(buyerChar.id, sellerPageId, async () => {
+            const buyerGold = await getCharacterGold(buyerChar.id);
+            if (buyerGold < askingPrice) throw new Error('INSUFFICIENT_GOLD');
+
+            await Promise.all([
+                adjustCharacterNumbersUnlocked(buyerChar.id, { Gold: -askingPrice }),
+                adjustCharacterNumbersUnlocked(sellerPageId, { Gold: sellerPayout }),
+                updatePageProperty(itemPageId, {
+                    'Character': { relation: [{ id: buyerChar.id }] },
+                    'Status':    { select: { name: 'Owned' } },
+                }),
+                updatePageProperty(listing.id, {
+                    'Status': { select: { name: 'Sold' } },
+                }),
+            ]);
+        });
     } catch (err) {
+        if (err.message === 'INSUFFICIENT_GOLD') {
+            const buyerGold = await getCharacterGold(buyerChar.id).catch(() => 0);
+            return interaction.editReply({
+                content: `❌ Not enough gold. This listing costs **${formatCurrency(askingPrice)}** but you only have **${formatCurrency(buyerGold)}**.`,
+            });
+        }
         console.error('[league marketplace buy] Notion write error:', err);
         return interaction.editReply({ content: '❌ Purchase failed. Please try again.' });
     }

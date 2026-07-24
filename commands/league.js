@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { randomBytes } = require('crypto');
-const { getActiveCharacter, updateCharacterArt, updatePageProperty, getCharacterGold, setCharacterGold, getCharactersByDiscordId, searchCharactersByName, queryLeaderboard, getCharacterQuestLog, getPageById } = require('../utils/leagueNotion');
+const { getActiveCharacter, updateCharacterArt, updatePageProperty, getCharacterGold, adjustCharacterNumbersUnlocked, withTwoPageLocks, getCharactersByDiscordId, searchCharactersByName, queryLeaderboard, getCharacterQuestLog, getPageById } = require('../utils/leagueNotion');
 const { buildLeagueCreateModal } = require('../modals/leagueCreate');
 const { sendInventory } = require('../buttons/inventory');
 const { sendItemDetail } = require('../utils/inventoryHelper');
@@ -361,30 +361,26 @@ async function transferGold(interaction) {
 
     let senderGold, receiverGold;
     try {
-        [senderGold, receiverGold] = await Promise.all([
-            getCharacterGold(senderChar.id),
-            getCharacterGold(receiverChar.id),
-        ]);
-    } catch (err) {
-        console.error('[gold] Notion error fetching gold:', err);
-        return interaction.editReply({ content: '❌ Could not read gold balances. Please try again.' });
-    }
+        await withTwoPageLocks(senderChar.id, receiverChar.id, async () => {
+            [senderGold, receiverGold] = await Promise.all([
+                getCharacterGold(senderChar.id),
+                getCharacterGold(receiverChar.id),
+            ]);
 
-    if (senderGold < amount) {
-        return interaction.editReply({
-            content: `❌ You do not have enough gold. Current balance: **${formatCurrency(senderGold)}**.`,
+            if (senderGold < amount) throw new Error('INSUFFICIENT_GOLD');
+
+            await Promise.all([
+                adjustCharacterNumbersUnlocked(senderChar.id,   { Gold: -amount }),
+                adjustCharacterNumbersUnlocked(receiverChar.id, { Gold:  amount }),
+            ]);
         });
-    }
-
-    const newSenderGold   = senderGold   - amount;
-    const newReceiverGold = receiverGold + amount;
-
-    try {
-        await Promise.all([
-            setCharacterGold(senderChar.id,   newSenderGold),
-            setCharacterGold(receiverChar.id, newReceiverGold),
-        ]);
     } catch (err) {
+        if (err.message === 'INSUFFICIENT_GOLD') {
+            return interaction.editReply({
+                content: `❌ You do not have enough gold. Current balance: **${formatCurrency(senderGold)}**.`,
+            });
+        }
+
         console.error('[gold] Notion error during transfer:', err);
 
         let actualSenderGold   = '?';
@@ -407,8 +403,8 @@ async function transferGold(interaction) {
                             { name: 'Sender',               value: `<@${interaction.user.id}> (${senderName})`,  inline: true },
                             { name: 'Receiver',             value: `<@${targetUser.id}> (${receiverName})`,      inline: true },
                             { name: 'Amount',               value: `${formatCurrency(amount)}`,                               inline: true },
-                            { name: 'Sender Before',        value: `${formatCurrency(senderGold)}`,                           inline: true },
-                            { name: 'Receiver Before',      value: `${formatCurrency(receiverGold)}`,                         inline: true },
+                            { name: 'Sender Before',        value: `${formatCurrency(senderGold ?? '?')}`,                    inline: true },
+                            { name: 'Receiver Before',      value: `${formatCurrency(receiverGold ?? '?')}`,                  inline: true },
                             { name: '\u200b',               value: '\u200b',                                     inline: true },
                             { name: 'Sender After (actual)',   value: `${formatCurrency(actualSenderGold)}`,                  inline: true },
                             { name: 'Receiver After (actual)', value: `${formatCurrency(actualReceiverGold)}`,                inline: true },
@@ -423,6 +419,9 @@ async function transferGold(interaction) {
             content: '❌ The transfer failed partway through. Admins have been notified to review the balances.',
         });
     }
+
+    const newSenderGold   = senderGold   - amount;
+    const newReceiverGold = receiverGold + amount;
 
     if (adminChannel) {
         await adminChannel.send({
