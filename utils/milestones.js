@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { adjustCharacterNumber, setCharacterLevel } = require('./leagueNotion');
+const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('./leagueNotion');
 const { resolveLevelUps, LEVEL_CONFIG } = require('../config/leagueLeveling');
 
 const TIER_COLORS = [0xe74c3c, 0x3498db, 0x9b59b6, 0xf1c40f, 0x2ecc71, 0xe67e22, 0x1abc9c];
@@ -64,25 +64,32 @@ async function postLevelUpMessage(client, forumThreadId, characterName, oldLevel
 }
 
 async function applyMilestones(client, guild, character, characterName, amount) {
-    const p                 = character.properties;
-    const currentLevel      = p['Level']?.number ?? 1;
-    const currentMilestones = p['Milestones']?.number ?? 0;
-    const forumThreadId     = p['Forum Thread Id']?.rich_text?.[0]?.plain_text ?? null;
-    const charArtURL        = p['CharArtURL']?.url ?? null;
+    const forumThreadId = character.properties['Forum Thread Id']?.rich_text?.[0]?.plain_text ?? null;
+    const charArtURL    = character.properties['CharArtURL']?.url ?? null;
 
-    const newMilestoneTotal = currentMilestones + amount;
-    const { newLevel, milestonesConsumed, milestonesRemaining, levelUps } = resolveLevelUps(currentLevel, newMilestoneTotal);
+    const result = await withPageLock(character.id, async () => {
+        const freshPage          = await getPageById(character.id);
+        const p                  = freshPage.properties;
+        const currentLevel       = p['Level']?.number ?? 1;
+        const currentMilestones  = p['Milestones']?.number ?? 0;
 
-    await adjustCharacterNumber(character.id, 'Milestones', amount - milestonesConsumed);
+        const newMilestoneTotal = currentMilestones + amount;
+        const { newLevel, milestonesConsumed, milestonesRemaining, levelUps } = resolveLevelUps(currentLevel, newMilestoneTotal);
 
-    if (levelUps > 0) {
-        await setCharacterLevel(character.id, newLevel);
-        if (forumThreadId) {
-            await postLevelUpMessage(client, forumThreadId, characterName, currentLevel, newLevel, charArtURL);
+        await adjustCharacterNumbersUnlocked(character.id, { Milestones: amount - milestonesConsumed });
+
+        if (levelUps > 0) {
+            await setCharacterLevel(character.id, newLevel);
         }
+
+        return { currentLevel, newLevel, currentMilestones, newMilestoneTotal, milestonesConsumed, milestonesRemaining, levelUps };
+    });
+
+    if (result.levelUps > 0 && forumThreadId) {
+        await postLevelUpMessage(client, forumThreadId, characterName, result.currentLevel, result.newLevel, charArtURL);
     }
 
-    return { currentLevel, newLevel, currentMilestones, newMilestoneTotal, milestonesConsumed, milestonesRemaining, levelUps };
+    return result;
 }
 
 module.exports = { applyMilestones, postLevelUpMessage, getTier, randomQuote, TIER_COLORS, INSPIRING_QUOTES };
