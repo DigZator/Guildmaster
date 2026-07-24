@@ -377,16 +377,12 @@ async function handleShopSell(interaction) {
         const itemName  = item.properties['Item Name']?.title?.[0]?.plain_text ?? 'Unknown';
         let itemValue   = item.properties['Item Value']?.number ?? null;
 
-        // console.log(`Item Name - ${itemName}, Item Value - ${itemValue}`);
-
         if (itemValue == null) {
             const catalogueItem = getCatalogueItemByName(itemName);
             if (catalogueItem) {
                 itemValue = catalogueItem.priceGp ?? defaultPriceFor(catalogueItem.rarity);
             }
         }
-
-        // console.log(`Catalgouge check - Item Name - ${itemName}, Item Value - ${itemValue}`);
 
         if (itemValue == null) {
             return interaction.editReply({ content: `❌ **${itemName}** (\`#${String(serial).padStart(3, '0')}\`) has no value on file and cannot be sold. Contact an admin.` });
@@ -505,14 +501,21 @@ async function handleMarketplaceBuy(interaction) {
     const taxAmount     = Math.round(taxBase * MARKETPLACE_TAX_RATE * 100) / 100;
     const sellerPayout  = Math.max(0, askingPrice - taxAmount);
 
+    let buyerGoldBefore, sellerGoldBefore;
+
     try {
         await withTwoPageLocks(buyerChar.id, sellerPageId, async () => {
-            const buyerGold = await getCharacterGold(buyerChar.id);
-            if (buyerGold < askingPrice) throw new Error('INSUFFICIENT_GOLD');
+            buyerGoldBefore = await getCharacterGold(buyerChar.id);
+            if (buyerGoldBefore < askingPrice) throw new Error('INSUFFICIENT_GOLD');
+            sellerGoldBefore = await getCharacterGold(sellerPageId);
+
+            await adjustCharacterNumbersUnlocked(buyerChar.id, { Gold: -askingPrice });
+            stage = 'buyer_debited';
+
+            await adjustCharacterNumbersUnlocked(sellerPageId, { Gold: sellerPayout });
+            stage = 'seller_credited';
 
             await Promise.all([
-                adjustCharacterNumbersUnlocked(buyerChar.id, { Gold: -askingPrice }),
-                adjustCharacterNumbersUnlocked(sellerPageId, { Gold: sellerPayout }),
                 updatePageProperty(itemPageId, {
                     'Character': { relation: [{ id: buyerChar.id }] },
                     'Status':    { select: { name: 'Owned' } },
@@ -521,15 +524,45 @@ async function handleMarketplaceBuy(interaction) {
                     'Status': { select: { name: 'Sold' } },
                 }),
             ]);
+            stage = 'complete';
         });
     } catch (err) {
         if (err.message === 'INSUFFICIENT_GOLD') {
-            const buyerGold = await getCharacterGold(buyerChar.id).catch(() => 0);
             return interaction.editReply({
-                content: `❌ Not enough gold. This listing costs **${formatCurrency(askingPrice)}** but you only have **${formatCurrency(buyerGold)}**.`,
+                content: `❌ Not enough gold. This listing costs **${formatCurrency(askingPrice)}** but you only have **${formatCurrency(buyerGoldBefore ?? 0)}**.`,
             });
         }
-        console.error('[league marketplace buy] Notion write error:', err);
+
+        console.error('[league marketplace buy] Notion write error:', err, { stage });
+
+        if (stage !== 'none') {
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0xe74c3c)
+                .setTitle('⚠️ Marketplace Purchase Failed Mid-Transaction — Needs Reconciliation')
+                .setDescription(`Failed at stage \`${stage}\`. Error: ${err.message}`)
+                .addFields(
+                    { name: 'Listing ID',   value: `\`${listingId}\``, inline: true },
+                    { name: 'Item',         value: itemName,           inline: true },
+                    { name: 'Asking Price', value: `${formatCurrency(askingPrice)}`, inline: true },
+                    { name: 'Buyer',        value: `${buyerName} (\`${buyerChar.id}\`, <@${interaction.user.id}>)`, inline: false },
+                    { name: 'Buyer Gold Before',  value: `${formatCurrency(buyerGoldBefore ?? 0)}`, inline: true },
+                    { name: 'Buyer Gold Expected After', value: `${formatCurrency((buyerGoldBefore ?? 0) - askingPrice)}`, inline: true },
+                    { name: '\u200b', value: '\u200b', inline: true },
+                    { name: 'Seller',       value: `${sellerCharName} (\`${sellerPageId}\`)`, inline: false },
+                    { name: 'Seller Gold Before', value: `${formatCurrency(sellerGoldBefore ?? 0)}`, inline: true },
+                    { name: 'Seller Gold Expected After', value: `${formatCurrency((sellerGoldBefore ?? 0) + sellerPayout)}`, inline: true },
+                    { name: '\u200b', value: '\u200b', inline: true },
+                    { name: 'Item Page ID',    value: `\`${itemPageId}\``, inline: true },
+                    { name: 'Was Item/Listing Flipped?', value: stage === 'complete' ? 'Yes' : 'No — still needs manual flip to Owned/Sold', inline: true },
+                )
+                .setTimestamp()
+            );
+
+            return interaction.editReply({
+                content: '⚠️ Your purchase partially completed and an admin has been notified to reconcile it. Please do not retry until it\'s resolved — contact an admin.',
+            });
+        }
+
         return interaction.editReply({ content: '❌ Purchase failed. Please try again.' });
     }
 
@@ -575,7 +608,7 @@ async function handleMarketplaceBuy(interaction) {
     );
 
     return interaction.editReply({
-        content: `✅ Purchased **${itemName}** for **${formatCurrency(askingPrice)}**. New balance: **${formatCurrency(buyerGold - askingPrice)}**.`,
+        content: `✅ Purchased **${itemName}** for **${formatCurrency(askingPrice)}**. New balance: **${formatCurrency(buyerGoldBefore - askingPrice)}**.`,
     });
 }
 
@@ -621,13 +654,36 @@ async function handleMarketplaceList(interaction) {
         return interaction.editReply({ content: '❌ Failed to generate listing ID. Please try again.' });
     }
 
+    let stage = 'none'; // none -> item_reserved -> complete
     try {
-        await Promise.all([
-            createListing({ listingId, sellerPageId: char.id, itemPageId: item.id, askingPrice }),
-            setItemStatus(item.id, 'Marketplace'),
-        ]);
+        await setItemStatus(item.id, 'Marketplace');
+        stage = 'item_reserved';
+
+        await createListing({ listingId, sellerPageId: char.id, itemPageId: item.id, askingPrice });
+        stage = 'complete';
     } catch (err) {
-        console.error('[league marketplace list] Notion write error:', err);
+        console.error('[league marketplace list] Notion write error:', err, { stage });
+
+        if (stage === 'item_reserved') {
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0xe74c3c)
+                .setTitle('⚠️ Marketplace Listing Failed Mid-Creation — Needs Reconciliation')
+                .setDescription(`Item was flipped to \`Marketplace\` status but listing creation failed. Error: ${err.message}`)
+                .addFields(
+                    { name: 'Item',         value: itemName,                          inline: true },
+                    { name: 'Item Page ID', value: `\`${item.id}\``,                  inline: true },
+                    { name: 'Intended Listing ID', value: `\`${listingId}\``,         inline: true },
+                    { name: 'Seller',       value: `${char.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown'} (\`${char.id}\`, <@${interaction.user.id}>)`, inline: false },
+                    { name: 'Asking Price', value: `${formatCurrency(askingPrice)}`,  inline: true },
+                )
+                .setTimestamp()
+            );
+
+            return interaction.editReply({
+                content: '⚠️ Listing failed partway through and an admin has been notified. Your item is temporarily unavailable to sell/list until it\'s manually fixed — please don\'t retry until then.',
+            });
+        }
+
         return interaction.editReply({ content: '❌ Failed to create listing. Please try again.' });
     }
 
@@ -663,13 +719,34 @@ async function handleMarketplaceUnlist(interaction) {
 
     const itemPageId = listing.properties['Item']?.relation?.[0]?.id ?? null;
 
+    let stage = 'none'; // none -> listing_cancelled -> complete
     try {
-        await Promise.all([
-            setItemStatus(itemPageId, 'Owned'),
-            updatePageProperty(listing.id, { 'Status': { select: { name: 'Cancelled' } } }),
-        ]);
+        await updatePageProperty(listing.id, { 'Status': { select: { name: 'Cancelled' } } });
+        stage = 'listing_cancelled';
+
+        await setItemStatus(itemPageId, 'Owned');
+        stage = 'complete';
     } catch (err) {
-        console.error('[league marketplace unlist] Notion write error:', err);
+        console.error('[league marketplace unlist] Notion write error:', err, { stage });
+
+        if (stage === 'listing_cancelled') {
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0xe74c3c)
+                .setTitle('⚠️ Marketplace Unlist Failed Mid-Update — Needs Reconciliation')
+                .setDescription(`Listing was cancelled but the item's status was not returned to \`Owned\`. Error: ${err.message}`)
+                .addFields(
+                    { name: 'Listing ID',   value: `\`${listingId}\``, inline: true },
+                    { name: 'Item Page ID', value: `\`${itemPageId}\``, inline: true },
+                    { name: 'Seller',       value: `${char.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown'} (\`${char.id}\`, <@${interaction.user.id}>)`, inline: false },
+                )
+                .setTimestamp()
+            );
+
+            return interaction.editReply({
+                content: '⚠️ Unlisting failed partway through and an admin has been notified. The listing is cancelled, but your item may still show as unavailable until it\'s manually fixed.',
+            });
+        }
+
         return interaction.editReply({ content: '❌ Failed to unlist. Please try again.' });
     }
 
