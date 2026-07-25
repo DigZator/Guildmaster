@@ -309,10 +309,15 @@ const commands = [
 		.addSubcommand(sub => sub
 			.setName('item')
 			.setDescription('View details of a specific item in your inventory')
+			.addStringOption(opt => opt
+				.setName('item')
+				.setDescription('Find an item by name (autocomplete)')
+				.setRequired(false)
+				.setAutocomplete(true))
 			.addIntegerOption(opt => opt
 				.setName('id')
-				.setDescription('The item number from your inventory list (e.g. 3)')
-				.setRequired(true)
+				.setDescription('The item number from your inventory list, e.g. 3 (precise, for double-checking)')
+				.setRequired(false)
 				.setMinValue(1))
 			.addBooleanOption(opt => opt
 				.setName('public')
@@ -351,9 +356,14 @@ const commands = [
 	            .setName('sell')
 	            .setDescription('Sell item(s) from your inventory to the shop for half value')
 	            .addStringOption(opt => opt
+	                .setName('item')
+	                .setDescription('Pick a single item from your inventory')
+	                .setRequired(false)
+	                .setAutocomplete(true))
+	            .addStringOption(opt => opt
 	                .setName('item_id')
-	                .setDescription('Inventory item # from /league inv (comma-separated for multiple, e.g. 001,003)')
-	                .setRequired(true)))
+	                .setDescription('[Legacy] Positional #s for multiple items, e.g. 001,003 (may fail if inventory changed)')
+	                .setRequired(false)))
 		    .addSubcommand(sub => sub
 		        .setName('search')
 		        .setDescription('Search the full item catalogue by name')
@@ -396,7 +406,7 @@ const commands = [
 		    .addSubcommand(sub => sub
 		        .setName('list')
 		        .setDescription('List an item on the marketplace')
-		        .addStringOption(opt => opt.setName('item_id').setDescription('Item ID from your inventory').setRequired(true))
+		        .addStringOption(opt => opt.setName('item_id').setDescription('Pick an item from your inventory').setRequired(true).setAutocomplete(true))
 		        .addIntegerOption(opt => opt.setName('price').setDescription('Asking price in gp').setRequired(true).setMinValue(1)))
 		    .addSubcommand(sub => sub
 		        .setName('unlist')
@@ -514,11 +524,11 @@ const commands = [
 	        .addSubcommand(sub => sub
 	            .setName('item')
 	            .setDescription('Void an item from your inventory')
-                .addIntegerOption(opt => opt
+                .addStringOption(opt => opt
                 	.setName('id')
-                	.setDescription('Item # from /league inv')
+                	.setDescription('Pick an item from your inventory')
                 	.setRequired(true)
-                	.setMinValue(1)))
+                	.setAutocomplete(true)))
 	        .addSubcommand(sub => sub
 	        	.setName('gold')
 	        	.setDescription('Void gold from your balance')

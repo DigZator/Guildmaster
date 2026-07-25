@@ -2,13 +2,7 @@ const { getCharacterGold, adjustCharacterNumbersUnlocked, withPageLock, setItemS
 const { getPendingSell, clearPendingSell } = require('../utils/shopSellSessions');
 const { formatCurrency } = require('../utils/currency');
 const { EmbedBuilder } = require('discord.js');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
-
-async function sendAdminLog(guild, embed) {
-    const channel = guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);
-    if (channel) await channel.send({ embeds: [embed] });
-    else console.warn('[shopSell] LEAGUE_ADMIN_CHANNEL_ID not found in cache.');
-}
+const { sendAdminLog } = require('../utils/adminLog');
 
 module.exports = {
 
@@ -50,7 +44,9 @@ module.exports = {
                 return interaction.editReply({ content: '❌ Sale failed partway through. Please contact an admin to verify your inventory and gold.', components: [] });
             }
 
-            const itemLines = items.map(i => `**${i.name}** (\`#${String(i.serial).padStart(3, '0')}\`) — ${formatCurrency(i.sellPrice)}`);
+            const itemLines = items.map(i => i.serial != null
+                ? `**${i.name}** (\`#${String(i.serial).padStart(3, '0')}\`) — ${formatCurrency(i.sellPrice)}`
+                : `**${i.name}** — ${formatCurrency(i.sellPrice)}`);
 
             await sendAdminLog(interaction.guild, new EmbedBuilder()
                 .setColor(0xe67e22)

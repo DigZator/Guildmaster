@@ -46,6 +46,22 @@ async function getPageById(pageId) {
     return notion.pages.retrieve({ page_id: pageId });
 }
 
+async function queryAllPages(dataSourceId, params = {}) {
+	const results = [];
+	let cursor;
+	do {
+		const response = await notion.dataSources.query({
+			data_source_id: dataSourceId,
+			...params,
+			page_size: 100,
+			...(cursor ? { start_cursor: cursor } : {}),
+		});
+		results.push(...response.results);
+		cursor = response.has_more ? response.next_cursor : undefined;
+	} while (cursor);
+	return results;
+}
+
 // ─── league_characters ───────────────────────────────────────────────────────
 
 async function getActiveCharacter(discordId) {
@@ -70,15 +86,12 @@ async function getActiveCharacter(discordId) {
 }
 
 async function getCharactersByDiscordId(discordId) {
-  const response = await notion.dataSources.query({
-    data_source_id: DB.characters,
+  return queryAllPages(DB.characters, {
     filter: {
       property: 'Discord ID',
       rich_text: { equals: discordId },
     },
   });
-
-  return response.results;
 }
 
 async function searchCharactersByName(nameQuery) {
@@ -276,8 +289,7 @@ async function createInventoryItem(opts) {
 }
 
 async function getCharacterInventory(characterPageId) {
-  const response = await notion.dataSources.query({
-    data_source_id: DB.inventory,
+  return queryAllPages(DB.inventory, {
     filter: {
       and: [
         {
@@ -291,8 +303,6 @@ async function getCharacterInventory(characterPageId) {
       ],
     },
   });
-
-  return response.results;
 }
 
 async function destroyAllCharacterItems(characterPageId) {
@@ -363,16 +373,13 @@ async function createQuestLogEntry(opts) {
 }
 
 async function getCharacterQuestLog(characterPageId) {
-  const response = await notion.dataSources.query({
-    data_source_id: DB.questLog,
+  return queryAllPages(DB.questLog, {
     filter: {
       property: 'Characters',
       relation: { contains: characterPageId },
     },
     sorts: [{ property: 'Date', direction: 'descending' }],
   });
-
-  return response.results;
 }
 
 // ─── league_downtime_progress ────────────────────────────────────────────────
@@ -473,8 +480,7 @@ async function getShopItemByCatalogueCode(code) {
 }
 
 async function getAllShopItems() {
-    const response = await notion.dataSources.query({ data_source_id: DB.shop });
-    return response.results;
+    return queryAllPages(DB.shop);
 }
 
 // ─── player_marketplace ──────────────────────────────────────────────────────
@@ -483,13 +489,12 @@ async function getOpenListings({ rarity, sortBy } = {}) {
     const filters = [{ property: 'Status', select: { equals: 'Open' } }];
     if (rarity) filters.push({ property: 'Rarity', select: { equals: rarity } });
 
-    const response = await notion.dataSources.query({
-        data_source_id: DB.marketplace,
+    const results = await queryAllPages(DB.marketplace, {
         filter: { and: filters },
         sorts: [{ property: sortBy ?? 'Listed Date', direction: 'descending' }],
     });
 
-    const enriched = await Promise.all(response.results.map(async listing => {
+    const enriched = await Promise.all(results.map(async listing => {
         const itemPageId = listing.properties['Item']?.relation?.[0]?.id ?? null;
         if (!itemPageId) return listing;
         try {
@@ -561,6 +566,13 @@ async function generateListingId() {
     return id;
 }
 
+async function createListingWithUniqueId(opts) {
+    return withPageLock('__lock:marketplace-listing-id', async () => {
+        const listingId = await generateListingId();
+        return createListing({ ...opts, listingId });
+    });
+}
+
 // ─── league_trades ───────────────────────────────────────────────────────────
 
 async function createTrade(opts) {
@@ -610,6 +622,7 @@ module.exports = {
 	updatePageProperty,
 	getCharacterGold,
 	getPageById,
+	queryAllPages,
 
 	// Characters
 	getActiveCharacter,
@@ -650,6 +663,7 @@ module.exports = {
 	createListing,
 	getListingById,
 	generateListingId,
+	createListingWithUniqueId,
 
 	// Trades
 	createTrade,

@@ -1,8 +1,11 @@
-const { searchCatalogue } = require('./5etoolsCatalogue');
+const { searchCatalogue, defaultPriceFor } = require('./5etoolsCatalogue');
+const { getPriceOverride } = require('./shopFloor');
+const { formatCurrency } = require('./currency');
 
 function formatChoice(item) {
+    const price = getPriceOverride(item.code) ?? item.priceGp ?? defaultPriceFor(item.rarity);
     return {
-        name: `${item.name} (${item.rarity} | ${item.type})`.slice(0, 100),
+        name: `${item.name} (${item.rarity} | ${item.type}) — ${formatCurrency(price)}`.slice(0, 100),
         value: item.code,
     };
 }

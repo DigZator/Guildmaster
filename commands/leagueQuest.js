@@ -4,10 +4,11 @@ const {
     getActiveCharacter,
     updatePageProperty,
     getPageById,
+    withPageLock,
 } = require('../utils/leagueNotion');
 const { getCachedGames } = require('../utils/cache');
 const { addAction, getAll, getById, removeById } = require('../utils/pendingActions');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+const { sendAdminLog } = require('../utils/adminLog');
 
 const DM_ROLE_ID = process.env.DM_ROLE_ID;
 
@@ -18,12 +19,6 @@ const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const QUEST_LOG_DB_ID = process.env.LEAGUE_QUEST_LOG_DB_ID;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-async function sendAdminLog(guild, embed) {
-    const channel = guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);
-    if (channel) await channel.send({ embeds: [embed] });
-    else console.warn('[leagueQuest] LEAGUE_ADMIN_CHANNEL_ID not found in cache.');
-}
 
 function isDM(interaction) {
     return interaction.member.roles.cache.has(DM_ROLE_ID);
@@ -67,6 +62,14 @@ async function createQuestLogEntry({ questId, adventureName, date, tier, notes, 
     return notion.pages.create({
         parent: { data_source_id: QUEST_LOG_DB_ID },
         properties,
+    });
+}
+
+async function createQuestLogEntryWithUniqueId(opts) {
+    return withPageLock('__lock:quest-log-id', async () => {
+        const questId = await generateQuestId();
+        const page = await createQuestLogEntry({ ...opts, questId });
+        return { questId, page };
     });
 }
 
@@ -445,8 +448,7 @@ async function handleQuestPlayersClear(interaction) {
 async function approveQuestLink(entry, interaction) {
     const { adventureName, date, tier, notes, goldAwarded } = entry.payload;
 
-    const questId = await generateQuestId();
-    const page    = await createQuestLogEntry({ questId, adventureName, date, tier, notes, goldAwarded });
+    const { questId, page } = await createQuestLogEntryWithUniqueId({ adventureName, date, tier, notes, goldAwarded });
 
     await sendAdminLog(interaction.guild, new EmbedBuilder()
         .setColor(0x57f287)

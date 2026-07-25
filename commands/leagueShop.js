@@ -36,19 +36,13 @@ const {
 const { formatCurrency } = require('../utils/currency');
 const { availableDiscounts } = require('../config/reputationDiscounts');
 const { setPendingBuy } = require('../utils/shopBuySessions');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
 const { setPendingSell } = require('../utils/shopSellSessions');
+const { sendAdminLog } = require('../utils/adminLog');
 
 const PAGE_SIZE = 12;
 const MARKETPLACE_TAX_RATE = 0.25;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-async function sendAdminLog(guild, embed) {
-    const channel = guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);
-    if (channel) await channel.send({ embeds: [embed] });
-    else console.warn('[leagueShop] LEAGUE_ADMIN_CHANNEL_ID not found in cache.');
-}
 
 function rarityEmoji(rarity) {
     return { Common: '⚪', Uncommon: '🟢', Rare: '🔵', 'Very Rare': '🟣', Legendary: '🟠' }[rarity] ?? '⚫';
@@ -336,70 +330,110 @@ async function handleShopBuy(interaction) {
 
 // ─── /league shop sell ─────────────────────────────────────────────────────────
 
+function priceItemForSale(item, labelForErrors) {
+    const itemStatus = item.properties['Status']?.select?.name;
+    if (itemStatus !== 'Owned') {
+        return { error: `❌ ${labelForErrors} cannot be sold (current status: ${itemStatus}).` };
+    }
+
+    const itemName = item.properties['Item Name']?.title?.[0]?.plain_text ?? 'Unknown';
+    let itemValue  = item.properties['Item Value']?.number ?? null;
+
+    if (itemValue == null) {
+        const catalogueItem = getCatalogueItemByName(itemName);
+        if (catalogueItem) {
+            itemValue = catalogueItem.priceGp ?? defaultPriceFor(catalogueItem.rarity);
+        }
+    }
+
+    if (itemValue == null) {
+        return { error: `❌ **${itemName}** has no value on file and cannot be sold. Contact an admin.` };
+    }
+
+    return {
+        pageId: item.id,
+        name: itemName,
+        value: itemValue,
+        sellPrice: itemValue / 2,
+    };
+}
+
 async function handleShopSell(interaction) {
     await interaction.deferReply({ flags: 64 });
 
-    const itemIdInput = interaction.options.getString('item_id').replace('#', '').trim();
-    const rawIds = itemIdInput.split(',').map(s => s.trim()).filter(Boolean);
+    const autoItemId  = interaction.options.getString('item');
+    const legacyInput = interaction.options.getString('item_id');
+
+    if (!autoItemId && !legacyInput) {
+        return interaction.editReply({ content: '❌ Pick an item from the list, or use the legacy `item_id` field to sell multiple items at once.' });
+    }
+    if (autoItemId && legacyInput) {
+        return interaction.editReply({ content: '❌ Use either the item picker or the legacy `item_id` field, not both.' });
+    }
 
     const sellerChar = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!sellerChar) return interaction.editReply({ content: '❌ No active character found.' });
 
-    const serials = [];
-    for (const raw of rawIds) {
-        const serial = parseInt(raw, 10);
-        if (isNaN(serial) || serial < 1) {
-            return interaction.editReply({ content: `❌ Invalid item ID \`${raw}\`. Use the \`#\` number(s) shown in \`/league inv\`, e.g. \`001\` or \`001,003\`.` });
-        }
-        serials.push(serial);
-    }
-
-    let inventory;
-    try {
-        inventory = await getCharacterInventory(sellerChar.id);
-    } catch (err) {
-        console.error('[league shop sell] Notion error:', err);
-        return interaction.editReply({ content: '❌ Could not fetch your inventory. Please try again.' });
-    }
-
     const items = [];
-    for (const serial of serials) {
-        const item = inventory[serial - 1];
-        if (!item) {
-            return interaction.editReply({ content: `❌ No item at position \`#${String(serial).padStart(3, '0')}\` in your inventory.` });
+    let usedLegacy = false;
+
+    if (autoItemId) {
+        let item;
+        try {
+            item = await getPageById(autoItemId);
+        } catch (err) {
+            console.error('[league shop sell] Notion error fetching item:', err);
+            return interaction.editReply({ content: '❌ Could not find that item — please pick it again from the list.' });
         }
 
-        const itemStatus = item.properties['Status']?.select?.name;
-        if (itemStatus !== 'Owned') {
-            return interaction.editReply({ content: `❌ Item \`#${String(serial).padStart(3, '0')}\` cannot be sold (current status: ${itemStatus}).` });
+        const ownerId = item.properties['Character']?.relation?.[0]?.id ?? null;
+        if (ownerId !== sellerChar.id) {
+            return interaction.editReply({ content: '❌ That item does not belong to your active character. Please pick it again from the list.' });
         }
 
-        const itemName  = item.properties['Item Name']?.title?.[0]?.plain_text ?? 'Unknown';
-        let itemValue   = item.properties['Item Value']?.number ?? null;
+        const itemName = item.properties['Item Name']?.title?.[0]?.plain_text ?? 'Unknown';
+        const priced = priceItemForSale(item, `**${itemName}**`);
+        if (priced.error) return interaction.editReply({ content: priced.error });
+        items.push(priced);
+    } else {
+        usedLegacy = true;
 
-        if (itemValue == null) {
-            const catalogueItem = getCatalogueItemByName(itemName);
-            if (catalogueItem) {
-                itemValue = catalogueItem.priceGp ?? defaultPriceFor(catalogueItem.rarity);
+        const itemIdInput = legacyInput.replace('#', '').trim();
+        const rawIds = itemIdInput.split(',').map(s => s.trim()).filter(Boolean);
+
+        const serials = [];
+        for (const raw of rawIds) {
+            const serial = parseInt(raw, 10);
+            if (isNaN(serial) || serial < 1) {
+                return interaction.editReply({ content: `❌ Invalid item ID \`${raw}\`. Use the \`#\` number(s) shown in \`/league inv\`, e.g. \`001\` or \`001,003\`.` });
             }
+            serials.push(serial);
         }
 
-        if (itemValue == null) {
-            return interaction.editReply({ content: `❌ **${itemName}** (\`#${String(serial).padStart(3, '0')}\`) has no value on file and cannot be sold. Contact an admin.` });
+        let inventory;
+        try {
+            inventory = await getCharacterInventory(sellerChar.id);
+        } catch (err) {
+            console.error('[league shop sell] Notion error:', err);
+            return interaction.editReply({ content: '❌ Could not fetch your inventory. Please try again.' });
         }
 
-        items.push({
-            serial,
-            pageId: item.id,
-            name: itemName,
-            value: itemValue,
-            sellPrice: Math.round(itemValue / 2),
-        });
-    }
+        for (const serial of serials) {
+            const item = inventory[serial - 1];
+            if (!item) {
+                return interaction.editReply({ content: `❌ No item at position \`#${String(serial).padStart(3, '0')}\` in your inventory.` });
+            }
 
-    const uniquePageIds = new Set(items.map(i => i.pageId));
-    if (uniquePageIds.size !== items.length) {
-        return interaction.editReply({ content: '❌ Duplicate item ID in your list.' });
+            const priced = priceItemForSale(item, `Item \`#${String(serial).padStart(3, '0')}\``);
+            if (priced.error) return interaction.editReply({ content: priced.error });
+            priced.serial = serial;
+            items.push(priced);
+        }
+
+        const uniquePageIds = new Set(items.map(i => i.pageId));
+        if (uniquePageIds.size !== items.length) {
+            return interaction.editReply({ content: '❌ Duplicate item ID in your list.' });
+        }
     }
 
     const totalPrice = items.reduce((sum, i) => sum + i.sellPrice, 0);
@@ -411,15 +445,21 @@ async function handleShopSell(interaction) {
         totalPrice,
     });
 
-    const lines = items.map(i => `**${i.name}** (\`#${String(i.serial).padStart(3, '0')}\`) — ${formatCurrency(i.value)} → sells for **${formatCurrency(i.sellPrice)}**`);
+    const lines = items.map(i => i.serial != null
+        ? `**${i.name}** (\`#${String(i.serial).padStart(3, '0')}\`) — ${formatCurrency(i.value)} → sells for **${formatCurrency(i.sellPrice)}**`
+        : `**${i.name}** — ${formatCurrency(i.value)} → sells for **${formatCurrency(i.sellPrice)}**`);
 
     const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder().setCustomId('shopsell_confirm_yes').setLabel('Confirm sale').setStyle(ButtonStyle.Danger),
         new ButtonBuilder().setCustomId('shopsell_confirm_no').setLabel('Cancel').setStyle(ButtonStyle.Secondary),
     );
 
+    const warning = usedLegacy
+        ? '\n\n⚠️ You used the legacy positional method — this can fail or grab the wrong item if your inventory changed recently. Double-check the item(s) above before confirming.'
+        : '';
+
     return interaction.editReply({
-        content: `${lines.join('\n')}\n\nTotal payout: **${formatCurrency(totalPrice)}**. Confirm sale?`,
+        content: `${lines.join('\n')}\n\nTotal payout: **${formatCurrency(totalPrice)}**.${warning} Confirm sale?`,
         components: [row],
     });
 }
@@ -502,6 +542,7 @@ async function handleMarketplaceBuy(interaction) {
     const sellerPayout  = Math.max(0, askingPrice - taxAmount);
 
     let buyerGoldBefore, sellerGoldBefore;
+    let stage = 'none'; // none -> buyer_debited -> seller_credited -> complete
 
     try {
         await withTwoPageLocks(buyerChar.id, sellerPageId, async () => {
@@ -617,27 +658,24 @@ async function handleMarketplaceBuy(interaction) {
 async function handleMarketplaceList(interaction) {
     await interaction.deferReply({ flags: 64 });
 
-    const itemIdInput = interaction.options.getString('item_id').replace('#', '').trim();
-    const serial      = parseInt(itemIdInput, 10);
+    const itemPageId  = interaction.options.getString('item_id');
     const askingPrice = interaction.options.getInteger('price');
 
     const char = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!char) return interaction.editReply({ content: '❌ No active character found.' });
 
-    if (isNaN(serial) || serial < 1) {
-        return interaction.editReply({ content: '❌ Invalid item ID. Use the `#` number shown in `/league inv`, e.g. `001`.' });
-    }
-
-    let inventory;
+    let item;
     try {
-        inventory = await getCharacterInventory(char.id);
+        item = await getPageById(itemPageId);
     } catch (err) {
-        console.error('[league marketplace list] Notion error:', err);
-        return interaction.editReply({ content: '❌ Could not fetch your inventory. Please try again.' });
+        console.error('[league marketplace list] Notion error fetching item:', err);
+        return interaction.editReply({ content: '❌ Could not find that item — please pick it again from the list.' });
     }
 
-    const item = inventory[serial - 1]; // serial is 1-based, array is 0-based
-    if (!item) return interaction.editReply({ content: `❌ No item at position \`#${String(serial).padStart(3, '0')}\` in your inventory.` });
+    const ownerId = item.properties['Character']?.relation?.[0]?.id ?? null;
+    if (ownerId !== char.id) {
+        return interaction.editReply({ content: '❌ That item does not belong to your active character. Please pick it again from the list.' });
+    }
 
     const itemStatus = item.properties['Status']?.select?.name;
     if (itemStatus !== 'Owned') {

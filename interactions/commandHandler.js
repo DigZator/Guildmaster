@@ -19,6 +19,7 @@ const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
 const { questLinkAutocomplete } = require('../commands/leagueQuest');
 const helpData = require('../helpData');
 const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');
+const { getItemAutocompleteChoices } = require('../utils/inventoryHelper');
 const get_players = require('../commands/get_players');
 
 const CODE_AUTOCOMPLETE_TARGETS = new Set([
@@ -29,6 +30,13 @@ const CODE_AUTOCOMPLETE_TARGETS = new Set([
     'leagueadmin:shop:restock',
     'leagueadmin:item:import',
     'leaguedm:item:import',
+]);
+
+const ITEM_AUTOCOMPLETE_TARGETS = new Set([
+    'league:void:item',
+    'league:marketplace:list',
+    'league:shop:sell',
+    'league:item',
 ]);
 
 module.exports = (client) => {
@@ -148,10 +156,15 @@ module.exports = (client) => {
                     }
                 }
 
-                // Everything that focuses a catalogue item code
-                const key = `${interaction.commandName}:${group}:${sub}`;
+                const key = group ? `${interaction.commandName}:${group}:${sub}` : `${interaction.commandName}:${sub}`;
                 if (CODE_AUTOCOMPLETE_TARGETS.has(key)) {
                     await catalogueAutocomplete(interaction);
+                    return;
+                }
+
+                if (ITEM_AUTOCOMPLETE_TARGETS.has(key)) {
+                    const choices = await getItemAutocompleteChoices(interaction);
+                    await interaction.respond(choices);
                     return;
                 }
             }

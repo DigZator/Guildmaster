@@ -3,7 +3,6 @@ const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getActiveCharacter, adjustCharacterNumber, setCharacterLevel, createInventoryItem } = require('../utils/leagueNotion');
 const { getCatalogueItemByCode, defaultPriceFor } = require('../utils/5etoolsCatalogue');
 const { applyMilestones } = require('../utils/milestones');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
 const { addAction, getAll, getById, removeById } = require('../utils/pendingActions');
 const { leagueDMQuest, questLinkAutocomplete, approveQuestLink, approveQuestComplete, getQuestById, listQuests } = require('./leagueQuest');
 const { leagueAdminShop, leagueAdminCatalogue } = require('./leagueShop');
@@ -13,6 +12,7 @@ const { getDowntimeProgressById, setDowntimeStatus, createDowntimeProgress } = r
 const leagueNotion = require('../utils/leagueNotion');
 const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../utils/downtime');
 const { formatCurrency } = require('../utils/currency');
+const { sendAdminLog } = require('../utils/adminLog');
 
 const DM_ROLE_ID = process.env.DM_ROLE_ID;
 const REP_MAX    = 2;
@@ -47,18 +47,7 @@ async function resolveActiveQuest(interaction) {
     return { questId, questName, questPageId: quest.id, characterIds };
 }
 
-// ─── Admin log helper ─────────────────────────────────────────────────────────
-
-async function sendAdminLog(guild, embed) {
-    const channel = guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);
-    if (channel) await channel.send({ embeds: [embed] });
-    else console.warn('[leagueGrants] LEAGUE_ADMIN_CHANNEL_ID not found in cache.');
-}
-
 // ─── Shared resolvers ─────────────────────────────────────────────────────────
-// postLevelUpMessage and applyMilestones now live in utils/milestones.js so
-// utils/downtime.js can also use them (for the catch-up-level DTA's milestone
-// output) without creating a circular require back into this file.
 
 async function resolveTarget(interaction) {
     const targetUser = interaction.options.getUser('user');
@@ -72,19 +61,21 @@ async function resolveTarget(interaction) {
     return { targetUser, character };
 }
 
-// ─── /leagueadmin rep ─────────────────────────────────────────────────────────
+// ─── Shared admin single-target grant executor ─────────────────────────────────
 
-async function handleAdminRep(interaction) {
+async function runAdminGrant(interaction, config) {
+    const { label, getAmount, validateAmount, mutate, buildEmbed, buildReply } = config;
+
     if (!isAdminChannel(interaction, 'league')) {
         return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
     }
 
-    const amount = interaction.options.getInteger('amount');
-    if (amount > REP_MAX) {
-        return interaction.reply({
-            content: `❌ You cannot grant more than **${REP_MAX} reputation** at once. Please contact a mod if more is needed.`,
-            flags: 64,
-        });
+    const amount = getAmount(interaction);
+    if (validateAmount) {
+        const validationError = validateAmount(amount);
+        if (validationError) {
+            return interaction.reply({ content: validationError, flags: 64 });
+        }
     }
 
     await interaction.deferReply({ flags: 64 });
@@ -93,386 +84,284 @@ async function handleAdminRep(interaction) {
     try {
         resolved = await resolveTarget(interaction);
     } catch (err) {
-        console.error('[leagueadmin rep] Notion error:', err);
+        console.error(`[leagueadmin ${label}] Notion error:`, err);
         return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
     }
     if (!resolved) return;
 
     const { targetUser, character } = resolved;
     const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    const currentRep    = character.properties['Reputation Points']?.number ?? 0;
+    const ctx = { targetUser, character, characterName, amount, interaction };
 
+    let result;
     try {
-        await adjustCharacterNumber(character.id, 'Reputation Points', amount);
+        result = await mutate(ctx);
     } catch (err) {
-        console.error('[leagueadmin rep] Notion update error:', err);
-        return interaction.editReply({ content: '❌ Failed to update reputation. Please try again.' });
+        console.error(`[leagueadmin ${label}] Notion update error:`, err);
+        return interaction.editReply({ content: `❌ Failed to update ${label}. Please try again.` });
+    }
+    if (result && result.blocked) {
+        return interaction.editReply({ content: result.blocked });
     }
 
-    await sendAdminLog(interaction.guild, new EmbedBuilder()
-        .setColor(0xffa500)
-        .setTitle('⭐ Reputation Granted')
-        .addFields(
-            { name: 'Character',  value: characterName,               inline: true },
-            { name: 'Player',     value: `<@${targetUser.id}>`,       inline: true },
-            { name: 'Granted By', value: `<@${interaction.user.id}>`, inline: true },
-            { name: 'Amount',     value: `+${amount}`,                inline: true },
-            { name: 'New Total',  value: `${(currentRep + amount)}`,    inline: true },
-        )
-        .setTimestamp()
-    );
-
-    return interaction.editReply({ content: `✅ Granted **${amount} reputation** to **${characterName}**.` });
+    await sendAdminLog(interaction.guild, buildEmbed(ctx, result));
+    return interaction.editReply({ content: buildReply(ctx, result) });
 }
+
+// ─── /leagueadmin rep ─────────────────────────────────────────────────────────
+
+async function handleAdminRep(interaction) {
+    return runAdminGrant(interaction, {
+        label: 'rep',
+        getAmount: i => i.options.getInteger('amount'),
+        validateAmount: amount => amount > REP_MAX
+            ? `❌ You cannot grant more than **${REP_MAX} reputation** at once. Please contact a mod if more is needed.`
+            : null,
+        mutate: async ({ character, amount }) => {
+            const currentRep = character.properties['Reputation Points']?.number ?? 0;
+            await adjustCharacterNumber(character.id, 'Reputation Points', amount);
+            return { newTotal: currentRep + amount };
+        },
+        buildEmbed: ({ targetUser, characterName, amount, interaction }, { newTotal }) =>
+            new EmbedBuilder()
+                .setColor(0xffa500)
+                .setTitle('⭐ Reputation Granted')
+                .addFields(
+                    { name: 'Character',  value: characterName,               inline: true },
+                    { name: 'Player',     value: `<@${targetUser.id}>`,       inline: true },
+                    { name: 'Granted By', value: `<@${interaction.user.id}>`, inline: true },
+                    { name: 'Amount',     value: `+${amount}`,                inline: true },
+                    { name: 'New Total',  value: `${newTotal}`,               inline: true },
+                )
+                .setTimestamp(),
+        buildReply: ({ characterName, amount }) => `✅ Granted **${amount} reputation** to **${characterName}**.`,
+    });
+}
+
 
 // ─── /leagueadmin gold ────────────────────────────────────────────────────────
 
 async function handleAdminGold(interaction) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
-    }
-
-    const amount = interaction.options.getNumber('amount');
-    await interaction.deferReply({ flags: 64 });
-
-    let resolved;
-    try {
-        resolved = await resolveTarget(interaction);
-    } catch (err) {
-        console.error('[leagueadmin gold] Notion error:', err);
-        return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
-    }
-    if (!resolved) return;
-
-    const { targetUser, character } = resolved;
-    const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    const currentGold   = character.properties['Gold']?.number ?? 0;
-    const newGold       = currentGold + amount;
-
-    if (newGold < 0) {
-        return interaction.editReply({ content: `❌ This would put **${characterName}** below 0 gp. Current balance: **${currentGold} gp**.` });
-    }
-
-    try {
-        await adjustCharacterNumber(character.id, 'Gold', amount);
-    } catch (err) {
-        console.error('[leagueadmin gold] Notion update error:', err);
-        return interaction.editReply({ content: '❌ Failed to update gold. Please try again.' });
-    }
-
-    await sendAdminLog(interaction.guild, new EmbedBuilder()
-        .setColor(0xffd700)
-        .setTitle('💰 Gold Grant')
-        .addFields(
-            { name: 'Character',  value: characterName,               inline: true },
-            { name: 'Player',     value: `<@${targetUser.id}>`,       inline: true },
-            { name: 'Granted By', value: `<@${interaction.user.id}>`, inline: true },
-            { name: 'Amount',     value: `${amount > 0 ? '+' : ''}${formatCurrency(amount)}`, inline: true },
-            { name: 'New Total',  value: `${formatCurrency(newGold)}`,             inline: true },
-        )
-        .setTimestamp()
-    );
-
-    return interaction.editReply({ content: `✅ Adjusted gold by **${amount > 0 ? '+' : ''}${formatCurrency(amount)}** for **${characterName}**. New balance: **${formatCurrency(newGold)}**.` });
+    return runAdminGrant(interaction, {
+        label: 'gold',
+        getAmount: i => i.options.getNumber('amount'),
+        mutate: async ({ character, characterName, amount }) => {
+            const currentGold = character.properties['Gold']?.number ?? 0;
+            const newGold = currentGold + amount;
+            if (newGold < 0) {
+                return { blocked: `❌ This would put **${characterName}** below 0 gp. Current balance: **${currentGold} gp**.` };
+            }
+            await adjustCharacterNumber(character.id, 'Gold', amount);
+            return { newGold };
+        },
+        buildEmbed: ({ targetUser, characterName, amount, interaction }, { newGold }) =>
+            new EmbedBuilder()
+                .setColor(0xffd700)
+                .setTitle('💰 Gold Grant')
+                .addFields(
+                    { name: 'Character',  value: characterName,               inline: true },
+                    { name: 'Player',     value: `<@${targetUser.id}>`,       inline: true },
+                    { name: 'Granted By', value: `<@${interaction.user.id}>`, inline: true },
+                    { name: 'Amount',     value: `${amount > 0 ? '+' : ''}${formatCurrency(amount)}`, inline: true },
+                    { name: 'New Total',  value: `${formatCurrency(newGold)}`, inline: true },
+                )
+                .setTimestamp(),
+        buildReply: ({ amount, characterName }, { newGold }) =>
+            `✅ Adjusted gold by **${amount > 0 ? '+' : ''}${formatCurrency(amount)}** for **${characterName}**. New balance: **${formatCurrency(newGold)}**.`,
+    });
 }
 
 // ─── /leagueadmin milestone ───────────────────────────────────────────────────
 
 async function handleAdminMilestone(interaction, client) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
+    return runAdminGrant(interaction, {
+        label: 'milestone',
+        getAmount: i => i.options.getInteger('amount'),
+        mutate: ({ character, characterName, amount }) =>
+            applyMilestones(client, interaction.guild, character, characterName, amount),
+        buildEmbed: ({ targetUser, characterName, amount, interaction }, result) => {
+            const { currentLevel, newLevel, milestonesConsumed, milestonesRemaining, levelUps } = result;
+            const embedFields = [
+                { name: 'Character',            value: characterName,               inline: true },
+                { name: 'Player',               value: `<@${targetUser.id}>`,       inline: true },
+                { name: 'Granted By',           value: `<@${interaction.user.id}>`, inline: true },
+                { name: 'Milestones Granted',   value: `+${amount}`,                inline: true },
+                { name: 'Milestones Consumed',  value: `${milestonesConsumed}`,     inline: true },
+                { name: 'Milestones Remaining', value: `${milestonesRemaining}`,    inline: true },
+            ];
+            if (levelUps > 0) {
+                embedFields.push({ name: 'Level', value: `${currentLevel} → ${newLevel}`, inline: true });
+            }
+            return new EmbedBuilder()
+                .setColor(0x57f287)
+                .setTitle('🏆 Milestone Granted')
+                .addFields(...embedFields)
+                .setTimestamp();
+        },
+        buildReply: ({ characterName, amount }, { newLevel, levelUps }) => {
+            const levelMsg = levelUps > 0 ? ` **${characterName}** levelled up to **Level ${newLevel}**!` : '';
+            return `✅ Granted **${amount} milestone(s)** to **${characterName}**.${levelMsg}`;
+        },
+    });
+}
+
+// ─── Shared DM multi-target grant executor ─────────────────────────────────────
+
+async function runDMGrant(interaction, config) {
+    const {
+        label, entryType, buildEmbedTitle, embedColor,
+        amountGetter = 'getInteger', validatePair, buildPayload, buildFields,
+    } = config;
+
+    if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
+        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
     }
 
-    const amount = interaction.options.getInteger('amount');
     await interaction.deferReply({ flags: 64 });
 
-    let resolved;
-    try {
-        resolved = await resolveTarget(interaction);
-    } catch (err) {
-        console.error('[leagueadmin milestone] Notion error:', err);
-        return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
-    }
-    if (!resolved) return;
-
-    const { targetUser, character } = resolved;
-    const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-
-    let result;
-    try {
-        result = await applyMilestones(client, interaction.guild, character, characterName, amount);
-    } catch (err) {
-        console.error('[leagueadmin milestone] Notion update error:', err);
-        return interaction.editReply({ content: '❌ Failed to update milestones. Please try again.' });
+    const quest = await resolveActiveQuest(interaction);
+    if (quest.error) {
+        return interaction.editReply({ content: quest.error });
     }
 
-    const { currentLevel, newLevel, currentMilestones, milestonesConsumed, milestonesRemaining, levelUps } = result;
+    const pairs = extractPairs(interaction, amountGetter);
+    const results = [];
+    const embedFields = [];
+    let anyOffQuest = false;
 
-    const embedFields = [
-        { name: 'Character',             value: characterName,               inline: true },
-        { name: 'Player',                value: `<@${targetUser.id}>`,       inline: true },
-        { name: 'Granted By',            value: `<@${interaction.user.id}>`, inline: true },
-        { name: 'Milestones Granted',    value: `+${amount}`,                inline: true },
-        { name: 'Milestones Consumed',   value: `${milestonesConsumed}`,     inline: true },
-        { name: 'Milestones Remaining',  value: `${milestonesRemaining}`,    inline: true },
-    ];
+    for (const pair of pairs) {
+        const { user, amount } = pair;
 
-    if (levelUps > 0) {
-        embedFields.push({ name: 'Level', value: `${currentLevel} → ${newLevel}`, inline: true });
+        if (validatePair) {
+            const skipReason = validatePair(pair);
+            if (skipReason) {
+                results.push(skipReason);
+                continue;
+            }
+        }
+
+        let character;
+        try {
+            character = await getActiveCharacter(user.id);
+        } catch (err) {
+            console.error(`[leaguedm ${label}] Notion error:`, err);
+            results.push(`❌ **${user.username}** — database error, skipped.`);
+            continue;
+        }
+
+        if (!character) {
+            results.push(`❌ **${user.username}** — no active character found, skipped.`);
+            continue;
+        }
+
+        const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
+        const onQuest = quest.characterIds.includes(character.id);
+        if (!onQuest) anyOffQuest = true;
+
+        const payload = buildPayload({ character, characterName, amount });
+
+        const entry = addAction({
+            type: entryType,
+            dm: { discordId: interaction.user.id, username: interaction.user.username },
+            target: {
+                discordId: user.id,
+                username:  user.username,
+                characterName,
+                characterPageId: character.id,
+            },
+            quest: { questId: quest.questId, questName: quest.questName, questPageId: quest.questPageId },
+            payload,
+        });
+
+        embedFields.push(...buildFields({ user, characterName, amount, onQuest, entry, payload }));
+
+        results.push(onQuest
+            ? `✅ **${characterName}** — pending approval. ID: \`${entry.id}\``
+            : `⚠️ **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
+        );
     }
 
-    await sendAdminLog(interaction.guild, new EmbedBuilder()
-        .setColor(0x57f287)
-        .setTitle('🏆 Milestone Granted')
-        .addFields(...embedFields)
-        .setTimestamp()
-    );
+    if (embedFields.length > 0) {
+        await sendAdminLog(interaction.guild, new EmbedBuilder()
+            .setColor(embedColor(anyOffQuest))
+            .setTitle(buildEmbedTitle)
+            .setDescription(`Quest: ${quest.questName} (\`${quest.questId}\`)\nRequested by <@${interaction.user.id}>`)
+            .addFields(...embedFields)
+            .setTimestamp()
+        );
+    }
 
-    const levelMsg = levelUps > 0 ? ` **${characterName}** levelled up to **Level ${newLevel}**!` : '';
-    return interaction.editReply({ content: `✅ Granted **${amount} milestone(s)** to **${characterName}**.${levelMsg}` });
+    return interaction.editReply({ content: results.join('\n') });
 }
 
 // ─── /leaguedm rep ────────────────────────────────────────────────────────────
 
 async function handleDMRep(interaction) {
-    if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const quest = await resolveActiveQuest(interaction);
-    if (quest.error) {
-        return interaction.editReply({ content: quest.error });
-    }
-
-    const pairs = extractPairs(interaction);
-    const results = [];
-    const embedFields = [];
-    let anyOffQuest = false;
-
-    for (const { user, amount } of pairs) {
-        if (amount > REP_MAX) {
-            results.push(`❌ **${user.username}** — amount exceeds max (${REP_MAX}), skipped. Contact a mod.`);
-            continue;
-        }
-
-        let character;
-        try {
-            character = await getActiveCharacter(user.id);
-        } catch (err) {
-            console.error('[leaguedm rep] Notion error:', err);
-            results.push(`❌ **${user.username}** — database error, skipped.`);
-            continue;
-        }
-
-        if (!character) {
-            results.push(`❌ **${user.username}** — no active character found, skipped.`);
-            continue;
-        }
-
-        const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-        const currentRep    = character.properties['Reputation Points']?.number ?? 0;
-        const onQuest       = quest.characterIds.includes(character.id);
-        if (!onQuest) anyOffQuest = true;
-
-        const entry = addAction({
-            type: 'reputation',
-            dm: { discordId: interaction.user.id, username: interaction.user.username },
-            target: {
-                discordId: user.id,
-                username:  user.username,
-                characterName,
-                characterPageId: character.id,
-            },
-            quest: { questId: quest.questId, questName: quest.questName, questPageId: quest.questPageId },
-            payload: { amount, currentRep },
-        });
-
-        embedFields.push(
-            { name: characterName, value: `+${amount} (was ${currentRep})${onQuest ? '' : ' ⚠️ not on roster'}`, inline: true },
-            { name: 'Player',      value: `<@${user.id}>`,          inline: true },
-            { name: 'Action ID',   value: `\`${entry.id}\``,        inline: true },
-        );
-
-        results.push(onQuest
-            ? `✅ **${characterName}** — pending approval. ID: \`${entry.id}\``
-            : `⚠️ **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
-        );
-    }
-
-    if (embedFields.length > 0) {
-        await sendAdminLog(interaction.guild, new EmbedBuilder()
-            .setColor(anyOffQuest ? 0xf1c40f : 0x5865f2)
-            .setTitle('⏳ Reputation Grants — Pending Approval')
-            .setDescription(`Quest: ${quest.questName} (\`${quest.questId}\`)\nRequested by <@${interaction.user.id}>`)
-            .addFields(...embedFields)
-            .setTimestamp()
-        );
-    }
-
-    return interaction.editReply({ content: results.join('\n') });
+    return runDMGrant(interaction, {
+        label: 'rep',
+        entryType: 'reputation',
+        buildEmbedTitle: '⏳ Reputation Grants — Pending Approval',
+        embedColor: anyOffQuest => anyOffQuest ? 0xf1c40f : 0x5865f2,
+        validatePair: ({ user, amount }) => amount > REP_MAX
+            ? `❌ **${user.username}** — amount exceeds max (${REP_MAX}), skipped. Contact a mod.`
+            : null,
+        buildPayload: ({ character, amount }) => ({
+            amount,
+            currentRep: character.properties['Reputation Points']?.number ?? 0,
+        }),
+        buildFields: ({ user, characterName, amount, onQuest, entry, payload }) => [
+            { name: characterName, value: `+${amount} (was ${payload.currentRep})${onQuest ? '' : ' ⚠️ not on roster'}`, inline: true },
+            { name: 'Player',      value: `<@${user.id}>`,   inline: true },
+            { name: 'Action ID',   value: `\`${entry.id}\``, inline: true },
+        ],
+    });
 }
 
 // ─── /leaguedm gold ───────────────────────────────────────────────────────────
 
 async function handleDMGold(interaction) {
-    if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const quest = await resolveActiveQuest(interaction);
-    if (quest.error) {
-        return interaction.editReply({ content: quest.error });
-    }
-
-    const pairs = extractPairs(interaction, 'getNumber');
-    const results = [];
-    const embedFields = [];
-
-    for (const { user, amount } of pairs) {
-        if (amount < 0) {
-            results.push(`❌ **${user.username}** — DMs cannot grant negative gold, skipped.`);
-            continue;
-        }
-
-        let character;
-        try {
-            character = await getActiveCharacter(user.id);
-        } catch (err) {
-            console.error('[leaguedm gold] Notion error:', err);
-            results.push(`❌ **${user.username}** — database error, skipped.`);
-            continue;
-        }
-
-        if (!character) {
-            results.push(`❌ **${user.username}** — no active character found, skipped.`);
-            continue;
-        }
-
-        const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-        const currentGold   = character.properties['Gold']?.number ?? 0;
-        const onQuest       = quest.characterIds.includes(character.id);
-
-        const entry = addAction({
-            type: 'gold',
-            dm: { discordId: interaction.user.id, username: interaction.user.username },
-            target: {
-                discordId: user.id,
-                username:  user.username,
-                characterName,
-                characterPageId: character.id,
-            },
-            quest: { questId: quest.questId, questName: quest.questName, questPageId: quest.questPageId },
-            payload: { amount, currentGold },
-        });
-
-        embedFields.push(
-        	{ name: `${characterName}`, value: `+${amount} gp (was ${currentGold} gp)`, inline: true },
-  	        { name: 'Player', 			value: `<@${user.id}>`,             			inline: true },
-  	        { name: 'Action ID',		value: `\`${entry.id}\``,						inline: true },
-  	        ...(onQuest ? [] : [{ name: '⚠️', value: `Not on quest roster`, inline: true}]),
-        );
-
-        results.push(onQuest
-            ? `✅ **${characterName}** — pending approval. ID: \`${entry.id}\``
-            : `⚠️ **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
-        );
-    }
-
-    if (embedFields.length > 0) {
-	    await sendAdminLog(interaction.guild, new EmbedBuilder()
-	        .setColor(0xf1c40f)
-	        .setTitle('⏳ Gold Grants — Pending Approval')
-	        .setDescription(`Quest: ${quest.questName} (\`${quest.questId}\`)\nRequested by <@${interaction.user.id}>`)
-	        .addFields(...embedFields)
-	        .setTimestamp()
-	    );
-	}
-
-    return interaction.editReply({ content: results.join('\n') });
+    return runDMGrant(interaction, {
+        label: 'gold',
+        entryType: 'gold',
+        amountGetter: 'getNumber',
+        buildEmbedTitle: '⏳ Gold Grants — Pending Approval',
+        embedColor: () => 0xf1c40f,
+        validatePair: ({ user, amount }) => amount < 0
+            ? `❌ **${user.username}** — DMs cannot grant negative gold, skipped.`
+            : null,
+        buildPayload: ({ character, amount }) => ({
+            amount,
+            currentGold: character.properties['Gold']?.number ?? 0,
+        }),
+        buildFields: ({ user, characterName, amount, onQuest, entry, payload }) => [
+            { name: characterName, value: `+${amount} gp (was ${payload.currentGold} gp)`, inline: true },
+            { name: 'Player',      value: `<@${user.id}>`,   inline: true },
+            { name: 'Action ID',   value: `\`${entry.id}\``, inline: true },
+            ...(onQuest ? [] : [{ name: '⚠️', value: 'Not on quest roster', inline: true }]),
+        ],
+    });
 }
 
 // ─── /leaguedm milestone ──────────────────────────────────────────────────────
 
 async function handleDMMilestone(interaction) {
-    if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const quest = await resolveActiveQuest(interaction);
-    if (quest.error) {
-        return interaction.editReply({ content: quest.error });
-    }
-
-    const pairs = extractPairs(interaction);
-    const results = [];
-    const embedFields = [];
-    let anyOffQuest = false;
-
-    for (const { user, amount } of pairs) {
-        let character;
-        try {
-            character = await getActiveCharacter(user.id);
-        } catch (err) {
-            console.error('[leaguedm milestone] Notion error:', err);
-            results.push(`❌ **${user.username}** — database error, skipped.`);
-            continue;
-        }
-
-        if (!character) {
-            results.push(`❌ **${user.username}** — no active character found, skipped.`);
-            continue;
-        }
-
-        const characterName     = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-        const currentMilestones = character.properties['Milestones']?.number ?? 0;
-        const currentLevel      = character.properties['Level']?.number ?? 1;
-        const onQuest           = quest.characterIds.includes(character.id);
-        if (!onQuest) anyOffQuest = true;
-
-        const entry = addAction({
-            type: 'milestone',
-            dm: { discordId: interaction.user.id, username: interaction.user.username },
-            target: {
-                discordId: user.id,
-                username:  user.username,
-                characterName,
-                characterPageId: character.id,
-            },
-            quest: { questId: quest.questId, questName: quest.questName, questPageId: quest.questPageId },
-            payload: { amount, currentMilestones, currentLevel },
-        });
-
-        embedFields.push(
-            { name: characterName, value: `+${amount} (Lvl ${currentLevel}, was ${currentMilestones} ms)${onQuest ? '' : ' ⚠️ not on roster'}`, inline: true },
+    return runDMGrant(interaction, {
+        label: 'milestone',
+        entryType: 'milestone',
+        buildEmbedTitle: '⏳ Milestone Grants — Pending Approval',
+        embedColor: anyOffQuest => anyOffQuest ? 0xf1c40f : 0x5865f2,
+        buildPayload: ({ character, amount }) => ({
+            amount,
+            currentMilestones: character.properties['Milestones']?.number ?? 0,
+            currentLevel: character.properties['Level']?.number ?? 1,
+        }),
+        buildFields: ({ user, characterName, amount, onQuest, entry, payload }) => [
+            { name: characterName, value: `+${amount} (Lvl ${payload.currentLevel}, was ${payload.currentMilestones} ms)${onQuest ? '' : ' ⚠️ not on roster'}`, inline: true },
             { name: 'Player',      value: `<@${user.id}>`,   inline: true },
             { name: 'Action ID',   value: `\`${entry.id}\``, inline: true },
-        );
-
-        results.push(onQuest
-            ? `✅ **${characterName}** — pending approval. ID: \`${entry.id}\``
-            : `⚠️ **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
-        );
-    }
-
-    if (embedFields.length > 0) {
-        await sendAdminLog(interaction.guild, new EmbedBuilder()
-            .setColor(anyOffQuest ? 0xf1c40f : 0x5865f2)
-            .setTitle('⏳ Milestone Grants — Pending Approval')
-            .setDescription(`Quest: ${quest.questName} (\`${quest.questId}\`)\nRequested by <@${interaction.user.id}>`)
-            .addFields(...embedFields)
-            .setTimestamp()
-        );
-    }
-
-    return interaction.editReply({ content: results.join('\n') });
+        ],
+    });
 }
-
 // ─── /leagueadmin pending ─────────────────────────────────────────────────────
 
 async function handlePending(interaction) {
@@ -781,41 +670,49 @@ async function handleAdminDowntimeApprove(interaction) {
     });
 }
 
-// ─── /leagueadmin item create ──────────────────────────────────────────────────────────────────
+// ─── Shared admin item-grant executor ──────────────────────────────────────────
 
-async function handleAdminItemCreate(interaction) {
+async function resolveItemAssignment(interaction, label) {
+    const targetUser = interaction.options.getUser('player');
+    if (!targetUser) return { targetUser: null, characterPageId: null, characterName: null };
+
+    let character;
+    try {
+        character = await getActiveCharacter(targetUser.id);
+    } catch (err) {
+        console.error(`[${label}] Notion error:`, err);
+        throw { userMessage: '❌ Could not reach the database. Please try again.' };
+    }
+    if (!character) {
+        throw { userMessage: `❌ **${targetUser.displayName}** does not have an active character.` };
+    }
+    return {
+        targetUser,
+        characterPageId: character.id,
+        characterName: character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown',
+    };
+}
+
+async function runAdminItemGrant(interaction, config) {
+    const { label, replyVerb, embedTitle, resolveItem, successMessage } = config;
+
     if (!isAdminChannel(interaction, 'league')) {
         return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
     }
 
     await interaction.deferReply({ flags: 64 });
 
-    const itemName  = interaction.options.getString('name');
-    const type      = interaction.options.getString('type');
-    const rarity    = interaction.options.getString('rarity');
-    const subtype   = interaction.options.getString('subtype');
-    const itemValue = interaction.options.getInteger('value');
-    const source    = interaction.options.getString('source');
-    const notes     = interaction.options.getString('notes');
-    const targetUser = interaction.options.getUser('player');
+    const resolvedItem = resolveItem(interaction);
+    if (resolvedItem.error) return interaction.editReply({ content: resolvedItem.error });
+    const { itemName, type, rarity, subtype, itemValue, source, notes, extraEmbedFields = [] } = resolvedItem;
 
-    let characterPageId = null;
-    let characterName   = null;
-
-    if (targetUser) {
-        let character;
-        try {
-            character = await getActiveCharacter(targetUser.id);
-        } catch (err) {
-            console.error('[leagueadmin item create] Notion error:', err);
-            return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
-        }
-        if (!character) {
-            return interaction.editReply({ content: `❌ **${targetUser.displayName}** does not have an active character.` });
-        }
-        characterPageId = character.id;
-        characterName   = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
+    let assignment;
+    try {
+        assignment = await resolveItemAssignment(interaction, `leagueadmin ${label}`);
+    } catch (err) {
+        return interaction.editReply({ content: err.userMessage });
     }
+    const { targetUser, characterPageId, characterName } = assignment;
 
     let page;
     try {
@@ -825,26 +722,47 @@ async function handleAdminItemCreate(interaction) {
             status: characterPageId ? 'Owned' : 'Stored',
         });
     } catch (err) {
-        console.error('[leagueadmin item create] Notion create error:', err);
-        return interaction.editReply({ content: '❌ Failed to create item. Please try again.' });
+        console.error(`[leagueadmin ${label}] Notion create error:`, err);
+        return interaction.editReply({ content: `❌ Failed to ${replyVerb.toLowerCase()} item. Please try again.` });
     }
 
     await sendAdminLog(interaction.guild, new EmbedBuilder()
         .setColor(0x9b59b6)
-        .setTitle('🎒 Item Created')
+        .setTitle(embedTitle)
         .addFields(
-            { name: 'Item',       value: itemName,                       inline: true },
-            { name: 'Type',       value: `${type}${subtype ? ` — ${subtype}` : ''}`, inline: true },
-            { name: 'Rarity',     value: rarity,                         inline: true },
-            { name: 'Created By', value: `<@${interaction.user.id}>`,    inline: true },
+            { name: 'Item',        value: itemName,                       inline: true },
+            { name: 'Type',        value: `${type}${subtype ? ` — ${subtype}` : ''}`, inline: true },
+            { name: 'Rarity',      value: rarity,                         inline: true },
+            ...extraEmbedFields,
+            { name: `${replyVerb} By`, value: `<@${interaction.user.id}>`, inline: true },
             { name: 'Assigned To', value: characterName ? `${characterName} (<@${targetUser.id}>)` : 'Unassigned', inline: true },
-            { name: 'Notion ID',  value: `\`${page.id}\``,              inline: false },
+            { name: 'Notion ID',   value: `\`${page.id}\``,               inline: false },
         )
         .setTimestamp()
     );
 
     const assignedMsg = characterName ? ` Assigned to **${characterName}**.` : ' Item is unassigned.';
-    return interaction.editReply({ content: `✅ Created **${itemName}**.${assignedMsg}` });
+    return interaction.editReply({ content: successMessage(itemName, assignedMsg, resolvedItem) });
+}
+
+// ─── /leagueadmin item create ──────────────────────────────────────────────────────────────────
+
+async function handleAdminItemCreate(interaction) {
+    return runAdminItemGrant(interaction, {
+        label: 'item create',
+        replyVerb: 'Created',
+        embedTitle: '🎒 Item Created',
+        resolveItem: i => ({
+            itemName:  i.options.getString('name'),
+            type:      i.options.getString('type'),
+            rarity:    i.options.getString('rarity'),
+            subtype:   i.options.getString('subtype'),
+            itemValue: i.options.getInteger('value'),
+            source:    i.options.getString('source'),
+            notes:     i.options.getString('notes'),
+        }),
+        successMessage: (itemName, assignedMsg) => `✅ Created **${itemName}**.${assignedMsg}`,
+    });
 }
 
 // ─── Catalogue → inventory item mapping ────────────────────────────────────────
@@ -873,77 +791,32 @@ function resolveCatalogueImport(code, overrides = {}) {
 // ─── /leagueadmin item import ───────────────────────────────────────────────────────────────
 
 async function handleAdminItemImport(interaction) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const code       = interaction.options.getString('code');
-    const targetUser = interaction.options.getUser('player');
-    const valueOverride   = interaction.options.getInteger('value');
-    const source          = interaction.options.getString('source');
-    const notesOverride   = interaction.options.getString('notes');
-
-    const resolved = resolveCatalogueImport(code, {
-        itemValue: valueOverride, notes: notesOverride,
+    return runAdminItemGrant(interaction, {
+        label: 'item import',
+        replyVerb: 'Imported',
+        embedTitle: '🎒 Item Imported From Catalogue',
+        resolveItem: i => {
+            const code = i.options.getString('code');
+            const valueOverride = i.options.getInteger('value');
+            const notesOverride = i.options.getString('notes');
+            const resolved = resolveCatalogueImport(code, { itemValue: valueOverride, notes: notesOverride });
+            if (resolved.error) return { error: resolved.error };
+            return {
+                ...resolved,
+                source: i.options.getString('source'),
+                extraEmbedFields: [{ name: 'Catalogue Code', value: `\`${resolved.catalogueCode}\``, inline: true }],
+            };
+        },
+        successMessage: (itemName, assignedMsg, resolvedItem) =>
+            `✅ Imported **${itemName}** from the catalogue (\`${resolvedItem.catalogueCode}\`).${assignedMsg}`,
     });
-    if (resolved.error) return interaction.editReply({ content: resolved.error });
-
-    const { itemName, type, rarity, subtype, itemValue, notes, catalogueCode } = resolved;
-
-    let characterPageId = null;
-    let characterName   = null;
-
-    if (targetUser) {
-        let character;
-        try {
-            character = await getActiveCharacter(targetUser.id);
-        } catch (err) {
-            console.error('[leagueadmin item import] Notion error:', err);
-            return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
-        }
-        if (!character) {
-            return interaction.editReply({ content: `❌ **${targetUser.displayName}** does not have an active character.` });
-        }
-        characterPageId = character.id;
-        characterName   = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    }
-
-    let page;
-    try {
-        page = await createInventoryItem({
-            itemName, type, rarity, subtype, itemValue, source, notes,
-            characterPageId,
-            status: characterPageId ? 'Owned' : 'Stored',
-        });
-    } catch (err) {
-        console.error('[leagueadmin item import] Notion create error:', err);
-        return interaction.editReply({ content: '❌ Failed to import item. Please try again.' });
-    }
-
-    await sendAdminLog(interaction.guild, new EmbedBuilder()
-        .setColor(0x9b59b6)
-        .setTitle('🎒 Item Imported From Catalogue')
-        .addFields(
-            { name: 'Item',        value: itemName,                       inline: true },
-            { name: 'Type',        value: `${type}${subtype ? ` — ${subtype}` : ''}`, inline: true },
-            { name: 'Rarity',      value: rarity,                         inline: true },
-            { name: 'Catalogue Code', value: `\`${catalogueCode}\``,      inline: true },
-            { name: 'Imported By', value: `<@${interaction.user.id}>`,    inline: true },
-            { name: 'Assigned To', value: characterName ? `${characterName} (<@${targetUser.id}>)` : 'Unassigned', inline: true },
-            { name: 'Notion ID',   value: `\`${page.id}\``,               inline: false },
-        )
-        .setTimestamp()
-    );
-
-    const assignedMsg = characterName ? ` Assigned to **${characterName}**.` : ' Item is unassigned.';
-    return interaction.editReply({ content: `✅ Imported **${itemName}** from the catalogue (\`${catalogueCode}\`).${assignedMsg}` });
 }
 
-// ─── /leaguedm item create ──────────────────────────────────────────────────────────────────
+// ─── Shared DM item-grant executor ─────────────────────────────────────────────
 
-async function handleDMItemCreate(interaction) {
+async function runDMItemGrant(interaction, config) {
+    const { label, embedTitle, resolveItem, entryPrefix } = config;
+
     if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
         return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
     }
@@ -955,20 +828,17 @@ async function handleDMItemCreate(interaction) {
         return interaction.editReply({ content: quest.error });
     }
 
-    const itemName   = interaction.options.getString('name');
-    const type       = interaction.options.getString('type');
-    const rarity     = interaction.options.getString('rarity');
-    const subtype    = interaction.options.getString('subtype');
-    const itemValue  = interaction.options.getInteger('value');
-    const source     = interaction.options.getString('source');
-    const notes      = interaction.options.getString('notes');
+    const resolvedItem = resolveItem(interaction);
+    if (resolvedItem.error) return interaction.editReply({ content: resolvedItem.error });
+    const { itemName, type, rarity, subtype, itemValue, source, notes, extraEmbedFields = [] } = resolvedItem;
+
     const targetUser = interaction.options.getUser('player');
 
     let character;
     try {
         character = await getActiveCharacter(targetUser.id);
     } catch (err) {
-        console.error('[leaguedm item create] Notion error:', err);
+        console.error(`[leaguedm ${label}] Notion error:`, err);
         return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
     }
     if (!character) {
@@ -976,7 +846,7 @@ async function handleDMItemCreate(interaction) {
     }
 
     const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    const onQuest        = quest.characterIds.includes(character.id);
+    const onQuest = quest.characterIds.includes(character.id);
 
     const entry = addAction({
         type: 'item',
@@ -996,6 +866,7 @@ async function handleDMItemCreate(interaction) {
         { name: 'Item',         value: itemName,                       inline: true },
         { name: 'Type',         value: `${type}${subtype ? ` — ${subtype}` : ''}`, inline: true },
         { name: 'Rarity',       value: rarity,                         inline: true },
+        ...extraEmbedFields,
         { name: 'Character',    value: characterName,                   inline: true },
         { name: 'Player',       value: `<@${targetUser.id}>`,           inline: true },
         { name: 'Requested By', value: `<@${interaction.user.id}>`,     inline: true },
@@ -1007,95 +878,55 @@ async function handleDMItemCreate(interaction) {
 
     await sendAdminLog(interaction.guild, new EmbedBuilder()
         .setColor(onQuest ? 0x5865f2 : 0xf1c40f)
-        .setTitle('⏳ Item Grant — Pending Approval')
+        .setTitle(embedTitle)
         .addFields(...embedFields)
         .setTimestamp()
     );
 
     return interaction.editReply({ content: onQuest
-        ? `✅ **${itemName}** for **${characterName}** — pending approval. ID: \`${entry.id}\``
-        : `⚠️ **${itemName}** for **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
+        ? `✅ ${entryPrefix(itemName, resolvedItem)} for **${characterName}** — pending approval. ID: \`${entry.id}\``
+        : `⚠️ ${entryPrefix(itemName, resolvedItem)} for **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
+    });
+}
+
+// ─── /leaguedm item create ──────────────────────────────────────────────────────────────────
+
+async function handleDMItemCreate(interaction) {
+    return runDMItemGrant(interaction, {
+        label: 'item create',
+        embedTitle: '⏳ Item Grant — Pending Approval',
+        resolveItem: i => ({
+            itemName:  i.options.getString('name'),
+            type:      i.options.getString('type'),
+            rarity:    i.options.getString('rarity'),
+            subtype:   i.options.getString('subtype'),
+            itemValue: i.options.getInteger('value'),
+            source:    i.options.getString('source'),
+            notes:     i.options.getString('notes'),
+        }),
+        entryPrefix: itemName => `**${itemName}**`,
     });
 }
 
 // ─── /leaguedm item import ──────────────────────────────────────────────────────────────────
 
 async function handleDMItemImport(interaction) {
-    if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const quest = await resolveActiveQuest(interaction);
-    if (quest.error) {
-        return interaction.editReply({ content: quest.error });
-    }
-
-    const code       = interaction.options.getString('code');
-    const targetUser = interaction.options.getUser('player');
-    const source          = interaction.options.getString('source');
-    const notesOverride   = interaction.options.getString('notes');
-
-    const resolved = resolveCatalogueImport(code, {
-        notes: notesOverride,
-    });
-    if (resolved.error) return interaction.editReply({ content: resolved.error });
-
-    const { itemName, type, rarity, subtype, itemValue, notes, catalogueCode } = resolved;
-
-    let character;
-    try {
-        character = await getActiveCharacter(targetUser.id);
-    } catch (err) {
-        console.error('[leaguedm item import] Notion error:', err);
-        return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
-    }
-    if (!character) {
-        return interaction.editReply({ content: `❌ **${targetUser.displayName}** does not have an active character.` });
-    }
-
-    const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    const onQuest        = quest.characterIds.includes(character.id);
-
-    const entry = addAction({
-        type: 'item',
-        dm: { discordId: interaction.user.id, username: interaction.user.username },
-        target: {
-            discordId: targetUser.id,
-            username:  targetUser.username,
-            characterName,
-            characterPageId: character.id,
+    return runDMItemGrant(interaction, {
+        label: 'item import',
+        embedTitle: '⏳ Item Grant (Catalogue Import) — Pending Approval',
+        resolveItem: i => {
+            const code = i.options.getString('code');
+            const source = i.options.getString('source');
+            const notesOverride = i.options.getString('notes');
+            const resolved = resolveCatalogueImport(code, { notes: notesOverride });
+            if (resolved.error) return { error: resolved.error };
+            return {
+                ...resolved,
+                source,
+                extraEmbedFields: [{ name: 'Catalogue Code', value: `\`${resolved.catalogueCode}\``, inline: true }],
+            };
         },
-        quest: { questId: quest.questId, questName: quest.questName, questPageId: quest.questPageId },
-        payload: { itemName, type, subtype, rarity, itemValue, source, notes },
-    });
-
-    const embedFields = [
-        { name: 'Quest',        value: `${quest.questName} (\`${quest.questId}\`)`, inline: false },
-        { name: 'Item',         value: itemName,                       inline: true },
-        { name: 'Type',         value: `${type}${subtype ? ` — ${subtype}` : ''}`, inline: true },
-        { name: 'Rarity',       value: rarity,                         inline: true },
-        { name: 'Catalogue Code', value: `\`${catalogueCode}\``,       inline: true },
-        { name: 'Character',    value: characterName,                   inline: true },
-        { name: 'Player',       value: `<@${targetUser.id}>`,           inline: true },
-        { name: 'Requested By', value: `<@${interaction.user.id}>`,     inline: true },
-    ];
-    if (!onQuest) {
-        embedFields.push({ name: '⚠️ Warning', value: `**${characterName}** is not on the quest roster for \`${quest.questId}\`.`, inline: false });
-    }
-    embedFields.push({ name: 'Action ID', value: `\`${entry.id}\``, inline: false });
-
-    await sendAdminLog(interaction.guild, new EmbedBuilder()
-        .setColor(onQuest ? 0x5865f2 : 0xf1c40f)
-        .setTitle('⏳ Item Grant (Catalogue Import) — Pending Approval')
-        .addFields(...embedFields)
-        .setTimestamp()
-    );
-
-    return interaction.editReply({ content: onQuest
-        ? `✅ **${itemName}** (imported from \`${catalogueCode}\`) for **${characterName}** — pending approval. ID: \`${entry.id}\``
-        : `⚠️ **${itemName}** (imported from \`${catalogueCode}\`) for **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
+        entryPrefix: (itemName, resolvedItem) => `**${itemName}** (imported from \`${resolvedItem.catalogueCode}\`)`,
     });
 }
 

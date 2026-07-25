@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getActiveCharacter, getCharacterInventory, setItemStatus, adjustCharacterNumber, getCharacterGold } = require('../utils/leagueNotion');
+const { getActiveCharacter, getPageById, setItemStatus, adjustCharacterNumber, getCharacterGold } = require('../utils/leagueNotion');
 const { formatCurrency } = require('../utils/currency');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
 
@@ -24,27 +24,25 @@ async function resolveOwnActiveCharacter(interaction) {
 async function handleVoidItem(interaction) {
     await interaction.deferReply({ flags: 64 });
 
-    const serial = interaction.options.getInteger('id');
+    const itemPageId = interaction.options.getString('id');
     const character = await resolveOwnActiveCharacter(interaction);
     if (!character) return;
 
     const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
 
-    let items;
+    let item;
     try {
-        items = await getCharacterInventory(character.id); // same order as /league inv
+        item = await getPageById(itemPageId);
     } catch (err) {
-        console.error('[void item] Notion error fetching inventory:', err);
-        return interaction.editReply({ content: '❌ Could not load your inventory. Please try again.' });
+        console.error('[void item] Notion error fetching item:', err);
+        return interaction.editReply({ content: '❌ Could not find that item — please pick it again from the list.' });
     }
 
-    if (serial < 1 || serial > items.length) {
-        return interaction.editReply({
-            content: `❌ Invalid item ID. You have **${items.length}** item(s) — use a number between **1** and **${items.length}** (matches \`/league inv\`).`,
-        });
+    const ownerId = item.properties['Character']?.relation?.[0]?.id ?? null;
+    if (ownerId !== character.id) {
+        return interaction.editReply({ content: '❌ That item does not belong to your active character. Please pick it again from the list.' });
     }
 
-    const item = items[serial - 1];
     const itemName = item.properties['Item Name']?.title?.[0]?.plain_text ?? 'Unknown';
 
     try {
@@ -57,7 +55,7 @@ async function handleVoidItem(interaction) {
     await sendVoidAuditLog(interaction, [
         { name: 'Character', value: characterName, inline: true },
         { name: 'Player',    value: `<@${interaction.user.id}>`, inline: true },
-        { name: 'Item',      value: `${itemName} (#${serial})`, inline: true },
+        { name: 'Item',      value: itemName, inline: true },
     ]);
 
     return interaction.editReply({ content: `✅ Voided **${itemName}** from **${characterName}**'s inventory.` });

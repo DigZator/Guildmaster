@@ -14,7 +14,7 @@ const { createStartRequest } = require('../utils/downtimeApprovals');
 const { loadBlueprints, resolveCostFromUID, getBlueprint, getBlueprintById, nextDtaId, resolveCost, applyDowntimeOutput, getParamName, sumCosts } = require('../utils/downtime');
 const leagueNotion = require('../utils/leagueNotion');
 const { formatCurrency } = require('../utils/currency');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+const { sendAdminLog } = require('../utils/adminLog');
 
 function coerceParam(raw) {
     if (raw == null) return null;
@@ -28,12 +28,6 @@ function formatGpCost(costs, params) {
     if (gpPerDay > 0) parts.push(`${formatCurrency(gpPerDay)}/day`);
     const hasAssistantCost = (costs ?? []).some(c => c.target === 'assistant');
     return (parts.length ? parts.join(' + ') : 'free') + (hasAssistantCost ? ' (+ assistant pay)' : '');
-}
-
-async function sendAdminLog(guild, embed) {
-    const channel = guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);
-    if (channel) await channel.send({ embeds: [embed] });
-    else console.warn('[leagueDowntime] LEAGUE_ADMIN_CHANNEL_ID not found in cache — admin log message dropped.');
 }
 
 async function postToCharacterThread(client, char, embed) {
