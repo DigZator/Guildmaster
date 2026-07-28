@@ -203,6 +203,37 @@ async function setCharacterStatus(pageId, status) {
   });
 }
 
+// ─── Character status audit ────────────────────────────────────────────────
+// Scans every character, groups by Discord ID, and reports:
+//   - violations: Discord IDs with more than one 'Active' character (the bug)
+//   - noActive:   Discord IDs with characters but none 'Active' (informational only)
+async function findCharacterStatusIssues() {
+  const allCharacters = await queryAllPages(DB.characters);
+
+  const byDiscordId = new Map();
+  for (const page of allCharacters) {
+    const discordId = page.properties['Discord ID']?.rich_text?.[0]?.plain_text ?? null;
+    if (!discordId) continue;
+    if (!byDiscordId.has(discordId)) byDiscordId.set(discordId, []);
+    byDiscordId.get(discordId).push(page);
+  }
+
+  const violations = [];
+  const noActive = [];
+
+  for (const [discordId, characters] of byDiscordId.entries()) {
+    const activeOnes = characters.filter(c => c.properties['Status']?.select?.name === 'Active');
+
+    if (activeOnes.length > 1) {
+      violations.push({ discordId, characters: activeOnes });
+    } else if (activeOnes.length === 0 && characters.length > 0) {
+      noActive.push({ discordId, characters });
+    }
+  }
+
+  return { violations, noActive };
+}
+
 function withTwoPageLocks(pageIdA, pageIdB, fn) {
   const [first, second] = [pageIdA, pageIdB].sort();
   return withPageLock(first, () => withPageLock(second, fn));
@@ -636,6 +667,7 @@ module.exports = {
 	adjustCharacterNumbersUnlocked,
 	setCharacterLevel,
 	updateCharacterArt,
+	findCharacterStatusIssues,
 
 	// Inventory
 	createInventoryItem,

@@ -23,6 +23,7 @@ async function league(interaction, client) {
 	if (group === 'downtime') 		return leagueDowntime(interaction);
 	if (group === 'quest') 			return handleQuestGroup(interaction);
 	if (group === 'void') 			return leagueVoid(interaction);
+	if (group === 'character') 	return handleCharacterGroup(interaction);
 	
 	switch (sub) {
 		case 'create':
@@ -324,7 +325,7 @@ async function editCharacter(interaction) {
 
 async function transferGold(interaction) {
     const targetUser = interaction.options.getUser('player');
-    const amount     = interaction.options.getInteger('amount');
+    const amount     = interaction.options.getNumber('amount');
 
     if (targetUser.id === interaction.user.id) {
         return interaction.reply({
@@ -708,6 +709,95 @@ async function showQuestLog(interaction) {
 	return interaction.editReply({ embeds: [embed] });
 }
 
+// ─── /league character status ────────────────────────────────────────────────
+
+async function handleCharacterGroup(interaction) {
+	const sub = interaction.options.getSubcommand();
+	if (sub === 'status') return changeCharacterStatus(interaction);
+
+	return interaction.reply({ content: 'Unknown subcommand.', flags: 64 });
+}
+
+async function changeCharacterStatus(interaction) {
+	const characterId = interaction.options.getString('character');
+	const newStatus   = interaction.options.getString('new_status');
+
+	let character;
+	try {
+		character = await getPageById(characterId);
+	} catch (err) {
+		console.error('[league character status] Notion error fetching character:', err);
+		return interaction.reply({ content: '❌ Could not reach the database. Please try again.', flags: 64 });
+	}
+
+	const ownerDiscordId = character?.properties?.['Discord ID']?.rich_text?.[0]?.plain_text ?? null;
+	if (!character || ownerDiscordId !== interaction.user.id) {
+		return interaction.reply({ content: '❌ That character was not found among your own characters.', flags: 64 });
+	}
+
+	const characterName  = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
+	const currentStatus  = character.properties['Status']?.select?.name ?? 'Unknown';
+
+	if (currentStatus === newStatus) {
+		return interaction.reply({ content: `**${characterName}** is already **${newStatus}**.`, flags: 64 });
+	}
+
+	let warningLine = '';
+	if (newStatus === 'Active') {
+		let currentlyActive;
+		try {
+			currentlyActive = await getActiveCharacter(interaction.user.id);
+		} catch (err) {
+			console.error('[league character status] Notion error checking active character:', err);
+			return interaction.reply({ content: '❌ Could not reach the database. Please try again.', flags: 64 });
+		}
+		if (currentlyActive && currentlyActive.id !== character.id) {
+			const otherName = currentlyActive.properties['Character Name']?.title?.[0]?.plain_text ?? 'your other character';
+			warningLine = `\n\nSince you can only have one active character, **${otherName}** will be moved to **Passive**.`;
+		}
+	}
+
+	const embed = new EmbedBuilder()
+		.setColor(0x5865f2)
+		.setTitle('Confirm Status Change')
+		.setDescription(`**${characterName}**: \`${currentStatus}\` → \`${newStatus}\`${warningLine}`);
+
+	const row = new ActionRowBuilder().addComponents(
+		new ButtonBuilder()
+			.setCustomId(`charstatus_confirm:${character.id}:${newStatus}`)
+			.setLabel('Confirm')
+			.setStyle(ButtonStyle.Danger),
+		new ButtonBuilder()
+			.setCustomId(`charstatus_cancel:${character.id}`)
+			.setLabel('Cancel')
+			.setStyle(ButtonStyle.Secondary),
+	);
+
+	return interaction.reply({ embeds: [embed], components: [row], flags: 64 });
+}
+
+async function characterOwnAutocomplete(interaction) {
+	const focused = interaction.options.getFocused().toLowerCase();
+
+	let characters;
+	try {
+		characters = await getCharactersByDiscordId(interaction.user.id);
+	} catch (err) {
+		console.error('[league character status] Autocomplete Notion error:', err);
+		return interaction.respond([]);
+	}
+
+	const choices = characters
+		.filter(c => (c.properties['Character Name']?.title?.[0]?.plain_text ?? '').toLowerCase().includes(focused))
+		.slice(0, 25)
+		.map(c => ({
+			name: `${c.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown'} (${c.properties['Status']?.select?.name ?? 'Unknown'})`,
+			value: c.id,
+		}));
+
+	await interaction.respond(choices);
+}
+
 async function characterLogAutocomplete(interaction) {
 	const targetUser = interaction.options.getUser('player');
 	const focused     = interaction.options.getFocused().toLowerCase();
@@ -730,4 +820,4 @@ async function characterLogAutocomplete(interaction) {
 	await interaction.respond(choices);
 }
 
-module.exports = { league, characterLogAutocomplete, buildLeaderboardEmbedAndRow, LEADERBOARD_PAGE_SIZE };
+module.exports = { league, characterLogAutocomplete, characterOwnAutocomplete, buildLeaderboardEmbedAndRow, LEADERBOARD_PAGE_SIZE };

@@ -323,6 +323,28 @@ const commands = [
 				.setName('public')
 				.setDescription('Show this to everyone in the channel? (default: private)')
 				.setRequired(false)))
+		//character
+		.addSubcommandGroup(group => group
+		    .setName('character')
+		    .setDescription('Manage your characters')
+		    .addSubcommand(sub => sub
+		        .setName('status')
+		        .setDescription('Change one of your characters\' status')
+		        .addStringOption(opt => opt
+		            .setName('character')
+		            .setDescription('Which of your characters')
+		            .setRequired(true)
+		            .setAutocomplete(true))
+		        .addStringOption(opt => opt
+		            .setName('new_status')
+		            .setDescription('New status')
+		            .setRequired(true)
+		            .addChoices(
+		                { name: 'Active',  value: 'Active' },
+		                { name: 'Passive', value: 'Passive' },
+		                { name: 'Retired', value: 'Retired' },
+		            )))
+		)
 		//shop
 		.addSubcommandGroup(group => group
 		    .setName('shop')
@@ -454,7 +476,7 @@ const commands = [
 				.setDescription('Filter by species (partial match)'))
 			.addStringOption(opt => opt
 				.setName('status')
-				.setDescription('Filter by status (e.g. Active, Retired)'))
+				.setDescription('Filter by status (e.g. Active, Passive, Retired)'))
 			.addBooleanOption(opt => opt
 				.setName('public')
 				.setDescription('Show the result to everyone (default: only you)')))
@@ -693,7 +715,14 @@ const commands = [
 		    .addSubcommand(sub => sub
 		        .setName('approve')
 		        .setDescription('Approve a pending downtime start or completion request')
-		        .addStringOption(opt => opt.setName('id').setDescription('Request ID or DTA ID').setRequired(true)))),
+		        .addStringOption(opt => opt.setName('id').setDescription('Request ID or DTA ID').setRequired(true))))
+		//audit
+		.addSubcommandGroup(group => group
+		    .setName('audit')
+		    .setDescription('Data-integrity checks')
+		    .addSubcommand(sub => sub
+		        .setName('characters')
+		        .setDescription('Check for players with more than one Active character'))),
 
 	//leaguedm
 	new SlashCommandBuilder()

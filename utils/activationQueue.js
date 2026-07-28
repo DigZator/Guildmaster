@@ -8,7 +8,8 @@ const DEFAULT_QUEUE = {
     autoSchedule: false,
     queue: [],
     flaggedUids: [],
-    lastActivationRun: []
+    lastActivationRun: [],
+    lastRunDate: null
 };
 
 const store = createJsonStore(path.join(__dirname, '../data/activationQueue.json'), DEFAULT_QUEUE);
@@ -55,6 +56,18 @@ function clearLastActivationRun() {
     writeQueue(data);
 }
 
+function getLastRunDate() {
+    return getQueue().lastRunDate;
+}
+
+function claimRunForDate(dateStr) {
+    const data = getQueue();
+    if (data.lastRunDate === dateStr) return false;
+    data.lastRunDate = dateStr;
+    writeQueue(data);
+    return true;
+}
+
 function addFlaggedUid(uid) {
     const data = getQueue();
     if (!data.flaggedUids.includes(uid)) {
@@ -99,6 +112,8 @@ module.exports = {
     removeFromQueue,
     clearQueue,
     clearLastActivationRun,
+    getLastRunDate,
+    claimRunForDate,
     addFlaggedUid,
     isFlagged,
     setReminderTime,

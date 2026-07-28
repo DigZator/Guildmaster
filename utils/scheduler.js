@@ -1,5 +1,5 @@
 const { getCachedGames, invalidateCache } = require('./cache');
-const { getQueue, clearQueue } = require('./activationQueue');
+const { getQueue, clearQueue, claimRunForDate, getLastRunDate } = require('./activationQueue');
 const { updateGameProperties } = require('./notion');
 const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
@@ -20,6 +20,15 @@ function currentISTMinutes() {
     const now = new Date();
     const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
     return ist.getHours() * 60 + ist.getMinutes();
+}
+
+function currentISTDateStr() {
+    const now = new Date();
+    const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const y = ist.getFullYear();
+    const m = String(ist.getMonth() + 1).padStart(2, '0');
+    const d = String(ist.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
 
 function toDiscordTimestamp(timeStr) {
@@ -67,9 +76,15 @@ async function runReminderJob() {
     await ctrlChannel.send(msg);
 }
 
-async function runActivationJob() {
+async function runActivationJob({ force = false } = {}) {
     const data = getQueue();
     if (data.queue.length === 0) return;
+
+    const today = currentISTDateStr();
+    if (!force && !claimRunForDate(today)) {
+        console.log('[Scheduler] Activation job already ran today — skipping (use force to override).');
+        return;
+    }
 
     const games = await getCachedGames();
     const results = { skipped: [], processed: [], failed: [] };
@@ -152,6 +167,10 @@ async function runStartupCheck(client) {
     const activateAt = toISTMinutes(data.activationTime);
 
     if (now >= activateAt) {
+        if (getLastRunDate() === currentISTDateStr()) {
+            console.log('[Scheduler] Past activation time, but activation already ran today — not re-running on startup.');
+            return;
+        }
         console.log('[Scheduler] Past activation time with queued games — running activation job on startup.');
         await ctrlChannel.send(`🔄 **Bot restarted past activation time** — running activation job now.`);
         await runActivationJob();
@@ -166,4 +185,4 @@ function init(client) {
     });
 }
 
-module.exports = { init };
+module.exports = { init, runActivationJob };

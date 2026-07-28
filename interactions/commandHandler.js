@@ -13,7 +13,7 @@ const anon_msg = require('../commands/anon_msg');
 const schedule_activation = require('../commands/schedule_activation');
 const help = require('../commands/help');
 const edit_game = require('../commands/edit_game');
-const { league, characterLogAutocomplete } = require('../commands/league');
+const { league, characterLogAutocomplete, characterOwnAutocomplete } = require('../commands/league');
 const { backgroundAutocomplete } = require('../commands/leagueStarterItems');
 const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
 const { questLinkAutocomplete } = require('../commands/leagueQuest');
@@ -152,6 +152,15 @@ module.exports = (client) => {
                     const focused = interaction.options.getFocused(true);
                     if (focused.name === 'character') {
                         await characterLogAutocomplete(interaction);
+                        return;
+                    }
+                }
+
+                // Character autocomplete (league character status) — own characters only
+                if (interaction.commandName === 'league' && group === 'character' && sub === 'status') {
+                    const focused = interaction.options.getFocused(true);
+                    if (focused.name === 'character') {
+                        await characterOwnAutocomplete(interaction);
                         return;
                     }
                 }

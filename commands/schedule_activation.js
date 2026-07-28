@@ -9,6 +9,7 @@ const {
     toggleReminder,
     toggleAutoSchedule
 } = require('../utils/activationQueue');
+const { runActivationJob } = require('../utils/scheduler');
 
 function toDiscordTimestamp(timeStr) {
     const now = new Date();
@@ -139,6 +140,16 @@ module.exports = async (interaction, client) => {
 
     else if (sub === 'status') {
         await interaction.reply({ content: buildQueueSummary(getQueue()), flags: 64 });
+    }
+
+    else if (sub === 'run-now') {
+        const data = getQueue();
+        if (data.queue.length === 0) {
+            await interaction.reply({ content: '⚠️ Queue is empty — nothing to activate.', flags: 64 });
+            return;
+        }
+        await interaction.reply({ content: '🔄 Running activation job now (forced)...', flags: 64 });
+        await runActivationJob({ force: true });
     }
 
     else if (sub === 'toggle-auto') {
