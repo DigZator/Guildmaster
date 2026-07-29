@@ -12,6 +12,12 @@ module.exports = (client) => {
                 const { handleLeagueCreate } = require('./leagueCreateModal');
                 await handleLeagueCreate(interaction, client);
             }
+            if (interaction.customId.startsWith('editgame_modal_')) {
+                await require('../modals/editGameModal')(interaction, client);
+            }
+            if (interaction.customId.startsWith('announceedit_modal_')) {
+                await require('../modals/announceEditModal')(interaction, client);
+            }
         } catch (error) {
             console.error('Error handling modal:', error);
             if (!interaction.replied && !interaction.deferred) {

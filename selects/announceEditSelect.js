@@ -1,4 +1,28 @@
+const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const { sessions } = require('../utils/sessionStore');
+
+const MAX_MODAL_VALUE_LENGTH = 4000;
+
+const fieldLabels = {
+    title: 'Title',
+    blurb: 'Blurb',
+    dm: 'DM',
+    system: 'System',
+    date: 'Date',
+    time: 'Time',
+    rline: 'Register Line',
+    registrationLink: 'Registration Link',
+    notes: 'Other Notes',
+    location: 'Location / Venue',
+    classes: 'Classes Allowed',
+    species: 'Species Allowed',
+    level: 'Level',
+    experienceLevel: 'Experience Level',
+    warnings: 'Content Warnings',
+    artist: 'Art Credits',
+    artURL: 'Cover Art',
+    price: 'Price',
+};
 
 module.exports = async (interaction, client) => {
     const field = interaction.values[0];
@@ -9,41 +33,34 @@ module.exports = async (interaction, client) => {
         return;
     }
 
-    const fieldLabels = {
-        title: 'Title',
-        blurb: 'Blurb',
-        dm: 'DM',
-        system: 'System',
-        date: 'Date',
-        time: 'Time',
-        location: 'Location / Venue',
-        classes: 'Classes Allowed',
-        species: 'Species Allowed',
-        level: 'Level',
-        experienceLevel: 'Experience Level',
-        warnings: 'Content Warnings',
-        notes: 'Other Notes',
-        artist: 'Art Credits',
-        artURL: 'Cover Art',
-        registrationLink: 'Registration Link',
-        price: 'Price',
-        rline: 'Register Line',
-    };
-
-    session.editingField = field;
-    session.step = field === 'artURL' ? 'awaiting_art' : 'awaiting_edit';
-
-    const currentValue = session.game[field] || 'None';
-
     if (field === 'artURL') {
+        session.editingField = field;
+        session.step = 'awaiting_art';
+
         await interaction.update({
             content: `🖼️ **Editing: Cover Art**\n\nPlease upload an image in this channel.`,
             components: []
         });
-    } else {
-        await interaction.update({
-            content: `✏️ **Editing: ${fieldLabels[field]}**\n\n**Current value:**\n\`\`\`\n${currentValue}\n\`\`\`\n\nSend the new value wrapped in backticks.`,
-            components: []
-        });
+        return;
     }
+
+    const currentValue = session.game[field] ?? '';
+
+    const modal = new ModalBuilder()
+        .setCustomId(`announceedit_modal_${interaction.user.id}_${field}`)
+        .setTitle(`Edit: ${fieldLabels[field] ?? field}`.slice(0, 45));
+
+    const input = new TextInputBuilder()
+        .setCustomId('value')
+        .setLabel((fieldLabels[field] ?? field).slice(0, 45))
+        .setStyle(TextInputStyle.Paragraph)
+        .setRequired(false);
+
+    if (currentValue !== '') {
+        input.setValue(String(currentValue).slice(0, MAX_MODAL_VALUE_LENGTH));
+    }
+
+    modal.addComponents(new ActionRowBuilder().addComponents(input));
+
+    await interaction.showModal(modal);
 };

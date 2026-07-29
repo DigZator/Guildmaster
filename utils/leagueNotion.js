@@ -1,5 +1,6 @@
 const { Client } = require('@notionhq/client');
 const { randomBytes } = require('crypto');
+const { todayISTDateString } = require('./dateFormat');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -183,7 +184,7 @@ async function createCharacter(opts) {
         select: { name: 'Active' },
       },
       'Date Created': {
-        date: { start: new Date().toISOString().split('T')[0] },
+        date: { start: todayISTDateString() },
       },
       'Forum Thread Id': {
         rich_text: [{ text: { content: forumThreadId } }],
@@ -204,9 +205,7 @@ async function setCharacterStatus(pageId, status) {
 }
 
 // ─── Character status audit ────────────────────────────────────────────────
-// Scans every character, groups by Discord ID, and reports:
-//   - violations: Discord IDs with more than one 'Active' character (the bug)
-//   - noActive:   Discord IDs with characters but none 'Active' (informational only)
+
 async function findCharacterStatusIssues() {
   const allCharacters = await queryAllPages(DB.characters);
 
@@ -301,7 +300,7 @@ async function createInventoryItem(opts) {
       select: { name: type },
     },
     'Date Acquired': {
-      date: { start: new Date().toISOString().split('T')[0] },
+      date: { start: todayISTDateString() },
     },
   };
 
@@ -448,7 +447,7 @@ async function createDowntimeProgress(opts) {
 		    	select: { name: 'In Progress' },
 		  },
 		  'Started Date': {
-		    	date: { start: new Date().toISOString().split('T')[0] },
+		    	date: { start: todayISTDateString() },
 		  },
 	};
 
@@ -576,7 +575,7 @@ async function createListing(opts) {
       select: { name: 'Open' },
     },
     'Listed Date': {
-      date: { start: new Date().toISOString().split('T')[0] },
+      date: { start: todayISTDateString() },
     },
   };
 
@@ -634,7 +633,7 @@ async function createTrade(opts) {
       select: { name: 'Pending' },
     },
     'Date': {
-      date: { start: new Date().toISOString().split('T')[0] },
+      date: { start: todayISTDateString() },
     },
   };
 

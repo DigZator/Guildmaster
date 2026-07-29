@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { Client } = require('@notionhq/client');
+const { formatDateForDisplay } = require('./dateFormat');
 
 const URL = "https://adventuring-guild-mumbai.notion.site/api/v3/queryCollection";
 
@@ -55,11 +56,11 @@ async function fetchGames() {
                 openSeats:        countOpenSeats(seatRecords, page.id),
                 totalSeats:       seatRecords.filter(s => s.gameId === page.id).length,
                 warnings:         p['Content Warnings'].multi_select.map(o => o.name).join(', '),
-                registrationLink: p['Campaign Link'].url ?? '',
+                registrationLink: p['Registration Link']?.url ?? '',
                 show:             p['Show'].checkbox,
                 activate:         p['Activate'].checkbox,
                 artURL:           p['Cover Art'].files[0]?.file?.url ?? p['Cover Art'].files[0]?.external?.url ?? null,
-                rline:            `**!! Registrations for this game will go live at 9PM IST !!**`,
+                rline:            p['Registration Line']?.rich_text?.[0]?.plain_text ?? '',
             });
         }
         cursor = response.has_more ? response.next_cursor : undefined;
@@ -111,4 +112,44 @@ async function updateGameProperties(uid, properties) {
 	});
 }
 
-module.exports = { fetchGames, fetchGameByUID, updateGameProperties }
+async function fetchPage(uid) {
+	return notion.pages.retrieve({ page_id: uid });
+}
+
+function stringifyPropertyValue(fieldType, rawProperty) {
+	if (!rawProperty) return '';
+
+	switch (fieldType) {
+		case 'title':
+			return rawProperty.title?.map(t => t.plain_text).join('') ?? '';
+
+		case 'rich_text':
+			return rawProperty.rich_text?.map(t => t.plain_text).join('') ?? '';
+
+		case 'number':
+			return rawProperty.number != null ? String(rawProperty.number) : '';
+
+		case 'checkbox':
+			return rawProperty.checkbox != null ? String(rawProperty.checkbox) : '';
+
+		case 'url':
+			return rawProperty.url ?? '';
+
+		case 'select':
+			return rawProperty.select?.name ?? '';
+
+		case 'multi_select':
+			return rawProperty.multi_select?.map(o => o.name).join(', ') ?? '';
+
+		case 'date':
+			return formatDateForDisplay(rawProperty.date?.start);
+
+		case 'files':
+			return rawProperty.files?.[0]?.file?.url ?? rawProperty.files?.[0]?.external?.url ?? '';
+
+		default:
+			return '';
+	}
+}
+
+module.exports = { fetchGames, fetchGameByUID, updateGameProperties, fetchPage, stringifyPropertyValue }

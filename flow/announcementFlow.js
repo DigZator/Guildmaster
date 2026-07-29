@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const parseAnnouncement = require('../utils/announcementParser');
-const { buildWhatsApp, buildAnnouncementEmbed, setSessionTimeout, italizeBlurb, bulletizeNotes, getPreviewButtons, SESSION_TYPE_ROLES } = require('../utils/announcementHelper');
+const { buildWhatsApp, buildAnnouncementEmbed, setSessionTimeout, getPreviewButtons, SESSION_TYPE_ROLES } = require('../utils/announcementHelper');
 const { sessions } = require('../utils/sessionStore');
 const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
@@ -219,44 +219,6 @@ module.exports = (client) => {
                         components: [previewButtons]
                     });
                 }
-            }
-
-            else if (session.step === "awaiting_edit") {
-                setSessionTimeout(message.author.id, 600000);
-                const match = message.content.match(/`([^`]+)`/);
-
-                if (!match) {
-                    const reply = await message.reply('❌ Please wrap your new value in backticks.');
-                    setTimeout(() => reply.delete().catch(() => {}), 10000);
-                    return;
-                }
-
-                const newValue = match[1].trim();
-
-                let processedVal = newValue;
-                if (session.editingField === 'blurb') {
-                    processedVal = italizeBlurb(newValue);
-                } else if (session.editingField === 'notes') {
-                    processedVal = bulletizeNotes(newValue);
-                }
-
-                session.game[session.editingField] = processedVal;
-                session.step = null;
-                session.editingField = null;
-
-                try {
-                    await message.delete();
-                } catch {}
-
-                session.embed = buildAnnouncementEmbed(session.game, message.guild);
-                session.whatsapp = buildWhatsApp(session.game);
-
-                await sendChunkedWhatsApp(
-                    message.channel,
-                    session.whatsapp,
-                    session.embed,
-                    '✅ Updated! Here\'s the new preview:\n'
-                );
             }
 
             else if (session.step === "awaiting_art") {

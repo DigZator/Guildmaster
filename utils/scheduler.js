@@ -5,7 +5,7 @@ const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANN
 
 
 const QUEST_BOARD_ID = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
-const REGISTRATION_LINK = 'https://adventuringguildmumbai.fillout.com/player-sign-up';
+const { DEFAULT_REGISTRATION_LINK } = require('../data/registrationDefaults');
 
 let ctrlChannel = null;
 let schedulerInterval = null;
@@ -125,8 +125,8 @@ async function runActivationJob({ force = false } = {}) {
     if (results.processed.length) {
     	const titleList = results.processed.map(t => `- ${t}`).join(`\n`);
 
-    	const questMsg = `‼️ **Registrations for the following game/s are now live** ‼️\n\n${titleList}\n\nRegistration Link - ${REGISTRATION_LINK}`;
-    	const waMsg = `‼️ *Registrations for the following game/s are now live* ‼️\n\n${titleList}\n\nRegistration Link - ${REGISTRATION_LINK}`;
+    	const questMsg = `‼️ **Registrations for the following game/s are now live** ‼️\n\n${titleList}\n\nRegistration Link - ${DEFAULT_REGISTRATION_LINK}`;
+    	const waMsg = `‼️ *Registrations for the following game/s are now live* ‼️\n\n${titleList}\n\nRegistration Link - ${DEFAULT_REGISTRATION_LINK}`;
 
     	if (questChannel) await questChannel.send(questMsg);
     	await ctrlChannel.send(`📋 **WhatsApp copy:**\n\`\`\`\n${waMsg}\n\`\`\``);
