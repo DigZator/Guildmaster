@@ -1,5 +1,5 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID } = require('../data/channels');
+const { TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID, THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
 
 module.exports = async (interaction, client) => {
     if (!interaction.isChatInputCommand()) return;

@@ -1,4 +1,4 @@
-const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
+const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getCachedGames } = require('../utils/cache');
 const gameFields = require('../data/gameFields.json');
@@ -47,8 +47,30 @@ module.exports = async (interaction) => {
         gameId: gameUID,
         gameName: game.title,
         fieldName,
+        notionKey: fieldConfig.notion_key,
         fieldType: fieldConfig.type,
     });
+
+    if (fieldConfig.type === 'checkbox') {
+        const currentLabel = currentValue === '' ? 'unknown' : currentValue;
+
+        const trueButton = new ButtonBuilder()
+            .setCustomId(`editgame_checkbox_${interaction.user.id}_true`)
+            .setLabel('Set: True')
+            .setStyle(ButtonStyle.Success);
+
+        const falseButton = new ButtonBuilder()
+            .setCustomId(`editgame_checkbox_${interaction.user.id}_false`)
+            .setLabel('Set: False')
+            .setStyle(ButtonStyle.Danger);
+
+        await interaction.reply({
+            content: `**${fieldName}** for **${game.title}** — current value: \`${currentLabel}\`\nChoose a new value:`,
+            components: [new ActionRowBuilder().addComponents(trueButton, falseButton)],
+            flags: 64,
+        });
+        return;
+    }
 
     const modal = new ModalBuilder()
         .setCustomId(`editgame_modal_${interaction.user.id}`)

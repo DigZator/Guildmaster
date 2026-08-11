@@ -16,7 +16,7 @@ const edit_game = require('../commands/edit_game');
 const { league, characterLogAutocomplete, characterOwnAutocomplete } = require('../commands/league');
 const { backgroundAutocomplete } = require('../commands/leagueStarterItems');
 const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
-const { questLinkAutocomplete } = require('../commands/leagueQuest');
+const { questLinkAutocomplete, dashboardQuestAutocomplete } = require('../commands/leagueQuest');
 const helpData = require('../helpData');
 const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');
 const { getItemAutocompleteChoices } = require('../utils/inventoryHelper');
@@ -144,6 +144,12 @@ module.exports = (client) => {
                 // Quest link autocomplete (leaguedm quest link) — distinct UID system, not a catalogue code
                 if (interaction.commandName === 'leaguedm' && group === 'quest' && sub === 'link') {
                     await questLinkAutocomplete(interaction);
+                    return;
+                }
+
+                // Dashboard quest_id autocomplete (leaguedm dashboard) — Active quests only
+                if (interaction.commandName === 'leaguedm' && sub === 'dashboard') {
+                    await dashboardQuestAutocomplete(interaction);
                     return;
                 }
 

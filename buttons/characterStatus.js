@@ -9,24 +9,26 @@ module.exports = {
         'charstatus_confirm:': async (interaction) => {
             const [, characterId, newStatus] = interaction.customId.split(':');
 
+            await interaction.deferUpdate();
+
             let character;
             try {
                 character = await getPageById(characterId);
             } catch (err) {
                 console.error('[characterStatus] Notion error fetching character:', err);
-                return interaction.update({ content: '❌ Could not reach the database. Please try again.', embeds: [], components: [] });
+                return interaction.editReply({ content: '❌ Could not reach the database. Please try again.', embeds: [], components: [] });
             }
 
             const ownerDiscordId = character?.properties?.['Discord ID']?.rich_text?.[0]?.plain_text ?? null;
             if (!character || ownerDiscordId !== interaction.user.id) {
-                return interaction.update({ content: '❌ That character could not be verified as yours.', embeds: [], components: [] });
+                return interaction.editReply({ content: '❌ That character could not be verified as yours.', embeds: [], components: [] });
             }
 
             const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
             const oldStatus     = character.properties['Status']?.select?.name ?? 'Unknown';
 
             if (oldStatus === newStatus) {
-                return interaction.update({ content: `**${characterName}** is already **${newStatus}**.`, embeds: [], components: [] });
+                return interaction.editReply({ content: `**${characterName}** is already **${newStatus}**.`, embeds: [], components: [] });
             }
 
             let demotedName = null;
@@ -48,7 +50,7 @@ module.exports = {
                 }
             } catch (err) {
                 console.error('[characterStatus] Notion update error:', err);
-                return interaction.update({ content: `❌ Failed to update status for **${characterName}**. Please try again.`, embeds: [], components: [] });
+                return interaction.editReply({ content: `❌ Failed to update status for **${characterName}**. Please try again.`, embeds: [], components: [] });
             }
 
             try {
@@ -71,7 +73,7 @@ module.exports = {
                 ? `✅ **${characterName}** is now **${newStatus}**. **${demotedName}** was moved to **Passive**.`
                 : `✅ **${characterName}** is now **${newStatus}**.`;
 
-            return interaction.update({ content: confirmationLine, embeds: [], components: [] });
+            return interaction.editReply({ content: confirmationLine, embeds: [], components: [] });
         },
 
         'charstatus_cancel:': async (interaction) => {

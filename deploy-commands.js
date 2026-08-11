@@ -595,7 +595,9 @@ const commands = [
 		.addSubcommand(sub => sub
 			.setName('reject')
 			.setDescription('Reject a pending DM grant action')
-			.addStringOption(opt => opt.setName('id').setDescription('Action ID (comma separated - "34, 756")').setRequired(true)))
+			.addStringOption(opt => opt.setName('id').setDescription('Action ID (comma separated - "34, 756")').setRequired(true))
+			.addStringOption(opt => opt.setName('reason').setDescription('Reason (required for quest-report rejections)').setRequired(false))
+			.addStringOption(opt => opt.setName('line').setDescription('Line ID — reject only one line of a quest-report, leaving the rest pending (single id only)').setRequired(false)))
 		.addSubcommandGroup(group => group
 			.setName('item')
 			.setDescription('Item management')
@@ -750,17 +752,7 @@ const commands = [
 				.addStringOption(opt => opt
 					.setName('quest_id')
 					.setDescription('Quest ID')
-					.setRequired(true))
-				.addIntegerOption(opt => opt
-					.setName('milestones')
-					.setDescription('Total milestones given out this quest')
-					.setRequired(true)
-					.setMinValue(0))
-				.addIntegerOption(opt => opt
-					.setName('reputation')
-					.setDescription('Total reputation given out this quest')
-					.setRequired(true)
-					.setMinValue(0)))
+					.setRequired(true)))
    		    .addSubcommand(sub => sub
    		            .setName('add')
    		            .setDescription('Add players to a quest')
@@ -789,6 +781,16 @@ const commands = [
    		            .setName('players')
    		            .setDescription('List the players on a quest')
    		            .addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID').setRequired(true))))
+	    //dashboard
+	    .addSubcommand(sub => sub
+			.setName('dashboard')
+			.setDescription('View the live reward draft for a quest')
+			.addStringOption(opt => opt
+				.setName('quest_id')
+				.setDescription('Quest ID')
+				.setRequired(true)
+				.setAutocomplete(true)))
+	    //rep
 	    .addSubcommand(sub => sub
 			.setName('rep')
 			.setDescription('Request reputation grant for a character')
@@ -805,6 +807,7 @@ const commands = [
 			.addIntegerOption(opt => opt.setName('amount5').setDescription('Amount (max 2)'))
 			.addUserOption(opt => opt.setName('user6').setDescription('Target player 6'))
 			.addIntegerOption(opt => opt.setName('amount6').setDescription('Amount (max 2)')))
+		//gold
 		.addSubcommand(sub => sub
 			.setName('gold')
 			.setDescription('Grant gold to a character')
@@ -821,6 +824,7 @@ const commands = [
 			.addIntegerOption(opt => opt.setName('amount5').setDescription('Amount in gp'))
 			.addUserOption(opt => opt.setName('user6').setDescription('Target player 6'))
 			.addIntegerOption(opt => opt.setName('amount6').setDescription('Amount in gp')))
+		//milestone
 		.addSubcommand(sub => sub
 	        .setName('milestone')
 	        .setDescription('Grant milestones to a character')
@@ -837,6 +841,7 @@ const commands = [
 			.addIntegerOption(opt => opt.setName('amount5').setDescription('Number of milestones'))
 			.addUserOption(opt => opt.setName('user6').setDescription('Target player 6'))
 			.addIntegerOption(opt => opt.setName('amount6').setDescription('Number of milestones')))
+		//item
 		.addSubcommandGroup(group => group
 			.setName('item')
 			.setDescription('Item management')
@@ -914,6 +919,7 @@ const commands = [
 				)
 				.addIntegerOption(opt => opt.setName('value').setDescription('Item value in gp').setRequired(false).setMinValue(0))
 				.addStringOption(opt => opt.setName('notes').setDescription('Additional notes').setRequired(false)))
+			//import
 			.addSubcommand(sub => sub
 							.setName('import')
 							.setDescription('Import an item directly from the 5e catalogue and assign it to a player')

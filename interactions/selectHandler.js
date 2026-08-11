@@ -1,8 +1,15 @@
 module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
-        if (!interaction.isStringSelectMenu()) return;
+        if (!interaction.isStringSelectMenu() && !interaction.isUserSelectMenu()) return;
 
         try {
+            if (interaction.isUserSelectMenu()) {
+                if (interaction.customId.startsWith('questDash:')) {
+                    await require('../buttons/questDashboard').handleDashboardUserSelect(interaction);
+                }
+                return;
+            }
+
             if (interaction.customId === 'announce_edit_select') {
                 await require('../selects/announceEditSelect')(interaction, client);
             }
@@ -11,6 +18,9 @@ module.exports = (client) => {
             }
             if (interaction.customId === 'starter_items_select') {
                 await require('../selects/starterItemsSelect')(interaction, client);
+            }
+            if (interaction.customId.startsWith('questDash:')) {
+                await require('../buttons/questDashboard').handleDashboardSelect(interaction);
             }
         } catch (error) {
             if (error.code === 10062) {

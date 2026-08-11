@@ -10,9 +10,11 @@ const shopBrowse 		= require('../buttons/shopBrowse');
 const shopDiscount 		= require('../buttons/shopDiscount')
 const shopSell 			= require('../buttons/shopSell');
 const downtimeBuyDays 	= require('../buttons/downtimeBuyDays');
-const starterItems 	= require('../buttons/starterItems');
+const starterItems 		= require('../buttons/starterItems');
 const leaderboard 		= require('../buttons/leaderboard');
 const characterStatus 	= require('../buttons/characterStatus');
+const questDashboard 	= require('../buttons/questDashboard');
+const editGameCheckbox	= require('../buttons/editGameCheckbox');
 
 const exactHandlers = {
     ...memorial.exact,
@@ -35,6 +37,8 @@ const prefixHandlers = {
     ...starterItems.prefix,
     ...leaderboard.prefix,
     ...characterStatus.prefix,
+    ...questDashboard.prefix,
+    ...editGameCheckbox.prefix,
 };
 
 module.exports = (client) => {

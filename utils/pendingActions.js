@@ -30,4 +30,15 @@ function removeById(id) {
     store.save(actions.filter(a => a.id !== id));
 }
 
-module.exports = { addAction, getAll, getById, removeById };
+function updateById(id, mutator) {
+    const actions = store.load();
+    const index = actions.findIndex(a => a.id === id);
+    if (index === -1) return null;
+
+    const result = mutator(actions[index]);
+    actions[index] = result ?? actions[index];
+    store.save(actions);
+    return actions[index];
+}
+
+module.exports = { addAction, getAll, getById, removeById, updateById };

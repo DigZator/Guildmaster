@@ -9,6 +9,8 @@ const {
 const { getCachedGames } = require('../utils/cache');
 const { addAction, getAll, getById, removeById } = require('../utils/pendingActions');
 const { sendAdminLog } = require('../utils/adminLog');
+const questDrafts = require('../utils/questDrafts');
+const { buildByCharacterEmbed } = require('../utils/questReportEmbed');
 
 const DM_ROLE_ID = process.env.DM_ROLE_ID;
 
@@ -73,7 +75,7 @@ async function createQuestLogEntryWithUniqueId(opts) {
     });
 }
 
-async function getQuestSummary(questId, { milestones = null, reputation = null } = {}) {
+async function getQuestSummary(questId) {
     const quest = await getQuestById(questId);
     if (!quest) return null;
 
@@ -100,7 +102,10 @@ async function getQuestSummary(questId, { milestones = null, reputation = null }
         page.properties['Item Name']?.title?.[0]?.plain_text ?? 'Unknown Item'
     );
 
-    return { questId, questPageId, adventureName, status, goldAwarded, players, items, milestones, reputation };
+    const draft = questDrafts.getDraft(questId);
+    const queuedLines = draft?.status === questDrafts.STATUSES.DRAFT ? draft.lines : [];
+
+    return { questId, questPageId, adventureName, status, goldAwarded, players, items, queuedLines };
 }
 
 // ─── Autocomplete ─────────────────────────────────────────────────────────────
@@ -117,6 +122,42 @@ async function questLinkAutocomplete(interaction) {
             value: g.uid,
         }));
     await interaction.respond(filtered);
+}
+
+async function dashboardQuestAutocomplete(interaction) {
+    const focused = interaction.options.getFocused().toLowerCase();
+
+    let response;
+    try {
+        response = await notion.dataSources.query({
+            data_source_id: QUEST_LOG_DB_ID,
+            filter: { property: 'Status', select: { equals: 'Active' } },
+            sorts: [{ property: 'Date', direction: 'descending' }],
+            page_size: 50,
+        });
+    } catch (err) {
+        console.error('[leaguedm dashboard autocomplete] Notion error:', err);
+        return interaction.respond([]);
+    }
+
+    const choices = response.results
+        .map(page => ({
+            questId: page.properties['Quest ID']?.rich_text?.[0]?.plain_text ?? '',
+            adventureName: page.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown',
+        }))
+        .filter(({ questId, adventureName }) =>
+            questId.toLowerCase().includes(focused) || adventureName.toLowerCase().includes(focused))
+        .slice(0, 25)
+        .map(({ questId, adventureName }) => {
+            const draft = questDrafts.getDraft(questId);
+            const dmTag = draft?.dm?.username ? ` — DM: ${draft.dm.username}` : '';
+            return {
+                name: `${questId} — ${adventureName}${dmTag}`.slice(0, 100),
+                value: questId,
+            };
+        });
+
+    await interaction.respond(choices);
 }
 
 // ─── /league quest list ────────────────────────────────────────────────────────
@@ -169,7 +210,6 @@ async function handleQuestLink(interaction) {
     const gameUid = interaction.options.getString('game');
     const notes   = interaction.options.getString('notes') ?? null;
 
-    // Pull game data from cache
     const allGames = await getCachedGames();
     const game     = allGames.find(g => g.uid === gameUid);
     if (!game) {
@@ -205,6 +245,21 @@ async function handleQuestLink(interaction) {
 
 // ─── /leaguedm quest complete ─────────────────────────────────────────────────
 
+function summarizeQueuedLines(lines) {
+    if (!lines || lines.length === 0) return 'None queued';
+    const totals = { gold: 0, rep: 0, milestone: 0, item: 0 };
+    for (const line of lines) {
+        if (line.type === 'item') totals.item += 1;
+        else totals[line.type] = (totals[line.type] ?? 0) + (line.payload?.amount ?? 0);
+    }
+    const parts = [];
+    if (totals.gold)      parts.push(`${totals.gold} gp`);
+    if (totals.rep)       parts.push(`${totals.rep} rep`);
+    if (totals.milestone) parts.push(`${totals.milestone} milestone(s)`);
+    if (totals.item)      parts.push(`${totals.item} item(s)`);
+    return parts.length > 0 ? parts.join(', ') : 'None queued';
+}
+
 function buildQuestSummaryEmbed(summary, { title, color }) {
     const embed = new EmbedBuilder()
         .setColor(color)
@@ -212,9 +267,8 @@ function buildQuestSummaryEmbed(summary, { title, color }) {
         .addFields(
             { name: 'Quest',       value: `${summary.adventureName} (\`${summary.questId}\`)`, inline: false },
             { name: 'Players',     value: summary.players.length ? summary.players.join(', ') : 'None linked', inline: false },
-            { name: 'Gold Awarded', value: `${summary.goldAwarded} gp`, inline: true },
-            { name: 'Milestones',   value: `${summary.milestones}`,     inline: true },
-            { name: 'Reputation',   value: `${summary.reputation}`,     inline: true },
+            { name: 'Gold Awarded (prior)', value: `${summary.goldAwarded} gp`, inline: true },
+            { name: 'Queued Rewards', value: summarizeQueuedLines(summary.queuedLines), inline: true },
             { name: 'Items',        value: summary.items.length ? summary.items.join(', ') : 'None', inline: false },
         )
         .setTimestamp();
@@ -226,13 +280,11 @@ async function handleQuestComplete(interaction) {
         return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
     }
 
-    const questId    = interaction.options.getString('quest_id').toUpperCase();
-    const milestones = interaction.options.getInteger('milestones');
-    const reputation = interaction.options.getInteger('reputation');
+    const questId = interaction.options.getString('quest_id').toUpperCase();
 
     await interaction.deferReply({ flags: 64 });
 
-    const summary = await getQuestSummary(questId, { milestones, reputation });
+    const summary = await getQuestSummary(questId);
     if (!summary) {
         return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
     }
@@ -247,7 +299,7 @@ async function handleQuestComplete(interaction) {
 
     const confirmRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-            .setCustomId(`qc_confirm:${questId}:${milestones}:${reputation}`)
+            .setCustomId(`qc_confirm:${questId}`)
             .setLabel('Confirm')
             .setStyle(ButtonStyle.Success),
         new ButtonBuilder()
@@ -257,10 +309,65 @@ async function handleQuestComplete(interaction) {
     );
 
     return interaction.editReply({
-        content: '⚠️ This is final — once submitted and approved, you will no longer be able to add players or grants to this quest.',
+        content: `⚠️ This is final — you won't be able to grant any more rewards beyond this point. Whatever's shown as "Queued Rewards" above is exactly what will be granted and submitted for admin approval alongside the completion — a single approval covers both.`,
         embeds: [embed],
         components: [confirmRow],
     });
+}
+
+async function confirmQuestCompletion(questId, dm, guild) {
+    const draft = questDrafts.getDraft(questId);
+    const lines = (draft && draft.status === questDrafts.STATUSES.DRAFT) ? questDrafts.snapshotLines(questId) : [];
+
+    const entry = addAction({
+        type: 'quest-complete',
+        dm,
+        quest: { questId, questName: draft?.questName ?? questId, questPageId: draft?.questPageId },
+        payload: { lines },
+    });
+
+    if (draft && draft.status === questDrafts.STATUSES.DRAFT) {
+        questDrafts.setStatus(questId, questDrafts.STATUSES.SUBMITTED);
+    }
+
+    const roster = [...new Map(
+        lines.map(l => [l.characterPageId, { characterPageId: l.characterPageId, characterName: l.characterName }])
+    ).values()];
+
+    await sendAdminLog(guild, buildByCharacterEmbed({ lines, questId, questName: entry.quest.questName }, roster)
+        .setTitle(`⏳ Quest Completion — Pending (${entry.quest.questName} \`${questId}\`)`)
+        .addFields(
+            { name: 'Requested By', value: `<@${dm.discordId}>`, inline: true },
+            { name: 'Action ID',    value: `\`${entry.id}\``,    inline: true },
+        ));
+
+    return entry;
+}
+
+async function addCharacterToRoster(quest, characterId) {
+    const existing = quest.properties['Characters']?.relation?.map(r => r.id) ?? [];
+    if (existing.includes(characterId)) {
+        return { added: false, alreadyPresent: true };
+    }
+
+    const updated = [...existing, { id: characterId }];
+    await updatePageProperty(quest.id, { 'Characters': { relation: updated } });
+    quest.properties['Characters'] = { relation: updated.map(id => (typeof id === 'string' ? { id } : id)) };
+    return { added: true, alreadyPresent: false };
+}
+
+async function removeCharactersFromRoster(quest, characterIds) {
+    const existing  = quest.properties['Characters']?.relation?.map(r => r.id) ?? [];
+    const toRemove  = new Set(characterIds);
+    const remaining = existing.filter(id => !toRemove.has(id));
+
+    if (remaining.length === existing.length) {
+        return { removedCount: 0 };
+    }
+
+    await updatePageProperty(quest.id, { 'Characters': { relation: remaining.map(id => ({ id })) } });
+    quest.properties['Characters'] = { relation: remaining.map(id => ({ id })) };
+    return { removedCount: existing.length - remaining.length };
 }
 
 // ─── /leaguedm quest players add ─────────────────────────────────────────────
@@ -293,18 +400,13 @@ async function handleQuestPlayersAdd(interaction) {
 
         const charName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
 
-        // Get current characters and append
-        const existing = quest.properties['Characters']?.relation?.map(r => r.id) ?? [];
-        if (existing.includes(character.id)) {
-            results.push(`⚠️ **${charName}** — already on this quest, skipped.`);
-            continue;
-        }
-
         try {
-            await updatePageProperty(quest.id, {
-                'Characters': { relation: [...existing, { id: character.id }].map(id => typeof id === 'string' ? { id } : id) },
-            });
-            results.push(`✅ **${charName}** added to **${questName}**.`);
+            const { alreadyPresent } = await addCharacterToRoster(quest, character.id);
+            results.push(
+                alreadyPresent
+                    ? `⚠️ **${charName}** — already on this quest, skipped.`
+                    : `✅ **${charName}** added to **${questName}**.`
+            );
         } catch (err) {
             console.error(`[quest players add] Error adding ${charName}:`, err);
             results.push(`❌ **${charName}** — failed to add, check logs.`);
@@ -382,6 +484,7 @@ async function handleQuestPlayersRemove(interaction) {
     const existing  = quest.properties['Characters']?.relation?.map(r => r.id) ?? [];
     const results   = [];
     const toRemove  = new Set();
+    const removedNames = new Map();
 
     for (let i = 1; i <= 6; i++) {
         const user = interaction.options.getUser(`user${i}`);
@@ -400,13 +503,15 @@ async function handleQuestPlayersRemove(interaction) {
         }
 
         toRemove.add(character.id);
-        results.push(`✅ **${charName}** removed from **${questName}**.`);
+        removedNames.set(character.id, charName);
     }
 
     if (toRemove.size > 0) {
-        const updated = existing.filter(id => !toRemove.has(id)).map(id => ({ id }));
         try {
-            await updatePageProperty(quest.id, { 'Characters': { relation: updated } });
+            await removeCharactersFromRoster(quest, [...toRemove]);
+            for (const charName of removedNames.values()) {
+                results.push(`✅ **${charName}** removed from **${questName}**.`);
+            }
         } catch (err) {
             console.error('[quest players remove] Error updating characters:', err);
             return interaction.editReply({ content: '❌ Failed to update characters. Check logs.' });
@@ -449,6 +554,12 @@ async function approveQuestLink(entry, interaction) {
     const { adventureName, date, tier, notes, goldAwarded } = entry.payload;
 
     const { questId, page } = await createQuestLogEntryWithUniqueId({ adventureName, date, tier, notes, goldAwarded });
+
+    questDrafts.getOrCreateDraft(questId, {
+        questPageId: page.id,
+        questName: adventureName,
+        dm: entry.dm,
+    });
 
     await sendAdminLog(interaction.guild, new EmbedBuilder()
         .setColor(0x57f287)
@@ -498,9 +609,8 @@ async function approveQuestLink(entry, interaction) {
 
 const DOWNTIME_DAYS_ON_QUEST_COMPLETE = 10;
 
-async function approveQuestComplete(entry, interaction) {
+async function approveQuestComplete(entry, interaction, { appliedLinesText } = {}) {
     const { questId, questName, questPageId } = entry.quest;
-    const { milestones, reputation } = entry.payload;
 
     await updatePageProperty(questPageId, { 'Status': { select: { name: 'Completed' } } });
 
@@ -514,16 +624,37 @@ async function approveQuestComplete(entry, interaction) {
         console.error(`[approveQuestComplete] Failed to reset downtime days for ${resetFailures}/${characterIds.length} character(s) on quest ${questId}.`);
     }
 
+    questDrafts.deleteDraft(questId);
+
     await sendAdminLog(interaction.guild, new EmbedBuilder()
         .setColor(0x57f287)
         .setTitle('✅ Quest Completed')
         .addFields(
+            { name: 'Quest',         value: `${questName} (\`${questId}\`)`,   inline: false },
+            { name: 'Rewards Applied', value: appliedLinesText || 'None',      inline: false },
+            { name: 'Approved By',   value: `<@${interaction.user.id}>`,       inline: true },
+            { name: 'Requested By',  value: `<@${entry.dm.discordId}>`,        inline: true },
+            { name: 'Downtime Days', value: `Reset to ${DOWNTIME_DAYS_ON_QUEST_COMPLETE} for ${characterIds.length - resetFailures}/${characterIds.length} roster character(s)`, inline: false },
+            { name: 'Action ID',     value: `\`${entry.id}\``,                 inline: false },
+        )
+        .setTimestamp()
+    );
+}
+
+async function approveQuestCancel(entry, interaction) {
+    const { questId, questName, questPageId } = entry.quest;
+
+    await updatePageProperty(questPageId, { 'Status': { select: { name: 'Cancelled' } } });
+
+    questDrafts.deleteDraft(questId);
+
+    await sendAdminLog(interaction.guild, new EmbedBuilder()
+        .setColor(0xed4245)
+        .setTitle('🚫 Quest Cancelled')
+        .addFields(
             { name: 'Quest',        value: `${questName} (\`${questId}\`)`, inline: false },
-            { name: 'Milestones',   value: `${milestones}`,                 inline: true },
-            { name: 'Reputation',   value: `${reputation}`,                 inline: true },
             { name: 'Approved By',  value: `<@${interaction.user.id}>`,     inline: true },
             { name: 'Requested By', value: `<@${entry.dm.discordId}>`,      inline: true },
-            { name: 'Downtime Days', value: `Reset to ${DOWNTIME_DAYS_ON_QUEST_COMPLETE} for ${characterIds.length - resetFailures}/${characterIds.length} roster character(s)`, inline: false },
             { name: 'Action ID',    value: `\`${entry.id}\``,               inline: false },
         )
         .setTimestamp()
@@ -544,4 +675,4 @@ async function leagueDMQuest(interaction) {
     }
 }
 
-module.exports = { leagueDMQuest, questLinkAutocomplete, approveQuestLink, approveQuestComplete, getQuestById, listQuests, getQuestSummary, buildQuestSummaryEmbed };
+module.exports = { leagueDMQuest, questLinkAutocomplete, dashboardQuestAutocomplete, approveQuestLink, approveQuestComplete, approveQuestCancel, getQuestById, listQuests, getQuestSummary, buildQuestSummaryEmbed, addCharacterToRoster, removeCharactersFromRoster, confirmQuestCompletion };

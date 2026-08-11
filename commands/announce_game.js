@@ -1,170 +1,90 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
-const { getRoleMention, clearSessionTimeout } = require('../utils/announcementHelper');
-const { invalidateCache } = require('../utils/cache');
-const { updateGameProperties } = require('../utils/notion');
-const { addToQueue, getQueue } = require('../utils/activationQueue');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
+const { fetchGameByUID } = require('../utils/notion');
+const { isAdminChannel } = require('../utils/isAdminChannel');
+const { buildAnnouncementEmbed, buildWhatsApp, getRoleMention, getPreviewButtons, setSessionTimeout } = require('../utils/announcementHelper');
 const { sessions } = require('../utils/sessionStore');
-const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
-const { DEFAULT_REGISTRATION_LINE } = require('../data/registrationDefaults');
 
-module.exports = {
-    exact: {
-        announcement_preview_confirm: async (interaction, client) => {
-            try {
-                await interaction.deferUpdate();
-            } catch (deferError) {
-                if (deferError.code === 10062) {
-                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
-                    return;
-                }
-                throw deferError;
-            }
+module.exports = async (interaction, client) => {
+    if (!isAdminChannel(interaction)) {
+        await interaction.reply({ content: '❌ This command can only be used in mod channels.', flags: 64 });
+        return;
+    }
+    const uid = interaction.options.getString('game');
+    const isManual = interaction.options.getBoolean('manual') ?? false;
+    if (isManual) {
+        setSessionTimeout(interaction.user.id);
+        sessions.set(interaction.user.id, {
+            step: 'awaiting_message',
+            channelId: interaction.channel.id
+        });
+        await interaction.reply({
+            content: '📝 **Game Announcement - Manual Mode**\n\n' +
+                     'Please send your announcement message wrapped in triple backticks (``` ```).',
+            flags: 64
+        });
+        return;
+    }
+    if (!uid) {
+        await interaction.reply({ content: '❌ Please select a game from the dropdown.', flags: 64 });
+        return;
+    }
+    await interaction.deferReply({ flags: 64 });
+    try {
+        const game = await fetchGameByUID(uid);
+        if (!game) {
+            await interaction.editReply({ content: '❌ Game not found.' });
+            return;
+        }
+        let artWarning = '';
+        if (!game.artURL) {
+            artWarning = '⚠️ **No cover art found for this game.** Please upload an image via the Edit menu before confirming.\n\n';
+        }
+        const embed = buildAnnouncementEmbed(game, interaction.guild);
+        const whatsapp = buildWhatsApp(game);
+        sessions.set(interaction.user.id, {
+            game,
+            embed,
+            whatsapp,
+            channelId: interaction.channel.id
+        });
 
-            const session = sessions.get(interaction.user.id);
-            if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
+        const previewText = `${artWarning}**Preview:**\n\`\`\`\n${whatsapp}\n\`\`\``;
 
-            const outputChannel = interaction.guild.channels.cache.get(session.outputChannelId);
-            await outputChannel.send({
-                content: session.roleMention || '',
-                embeds: [session.embedAnnounce],
-                allowedMentions: { roles: session.roleMention ? [session.roleMention.match(/\d+/)[0]] : [] }
-            });
-
-            await interaction.editReply({ content: `✅ **Posted in <#${outputChannel.id}>!**`, embeds: [], components: [] });
-            sessions.delete(interaction.user.id);
-        },
-
-        announcement_preview_cancel: async (interaction, client) => {
-            try {
-                await interaction.deferUpdate();
-            } catch (deferError) {
-                if (deferError.code === 10062) {
-                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
-                    return;
-                }
-                throw deferError;
-            }
-
-            await interaction.editReply({ content: '❌ Announcement cancelled. You can start over anytime.', embeds: [], components: [] });
-            sessions.delete(interaction.user.id);
-        },
-
-        announce_confirm: async (interaction, client) => {
-            try {
-                await interaction.deferUpdate();
-            } catch (deferError) {
-                if (deferError.code === 10062) {
-                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
-                    return;
-                }
-                throw deferError;
-            }
-
-            const session = sessions.get(interaction.user.id);
-            if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
-
-            const outputChannelId = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
-            const outputChannel = interaction.guild.channels.cache.get(outputChannelId);
-            
-            if (!outputChannel) return interaction.editReply({ content: '❌ Output channel not found.', components: [] });
-
-            if (!session.game) {
-                await outputChannel.send({
-                    content: session.roleMention || '',
-                    embeds: [session.embedAnnounce],
-                    allowedMentions: { roles: session.roleMention ? [session.roleMention.match(/\d+/)[0]] : [] }
-                });
-            } else {
-                const roleMention = getRoleMention(session.game, interaction.guild);
-                await outputChannel.send({
-                    content: roleMention || '',
-                    embeds: [session.embed],
-                    allowedMentions: { roles: roleMention ? [roleMention.match(/\d+/)[0]] : [] }
-                });
-            }
-
-            await interaction.editReply({ content: `✅ Posted in <#${outputChannel.id}>!`, embeds: [], components: [] });
-
-            if (session.game) {
-                try {
-                    await updateGameProperties(session.game.uid, { "Show": { checkbox: true } });
-                } catch (e) {
-                    console.error('[Announcement] Failed to set Show on Notion:', e);
-                }
-            }
-
-            if (session.game) {
-                const queueData = getQueue();
-                // Only auto-queue games still using the generic default Registration Line.
-                if (queueData.autoSchedule && session.game.rline === DEFAULT_REGISTRATION_LINE) {
-                    addToQueue(session.game, interaction.user.id);
-                }
-            }
-
-            invalidateCache();
-            clearSessionTimeout(interaction.user.id);
-            sessions.delete(interaction.user.id);
-        },
-
-        announce_cancel: async (interaction, client) => {
-            try {
-                await interaction.deferUpdate();
-            } catch (deferError) {
-                if (deferError.code === 10062) {
-                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
-                    return;
-                }
-                throw deferError;
-            }
-
-            clearSessionTimeout(interaction.user.id);
-            sessions.delete(interaction.user.id);
-            await interaction.editReply({ content: '❌ Announcement cancelled.', embeds: [], components: [] });
-        },
-
-        announce_edit: async (interaction, client) => {
-            try {
-                await interaction.deferUpdate();
-            } catch (deferError) {
-                if (deferError.code === 10062) {
-                    console.warn(`[announcement] deferUpdate timed out — ${interaction.customId}`);
-                    return;
-                }
-                throw deferError;
-            }
-
-            const session = sessions.get(interaction.user.id);
-            if (!session) return interaction.editReply({ content: '❌ Session expired.', components: [] });
-
-            const selectMenu = new StringSelectMenuBuilder()
-                .setCustomId('announce_edit_select')
-                .setPlaceholder('Select a field to edit')
-                .addOptions(
-                    { label: 'Title',             value: 'title'            },
-                    { label: 'Blurb',             value: 'blurb'            },
-                    { label: 'DM',                value: 'dm'               },
-                    { label: 'System',            value: 'system'           },
-                    { label: 'Date',              value: 'date'             },
-                    { label: 'Time',              value: 'time'             },
-                    { label: 'Location / Venue',  value: 'location'         },
-                    { label: 'Classes Allowed',   value: 'classes'          },
-                    { label: 'Species Allowed',   value: 'species'          },
-                    { label: 'Level',             value: 'level'            },
-                    { label: 'Experience Level',  value: 'experienceLevel'  },
-                    { label: 'Content Warnings',  value: 'warnings'         },
-                    { label: 'Other Notes',       value: 'notes'            },
-                    { label: 'Art Credits',       value: 'artist'           },
-                    { label: 'Cover Art',         value: 'artURL'           },
-                    { label: 'Registration Link', value: 'registrationLink' },
-                    { label: 'Price',             value: 'price'            },
-                    { label: 'Register Line',     value: 'rline'            },
-                );
-
+        if (previewText.length <= 2000) {
             await interaction.editReply({
-                content: '**Select a field to edit**',
-                embeds: [],
-                components: [new ActionRowBuilder().addComponents(selectMenu)]
+                content: previewText,
+                embeds: [embed],
+                components: [getPreviewButtons()]
             });
-        },
+        } else {
+            await interaction.editReply({
+                content: artWarning || null,
+                embeds: [embed],
+                components: [getPreviewButtons()]
+            });
+
+            const chunkSize = 1900;
+            const lines = whatsapp.split('\n');
+            let currentChunk = '';
+
+            for (const line of lines) {
+                if ((currentChunk + '\n' + line).length > chunkSize && currentChunk.length > 0) {
+                    await interaction.followUp({ content: `\`\`\`\n${currentChunk}\n\`\`\``, flags: 64 });
+                    currentChunk = line;
+                } else {
+                    currentChunk = currentChunk ? currentChunk + '\n' + line : line;
+                }
+            }
+            if (currentChunk) {
+                await interaction.followUp({ content: `\`\`\`\n${currentChunk}\n\`\`\``, flags: 64 });
+            }
+        }
+
+        if (game.artURL) {
+            await interaction.followUp({ files: [game.artURL], flags: 64 });
+        }
+    } catch (error) {
+        console.error('announce_game error:', error);
+        await interaction.editReply({ content: '❌ Something went wrong. Please try again.' });
     }
 };

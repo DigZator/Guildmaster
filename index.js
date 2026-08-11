@@ -17,6 +17,7 @@ process.on('error', (error) => {
 require('./interactions/commandHandler')(client);
 require('./interactions/buttonHandler')(client);
 require('./interactions/modalHandler')(client);
+require('./interactions/threadAlertLog')(client);
 require('./flow/announcementFlow')(client);
 require('./flow/tlrSubmissionFlow')(client);
 require('./interactions/selectHandler')(client);
@@ -25,6 +26,7 @@ require('./utils/cacheWatcher').init(client);
 require('./utils/registrationDefaults').init(client);
 require('./utils/scheduler').init(client);
 require('./utils/restockScheduler').init(client);
+require('./utils/threadActivityReport').init(client);
 require('./utils/trapChannel')(client);
 require('./utils/deactivator').init(client);
 

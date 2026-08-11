@@ -76,7 +76,7 @@ module.exports = {
         },
         {
           name: '/edit_game <game> <field>',
-          description: 'Edit a field on a game in Notion. Both `game` and `field` autocomplete.',
+          description: 'Edit a field on a game in Notion. Both `game` and `field` autocomplete — includes Registration Link and Registration Line. Text/number/date fields open a form; checkbox fields (e.g. Activate) show True/False buttons instead.',
         },
         {
           name: '/get_players <game>',
@@ -311,8 +311,8 @@ module.exports = {
         'The intended workflow for running a league quest:\n' +
         '1. **Link** the announced game to the quest log with `link`, so it gets a quest ID.\n' +
         '2. **Add** the players who are on the quest with `add`.\n' +
-        '3. While the quest runs, grant rewards as they\'re earned via `/leaguedm gold`, `rep`, `milestone`, or `item create`/`item import` — each goes to admins for approval.\n' +
-        '4. Only once rewards are settled, **complete** the quest — this is logged for admins and still requires approval before it\'s finalized.\n' +
+        '3. While the quest runs, grant rewards as they\'re earned via `/leaguedm gold`, `rep`, `milestone`, or `item create`/`item import` — each goes to admins for approval. `/leaguedm dashboard` covers all of this from one interactive panel, including editing the roster, if you\'d rather not use the individual commands.\n' +
+        '4. Only once rewards are settled, **complete** the quest — this is logged for admins and still requires approval before it\'s finalized. This can also be done from the dashboard.\n' +
         'Use `remove`/`clear` if the roster needs correcting before completion.',
       commands: [
         {
@@ -338,6 +338,10 @@ module.exports = {
         {
           name: '/leaguedm quest complete <quest_id> <milestones> <reputation>',
           description: 'Mark a quest as completed, logging the total milestones/reputation given out this quest for admin review. Do this last, after rewards are granted — this only logs the totals, it does not distribute them; use gold/rep/milestone/item for that.',
+        },
+        {
+          name: '/leaguedm dashboard <quest_id>',
+          description: 'Open the live reward dashboard for a quest — an interactive panel to queue gold/rep/milestone/item rewards for the roster, edit the party, and submit the quest as complete or cancelled, all before anything is sent for admin approval. `quest_id` autocompletes to your active quests.',
         },
       ],
     },

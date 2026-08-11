@@ -3,8 +3,13 @@ const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getActiveCharacter, adjustCharacterNumber, setCharacterLevel, createInventoryItem } = require('../utils/leagueNotion');
 const { getCatalogueItemByCode, defaultPriceFor } = require('../utils/5etoolsCatalogue');
 const { applyMilestones } = require('../utils/milestones');
-const { addAction, getAll, getById, removeById } = require('../utils/pendingActions');
-const { leagueDMQuest, questLinkAutocomplete, approveQuestLink, approveQuestComplete, getQuestById, listQuests } = require('./leagueQuest');
+const { getAll, getById, removeById, updateById } = require('../utils/pendingActions');
+const { rejectReportLine, applyReportLines } = require('../utils/questReportAppliers');
+const { buildByCharacterEmbed } = require('../utils/questReportEmbed');
+const questDrafts = require('../utils/questDrafts');
+const { renderMainView, loadDashboardState } = require('../interactions/questDashboardRender');
+const { attachDashboardExpiry } = require('../utils/dashboardExpiry');
+const { leagueDMQuest, questLinkAutocomplete, approveQuestLink, approveQuestComplete, approveQuestCancel, getQuestById, listQuests } = require('./leagueQuest');
 const { leagueAdminShop, leagueAdminCatalogue } = require('./leagueShop');
 const { leagueDowntime } = require('./leagueDowntime');
 const { getRequest, removeRequest } = require('../utils/downtimeApprovals');
@@ -17,6 +22,13 @@ const { sendAdminLog } = require('../utils/adminLog');
 
 const DM_ROLE_ID = process.env.DM_ROLE_ID;
 const REP_MAX    = 2;
+
+const ENTRY_TYPE_TO_LINE_TYPE = {
+    gold: 'gold',
+    reputation: 'rep',
+    milestone: 'milestone',
+    item: 'item',
+};
 
 function extractPairs(interaction, amountGetter = 'getInteger') {
 	const pairs = [];
@@ -210,9 +222,10 @@ async function handleAdminMilestone(interaction, client) {
 
 async function runDMGrant(interaction, config) {
     const {
-        label, entryType, buildEmbedTitle, embedColor,
-        amountGetter = 'getInteger', validatePair, buildPayload, buildFields,
+        label, entryType,
+        amountGetter = 'getInteger', validatePair, buildPayload, describeAmount,
     } = config;
+    const lineType = ENTRY_TYPE_TO_LINE_TYPE[entryType];
 
     if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
         return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
@@ -225,10 +238,14 @@ async function runDMGrant(interaction, config) {
         return interaction.editReply({ content: quest.error });
     }
 
+    questDrafts.getOrCreateDraft(quest.questId, {
+        questPageId: quest.questPageId,
+        questName: quest.questName,
+        dm: { discordId: interaction.user.id, username: interaction.user.username },
+    });
+
     const pairs = extractPairs(interaction, amountGetter);
     const results = [];
-    const embedFields = [];
-    let anyOffQuest = false;
 
     for (const pair of pairs) {
         const { user, amount } = pair;
@@ -257,38 +274,21 @@ async function runDMGrant(interaction, config) {
 
         const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
         const onQuest = quest.characterIds.includes(character.id);
-        if (!onQuest) anyOffQuest = true;
+        const rosterNote = onQuest ? '' : ' ⚠️ not on quest roster';
 
         const payload = buildPayload({ character, characterName, amount });
 
-        const entry = addAction({
-            type: entryType,
-            dm: { discordId: interaction.user.id, username: interaction.user.username },
-            target: {
-                discordId: user.id,
-                username:  user.username,
-                characterName,
-                characterPageId: character.id,
-            },
-            quest: { questId: quest.questId, questName: quest.questName, questPageId: quest.questPageId },
+        const { replaced, previousPayload } = questDrafts.addOrReplaceLine(quest.questId, {
+            characterPageId: character.id,
+            characterName,
+            discordId: user.id,
+            type: lineType,
             payload,
         });
 
-        embedFields.push(...buildFields({ user, characterName, amount, onQuest, entry, payload }));
-
-        results.push(onQuest
-            ? `✅ **${characterName}** — pending approval. ID: \`${entry.id}\``
-            : `⚠️ **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
-        );
-    }
-
-    if (embedFields.length > 0) {
-        await sendAdminLog(interaction.guild, new EmbedBuilder()
-            .setColor(embedColor(anyOffQuest))
-            .setTitle(buildEmbedTitle)
-            .setDescription(`Quest: ${quest.questName} (\`${quest.questId}\`)\nRequested by <@${interaction.user.id}>`)
-            .addFields(...embedFields)
-            .setTimestamp()
+        results.push(replaced
+            ? `🔁 **${characterName}** — already had ${describeAmount(previousPayload)} queued for \`${quest.questId}\`. Replaced with your new total: ${describeAmount(payload)}.${rosterNote}`
+            : `✅ **${characterName}** — ${describeAmount(payload)} added to the quest draft.${rosterNote}`
         );
     }
 
@@ -301,8 +301,6 @@ async function handleDMRep(interaction) {
     return runDMGrant(interaction, {
         label: 'rep',
         entryType: 'reputation',
-        buildEmbedTitle: '⏳ Reputation Grants — Pending Approval',
-        embedColor: anyOffQuest => anyOffQuest ? 0xf1c40f : 0x5865f2,
         validatePair: ({ user, amount }) => amount > REP_MAX
             ? `❌ **${user.username}** — amount exceeds max (${REP_MAX}), skipped. Contact a mod.`
             : null,
@@ -310,11 +308,7 @@ async function handleDMRep(interaction) {
             amount,
             currentRep: character.properties['Reputation Points']?.number ?? 0,
         }),
-        buildFields: ({ user, characterName, amount, onQuest, entry, payload }) => [
-            { name: characterName, value: `+${amount} (was ${payload.currentRep})${onQuest ? '' : ' ⚠️ not on roster'}`, inline: true },
-            { name: 'Player',      value: `<@${user.id}>`,   inline: true },
-            { name: 'Action ID',   value: `\`${entry.id}\``, inline: true },
-        ],
+        describeAmount: payload => `+${payload.amount} rep`,
     });
 }
 
@@ -325,8 +319,6 @@ async function handleDMGold(interaction) {
         label: 'gold',
         entryType: 'gold',
         amountGetter: 'getNumber',
-        buildEmbedTitle: '⏳ Gold Grants — Pending Approval',
-        embedColor: () => 0xf1c40f,
         validatePair: ({ user, amount }) => amount < 0
             ? `❌ **${user.username}** — DMs cannot grant negative gold, skipped.`
             : null,
@@ -334,12 +326,7 @@ async function handleDMGold(interaction) {
             amount,
             currentGold: character.properties['Gold']?.number ?? 0,
         }),
-        buildFields: ({ user, characterName, amount, onQuest, entry, payload }) => [
-            { name: characterName, value: `+${amount} gp (was ${payload.currentGold} gp)`, inline: true },
-            { name: 'Player',      value: `<@${user.id}>`,   inline: true },
-            { name: 'Action ID',   value: `\`${entry.id}\``, inline: true },
-            ...(onQuest ? [] : [{ name: '⚠️', value: 'Not on quest roster', inline: true }]),
-        ],
+        describeAmount: payload => `${payload.amount} gp`,
     });
 }
 
@@ -349,20 +336,42 @@ async function handleDMMilestone(interaction) {
     return runDMGrant(interaction, {
         label: 'milestone',
         entryType: 'milestone',
-        buildEmbedTitle: '⏳ Milestone Grants — Pending Approval',
-        embedColor: anyOffQuest => anyOffQuest ? 0xf1c40f : 0x5865f2,
         buildPayload: ({ character, amount }) => ({
             amount,
             currentMilestones: character.properties['Milestones']?.number ?? 0,
             currentLevel: character.properties['Level']?.number ?? 1,
         }),
-        buildFields: ({ user, characterName, amount, onQuest, entry, payload }) => [
-            { name: characterName, value: `+${amount} (Lvl ${payload.currentLevel}, was ${payload.currentMilestones} ms)${onQuest ? '' : ' ⚠️ not on roster'}`, inline: true },
-            { name: 'Player',      value: `<@${user.id}>`,   inline: true },
-            { name: 'Action ID',   value: `\`${entry.id}\``, inline: true },
-        ],
+        describeAmount: payload => `${payload.amount} milestone(s)`,
     });
 }
+
+// ─── /leaguedm dashboard ──────────────────────────────────────────────────────
+
+async function handleDashboard(interaction) {
+    await interaction.deferReply();
+
+    const questId = interaction.options.getString('quest_id');
+
+    let state;
+    try {
+        state = await loadDashboardState(questId, {
+            discordId: interaction.user.id,
+            username: interaction.user.username,
+        });
+    } catch (err) {
+        if (err.message?.startsWith('❌')) {
+            return interaction.editReply({ content: err.message });
+        }
+        console.error('[leaguedm dashboard] Error loading dashboard state:', err);
+        return interaction.editReply({ content: '❌ Could not load the dashboard. Please try again.' });
+    }
+
+    const payload = renderMainView(state.draft, state.roster, { grouping: 'character', quest: state.quest });
+    const message = await interaction.editReply(payload);
+    attachDashboardExpiry(message, state.questId);
+    return message;
+}
+
 // ─── /leagueadmin pending ─────────────────────────────────────────────────────
 
 async function handlePending(interaction) {
@@ -372,17 +381,33 @@ async function handlePending(interaction) {
 
     await interaction.deferReply({ flags: 64 });
 
-    const actions = getAll().filter(a => a.status === 'pending');
+    const actions = getAll().filter(a => a.status === 'pending' || a.status === 'partially_failed');
 
     if (actions.length === 0) {
         return interaction.editReply({ content: '✅ No pending actions.' });
     }
 
     const lines = actions.map(a => {
+        const timestamp = `<t:${Math.floor(new Date(a.createdAt).getTime() / 1000)}:R>`;
+
+        if (a.type === 'quest-report') {
+            const allLines = a.payload?.lines ?? [];
+            const characterCount = new Set(allLines.map(l => l.characterPageId)).size;
+            const rejectedCount = allLines.filter(l => l.lineStatus === 'rejected').length;
+            const failedCount = allLines.filter(l => l.applyStatus === 'failed').length;
+            const notes = [
+                a.status === 'partially_failed' ? '⚠️ partially failed' : null,
+                rejectedCount > 0 ? `${rejectedCount} admin-rejected` : null,
+                failedCount > 0 ? `${failedCount} failed` : null,
+            ].filter(Boolean).join(', ');
+            const label = `${allLines.length} line item(s) across ${characterCount} character(s)${notes ? ` (${notes})` : ''} — ${a.quest?.questName ?? a.quest?.questId ?? 'Unknown quest'}`;
+            return `\`${a.id}\` — **quest-report** | ${label} | Requested by <@${a.dm.discordId}> | ${timestamp}`;
+        }
+
         const label = a.target?.characterName
             ? `${a.target.characterName} (+${a.payload?.amount})`
             : a.quest?.questName ?? 'Unknown';
-        return `\`${a.id}\` — **${a.type}** | ${label} | Requested by <@${a.dm.discordId}> | <t:${Math.floor(new Date(a.createdAt).getTime() / 1000)}:R>`;
+        return `\`${a.id}\` — **${a.type}** | ${label} | Requested by <@${a.dm.discordId}> | ${timestamp}`;
     });
 
     const embed = new EmbedBuilder()
@@ -519,9 +544,99 @@ async function handleApprove(interaction, client) {
             }
             
             if (entry.type === 'quest-complete') {
-                await approveQuestComplete(entry, interaction);
-                results.push(`✅ \`${id}\` — **${entry.quest.questName}** marked completed.`);
-				removeById(id);
+                const summary = await applyReportLines(entry, { client, guild: interaction.guild });
+                updateById(id, () => entry);
+
+                if (summary.allResolved) {
+                    const appliedLines = entry.payload.lines.filter(l => l.applyStatus === 'applied');
+                    const appliedLinesText = appliedLines.length > 0
+                        ? appliedLines.map(l => `**${l.characterName}** — ${l.type}: ${l.applyResult}`).join('\n')
+                        : 'None';
+
+                    await approveQuestComplete(entry, interaction, { appliedLinesText });
+                    results.push(`✅ \`${id}\` — **${entry.quest.questName}** completed, ${appliedLines.length} reward line(s) applied.`);
+                } else {
+                    entry.status = 'partially_failed';
+                    updateById(id, () => entry);
+
+                    const failedDetail = summary.failed.map(l => `**${l.characterName}** — ${l.type}: ${l.applyError}`).join('\n');
+                    await sendAdminLog(interaction.guild, new EmbedBuilder()
+                        .setColor(0xe67e22)
+                        .setTitle(`⚠️ Manual Attention Needed — Quest Completion ${entry.quest?.questId ?? ''}`)
+                        .setDescription('The quest has **not** been marked Completed yet — fix the failed line(s) below and re-approve to finish closing it out.')
+                        .addFields(
+                            { name: 'Requested By', value: `<@${entry.dm.discordId}>`, inline: true },
+                            { name: 'Action ID',    value: `\`${entry.id}\``,          inline: true },
+                            { name: 'Applied',      value: `${summary.applied.length}`, inline: true },
+                            { name: 'Failed lines', value: failedDetail || 'None',     inline: false },
+                        )
+                        .setTimestamp()
+                    );
+
+                    try {
+                        const dmUser = await interaction.client.users.fetch(entry.dm.discordId);
+                        await dmUser.send({ content: `Your completion for \`${entry.quest?.questId}\` hit an error on one or more reward lines — the quest hasn't been closed yet. Admins have been notified and are looking into it.` });
+                    } catch (err) {
+                        console.warn(`[leagueadmin approve] Failed to DM ${entry.dm.discordId} about partial failure:`, err.message);
+                    }
+
+                    results.push(`⚠️ \`${id}\` — quest completion partially applied (${summary.applied.length} ok, ${summary.failed.length} failed). Quest NOT marked completed — left pending for manual fix + re-approve.`);
+                }
+                continue;
+            }
+
+            if (entry.type === 'quest-cancel') {
+                await approveQuestCancel(entry, interaction);
+                results.push(`✅ \`${id}\` — **${entry.quest.questName}** cancelled.`);
+                removeById(id);
+                continue;
+            }
+
+            if (entry.type === 'quest-report') {
+                const summary = await applyReportLines(entry, { client, guild: interaction.guild });
+                updateById(id, () => entry);
+
+                const skippedNote = summary.skipped.length > 0
+                    ? ` (${summary.skipped.length} admin-rejected line(s) left out)`
+                    : '';
+
+                if (summary.allResolved) {
+                    if (entry.quest?.questId) questDrafts.deleteDraft(entry.quest.questId);
+                    removeById(id);
+
+                    const appliedLines = entry.payload.lines.filter(l => l.applyStatus === 'applied');
+                    await sendAdminLog(interaction.guild, buildByCharacterEmbed(
+                        { ...entry.payload, lines: appliedLines, questId: entry.quest?.questId, questName: entry.quest?.questName, status: 'approved' },
+                        [...new Map(appliedLines.map(l => [l.characterPageId, { characterPageId: l.characterPageId, characterName: l.characterName }])).values()],
+                    ).setTitle(`✅ Quest Report Approved — ${entry.quest?.questName ?? ''} (\`${entry.quest?.questId ?? '?'}\`)${skippedNote}`));
+
+                    results.push(`✅ \`${id}\` — quest report for **${entry.quest?.questName ?? entry.quest?.questId}** approved${skippedNote}.`);
+                } else {
+                    entry.status = 'partially_failed';
+                    updateById(id, () => entry);
+
+                    const failedDetail = summary.failed.map(l => `**${l.characterName}** — ${l.type}: ${l.applyError}`).join('\n');
+                    await sendAdminLog(interaction.guild, new EmbedBuilder()
+                        .setColor(0xe67e22)
+                        .setTitle(`⚠️ Manual Attention Needed — Quest Report ${entry.quest?.questId ?? ''}`)
+                        .addFields(
+                            { name: 'Requested By', value: `<@${entry.dm.discordId}>`, inline: true },
+                            { name: 'Action ID',    value: `\`${entry.id}\``,          inline: true },
+                            { name: 'Applied',      value: `${summary.applied.length}`, inline: true },
+                            { name: 'Failed lines', value: failedDetail || 'None',     inline: false },
+                        )
+                        .setTimestamp()
+                    );
+
+                    try {
+                        const dmUser = await interaction.client.users.fetch(entry.dm.discordId);
+                        await dmUser.send({ content: `Your report for \`${entry.quest?.questId}\` was approved — most rewards were granted, but one or more items hit an error. Admins have been notified and are looking into it.` });
+                    } catch (err) {
+                        console.warn(`[leagueadmin approve] Failed to DM ${entry.dm.discordId} about partial failure:`, err.message);
+                    }
+
+                    results.push(`⚠️ \`${id}\` — quest report partially applied (${summary.applied.length} ok, ${summary.failed.length} failed)${skippedNote}. Left pending for manual fix + re-approve.`);
+                }
                 continue;
             }
 
@@ -545,7 +660,13 @@ async function handleReject(interaction) {
     }
 
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
+    const reason = interaction.options.getString('reason');
+    const lineId = interaction.options.getString('line');
     await interaction.deferReply({ flags: 64 });
+
+    if (lineId && ids.length !== 1) {
+        return interaction.editReply({ content: '❌ `line` can only be used when rejecting a single `id`.' });
+    }
 
     const results = [];
 
@@ -553,6 +674,113 @@ async function handleReject(interaction) {
         const entry = getById(id);
         if (!entry) {
             results.push(`❌ \`${id}\` — not found.`);
+            continue;
+        }
+
+        if (lineId) {
+            if (entry.type !== 'quest-report' && entry.type !== 'quest-complete') {
+                results.push(`❌ \`${id}\` — \`line\` is only valid for quest-report / quest-complete entries.`);
+                continue;
+            }
+            let line;
+            try {
+                line = rejectReportLine(entry, lineId, reason ?? 'No reason given.');
+            } catch (err) {
+                results.push(`❌ \`${id}\` — ${err.message}`);
+                continue;
+            }
+            updateById(id, () => entry);
+
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0xed4245)
+                .setTitle('❌ Quest Report Line Rejected')
+                .setDescription('This line is left out of the report — the DM will not be asked to fix or resubmit it.')
+                .addFields(
+                    { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
+                    { name: 'Character',    value: line.characterName,                  inline: true },
+                    { name: 'Line Type',    value: line.type,                           inline: true },
+                    { name: 'Rejected By',  value: `<@${interaction.user.id}>`,         inline: true },
+                    { name: 'Reason',       value: reason ?? 'No reason given.',        inline: false },
+                    { name: 'Action ID',    value: `\`${entry.id}\` (line \`${lineId}\`)`, inline: false },
+                )
+                .setTimestamp()
+            );
+
+            results.push(`✅ \`${id}\` — line \`${lineId}\` (**${line.characterName}**, ${line.type}) rejected and left out. Report \`${id}\` still pending for the rest.`);
+            continue;
+        }
+
+        if (entry.type === 'quest-report' || entry.type === 'quest-complete') {
+            if (!reason) {
+                results.push(`❌ \`${id}\` — a \`reason\` is required to reject a quest completion.`);
+                continue;
+            }
+
+            if (entry.quest?.questId) questDrafts.restoreDraft(entry.quest.questId);
+            removeById(id);
+
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0xed4245)
+                .setTitle('❌ Quest Completion Rejected')
+                .addFields(
+                    { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
+                    { name: 'Rejected By',  value: `<@${interaction.user.id}>`,     inline: true },
+                    { name: 'Requested By', value: `<@${entry.dm.discordId}>`,      inline: true },
+                    { name: 'Reason',       value: reason,                          inline: false },
+                    { name: 'Action ID',    value: `\`${entry.id}\``,               inline: false },
+                )
+                .setTimestamp()
+            );
+
+            try {
+                const dmUser = await interaction.client.users.fetch(entry.dm.discordId);
+                await dmUser.send({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setColor(0xed4245)
+                            .setTitle('Your quest completion was rejected')
+                            .setDescription(
+                                `**Quest:** ${entry.quest?.questName ?? 'Unknown'} (\`${entry.quest?.questId ?? '?'}\`)\n` +
+                                `**Reason:** ${reason}\n\n` +
+                                `The quest is still Active and your draft has been restored with everything you had — run \`/leaguedm dashboard ${entry.quest?.questId ?? ''}\` to make changes and try Complete Quest again.`
+                            )
+                            .setTimestamp()
+                    ]
+                });
+            } catch (err) {
+                console.warn(`[leagueadmin reject] Failed to DM ${entry.dm.discordId}:`, err.message);
+            }
+
+            results.push(`✅ \`${id}\` — quest completion for **${entry.quest?.questName ?? entry.quest?.questId}** rejected, draft restored to DM.`);
+            continue;
+        }
+
+        // ── Quest cancellation reject ──
+        if (entry.type === 'quest-cancel') {
+            removeById(id);
+
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0xed4245)
+                .setTitle('❌ Quest Cancellation Rejected')
+                .addFields(
+                    { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
+                    { name: 'Rejected By',  value: `<@${interaction.user.id}>`, inline: true },
+                    { name: 'Requested By', value: `<@${entry.dm.discordId}>`,  inline: true },
+                    { name: 'Action ID',    value: `\`${entry.id}\``,           inline: false },
+                )
+                .setTimestamp()
+            );
+
+            try {
+                const dmUser = await interaction.client.users.fetch(entry.dm.discordId);
+                await dmUser.send({
+                    content: `Your request to cancel quest **${entry.quest?.questName ?? entry.quest?.questId}** was rejected. The quest remains active.`,
+                });
+            } catch (err) {
+                console.warn(`[leagueadmin reject] Failed to DM ${entry.dm.discordId}:`, err.message);
+            }
+
+            results.push(`✅ \`${id}\` — quest cancellation for **${entry.quest?.questName ?? entry.quest?.questId}** rejected, quest remains active.`);
             continue;
         }
 
@@ -816,7 +1044,7 @@ async function handleAdminItemImport(interaction) {
 // ─── Shared DM item-grant executor ─────────────────────────────────────────────
 
 async function runDMItemGrant(interaction, config) {
-    const { label, embedTitle, resolveItem, entryPrefix } = config;
+    const { label, resolveItem, entryPrefix } = config;
 
     if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
         return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
@@ -848,45 +1076,24 @@ async function runDMItemGrant(interaction, config) {
 
     const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
     const onQuest = quest.characterIds.includes(character.id);
+    const rosterNote = onQuest ? '' : ' ⚠️ not on quest roster';
 
-    const entry = addAction({
-        type: 'item',
+    questDrafts.getOrCreateDraft(quest.questId, {
+        questPageId: quest.questPageId,
+        questName: quest.questName,
         dm: { discordId: interaction.user.id, username: interaction.user.username },
-        target: {
-            discordId: targetUser.id,
-            username:  targetUser.username,
-            characterName,
-            characterPageId: character.id,
-        },
-        quest: { questId: quest.questId, questName: quest.questName, questPageId: quest.questPageId },
+    });
+
+    questDrafts.addOrReplaceLine(quest.questId, {
+        characterPageId: character.id,
+        characterName,
+        discordId: targetUser.id,
+        type: 'item',
         payload: { itemName, type, subtype, rarity, itemValue, source, notes },
     });
 
-    const embedFields = [
-        { name: 'Quest',        value: `${quest.questName} (\`${quest.questId}\`)`, inline: false },
-        { name: 'Item',         value: itemName,                       inline: true },
-        { name: 'Type',         value: `${type}${subtype ? ` — ${subtype}` : ''}`, inline: true },
-        { name: 'Rarity',       value: rarity,                         inline: true },
-        ...extraEmbedFields,
-        { name: 'Character',    value: characterName,                   inline: true },
-        { name: 'Player',       value: `<@${targetUser.id}>`,           inline: true },
-        { name: 'Requested By', value: `<@${interaction.user.id}>`,     inline: true },
-    ];
-    if (!onQuest) {
-        embedFields.push({ name: '⚠️ Warning', value: `**${characterName}** is not on the quest roster for \`${quest.questId}\`.`, inline: false });
-    }
-    embedFields.push({ name: 'Action ID', value: `\`${entry.id}\``, inline: false });
-
-    await sendAdminLog(interaction.guild, new EmbedBuilder()
-        .setColor(onQuest ? 0x5865f2 : 0xf1c40f)
-        .setTitle(embedTitle)
-        .addFields(...embedFields)
-        .setTimestamp()
-    );
-
-    return interaction.editReply({ content: onQuest
-        ? `✅ ${entryPrefix(itemName, resolvedItem)} for **${characterName}** — pending approval. ID: \`${entry.id}\``
-        : `⚠️ ${entryPrefix(itemName, resolvedItem)} for **${characterName}** — pending approval (not on quest roster). ID: \`${entry.id}\``
+    return interaction.editReply({
+        content: `✅ ${entryPrefix(itemName, resolvedItem)} for **${characterName}** added to the quest draft for \`${quest.questId}\`.${rosterNote}`,
     });
 }
 
@@ -1018,6 +1225,7 @@ async function leagueDM(interaction, client) {
 	if (sub === 'rep')       return handleDMRep(interaction);
 	if (sub === 'gold')      return handleDMGold(interaction);
 	if (sub === 'milestone') return handleDMMilestone(interaction);
+	if (sub === 'dashboard') return handleDashboard(interaction);
 }
 
-module.exports = { leagueAdmin, leagueDM, leagueDowntime };
+module.exports = { leagueAdmin, leagueDM, leagueDowntime, REP_MAX };
