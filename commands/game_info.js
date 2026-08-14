@@ -3,7 +3,7 @@ const { fetchGameByUID } = require('../utils/notion');
 
 module.exports = async (interaction, client) => {
     const uid = interaction.options.getString('uid');
-    const isPublic = interaction.options.getBoolean('public') ?? false;
+    const isPublic = interaction.options.getBoolean('public') ?? true;
     await interaction.deferReply({ flags: isPublic ? 0 : 64 });
     try {
         const game = await fetchGameByUID(uid);

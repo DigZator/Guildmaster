@@ -7,8 +7,8 @@ const { FEEDS_CHANNEL_ID } = require('../data/channels');
 const parser = new Parser();
 
 module.exports = async (interaction, client) => {
-    if (!isAdminChannel(interaction)) {
-        return interaction.reply({ content: '❌ You do not have permission to manage RSS feeds.', flags: 64 });
+    if (!isAdminChannel(interaction, 'botChannelAdmin')) {
+        return interaction.reply({ content: '❌ This command can only be used by admins in the admin channel.', flags: 64 });
     }
 
     const sub = interaction.options.getSubcommand();

@@ -38,6 +38,7 @@ const { availableDiscounts } = require('../config/reputationDiscounts');
 const { setPendingBuy } = require('../utils/shopBuySessions');
 const { setPendingSell } = require('../utils/shopSellSessions');
 const { sendAdminLog } = require('../utils/adminLog');
+const { isAdminChannel } = require('../utils/isAdminChannel');
 
 const PAGE_SIZE = 12;
 const MARKETPLACE_TAX_RATE = 0.25;
@@ -878,6 +879,10 @@ async function leagueShop(interaction) {
 }
 
 async function leagueAdminShop(interaction) {
+    if (!isAdminChannel(interaction, 'league')) {
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
+    }
+
     const sub = interaction.options.getSubcommand();
     switch (sub) {
         case 'stock':   	return handleAdminShopStock(interaction);
@@ -888,6 +893,10 @@ async function leagueAdminShop(interaction) {
 }
 
 async function leagueAdminCatalogue(interaction) {
+    if (!isAdminChannel(interaction, 'league')) {
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
+    }
+
     const sub = interaction.options.getSubcommand();
     switch (sub) {
         case 'sync': return handleAdminCatalogueSync(interaction);

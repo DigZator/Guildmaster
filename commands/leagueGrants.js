@@ -42,6 +42,13 @@ function extractPairs(interaction, amountGetter = 'getInteger') {
 
 // ─── Quest validation (used by gold/rep/milestone/item grant commands) ───────
 
+function isDMOnQuest(interaction, questId) {
+    const draft = questDrafts.getDraft(questId);
+    const ownerId = draft?.dm?.discordId;
+    if (!ownerId) return false;
+    return ownerId === interaction.user.id;
+}
+
 async function resolveActiveQuest(interaction) {
     const questId = interaction.options.getString('quest_id')?.toUpperCase();
     if (!questId) return { error: '❌ `quest_id` is required.' };
@@ -80,7 +87,7 @@ async function runAdminGrant(interaction, config) {
     const { label, getAmount, validateAmount, mutate, buildEmbed, buildReply } = config;
 
     if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
     }
 
     const amount = getAmount(interaction);
@@ -237,6 +244,9 @@ async function runDMGrant(interaction, config) {
     if (quest.error) {
         return interaction.editReply({ content: quest.error });
     }
+    if (!isDMOnQuest(interaction, quest.questId)) {
+        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
+    }
 
     questDrafts.getOrCreateDraft(quest.questId, {
         questPageId: quest.questPageId,
@@ -348,6 +358,10 @@ async function handleDMMilestone(interaction) {
 // ─── /leaguedm dashboard ──────────────────────────────────────────────────────
 
 async function handleDashboard(interaction) {
+    if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
+        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
+    }
+
     await interaction.deferReply();
 
     const questId = interaction.options.getString('quest_id');
@@ -376,7 +390,7 @@ async function handleDashboard(interaction) {
 
 async function handlePending(interaction) {
     if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
     }
 
     await interaction.deferReply({ flags: 64 });
@@ -423,7 +437,7 @@ async function handlePending(interaction) {
 
 async function handleApprove(interaction, client) {
     if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
     }
 
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
@@ -656,7 +670,7 @@ async function handleApprove(interaction, client) {
 
 async function handleReject(interaction) {
     if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
     }
 
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
@@ -808,6 +822,10 @@ async function handleReject(interaction) {
 }
 
 async function handleAdminDowntimeApprove(interaction) {
+    if (!isAdminChannel(interaction, 'league')) {
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
+    }
+
     await interaction.deferReply({ flags: 64 });
     const id = interaction.options.getString('id').toUpperCase();
 
@@ -926,7 +944,7 @@ async function runAdminItemGrant(interaction, config) {
     const { label, replyVerb, embedTitle, resolveItem, successMessage } = config;
 
     if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
     }
 
     await interaction.deferReply({ flags: 64 });
@@ -1056,6 +1074,9 @@ async function runDMItemGrant(interaction, config) {
     if (quest.error) {
         return interaction.editReply({ content: quest.error });
     }
+    if (!isDMOnQuest(interaction, quest.questId)) {
+        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
+    }
 
     const resolvedItem = resolveItem(interaction);
     if (resolvedItem.error) return interaction.editReply({ content: resolvedItem.error });
@@ -1142,7 +1163,7 @@ async function handleDMItemImport(interaction) {
 
 async function handleAdminAuditCharacters(interaction) {
     if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ This command can only be used in the league admin channel.', flags: 64 });
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
     }
 
     await interaction.deferReply({ flags: 64 });

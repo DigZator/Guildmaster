@@ -47,8 +47,8 @@ function buildQueueSummary(data) {
 }
 
 module.exports = async (interaction, client) => {
-    if (!isAdminChannel(interaction)) {
-        await interaction.reply({ content: '❌ This command can only be used in mod channels.', flags: 64 });
+    if (!isAdminChannel(interaction, 'botChannelAdmin')) {
+        await interaction.reply({ content: '❌ This command can only be used by admins in the mod channel.', flags: 64 });
         return;
     }
 
@@ -73,6 +73,11 @@ module.exports = async (interaction, client) => {
         const activationMinutes = ah * 60 + am;
         
         const added = addToQueue(game, interaction.user.id);
+
+        if (added === 'custom_form') {
+            await interaction.reply({ content: `⚠️ **${game.title}** has a custom registration form and cannot be added to the activation scheduler.`, flags: 64 });
+            return;
+        }
 
         if (!added) {
             await interaction.reply({ content: `⚠️ **${game.title}** is already in the queue.`, flags: 64 });

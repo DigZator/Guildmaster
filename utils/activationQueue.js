@@ -23,6 +23,7 @@ function writeQueue(data) {
 }
 
 function addToQueue(game, userId) {
+    if (game.registrationLink) return 'custom_form';
     const data = getQueue();
     if (data.queue.find(g => g.uid === game.uid)) return false;
     data.queue.push({

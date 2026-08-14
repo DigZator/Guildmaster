@@ -4,8 +4,8 @@ const { formatPlayerList } = require('../utils/fillout');
 
 module.exports = async (interaction) => {
     // --- Admin-only gate ---------------------------------------------------
-    if (!isAdminChannel(interaction)) {
-        await interaction.reply({ content: '❌ This command can only be used in the admin channel.', flags: 64 });
+    if (!isAdminChannel(interaction, 'botAdmin')) {
+        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
         return;
     }
     // ------------------------------------------------------------------------

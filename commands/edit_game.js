@@ -8,8 +8,8 @@ const editGameSession = require('../utils/editGameSession');
 const MAX_MODAL_VALUE_LENGTH = 4000;
 
 module.exports = async (interaction) => {
-    if (!isAdminChannel(interaction)) {
-        await interaction.reply({ content: '❌ This command can only be used in the admin channel.', flags: 64 });
+    if (!isAdminChannel(interaction, 'botAdmin')) {
+        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
         return;
     }
 

@@ -1,5 +1,7 @@
 const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
 
+const TLR_MOD_ROLE_IDS = [process.env.ADMINS_ROLE_ID, process.env.CLERK_OF_MORTAL_AFFAIRS_ROLE_ID].filter(Boolean);
+
 module.exports = {
 
     prefix: {
@@ -21,7 +23,7 @@ module.exports = {
             const authorIdMatch = footerText.match(/AuthorID:\s*(\d{17,19})/);
             const authorId     = authorIdMatch?.[1] ?? null;
             const isAuthor     = authorId === interaction.user.id;
-            const isMod        = interaction.member.roles.cache.some(r => r.name === 'Mods');
+            const isMod        = TLR_MOD_ROLE_IDS.length > 0 && interaction.member.roles.cache.some(r => TLR_MOD_ROLE_IDS.includes(r.id));
 
             if (!isAuthor && !isMod) return interaction.reply({ content: 'You do not have permission to delete this message.', flags: 64 });
 

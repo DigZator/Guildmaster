@@ -34,11 +34,13 @@ async function loadDashboardState(questId, requestingUser) {
             species: char.properties['Species']?.rich_text?.[0]?.plain_text ?? null,
         }));
 
-    const draft = questDrafts.getOrCreateDraft(upperId, {
-        questPageId: quest.id,
-        questName,
-        dm: requestingUser ?? null,
-    });
+    const draft = questDrafts.getDraft(upperId);
+    if (!draft) {
+        throw new Error(`❌ No active draft for quest \`${upperId}\`. It must be approved (via /leaguedm quest link) before a dashboard exists.`);
+    }
+    if (draft.dm?.discordId !== requestingUser?.discordId) {
+        throw new Error('❌ You are not the DM assigned to this quest.');
+    }
 
     return { quest, questId: upperId, questName, roster, draft };
 }

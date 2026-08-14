@@ -5,8 +5,8 @@ const { buildAnnouncementEmbed, buildWhatsApp, getRoleMention, getPreviewButtons
 const { sessions } = require('../utils/sessionStore');
 
 module.exports = async (interaction, client) => {
-    if (!isAdminChannel(interaction)) {
-        await interaction.reply({ content: '❌ This command can only be used in mod channels.', flags: 64 });
+    if (!isAdminChannel(interaction, 'botAdmin')) {
+        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
         return;
     }
     const uid = interaction.options.getString('game');

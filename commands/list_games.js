@@ -1,4 +1,3 @@
-// const { fetchGames } = require('../utils/notion');
 const { getCachedGames } = require('../utils/cache');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { buildEmbed } = require('../utils/listGamesHelper');
@@ -34,13 +33,12 @@ module.exports = async (interaction, client) => {
     const typeFilter = interaction.options.getString('type_filter');
     const browsing = interaction.options.getBoolean('browsing') ?? false;
     const n = interaction.options.getInteger('n');
-    const isPublic = interaction.options.getBoolean('public') ?? false;
+    const isPublic = interaction.options.getBoolean('public') ?? true;
     const isAdmin = isAdminChannel(interaction);
 
     await interaction.deferReply({ flags: isPublic ? 0 : 64 });
 
     try {
-        // const allGames = await fetchGames();
         const allGames = await getCachedGames();
         let filtered = applyFilters(allGames, { formatFilter, typeFilter, browsing, isAdmin });
 

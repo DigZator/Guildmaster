@@ -13,6 +13,38 @@ const previewButtons = new ActionRowBuilder().addComponents(
         .setStyle(ButtonStyle.Danger)
 )
 
+async function validateImageURL(url) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    try {
+        let res = await fetch(url, { method: 'HEAD', signal: controller.signal, redirect: 'follow' });
+
+        if (!res.ok || !res.headers.get('content-type')) {
+            res = await fetch(url, {
+                method: 'GET',
+                headers: { Range: 'bytes=0-1024' },
+                signal: controller.signal,
+                redirect: 'follow'
+            });
+        }
+
+        if (!res.ok) return { valid: false, reason: `URL returned status ${res.status}.` };
+
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.startsWith('image/')) {
+            return { valid: false, reason: `URL does not point to an image (got "${contentType || 'unknown'}").` };
+        }
+
+        return { valid: true };
+    } catch (err) {
+        if (err.name === 'AbortError') return { valid: false, reason: 'URL took too long to respond.' };
+        return { valid: false, reason: 'Could not reach that URL.' };
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
 module.exports = async (interaction, client) => {
     if (!interaction.isModalSubmit()) return;
     if (interaction.customId !== "characterSubmission_2") return;
@@ -34,14 +66,24 @@ module.exports = async (interaction, client) => {
     const portraitURL = interaction.fields.getTextInputValue('portraitURL');
     const embedColorInput = interaction.fields.getTextInputValue('embedColor');
 
+    const imageCheck = await validateImageURL(portraitURL);
+    if (!imageCheck.valid) {
+        await interaction.editReply({
+            content: `❌ **Portrait URL is invalid:** ${imageCheck.reason}\n\nPlease start over with a direct link to an image (e.g. ending in .png/.jpg, or a Discord CDN link).`,
+            flags: 64
+        });
+        return;
+    }
+
     let embedColor = 0xFFFFFF;
 
     if (embedColorInput) {
-        try {
-            const cleanColor = embedColorInput.replace('#', '');
-            embedColor = parseInt(cleanColor, 16);
-        } catch (err) {
-            console.log('Invalid color, using default');
+        const cleanColor = embedColorInput.replace('#', '');
+        const parsedColor = parseInt(cleanColor, 16);
+        if (!Number.isNaN(parsedColor) && /^[0-9a-fA-F]{6}$/.test(cleanColor)) {
+            embedColor = parsedColor;
+        } else {
+            console.log('Invalid color format, using default');
         }
     }
 

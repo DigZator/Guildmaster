@@ -26,6 +26,13 @@ function isDM(interaction) {
     return interaction.member.roles.cache.has(DM_ROLE_ID);
 }
 
+function isDMOnQuest(interaction, questId) {
+    const draft = questDrafts.getDraft(questId);
+    const ownerId = draft?.dm?.discordId;
+    if (!ownerId) return false;
+    return ownerId === interaction.user.id;
+}
+
 async function generateQuestId() {
     let id, exists;
     do {
@@ -291,6 +298,9 @@ async function handleQuestComplete(interaction) {
     if (summary.status !== 'Active') {
         return interaction.editReply({ content: `❌ Quest must be **Active** to complete. Current status: ${summary.status}.` });
     }
+    if (!isDMOnQuest(interaction, questId)) {
+        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
+    }
 
     const embed = buildQuestSummaryEmbed(summary, {
         title: '📋 Confirm Quest Completion',
@@ -384,6 +394,9 @@ async function handleQuestPlayersAdd(interaction) {
     if (!quest) {
         return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
     }
+    if (!isDMOnQuest(interaction, questId)) {
+        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
+    }
 
     const questName = quest.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown';
     const results   = [];
@@ -429,6 +442,9 @@ async function handleQuestPlayersList(interaction) {
     const quest   = await getQuestById(questId);
     if (!quest) {
         return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
+    }
+    if (!isDMOnQuest(interaction, questId)) {
+        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
     }
 
     const questName     = quest.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown';
@@ -478,6 +494,9 @@ async function handleQuestPlayersRemove(interaction) {
     const quest   = await getQuestById(questId);
     if (!quest) {
         return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
+    }
+    if (!isDMOnQuest(interaction, questId)) {
+        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
     }
 
     const questName = quest.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown';
@@ -534,6 +553,9 @@ async function handleQuestPlayersClear(interaction) {
     const quest   = await getQuestById(questId);
     if (!quest) {
         return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
+    }
+    if (!isDMOnQuest(interaction, questId)) {
+        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
     }
 
     const questName = quest.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown';

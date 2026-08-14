@@ -4,6 +4,7 @@ const { invalidateCache } = require('../utils/cache');
 const { updateGameProperties } = require('../utils/notion');
 const { addToQueue, getQueue } = require('../utils/activationQueue');
 const { sessions } = require('../utils/sessionStore');
+const { reportError } = require('../utils/errorReporter');
 const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
 module.exports = {
@@ -90,14 +91,34 @@ module.exports = {
                 try {
                     await updateGameProperties(session.game.uid, { "Show": { checkbox: true } });
                 } catch (e) {
-                    console.error('[Announcement] Failed to set Show on Notion:', e);
+                    await reportError(client, {
+                        scope: '[Announcement]',
+                        message: 'Failed to set Show on Notion',
+                        error: e,
+                        context: { gameUid: session.game.uid, gameTitle: session.game.title, announcedBy: interaction.user.tag }
+                    });
                 }
             }
 
             if (session.game) {
                 const queueData = getQueue();
+                let scheduleNote = null;
+
                 if (queueData.autoSchedule) {
-                    addToQueue(session.game, interaction.user.id);
+                    const queueResult = addToQueue(session.game, interaction.user.id);
+                    if (queueResult === 'custom_form') {
+                        scheduleNote = '⚠️ Not added to the activation queue — this game has a custom registration form.';
+                    } else if (queueResult === false) {
+                        scheduleNote = 'ℹ️ Already in the activation queue.';
+                    } else {
+                        scheduleNote = '📅 Added to the activation queue.';
+                    }
+                } else {
+                    scheduleNote = 'ℹ️ Auto-schedule is off — not added to the activation queue.';
+                }
+
+                if (scheduleNote) {
+                    await interaction.followUp({ content: scheduleNote, flags: 64 });
                 }
             }
 

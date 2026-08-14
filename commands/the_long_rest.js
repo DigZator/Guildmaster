@@ -1,6 +1,8 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID, THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
 
+const TLR_MOD_ROLE_IDS = [process.env.ADMINS_ROLE_ID, process.env.CLERK_OF_MORTAL_AFFAIRS_ROLE_ID].filter(Boolean);
+
 module.exports = async (interaction, client) => {
     if (!interaction.isChatInputCommand()) return;
 
@@ -128,10 +130,7 @@ module.exports = async (interaction, client) => {
 
             const isAuthor = authorId === interaction.user.id;
 
-            const allowedRoleRemove = ['Mods', 'Clerk of Mortal Affairs'];
-            const isAdmin = member.roles.cache.some(
-                role => allowedRoleRemove.includes(role.name)
-            );
+            const isAdmin = TLR_MOD_ROLE_IDS.length > 0 && member.roles.cache.some(r => TLR_MOD_ROLE_IDS.includes(r.id));
 
             if (!isAuthor && !isAdmin) {
                 await interaction.editReply({

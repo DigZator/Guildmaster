@@ -1,6 +1,7 @@
 const { getCachedGames, invalidateCache } = require('./cache');
 const { getQueue, clearQueue, claimRunForDate, getLastRunDate } = require('./activationQueue');
 const { updateGameProperties } = require('./notion');
+const { reportError } = require('./errorReporter');
 const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
 
@@ -8,6 +9,7 @@ const QUEST_BOARD_ID = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_I
 const { DEFAULT_REGISTRATION_LINK } = require('../data/registrationDefaults');
 
 let ctrlChannel = null;
+let botClient = null;
 let schedulerInterval = null;
 let lastTick = null;
 
@@ -103,9 +105,13 @@ async function runActivationJob({ force = false } = {}) {
             await updateGameProperties(entry.uid, { "Activate": { checkbox: true } });
             invalidateCache();
             results.processed.push(entry.title);
-            // results.failed.push(entry.title);
         } catch (e) {
-            console.error(`[Scheduler] Failed to activate ${entry.title}:`, e);
+            await reportError(botClient, {
+                scope: '[Scheduler]',
+                message: `Failed to activate ${entry.title}`,
+                error: e,
+                context: { gameUid: entry.uid, gameTitle: entry.title }
+            });
             results.failed.push(entry.title);
         }
     }
@@ -140,8 +146,12 @@ function tick() {
     if (lastTick !== null){
 	    const reminderAt = toISTMinutes(data.reminderTime);
 	    const activateAt = toISTMinutes(data.activationTime);
-	    if (timeInWindow(reminderAt, lastTick, now)) runReminderJob().catch(e => console.error('[Scheduler] Reminder error:', e));
-	    if (timeInWindow(activateAt, lastTick, now)) runActivationJob().catch(e => console.error('[Scheduler] Activation error:', e));
+	    if (timeInWindow(reminderAt, lastTick, now)) {
+	        runReminderJob().catch(e => reportError(botClient, { scope: '[Scheduler]', message: 'Reminder job crashed', error: e }));
+	    }
+	    if (timeInWindow(activateAt, lastTick, now)) {
+	        runActivationJob().catch(e => reportError(botClient, { scope: '[Scheduler]', message: 'Activation job crashed', error: e }));
+	    }
     }
 
     lastTick = now;
@@ -153,6 +163,7 @@ function timeInWindow(target, last, now) {
 }
 
 async function runStartupCheck(client) {
+    botClient = client;
     const ctrlChannelId = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : GUILDMASTER_CTRL_CHANNEL_ID;
     ctrlChannel = client.channels.cache.get(ctrlChannelId);
     if (!ctrlChannel) {

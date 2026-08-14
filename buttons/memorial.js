@@ -1,11 +1,18 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const memorialDrafts = require('../utils/memorialDrafts');
+const { reportError } = require('../utils/errorReporter');
 const { THE_LONG_REST_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID } = require('../data/channels');
 
 const modButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId('memorial_mod_approve').setLabel('Approve').setStyle(ButtonStyle.Success),
     new ButtonBuilder().setCustomId('memorial_mod_deny').setLabel('Deny').setStyle(ButtonStyle.Danger)
 );
+
+function getSubmitterIdFromEmbed(embed) {
+    const footerText = embed?.footer?.text || '';
+    const match = footerText.match(/AuthorID:\s*(\d{17,19})/);
+    return match ? match[1] : null;
+}
 
 module.exports = {
 
@@ -52,11 +59,11 @@ module.exports = {
         memorial_preview_cancel: async (interaction) => {
             await interaction.deferUpdate();
             memorialDrafts.delete(interaction.user.id);
-            try { await interaction.message.delete(); } catch { /* already gone */ }
+            try { await interaction.message.delete(); } catch {  }
             await interaction.editReply({ content: '❌ Submission cancelled. You can start over anytime.', flags: 64 });
         },
 
-        memorial_mod_approve: async (interaction) => {
+        memorial_mod_approve: async (interaction, client) => {
             await interaction.deferUpdate();
             const modData = interaction.message.embeds[0];
             const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
@@ -72,21 +79,39 @@ module.exports = {
             await thread.send(`🕯️ **In Memory of ${characterName}** 🕊️\n\nShare memories, stories, or pay your respects here.`);
             await thread.send(`||If the creator of a character wishes for that character to be revived or reused by other players, they may share the character sheet here. If no character sheet is provided below, please respect the creator's wishes and do not revive or reuse the character.||`);
 
-            const submitterMatch = interaction.message.content.match(/<@(\d+)>/);
-            if (submitterMatch) memorialDrafts.delete(submitterMatch[1]);
+            const submitterId = getSubmitterIdFromEmbed(modData);
+            if (submitterId) memorialDrafts.delete(submitterId);
 
-            await interaction.editReply({ content: '✅ Memorial approved and posted to The Long Rest channel.', components: [] });
+            await interaction.editReply({
+                content: `✅ Memorial approved and posted to The Long Rest channel.` +
+                         (submitterId ? '' : '\n⚠️ Could not identify the submitter to notify them.'),
+                components: []
+            });
+
+            if (submitterId) {
+                try {
+                    const submitter = await client.users.fetch(submitterId);
+                    await submitter.send(`✅ Your character memorial submission for **${characterName}** was approved and posted to The Long Rest channel: ${sentMessage.url}`);
+                } catch (err) {
+                    await reportError(client, {
+                        scope: '[Memorial]',
+                        message: `Could not DM approval to submitter for "${characterName}"`,
+                        error: err,
+                        context: { submitterId, characterName }
+                    });
+                }
+            }
         },
 
         memorial_mod_deny: async (interaction, client) => {
             await interaction.deferUpdate();
-            const submitterMatch = interaction.message.content.match(/<@(\d+)>/);
-            const submitterId = submitterMatch?.[1] ?? null;
+            const modData = interaction.message.embeds[0];
+            const submitterId = getSubmitterIdFromEmbed(modData);
             if (submitterId) memorialDrafts.delete(submitterId);
 
             await interaction.editReply({
                 content: `❌ Memorial denied by <@${interaction.user.id}>.\n\n` +
-                         (submitterId ? `The submitter <@${submitterId}> has been notified.` : ''),
+                         (submitterId ? `The submitter <@${submitterId}> has been notified.` : '⚠️ Could not identify the submitter to notify them.'),
                 components: []
             });
 
@@ -95,7 +120,12 @@ module.exports = {
                     const submitter = await client.users.fetch(submitterId);
                     await submitter.send('❌ Your character memorial submission was not approved by the moderators.\n\nIf you have questions, please contact a moderator.');
                 } catch (err) {
-                    console.error('Could not DM submitter:', err);
+                    await reportError(client, {
+                        scope: '[Memorial]',
+                        message: 'Could not DM denial to submitter',
+                        error: err,
+                        context: { submitterId }
+                    });
                 }
             }
         },
