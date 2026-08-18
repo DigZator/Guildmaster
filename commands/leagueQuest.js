@@ -360,7 +360,7 @@ async function addCharacterToRoster(quest, characterId) {
         return { added: false, alreadyPresent: true };
     }
 
-    const updated = [...existing, { id: characterId }];
+    const updated = [...existing.map(id => ({ id })), { id: characterId }];
     await updatePageProperty(quest.id, { 'Characters': { relation: updated } });
     quest.properties['Characters'] = { relation: updated.map(id => (typeof id === 'string' ? { id } : id)) };
     return { added: true, alreadyPresent: false };

@@ -1,5 +1,6 @@
 const path = require('path');
 const { createJsonStore } = require('./jsonStore');
+const { DEFAULT_REGISTRATION_LINK } = require('../data/registrationDefaults');
 
 const DEFAULT_QUEUE = {
     reminderTime: "19:00",
@@ -23,7 +24,7 @@ function writeQueue(data) {
 }
 
 function addToQueue(game, userId) {
-    if (game.registrationLink) return 'custom_form';
+    if (game.registrationLink !== DEFAULT_REGISTRATION_LINK) return 'custom_form';
     const data = getQueue();
     if (data.queue.find(g => g.uid === game.uid)) return false;
     data.queue.push({
