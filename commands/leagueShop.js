@@ -23,6 +23,7 @@ const {
     getCatalogueMeta,
     defaultPriceFor,
 } = require('../utils/5etoolsCatalogue');
+const { syncSpells, getSpellsMeta } = require('../utils/5etoolsSpells');
 const {
     tierMinFor,
     getShopEntry,
@@ -865,6 +866,25 @@ async function handleAdminCatalogueSync(interaction) {
     }
 }
 
+// ─── /leagueadmin catalogue sync-spells ────────────────────────────────────────
+
+async function handleAdminSpellsSync(interaction) {
+    await interaction.deferReply({ flags: 0 });
+
+    try {
+        const { count, syncedAt } = await syncSpells();
+        return interaction.editReply({
+            content: `✅ Spell list synced — **${count}** spells loaded at <t:${Math.floor(new Date(syncedAt).getTime() / 1000)}:f>.`,
+        });
+    } catch (err) {
+        console.error('[leagueadmin catalogue sync-spells] Sync error:', err);
+        const meta = getSpellsMeta();
+        return interaction.editReply({
+            content: `❌ Sync failed: ${err.message}. Local spell list still has **${meta.count}** spells from the last successful sync.`,
+        });
+    }
+}
+
 // ─── Routers ──────────────────────────────────────────────────────────────────
 
 async function leagueShop(interaction) {
@@ -899,7 +919,8 @@ async function leagueAdminCatalogue(interaction) {
 
     const sub = interaction.options.getSubcommand();
     switch (sub) {
-        case 'sync': return handleAdminCatalogueSync(interaction);
+        case 'sync':        return handleAdminCatalogueSync(interaction);
+        case 'sync-spells': return handleAdminSpellsSync(interaction);
     }
 }
 

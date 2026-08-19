@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { buildByCharacterEmbed, buildByRewardEmbed } = require('../utils/questReportEmbed');
+const { buildByCharacterEmbed, buildByRewardEmbed, itemAverageValue } = require('../utils/questReportEmbed');
 const { encodeId } = require('./questDashboardId');
 const { getQuestById } = require('../commands/leagueQuest');
 const { getPageById } = require('../utils/leagueNotion');
@@ -51,6 +51,16 @@ function computeTotalGold(draft) {
         .reduce((sum, l) => sum + (l.payload?.amount ?? 0), 0);
 }
 
+function computeTotalRewardValue(draft) {
+    return draft.lines
+        .filter(l => l.lineStatus !== 'rejected' && (l.type === 'gold' || l.type === 'item'))
+        .reduce((sum, l) => {
+            if (l.type === 'gold') return sum + (l.payload?.amount ?? 0);
+            const avg = itemAverageValue(l.payload);
+            return sum + (avg ?? 0);
+        }, 0);
+}
+
 function buildEmbed(draft, roster, grouping, quest) {
     const embed = grouping === 'reward'
         ? buildByRewardEmbed(draft, roster)
@@ -59,11 +69,13 @@ function buildEmbed(draft, roster, grouping, quest) {
     const dmMention = draft.dm?.discordId ? `<@${draft.dm.discordId}>` : 'Unknown';
     const tier      = quest?.properties['Tier']?.select?.name ?? null;
     const totalGold = computeTotalGold(draft);
+    const totalRewardValue = computeTotalRewardValue(draft);
 
     embed.addFields(
-        { name: 'DM',                  value: dmMention,        inline: true },
-        { name: 'Tier',                value: tier ?? 'Not set', inline: true },
-        { name: 'Total Gold Queued',   value: `${totalGold} gp`, inline: true },
+        { name: 'DM',                                        value: dmMention,        inline: true },
+        { name: 'Tier',                                       value: tier ?? 'Not set', inline: true },
+        { name: 'Total Gold Queued',                          value: `${totalGold} gp`, inline: true },
+        { name: 'Total Reward (excl. milestones/RP)',         value: `~${Math.round(totalRewardValue)} gp`, inline: true },
     );
 
     const goldWarning = checkGoldAgainstTierLimit(tier, totalGold);

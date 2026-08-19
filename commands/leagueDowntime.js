@@ -50,14 +50,32 @@ function getCatchUpTier(level) {
     return CATCH_UP_LEVEL_BRACKETS.find(b => level >= b.min && level <= b.max)?.tier ?? null;
 }
 
+const QUANTITY_ELIGIBLE_CATEGORIES = new Set(['Crafting']);
+
 async function handleDowntimeStart(interaction) {
     await interaction.deferReply({ flags: 64 });
 
     const uid = interaction.options.getString('activity').toUpperCase();
+    const rawQuantity = interaction.options.getInteger('quantity');
+    const spellName = interaction.options.getString('spell')?.trim() || null;
     const resolved = getBlueprintById(uid);
     if (!resolved) return interaction.editReply({ content: `❌ No downtime activity found for UID \`${uid}\`.` });
 
     const { key, blueprint } = resolved;
+
+    const isQuantityEligible = QUANTITY_ELIGIBLE_CATEGORIES.has(blueprint.category);
+    if (rawQuantity != null && !isQuantityEligible) {
+        return interaction.editReply({ content: `❌ **${blueprint.name}** doesn't support batch quantity — only crafting activities do.` });
+    }
+    const quantity = isQuantityEligible ? (rawQuantity ?? 1) : 1;
+
+    const isSpellScroll = blueprint.output?.type === 'spellScroll';
+    if (isSpellScroll && !spellName) {
+        return interaction.editReply({ content: `❌ **${blueprint.name}** requires the \`spell\` option so the bot knows what to scribe.` });
+    }
+    if (!isSpellScroll && spellName) {
+        return interaction.editReply({ content: `❌ The \`spell\` option only applies to **Scribe a Spell Scroll**.` });
+    }
 
     const char = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!char) return interaction.editReply({ content: '❌ No active character found.' });
@@ -73,7 +91,7 @@ async function handleDowntimeStart(interaction) {
         effectiveUid = `00${tierNum}`;
         cost = resolveCostFromUID(effectiveUid);
     } else {
-        cost = resolveCostFromUID(uid);
+        cost = resolveCostFromUID(uid, quantity);
     }
 
     if (!cost) return interaction.editReply({ content: `❌ Could not resolve a valid cost for UID \`${uid}\`.` });
@@ -100,6 +118,7 @@ async function handleDowntimeStart(interaction) {
             dtaId, activityId: key, activityName: blueprint.name, characterPageId: char.id,
             activityType: blueprint.category, daysRequired: cost.daysRequired,
             daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: cost.tierValue,
+            quantity, spellName,
         });
     } catch (err) {
         console.error('[downtime start] Notion error:', err);
@@ -109,9 +128,13 @@ async function handleDowntimeStart(interaction) {
     const checksNote = blueprint.checks
         ? `\n🎲 Requires ${blueprint.checks.successesRequired}/${blueprint.checks.attempts} successful ${blueprint.checks.skill} checks (DC ${blueprint.checks.dc}) — tracked by your GM, not the bot.`
         : '';
+    const batchNote = quantity > 1
+        ? `\n📦 Crafting **${quantity}×** in this batch — you'll receive all ${quantity} item(s) together once the full ${cost.daysRequired} day(s) are invested. There's no partial hand-out mid-way.`
+        : '';
+    const spellNote = spellName ? `\n📜 Spell: **${spellName}**` : '';
 
     return interaction.editReply({
-        content: `✅ Started **${blueprint.name}** — DTA ID \`${dtaId}\`. Requires ${cost.daysRequired} day(s)${cost.gpTotal != null ? ` and ${formatCurrency(cost.gpTotal)}` : ''}.${checksNote}\nUse \`/league downtime progress\` to invest days.`,
+        content: `✅ Started **${blueprint.name}** — DTA ID \`${dtaId}\`. Requires ${cost.daysRequired} day(s)${cost.gpTotal != null ? ` and ${formatCurrency(cost.gpTotal)}` : ''}.${spellNote}${batchNote}${checksNote}\nUse \`/league downtime progress\` to invest days.`,
     });
 }
 
@@ -139,6 +162,8 @@ async function handleDowntimeProgress(interaction) {
     const activityName  = p['Activity Name']?.title?.[0]?.plain_text ?? 'Unknown';
     const activityId    = p['Activity ID']?.rich_text?.[0]?.plain_text ?? null;
     const storedParam   = p['Param Value']?.rich_text?.[0]?.plain_text ?? null;
+    const storedQuantity = p['Quantity']?.number ?? 1;
+    const storedSpell    = p['Spell Name']?.rich_text?.[0]?.plain_text ?? null;
 
     const remainingDays = daysRequired - daysInvested;
     if (days > remainingDays) return interaction.editReply({ content: `❌ Only ${remainingDays} day(s) remain on this activity.` });
@@ -192,7 +217,10 @@ async function handleDowntimeProgress(interaction) {
     if (isComplete && !needsCompletionApproval && blueprint?.output) {
         const tierValue = coerceParam(storedParam);
         try {
-            outputResult = await applyDowntimeOutput({ output: blueprint.output, characterPageId: char.id, activityName, tierValue }, leagueNotion, interaction.client, interaction.guild);
+            outputResult = await applyDowntimeOutput({
+                output: blueprint.output, characterPageId: char.id, activityName, tierValue,
+                quantity: storedQuantity, spellName: storedSpell,
+            }, leagueNotion, interaction.client, interaction.guild);
         } catch (err) {
             console.error('[downtime progress] Failed to apply output:', err);
         }

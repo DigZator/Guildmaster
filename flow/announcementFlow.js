@@ -3,6 +3,8 @@ const parseAnnouncement = require('../utils/announcementParser');
 const { buildWhatsApp, buildAnnouncementEmbed, setSessionTimeout, getPreviewButtons, SESSION_TYPE_ROLES } = require('../utils/announcementHelper');
 const { sessions } = require('../utils/sessionStore');
 const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
+const { syncAnnouncementFieldToNotion } = require('../utils/announcementNotionSync');
+const { invalidateCache } = require('../utils/cache');
 
 const previewButtons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -242,11 +244,20 @@ module.exports = (client) => {
                 session.embed = buildAnnouncementEmbed(session.game, message.guild);
                 session.whatsapp = buildWhatsApp(session.game);
 
+                const syncResult = await syncAnnouncementFieldToNotion(session.game, 'artURL', attachment.url);
+                if (syncResult.synced) {
+                    invalidateCache();
+                }
+
+                const prefix = syncResult.synced
+                    ? '✅ Cover art updated! Here\'s the new preview:\n'
+                    : '✅ Cover art updated in this preview, but ⚠️ I couldn\'t save it to Notion — the two are now out of sync. Try again or use `/edit_game`.\n';
+
                 await sendChunkedWhatsApp(
                     message.channel,
                     session.whatsapp,
                     session.embed,
-                    '✅ Cover art updated! Here\'s the new preview:\n'
+                    prefix
                 );
             }
 

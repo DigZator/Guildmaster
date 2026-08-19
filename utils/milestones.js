@@ -1,29 +1,28 @@
 const { EmbedBuilder } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('./leagueNotion');
 const { resolveLevelUps, LEVEL_CONFIG } = require('../config/leagueLeveling');
 
+const QUOTES_PATH = path.join(__dirname, '..', 'data', 'downtimeQuotes.json');
 const TIER_COLORS = [0xe74c3c, 0x3498db, 0x9b59b6, 0xf1c40f, 0x2ecc71, 0xe67e22, 0x1abc9c];
 
-const INSPIRING_QUOTES = [
-    { quote: 'Not all those who wander are lost.', author: 'J.R.R. Tolkien' },
-    { quote: 'Even the smallest person can change the course of the future.', author: 'J.R.R. Tolkien' },
-    { quote: 'The cave you fear to enter holds the treasure you seek.', author: 'Joseph Campbell' },
-    { quote: 'Courage is not the absence of fear, but the triumph over it.', author: 'Nelson Mandela' },
-    { quote: 'Do not go where the path may lead; go instead where there is no path and leave a trail.', author: 'Ralph Waldo Emerson' },
-    { quote: 'What we do in life echoes in eternity.', author: 'Marcus Aurelius' },
-    { quote: 'Wheresoever you go, go with all your heart.', author: 'Confucius' },
-    { quote: "chair", author: ''},
-    { quote: "Believe in the ideal, not the idol.", author: 'Serra'},
-    { quote: "Each year that passes rings you inwardly with memory and might. Wield your heart, and the world will tremble.", author: 'Doran'},
-    { quote: "The thing I once imagined would be my greatest achievements were only the first steps toward a future I can only begin to fathom.", author: 'Jace Beleren'},
-    { quote: "To care for yourself, cultivate the world. To care for the world, cultivate yourself.", author: ''},
-    { quote: "What doesn't kill me, isn't trying hard enough.", author: 'Robote Gulliman' },
-    { quote: "No matter how much you try to understand other people's hearts, people aren't able to change others. Every time, you have to change yourself.", author: 'Isagi Yoichi' },
-    { quote: "What we think to be our greatest weakness can sometimes be our biggest strength.", author: 'Sarah J. Maas' },
-];
+let quotesCache = null;
+
+function loadQuotes() {
+    if (quotesCache) return quotesCache;
+    try {
+        quotesCache = JSON.parse(fs.readFileSync(QUOTES_PATH, 'utf8')).quotes ?? [];
+    } catch (err) {
+        console.warn('[milestones] Could not load downtimeQuotes.json, falling back to a single default quote:', err.message);
+        quotesCache = [{ quote: 'Onward, adventurer.', author: '' }];
+    }
+    return quotesCache;
+}
 
 function randomQuote() {
-    return INSPIRING_QUOTES[Math.floor(Math.random() * INSPIRING_QUOTES.length)];
+    const quotes = loadQuotes();
+    return quotes[Math.floor(Math.random() * quotes.length)];
 }
 
 function getTier(level) {
@@ -92,4 +91,4 @@ async function applyMilestones(client, guild, character, characterName, amount) 
     return result;
 }
 
-module.exports = { applyMilestones, postLevelUpMessage, getTier, randomQuote, TIER_COLORS, INSPIRING_QUOTES };
+module.exports = { applyMilestones, postLevelUpMessage, getTier, randomQuote, TIER_COLORS, loadQuotes };

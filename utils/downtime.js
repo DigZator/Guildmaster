@@ -6,29 +6,26 @@ const { resolveLevelUps, LEVEL_CONFIG } = require('../config/leagueLeveling');
 
 const BLUEPRINTS_PATH = path.join(__dirname, '..', 'data', 'downtimeBlueprints.json');
 const SEQUENCE_PATH    = path.join(__dirname, '..', 'data', 'downtimeSequence.json');
+const QUOTES_PATH      = path.join(__dirname, '..', 'data', 'downtimeQuotes.json');
 
 const TIER_COLORS = [0xe74c3c, 0x3498db, 0x9b59b6, 0xf1c40f, 0x2ecc71, 0xe67e22, 0x1abc9c];
 
-const INSPIRING_QUOTES = [
-    { quote: 'Not all those who wander are lost.', author: 'J.R.R. Tolkien' },
-    { quote: 'Even the smallest person can change the course of the future.', author: 'J.R.R. Tolkien' },
-    { quote: 'The cave you fear to enter holds the treasure you seek.', author: 'Joseph Campbell' },
-    { quote: 'Courage is not the absence of fear, but the triumph over it.', author: 'Nelson Mandela' },
-    { quote: 'Do not go where the path may lead; go instead where there is no path and leave a trail.', author: 'Ralph Waldo Emerson' },
-    { quote: 'What we do in life echoes in eternity.', author: 'Marcus Aurelius' },
-    { quote: 'Wheresoever you go, go with all your heart.', author: 'Confucius' },
-    { quote: "chair", author: ''},
-    { quote: "Believe in the ideal, not the idol.", author: 'Serra'},
-    { quote: "Each year that passes rings you inwardly with memory and might. Wield your heart, and the world will tremble.", author: 'Doran'},
-    { quote: "The thing I once imagined would be my greatest achievements were only the first steps toward a future I can only begin to fathom.", author: 'Jace Beleren'},
-    { quote: "To care for yourself, cultivate the world. To care for the world, cultivate yourself.", author: ''},
-    { quote: "What doesn't kill me, isn't trying hard enough.", author: 'Robote Gulliman' },
-    { quote: "No matter how much you try to understand other people's hearts, people aren't able to change others. Every time, you have to change yourself.", author: 'Isagi Yoichi' },
-    { quote: "What we think to be our greatest weakness can sometimes be our biggest strength.", author: 'Sarah J. Maas' },
-];
+let quotesCache = null;
+
+function loadQuotes() {
+    if (quotesCache) return quotesCache;
+    try {
+        quotesCache = JSON.parse(fs.readFileSync(QUOTES_PATH, 'utf8')).quotes ?? [];
+    } catch (err) {
+        console.warn('[downtime] Could not load downtimeQuotes.json, falling back to a single default quote:', err.message);
+        quotesCache = [{ quote: 'Onward, adventurer.', author: '' }];
+    }
+    return quotesCache;
+}
 
 function randomQuote() {
-    return INSPIRING_QUOTES[Math.floor(Math.random() * INSPIRING_QUOTES.length)];
+    const quotes = loadQuotes();
+    return quotes[Math.floor(Math.random() * quotes.length)];
 }
 
 function getTier(level) {
@@ -220,45 +217,52 @@ function resolveCost(blueprint, params = {}) {
     };
 }
 
-function resolveCostFromUID(UID) {
+function resolveCostFromUID(UID, quantity = 1) {
     const result = getBlueprintById(UID);
     if (!result) return null;
 
     const { blueprint, tier } = result;
     const paramName = getParamName(blueprint);
+    const qty = Math.max(1, Number(quantity) || 1);
 
     if (tier) {
         const params = paramName && tier.value != null ? { [paramName]: tier.value } : {};
-        const daysRequired = tier.daysRequired;
+        const daysRequired = tier.daysRequired * qty;
         const costs = tier.costs ?? (tier.flatGp != null ? [{ type: 'gp', value: tier.flatGp }] : []);
         const { gpTotal, gpPerDay } = sumCosts(costs, params);
-        const finalGpTotal = gpTotal + (gpPerDay ? gpPerDay * daysRequired : 0);
+        const finalGpTotal = gpTotal * qty + (gpPerDay ? gpPerDay * daysRequired : 0);
 
         return {
             daysRequired,
             gpTotal: finalGpTotal,
             gpPerDay: gpPerDay || (daysRequired ? finalGpTotal / daysRequired : 0),
             tierValue: tier.value ?? null,
+            quantity: qty,
         };
     }
 
     if (blueprint.costModel === 'flat' || blueprint.costModel === 'perDay') {
-        const daysRequired = blueprint.daysRequired;
+        const daysRequired = blueprint.daysRequired * qty;
         const costs = blueprint.costs ?? [
             ...(blueprint.flatGp != null ? [{ type: 'gp', value: blueprint.flatGp }] : []),
             ...(blueprint.gpPerDay != null ? [{ type: 'gpPerDay', value: blueprint.gpPerDay }] : []),
         ];
         const { gpTotal, gpPerDay } = sumCosts(costs, {});
-        const finalGpTotal = gpTotal + (gpPerDay ? gpPerDay * daysRequired : 0);
+        const finalGpTotal = gpTotal * qty + (gpPerDay ? gpPerDay * daysRequired : 0);
 
-        return { daysRequired, gpTotal: finalGpTotal, gpPerDay: gpPerDay || (daysRequired ? finalGpTotal / daysRequired : 0), tierValue: null };
+        return { daysRequired, gpTotal: finalGpTotal, gpPerDay: gpPerDay || (daysRequired ? finalGpTotal / daysRequired : 0), tierValue: null, quantity: qty };
     }
 
     return null;
 }
 
-async function applyDowntimeOutput({ output, characterPageId, activityName, tierValue }, notion, client = null, guild = null) {
+const SCROLL_VALUE_BY_LEVEL = {
+    0: 15, 1: 25, 2: 50, 3: 150, 4: 500, 5: 1000, 6: 1500, 7: 2500, 8: 5000, 9: 12000,
+};
+
+async function applyDowntimeOutput({ output, characterPageId, activityName, tierValue, quantity = 1, spellName = null, sourceQuestId = null }, notion, client = null, guild = null) {
     if (!output) return null;
+    const qty = Math.max(1, Number(quantity) || 1);
 
     switch (output.type) {
         case 'milestone': {
@@ -273,17 +277,59 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
                 : `Gained ${amount} milestone${amount === 1 ? '' : 's'}.`;
             return { needsManualGrant: false, message };
         }
+        case 'spellScroll': {
+            if (!spellName) {
+                return {
+                    needsManualGrant: true,
+                    message: `⚠️ **Manual grant needed:** Spell Scroll — from downtime activity "${activityName}", but no spell name was recorded. Use \`/leagueadmin item create\`.`,
+                };
+            }
+
+            const level = typeof tierValue === 'number' ? tierValue : null;
+            const rarity = typeof tierValue === 'string' ? tierValue : 'Common';
+            const price = level != null ? (SCROLL_VALUE_BY_LEVEL[level] ?? null) : null;
+
+            const created = [];
+            for (let i = 0; i < qty; i++) {
+                const item = await notion.createInventoryItem({
+                    itemName: `Scroll of ${spellName}`,
+                    characterPageId,
+                    rarity,
+                    type: 'Scroll',
+                    subtype: 'Spell Scroll',
+                    source: 'Downtime (Scribe a Spell Scroll)',
+                    sourceQuestId,
+                    itemValue: price,
+                    status: 'Owned',
+                    notes: `Scribed via downtime activity "${activityName}".`,
+                });
+                created.push(item);
+            }
+
+            const message = qty === 1
+                ? `Scribed and granted a **Scroll of ${spellName}**.`
+                : `Scribed and granted **${qty}× Scroll of ${spellName}** (each a separate item).`;
+            return { needsManualGrant: false, message, itemsCreated: created.length };
+        }
         case 'item':
-        case 'spellScroll':
         case 'magicItem': {
-            const itemName = output.type === 'item'
+            const baseName = output.type === 'item'
                 ? (output.grants || activityName)
                 : `${activityName}${tierValue ? ` (${tierValue})` : ''}`;
             const rarity = output.type === 'item' ? 'Common' : (typeof tierValue === 'string' ? tierValue : 'Common');
-            const type = output.type === 'spellScroll' ? 'Scroll' : (output.type === 'magicItem' ? 'Magic Item' : 'Item');
+            const type = output.type === 'magicItem' ? 'Magic Item' : (output.type === 'spellScroll' ? 'Scroll' : 'Item');
+
+            if (qty === 1) {
+                return {
+                    needsManualGrant: true,
+                    message: `⚠️ **Manual grant needed:** ${baseName} (${type}, ${rarity}) — from downtime activity "${activityName}". Use \`/leagueadmin item create\`.`,
+                };
+            }
+
+            const lines = Array.from({ length: qty }, (_, i) => `  ${i + 1}. ${baseName} (${type}, ${rarity})`).join('\n');
             return {
                 needsManualGrant: true,
-                message: `⚠️ **Manual grant needed:** ${itemName} (${type}, ${rarity}) — from downtime activity "${activityName}". Use \`/leagueadmin item create\`.`,
+                message: `⚠️ **Manual grant needed — ${qty} separate items** from downtime activity "${activityName}":\n${lines}\nUse \`/leagueadmin item create\` for each.`,
             };
         }
         case 'level': {
@@ -310,6 +356,6 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
 }
 
 module.exports = {
-    applyMilestones, postLevelUpMessage, getTier, randomQuote, TIER_COLORS, INSPIRING_QUOTES,
+    applyMilestones, postLevelUpMessage, getTier, randomQuote, TIER_COLORS, loadQuotes,
     loadBlueprints, getBlueprint, getBlueprintById, nextDtaId, resolveCost, resolveCostFromUID, applyDowntimeOutput, getParamName, sumCosts,
 };

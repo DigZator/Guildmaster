@@ -4,8 +4,8 @@ const DATA_DIR = path.join(process.env.HOME, '5etools-src', 'data');
 
 const CATALOGUE_PATH = path.join(__dirname, '..', 'data', 'catalogue.json');
 const BASE_URL = 'https://raw.githubusercontent.com/5etools-mirror-3/5etools-src/main/data';
-const SOURCES = new Set(['XPHB', 'XDMG', 'XMM', 'EFA',
-						 'FRAiF', 'FRHoF', 'LFL', 'RHW']);
+const { SOURCES: SOURCES_LIST } = require('../config/dndSources');
+const SOURCES = new Set(SOURCES_LIST);
 
 const TYPE_NAMES = {
     A: 'Armor', S: 'Shield', W: 'Weapon', AT: 'Tool', T: 'Tool', G: 'Adventuring Gear',
@@ -40,9 +40,6 @@ const DEFAULT_PRICE_BY_RARITY = {
 	Legendary: 100000
 };
 
-// How much of a base weapon/armor's own gp value gets added on top of the
-// rarity-tier default when pricing a synthesized magic variant combo.
-// 1 = add 100% of base value. Tune freely; see previewVariantPricing.js.
 const BASE_VALUE_PRICE_FACTOR = 1;
 
 
@@ -205,7 +202,7 @@ function getComboCache() {
     return comboCache;
 }
 
-let catalogueCache = null; // parsed catalogue.json, cached until next sync
+let catalogueCache = null;
 
 function loadCatalogue() {
     if (catalogueCache) return catalogueCache;

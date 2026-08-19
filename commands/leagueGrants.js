@@ -887,13 +887,18 @@ async function handleAdminDowntimeApprove(interaction) {
     const activityName = p['Activity Name']?.title?.[0]?.plain_text ?? 'Unknown';
     const characterRelId = p['Character']?.relation?.[0]?.id ?? null;
     const storedParam = p['Param Value']?.rich_text?.[0]?.plain_text ?? null;
+    const storedQuantity = p['Quantity']?.number ?? 1;
+    const storedSpell = p['Spell Name']?.rich_text?.[0]?.plain_text ?? null;
 
     let outputResult = null;
     const blueprint = activityId ? getBlueprint(activityId) : null;
     if (blueprint?.output && characterRelId) {
         const tierValue = storedParam != null && !isNaN(Number(storedParam)) ? Number(storedParam) : storedParam;
         try {
-            outputResult = await applyDowntimeOutput({ output: blueprint.output, characterPageId: characterRelId, activityName, tierValue }, leagueNotion, interaction.client, interaction.guild);
+            outputResult = await applyDowntimeOutput({
+                output: blueprint.output, characterPageId: characterRelId, activityName, tierValue,
+                quantity: storedQuantity, spellName: storedSpell, sourceQuestId: null,
+            }, leagueNotion, interaction.client, interaction.guild);
         } catch (err) {
             console.error('[downtime approve] Failed to apply output:', err);
         }

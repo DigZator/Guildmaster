@@ -14,6 +14,13 @@ function typeMeta(type) {
     return TYPE_META[type] ?? { emoji: '❔', label: type };
 }
 
+function itemAverageValue(payload) {
+    if (payload?.itemValue == null) return null;
+    const buy = payload.itemValue;
+    const sell = buy / 2;
+    return (buy + sell) / 2;
+}
+
 // ---- per-line short text, shared by both grouping modes ----
 function formatLine(line) {
     const { emoji, label } = typeMeta(line.type);
@@ -26,8 +33,11 @@ function formatLine(line) {
             return `${emoji} ${label}: +${p.amount}`;
         case 'milestone':
             return `${emoji} ${label}: +${p.amount}`;
-        case 'item':
-            return `${emoji} ${label}: ${p.itemName ?? 'Unknown item'}${p.rarity ? ` (${p.rarity})` : ''}`;
+        case 'item': {
+            const avg = itemAverageValue(p);
+            const priceNote = avg != null ? ` — ~${formatCurrency(avg)} avg` : '';
+            return `${emoji} ${label}: ${p.itemName ?? 'Unknown item'}${p.rarity ? ` (${p.rarity})` : ''}${priceNote}`;
+        }
         default:
             return `${emoji} ${label}`;
     }
@@ -115,4 +125,5 @@ module.exports = {
     buildByCharacterEmbed,
     buildByRewardEmbed,
     formatLine,
+    itemAverageValue,
 };

@@ -511,7 +511,9 @@ const commands = [
 		    .addSubcommand(sub => sub
 	            .setName('start')
 	            .setDescription('Begin a downtime activity')
-	            .addStringOption(opt => opt.setName('activity').setDescription('Activity UID (see /league downtime activities)').setRequired(true)))
+	            .addStringOption(opt => opt.setName('activity').setDescription('Activity UID (see /league downtime activities)').setRequired(true))
+	            .addIntegerOption(opt => opt.setName('quantity').setDescription('How many to craft (crafting activities only, default 1)').setRequired(false).setMinValue(1))
+	            .addStringOption(opt => opt.setName('spell').setDescription('Spell to scribe (required for Scribe a Spell Scroll)').setRequired(false).setAutocomplete(true)))
 		    .addSubcommand(sub => sub
 		        .setName('progress')
 		        .setDescription('Invest days into an active downtime activity')
@@ -709,7 +711,10 @@ const commands = [
 			.setDescription('D&D item catalogue management')
 			.addSubcommand(sub => sub
 				.setName('sync')
-				.setDescription('Refresh the item catalogue from Open5e (2024 SRD)')))
+				.setDescription('Refresh the item catalogue from Open5e (2024 SRD)'))
+			.addSubcommand(sub => sub
+				.setName('sync-spells')
+				.setDescription('Refresh the spell list used by downtime scroll scribing')))
 		//downtime
 		.addSubcommandGroup(group => group
 		    .setName('downtime')

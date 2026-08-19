@@ -426,6 +426,8 @@ async function createDowntimeProgress(opts) {
 		  goldRequired,
 		  goldInvested,
 		  paramValue,
+		  quantity,
+		  spellName,
 	} = opts;
 
 	const properties = {
@@ -455,6 +457,8 @@ async function createDowntimeProgress(opts) {
 	if (paramValue != null) properties['Param Value'] = { rich_text: [{ text: { content: String(paramValue) } }] };
 	if (goldRequired != null) properties['Gold Required'] = { number: goldRequired };
 	if (goldInvested != null) properties['Gold Invested'] = { number: goldInvested };
+	if (quantity != null) properties['Quantity'] = { number: quantity };
+	if (spellName) properties['Spell Name'] = { rich_text: [{ text: { content: spellName } }] };
 
 	return notion.pages.create({
 		  parent: { data_source_id: DB.downtime },
