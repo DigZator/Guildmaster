@@ -14,9 +14,43 @@ const DB = {
   marketplace: process.env.PLAYER_MARKETPLACE_DB_ID,
 };
 
-// ─── per-page lock ────────────────────────────────────────────────
+const schemaCache = new Map(); // data_source_id -> Set<propertyName> | null (null = fetch failed, allow everything through)
 
-const pageLocks = new Map();
+async function getKnownProperties(dataSourceId) {
+    if (schemaCache.has(dataSourceId)) return schemaCache.get(dataSourceId);
+    try {
+        const ds = await notion.dataSources.retrieve({ data_source_id: dataSourceId });
+        const names = new Set(Object.keys(ds.properties));
+        schemaCache.set(dataSourceId, names);
+        return names;
+    } catch (err) {
+        console.error(`[leagueNotion] Could not fetch schema for data source ${dataSourceId} — property filtering disabled for this run:`, err.message);
+        schemaCache.set(dataSourceId, null);
+        return null;
+    }
+}
+
+async function withKnownProperties(dataSourceId, properties, contextLabel = '') {
+    const known = await getKnownProperties(dataSourceId);
+    if (known === null) return properties; // schema fetch failed — don't block the write, just try as-is
+    const filtered = {};
+    const dropped = [];
+    for (const [name, value] of Object.entries(properties)) {
+        if (known.has(name)) filtered[name] = value;
+        else dropped.push(name);
+    }
+    if (dropped.length) {
+        console.warn(`[leagueNotion] Skipped missing propert${dropped.length === 1 ? 'y' : 'ies'} on Notion write${contextLabel ? ` (${contextLabel})` : ''}: ${dropped.map(d => `"${d}"`).join(', ')}. Add ${dropped.length === 1 ? 'this column' : 'these columns'} to the database to stop losing this data.`);
+    }
+    return filtered;
+}
+
+function clearSchemaCache(dataSourceId) {
+    if (dataSourceId) schemaCache.delete(dataSourceId);
+    else schemaCache.clear();
+}
+
+const pageLocks = new Map(); // pageId -> Promise chain, serializes concurrent writes to the same Notion page
 
 function withPageLock(pageId, fn) {
 	const previous = pageLocks.get(pageId) ?? Promise.resolve();
@@ -428,6 +462,7 @@ async function createDowntimeProgress(opts) {
 		  paramValue,
 		  quantity,
 		  spellName,
+		  itemChoice,
 	} = opts;
 
 	const properties = {
@@ -459,10 +494,13 @@ async function createDowntimeProgress(opts) {
 	if (goldInvested != null) properties['Gold Invested'] = { number: goldInvested };
 	if (quantity != null) properties['Quantity'] = { number: quantity };
 	if (spellName) properties['Spell Name'] = { rich_text: [{ text: { content: spellName } }] };
+	if (itemChoice) properties['Item Choice'] = { rich_text: [{ text: { content: itemChoice } }] };
+
+	const safeProperties = await withKnownProperties(DB.downtime, properties, 'createDowntimeProgress');
 
 	return notion.pages.create({
 		  parent: { data_source_id: DB.downtime },
-		  properties,
+		  properties: safeProperties,
 	});
 }
 
@@ -484,6 +522,28 @@ async function getActiveDowntimeForCharacter(characterPageId) {
                 { property: 'Status', select: { equals: 'In Progress' } },
             ],
         },
+    });
+    return response.results;
+}
+
+async function getDowntimeForCharacterByStatus(characterPageId, status) {
+    const response = await notion.dataSources.query({
+        data_source_id: DB.downtime,
+        filter: {
+            and: [
+                { property: 'Character', relation: { contains: characterPageId } },
+                { property: 'Status', select: { equals: status } },
+            ],
+        },
+    });
+    return response.results;
+}
+
+// Guild-wide — used to surface completion-approval requests in /leagueadmin pending.
+async function getDowntimeByStatus(status) {
+    const response = await notion.dataSources.query({
+        data_source_id: DB.downtime,
+        filter: { property: 'Status', select: { equals: status } },
     });
     return response.results;
 }
@@ -690,6 +750,9 @@ module.exports = {
 	createDowntimeProgress,
 	getDowntimeProgressById,
 	getActiveDowntimeForCharacter,
+	clearSchemaCache,
+	getDowntimeForCharacterByStatus,
+	getDowntimeByStatus,
 	investDowntimeProgress,
 	setDowntimeStatus,
 

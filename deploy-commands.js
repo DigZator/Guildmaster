@@ -511,9 +511,11 @@ const commands = [
 		    .addSubcommand(sub => sub
 	            .setName('start')
 	            .setDescription('Begin a downtime activity')
-	            .addStringOption(opt => opt.setName('activity').setDescription('Activity UID (see /league downtime activities)').setRequired(true))
-	            .addIntegerOption(opt => opt.setName('quantity').setDescription('How many to craft (crafting activities only, default 1)').setRequired(false).setMinValue(1))
-	            .addStringOption(opt => opt.setName('spell').setDescription('Spell to scribe (required for Scribe a Spell Scroll)').setRequired(false).setAutocomplete(true)))
+	            .addStringOption(opt => opt.setName('activity').setDescription('Activity to perform — start typing to search').setRequired(true).setAutocomplete(true))
+	            .addStringOption(opt => opt.setName('tier').setDescription('Rarity / spell level / tool / etc. — only needed if the activity above has options').setRequired(false).setAutocomplete(true))
+	            .addStringOption(opt => opt.setName('spell').setDescription('Spell to scribe (required for Scribe a Spell Scroll)').setRequired(false).setAutocomplete(true))
+	            .addStringOption(opt => opt.setName('item').setDescription('Magic item to craft (required for Craft a Magic Item)').setRequired(false).setAutocomplete(true))
+	            .addIntegerOption(opt => opt.setName('quantity').setDescription('How many to craft (crafting activities only, default 1)').setRequired(false).setMinValue(1)))
 		    .addSubcommand(sub => sub
 		        .setName('progress')
 		        .setDescription('Invest days into an active downtime activity')
@@ -527,7 +529,7 @@ const commands = [
 		        .setDescription('Spend 1 reputation point for 10 more downtime days'))
 		    .addSubcommand(sub => sub
 		        .setName('activities')
-		        .setDescription('List all downtime activity IDs you can use with /league downtime start')))
+		        .setDescription('Browse all downtime activities, their tiers, costs, and approval requirements')))
         //starter-items
  		.addSubcommand(sub => sub
  			.setName('starter-items')
@@ -715,14 +717,6 @@ const commands = [
 			.addSubcommand(sub => sub
 				.setName('sync-spells')
 				.setDescription('Refresh the spell list used by downtime scroll scribing')))
-		//downtime
-		.addSubcommandGroup(group => group
-		    .setName('downtime')
-		    .setDescription('Downtime approval management')
-		    .addSubcommand(sub => sub
-		        .setName('approve')
-		        .setDescription('Approve a pending downtime start or completion request')
-		        .addStringOption(opt => opt.setName('id').setDescription('Request ID or DTA ID').setRequired(true))))
 		//audit
 		.addSubcommandGroup(group => group
 		    .setName('audit')

@@ -10,9 +10,13 @@ const {
     adjustCharacterNumbersUnlocked,
     withPageLock,
 } = require('../utils/leagueNotion');
-const { createStartRequest } = require('../utils/downtimeApprovals');
-const { loadBlueprints, resolveCostFromUID, getBlueprint, getBlueprintById, nextDtaId, resolveCost, applyDowntimeOutput, getParamName, sumCosts } = require('../utils/downtime');
+const { addAction, getAll: getAllPendingActions } = require('../utils/pendingActions');
+const {
+    loadBlueprints, resolveCostFromUID, getBlueprint, getBlueprintById, getBlueprintByKey,
+    blueprintNeedsTierChoice, listTierChoices, nextDtaId, resolveCost, applyDowntimeOutput, getParamName, sumCosts,
+} = require('../utils/downtime');
 const leagueNotion = require('../utils/leagueNotion');
+const { getCatalogueItemByName } = require('../utils/5etoolsCatalogue');
 const { formatCurrency } = require('../utils/currency');
 const { sendAdminLog } = require('../utils/adminLog');
 
@@ -52,35 +56,85 @@ function getCatchUpTier(level) {
 
 const QUANTITY_ELIGIBLE_CATEGORIES = new Set(['Crafting']);
 
+function tierChoiceHelp(key, blueprint) {
+    const choices = listTierChoices(key);
+    if (!choices.length) return '';
+    const lines = choices.slice(0, 25).map(c => `\`${c.label}\``).join(', ');
+    return `\nValid options for **${blueprint.name}**: ${lines}`;
+}
+
 async function handleDowntimeStart(interaction) {
     await interaction.deferReply({ flags: 64 });
 
-    const uid = interaction.options.getString('activity').toUpperCase();
+    const activityKey = interaction.options.getString('activity');
+    const tierId = interaction.options.getString('tier')?.trim() || null;
     const rawQuantity = interaction.options.getInteger('quantity');
     const spellName = interaction.options.getString('spell')?.trim() || null;
-    const resolved = getBlueprintById(uid);
-    if (!resolved) return interaction.editReply({ content: `❌ No downtime activity found for UID \`${uid}\`.` });
+    const itemChoice = interaction.options.getString('item')?.trim() || null;
 
-    const { key, blueprint } = resolved;
+    const base = getBlueprintByKey(activityKey);
+    if (!base) {
+        return interaction.editReply({ content: `❌ Couldn't find that activity — please pick one from the \`activity\` autocomplete list rather than typing it out.` });
+    }
+    const { key, blueprint } = base;
 
+    // ── Resolve tier (if this blueprint needs one) ─────────────────────────
+    const needsTier = blueprintNeedsTierChoice(key, blueprint);
+    let uid = blueprint.id;
+    let tier = null;
+
+    if (needsTier) {
+        if (!tierId || tierId === '__none__') {
+            return interaction.editReply({ content: `❌ **${blueprint.name}** needs a \`tier\` selection (e.g. rarity, spell level, or tool). Fill in \`activity\` first, then pick from the \`tier\` autocomplete that appears.${tierChoiceHelp(key, blueprint)}` });
+        }
+        tier = blueprint.tiers.find(t => String(t.id).toUpperCase() === tierId.toUpperCase());
+        if (!tier) {
+            return interaction.editReply({ content: `❌ \`${tierId}\` isn't a valid tier for **${blueprint.name}**. Please pick one from the \`tier\` autocomplete list.${tierChoiceHelp(key, blueprint)}` });
+        }
+        uid = tier.id;
+    } else if (tierId) {
+        return interaction.editReply({ content: `❌ **${blueprint.name}** doesn't take a \`tier\` option — leave it blank.` });
+    }
+
+    // ── Quantity ─────────────────────────────────────────────────────────
     const isQuantityEligible = QUANTITY_ELIGIBLE_CATEGORIES.has(blueprint.category);
     if (rawQuantity != null && !isQuantityEligible) {
         return interaction.editReply({ content: `❌ **${blueprint.name}** doesn't support batch quantity — only crafting activities do.` });
     }
     const quantity = isQuantityEligible ? (rawQuantity ?? 1) : 1;
 
+    // ── Spell (Scribe a Spell Scroll only) ──────────────────────────────────
     const isSpellScroll = blueprint.output?.type === 'spellScroll';
     if (isSpellScroll && !spellName) {
-        return interaction.editReply({ content: `❌ **${blueprint.name}** requires the \`spell\` option so the bot knows what to scribe.` });
+        return interaction.editReply({ content: `❌ **${blueprint.name}** requires the \`spell\` option so the bot knows what to scribe — pick one from the autocomplete list, e.g. \`spell: Fireball\`.` });
     }
     if (!isSpellScroll && spellName) {
         return interaction.editReply({ content: `❌ The \`spell\` option only applies to **Scribe a Spell Scroll**.` });
     }
 
+    // ── Magic item (Craft a Magic Item only) ────────────────────────────────
+    const isMagicItem = blueprint.output?.type === 'magicItem';
+    if (isMagicItem && !itemChoice) {
+        return interaction.editReply({ content: `❌ **${blueprint.name}** requires the \`item\` option so the bot knows what to craft — pick one from the autocomplete list, e.g. \`item: Bag of Holding\`.` });
+    }
+    if (!isMagicItem && itemChoice) {
+        return interaction.editReply({ content: `❌ The \`item\` option only applies to **Craft a Magic Item** activities.` });
+    }
+    if (isMagicItem && itemChoice) {
+        const expectedRarity = typeof tier?.value === 'string' ? tier.value : null;
+        const catalogueItem = getCatalogueItemByName(itemChoice);
+        if (!catalogueItem || !catalogueItem.isMagic) {
+            return interaction.editReply({ content: `❌ Couldn't find a magic item called **${itemChoice}** — please pick one from the \`item\` autocomplete list.` });
+        }
+        if (expectedRarity && catalogueItem.rarity !== expectedRarity) {
+            return interaction.editReply({ content: `❌ **${catalogueItem.name}** is ${catalogueItem.rarity}, but you picked the **${expectedRarity}** tier of **${blueprint.name}**. Either change \`tier\` to \`${catalogueItem.rarity}\`, or pick a ${expectedRarity} item from the \`item\` autocomplete list (it's scoped to your chosen tier).` });
+        }
+    }
+
     const char = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!char) return interaction.editReply({ content: '❌ No active character found.' });
 
-    let cost, effectiveUid = uid;
+    let cost;
 
     if (key === 'catch-up-level') {
         const currentLevel = char.properties['Level']?.number ?? 1;
@@ -88,28 +142,61 @@ async function handleDowntimeStart(interaction) {
         if (!tierNum) return interaction.editReply({ content: `❌ Could not determine a catch-up tier for level ${currentLevel}.` });
         const tierResolved = getBlueprintById(`00${tierNum}`);
         if (!tierResolved) return interaction.editReply({ content: '❌ Catch-up tier configuration error.' });
-        effectiveUid = `00${tierNum}`;
-        cost = resolveCostFromUID(effectiveUid);
+        uid = `00${tierNum}`;
+        cost = resolveCostFromUID(uid);
     } else {
         cost = resolveCostFromUID(uid, quantity);
     }
 
-    if (!cost) return interaction.editReply({ content: `❌ Could not resolve a valid cost for UID \`${uid}\`.` });
+    if (!cost) return interaction.editReply({ content: `❌ Could not resolve a valid cost for **${blueprint.name}**. Please try again or contact an admin.` });
 
     if (blueprint.approval?.pre) {
-        const reqId = createStartRequest({ uid: effectiveUid, characterPageId: char.id, discordUserId: interaction.user.id });
+        const characterName  = char.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
+        const className      = char.properties['Class']?.rich_text?.[0]?.plain_text ?? '—';
+        const species        = char.properties['Species']?.rich_text?.[0]?.plain_text ?? '—';
+        const forumThreadId  = char.properties['Forum Thread Id']?.rich_text?.[0]?.plain_text ?? null;
+        const threadLink     = forumThreadId ? `https://discord.com/channels/${interaction.guild.id}/${forumThreadId}` : null;
+        const tierText       = tier ? `${getParamName(blueprint) ?? 'Tier'}: **${tier.value}**` : null;
+
+        const details = {
+            characterName, className, species, forumThreadId,
+            activityName: blueprint.name, tierLabel: tier?.value ?? null,
+            quantity, spellName, itemChoice,
+            daysRequired: cost.daysRequired, gpTotal: cost.gpTotal,
+        };
+
+        const { id: reqId } = addAction({
+            type: 'downtime-start',
+            dm: { discordId: interaction.user.id }, // requester — reusing the shared `dm` field name other action types use
+            target: { characterPageId: char.id, characterName, discordId: interaction.user.id },
+            payload: { uid, quantity, spellName, itemChoice },
+            details,
+        });
+
+        const descriptionLines = [
+            `**Activity:** ${blueprint.name}${tierText ? ` — ${tierText}` : ''}`,
+            `**Requires:** ${cost.daysRequired} day(s)${cost.gpTotal ? ` and ${formatCurrency(cost.gpTotal)}` : ''}`,
+            quantity > 1 ? `**Quantity:** ${quantity}×` : null,
+            spellName ? `**Spell:** ${spellName}` : null,
+            itemChoice ? `**Item:** ${itemChoice}` : null,
+            blueprint.prerequisites?.length ? `**Self-attested prerequisites:** ${blueprint.prerequisites.map(p => p.description).join('; ')}` : null,
+        ].filter(Boolean).join('\n');
+
         await sendAdminLog(interaction.guild, new EmbedBuilder()
             .setColor(0xe67e22)
             .setTitle('⏳ Downtime Start Approval Requested')
             .addFields(
-                { name: 'Request ID', value: `\`${reqId}\``, inline: true },
-                { name: 'Activity',   value: blueprint.name, inline: true },
-                { name: 'Player',     value: `<@${interaction.user.id}>`, inline: true },
+                { name: 'Request ID',     value: `\`${reqId}\``, inline: true },
+                { name: 'Player',         value: `<@${interaction.user.id}> (\`${interaction.user.id}\`)`, inline: true },
+                { name: 'Character',      value: characterName, inline: true },
+                { name: 'Class',          value: className, inline: true },
+                { name: 'Species',        value: species, inline: true },
+                { name: 'Character Post', value: threadLink ? `[Jump to thread](${threadLink})` : '—', inline: true },
             )
-            .setDescription(blueprint.prerequisites?.length ? `**Self-attested prerequisites:** ${blueprint.prerequisites.map(p => p.description).join('; ')}` : null)
+            .setDescription(descriptionLines)
             .setTimestamp()
         );
-        return interaction.editReply({ content: `⏳ **${blueprint.name}** requires admin approval to begin. Request \`${reqId}\` submitted.` });
+        return interaction.editReply({ content: `⏳ **${blueprint.name}**${tierText ? ` (${tier.value})` : ''} requires admin approval to begin. Request \`${reqId}\` submitted — you'll be able to see it in \`/league downtime list\` while it's pending.` });
     }
 
     const dtaId = nextDtaId();
@@ -118,7 +205,7 @@ async function handleDowntimeStart(interaction) {
             dtaId, activityId: key, activityName: blueprint.name, characterPageId: char.id,
             activityType: blueprint.category, daysRequired: cost.daysRequired,
             daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: cost.tierValue,
-            quantity, spellName,
+            quantity, spellName, itemChoice,
         });
     } catch (err) {
         console.error('[downtime start] Notion error:', err);
@@ -132,9 +219,10 @@ async function handleDowntimeStart(interaction) {
         ? `\n📦 Crafting **${quantity}×** in this batch — you'll receive all ${quantity} item(s) together once the full ${cost.daysRequired} day(s) are invested. There's no partial hand-out mid-way.`
         : '';
     const spellNote = spellName ? `\n📜 Spell: **${spellName}**` : '';
+    const itemNote = itemChoice ? `\n🔮 Item: **${itemChoice}**` : '';
 
     return interaction.editReply({
-        content: `✅ Started **${blueprint.name}** — DTA ID \`${dtaId}\`. Requires ${cost.daysRequired} day(s)${cost.gpTotal != null ? ` and ${formatCurrency(cost.gpTotal)}` : ''}.${spellNote}${batchNote}${checksNote}\nUse \`/league downtime progress\` to invest days.`,
+        content: `✅ Started **${blueprint.name}** — DTA ID \`${dtaId}\`. Requires ${cost.daysRequired} day(s)${cost.gpTotal != null ? ` and ${formatCurrency(cost.gpTotal)}` : ''}.${spellNote}${itemNote}${batchNote}${checksNote}\nUse \`/league downtime progress\` to invest days.`,
     });
 }
 
@@ -164,6 +252,7 @@ async function handleDowntimeProgress(interaction) {
     const storedParam   = p['Param Value']?.rich_text?.[0]?.plain_text ?? null;
     const storedQuantity = p['Quantity']?.number ?? 1;
     const storedSpell    = p['Spell Name']?.rich_text?.[0]?.plain_text ?? null;
+    const storedItem     = p['Item Choice']?.rich_text?.[0]?.plain_text ?? null;
 
     const remainingDays = daysRequired - daysInvested;
     if (days > remainingDays) return interaction.editReply({ content: `❌ Only ${remainingDays} day(s) remain on this activity.` });
@@ -219,7 +308,7 @@ async function handleDowntimeProgress(interaction) {
         try {
             outputResult = await applyDowntimeOutput({
                 output: blueprint.output, characterPageId: char.id, activityName, tierValue,
-                quantity: storedQuantity, spellName: storedSpell,
+                quantity: storedQuantity, spellName: storedSpell, itemChoice: storedItem,
             }, leagueNotion, interaction.client, interaction.guild);
         } catch (err) {
             console.error('[downtime progress] Failed to apply output:', err);
@@ -240,14 +329,29 @@ async function handleDowntimeProgress(interaction) {
         );
     }
 
+    let completionActionId = null;
     if (needsCompletionApproval) {
+        const characterName = char.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
+        const created = addAction({
+            type: 'downtime-completion',
+            dm: { discordId: interaction.user.id }, // requester — the player whose activity completed
+            target: { characterPageId: char.id, characterName, discordId: interaction.user.id },
+            payload: {
+                dtaId, notionPageId: progress.id, activityId, activityName,
+                tierValue: coerceParam(storedParam), quantity: storedQuantity,
+                spellName: storedSpell, itemChoice: storedItem,
+            },
+        });
+        completionActionId = created.id;
+
         await sendAdminLog(interaction.guild, new EmbedBuilder()
             .setColor(0xe67e22)
             .setTitle('⏳ Downtime Completion Approval Needed')
             .addFields(
-                { name: 'DTA ID',   value: `\`${dtaId}\``, inline: true },
-                { name: 'Activity', value: activityName, inline: true },
-                { name: 'Player',   value: `<@${interaction.user.id}>`, inline: true },
+                { name: 'Action ID', value: `\`${completionActionId}\``, inline: true },
+                { name: 'DTA ID',    value: `\`${dtaId}\``, inline: true },
+                { name: 'Activity',  value: activityName, inline: true },
+                { name: 'Player',    value: `<@${interaction.user.id}>`, inline: true },
             )
             .setTimestamp()
         );
@@ -268,7 +372,7 @@ async function handleDowntimeProgress(interaction) {
     
     return interaction.editReply({
         content: (needsCompletionApproval
-            ? `⏳ **${activityName}** — all ${daysRequired} day(s) logged! This activity requires an Admin sign-off before it finalizes. A completion approval request has been sent to the admins.`
+            ? `⏳ **${activityName}** — all ${daysRequired} day(s) logged! This activity requires an Admin sign-off before it finalizes. Completion approval request \`${completionActionId}\` sent to the admins.`
             : isComplete
 	            ? `🎉 **${activityName}** complete!${outputResult ? ` ${outputResult.message}` : ''}`
 	            : `✅ Logged ${days} day(s) on **${activityName}** (${newDaysInvested}/${daysRequired}). Spent ${formatCurrency(gpCost)}.`)
@@ -309,6 +413,18 @@ async function handleDowntimeBuyDays(interaction) {
 
 // ─── /league downtime list ─────────────────────────────────────────────────────
 
+function extrasNote(p) {
+    const quantity = p['Quantity']?.number ?? 1;
+    const spellName = p['Spell Name']?.rich_text?.[0]?.plain_text ?? null;
+    const itemChoice = p['Item Choice']?.rich_text?.[0]?.plain_text ?? null;
+    const parts = [
+        quantity > 1 ? `${quantity}×` : null,
+        spellName ? `spell: ${spellName}` : null,
+        itemChoice ? `item: ${itemChoice}` : null,
+    ].filter(Boolean);
+    return parts.length ? ` [${parts.join(', ')}]` : '';
+}
+
 async function handleDowntimeList(interaction) {
     await interaction.deferReply({ flags: 64 });
 
@@ -316,18 +432,57 @@ async function handleDowntimeList(interaction) {
     if (!char) return interaction.editReply({ content: '❌ No active character found.' });
 
     const active = await getActiveDowntimeForCharacter(char.id).catch(() => []);
-    if (active.length === 0) return interaction.editReply({ content: '📋 No active downtime activities.' });
 
-    const rows = active.map(a => {
-        const p = a.properties;
-        const id = p['DTA ID']?.rich_text?.[0]?.plain_text ?? '????';
-        const name = p['Activity Name']?.title?.[0]?.plain_text ?? 'Unknown';
-        const di = p['Days Invested']?.number ?? 0;
-        const dr = p['Days Required']?.number ?? 0;
-        return `\`${id}\`  ${name}  (${di}/${dr} days)`;
-    });
+    const myPending = getAllPendingActions().filter(a => a.target?.discordId === interaction.user.id);
+    const pendingStart = myPending.filter(a => a.type === 'downtime-start');
+    const pendingCompletion = myPending.filter(a => a.type === 'downtime-completion');
 
-    return interaction.editReply({ content: `📋 **Active Downtime Activities**\n${rows.join('\n')}` });
+    if (active.length === 0 && pendingCompletion.length === 0 && pendingStart.length === 0) {
+        return interaction.editReply({ content: '📋 No active or pending downtime activities.' });
+    }
+
+    const sections = [];
+
+    if (active.length > 0) {
+        const rows = active.map(a => {
+            const p = a.properties;
+            const id = p['DTA ID']?.rich_text?.[0]?.plain_text ?? '????';
+            const name = p['Activity Name']?.title?.[0]?.plain_text ?? 'Unknown';
+            const di = p['Days Invested']?.number ?? 0;
+            const dr = p['Days Required']?.number ?? 0;
+            return `\`${id}\`  ${name}${extrasNote(p)}  (${di}/${dr} days)`;
+        });
+        sections.push(`**In Progress**\n${rows.join('\n')}`);
+    }
+
+    if (pendingCompletion.length > 0) {
+        const rows = pendingCompletion.map(a => {
+            const d = a.payload ?? {};
+            const extras = [
+                d.quantity > 1 ? `${d.quantity}×` : null,
+                d.spellName ? `spell: ${d.spellName}` : null,
+                d.itemChoice ? `item: ${d.itemChoice}` : null,
+            ].filter(Boolean).join(', ');
+            return `\`${a.id}\`  ${d.activityName ?? d.dtaId}${extras ? ` (${extras})` : ''}  — ⏳ awaiting admin completion sign-off`;
+        });
+        sections.push(`**Awaiting Completion Approval**\n${rows.join('\n')}`);
+    }
+
+    if (pendingStart.length > 0) {
+        const rows = pendingStart.map(r => {
+            const d = r.details ?? {};
+            const extras = [
+                d.tierLabel ? d.tierLabel : null,
+                d.quantity > 1 ? `${d.quantity}×` : null,
+                d.spellName ? `spell: ${d.spellName}` : null,
+                d.itemChoice ? `item: ${d.itemChoice}` : null,
+            ].filter(Boolean).join(', ');
+            return `\`${r.id}\`  ${d.activityName ?? r.payload?.uid}${extras ? ` (${extras})` : ''}  — ⏳ awaiting admin approval to start`;
+        });
+        sections.push(`**Awaiting Start Approval**\n${rows.join('\n')}`);
+    }
+
+    return interaction.editReply({ content: `📋 **Your Downtime Activities**\n\n${sections.join('\n\n')}` });
 }
 
 // ─── /league downtime activities ───────────────────────────────────────────────
@@ -369,7 +524,7 @@ async function handleDowntimeActivities(interaction) {
         return `**__${category}__**\n${lines.join('\n')}`;
     });
 
-    const content = `📋 **Downtime Activities** (use the UID with \`/league downtime start\`)\n\n${sections.join('\n\n')}`;
+    const content = `📋 **Downtime Activities** (reference only — use \`/league downtime start\` and pick from the autocomplete)\n\n${sections.join('\n\n')}`;
 
     if (content.length <= 2000) return interaction.editReply({ content });
     const chunks = [];
@@ -379,7 +534,7 @@ async function handleDowntimeActivities(interaction) {
         else current = current ? `${current}\n\n${section}` : section;
     }
     if (current) chunks.push(current);
-    await interaction.editReply({ content: `📋 **Downtime Activities** (use the UID with \`/league downtime start\`)\n\n${chunks[0]}` });
+    await interaction.editReply({ content: `📋 **Downtime Activities** (reference only — use \`/league downtime start\` and pick from the autocomplete)\n\n${chunks[0]}` });
     for (const chunk of chunks.slice(1)) await interaction.followUp({ content: chunk, flags: 64 });
 }
 

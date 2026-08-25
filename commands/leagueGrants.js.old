@@ -12,7 +12,8 @@ const { attachDashboardExpiry } = require('../utils/dashboardExpiry');
 const { leagueDMQuest, questLinkAutocomplete, approveQuestLink, approveQuestComplete, approveQuestCancel, getQuestById, listQuests } = require('./leagueQuest');
 const { leagueAdminShop, leagueAdminCatalogue } = require('./leagueShop');
 const { leagueDowntime } = require('./leagueDowntime');
-const { setDowntimeStatus, createDowntimeProgress } = require('../utils/leagueNotion');
+const { getRequest, removeRequest } = require('../utils/downtimeApprovals');
+const { getDowntimeProgressById, setDowntimeStatus, createDowntimeProgress } = require('../utils/leagueNotion');
 const leagueNotion = require('../utils/leagueNotion');
 const { findCharacterStatusIssues } = require('../utils/leagueNotion');
 const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../utils/downtime');
@@ -400,20 +401,8 @@ async function handlePending(interaction) {
         return interaction.editReply({ content: '✅ No pending actions.' });
     }
 
-    const GRANT_TYPES = new Set(['reputation', 'gold', 'milestone']);
-    const QUEST_TYPES = new Set(['quest-link', 'quest-complete', 'quest-cancel', 'quest-report']);
-    const DOWNTIME_START_TYPES = new Set(['downtime-start']);
-    const DOWNTIME_COMPLETION_TYPES = new Set(['downtime-completion']);
-
-    const grantLines = [];
-    const itemLines = [];
-    const questLines = [];
-    const downtimeStartLines = [];
-    const downtimeCompletionLines = [];
-
-    for (const a of actions) {
+    const lines = actions.map(a => {
         const timestamp = `<t:${Math.floor(new Date(a.createdAt).getTime() / 1000)}:R>`;
-        let line;
 
         if (a.type === 'quest-report') {
             const allLines = a.payload?.lines ?? [];
@@ -426,72 +415,19 @@ async function handlePending(interaction) {
                 failedCount > 0 ? `${failedCount} failed` : null,
             ].filter(Boolean).join(', ');
             const label = `${allLines.length} line item(s) across ${characterCount} character(s)${notes ? ` (${notes})` : ''} — ${a.quest?.questName ?? a.quest?.questId ?? 'Unknown quest'}`;
-            line = `\`${a.id}\` — ${label} | Requested by <@${a.dm.discordId}> | ${timestamp}`;
-        } else if (a.type === 'downtime-start') {
-            const d = a.details ?? {};
-            const extras = [
-                d.tierLabel ? d.tierLabel : null,
-                d.quantity > 1 ? `${d.quantity}×` : null,
-                d.spellName ? `spell: ${d.spellName}` : null,
-                d.itemChoice ? `item: ${d.itemChoice}` : null,
-            ].filter(Boolean).join(', ');
-            const label = `${d.activityName ?? a.payload?.uid}${extras ? ` (${extras})` : ''} — ${d.characterName ?? 'Unknown character'}`;
-            line = `\`${a.id}\` — ${label} | Requested by <@${a.dm.discordId}> | ${timestamp}`;
-        } else if (a.type === 'downtime-completion') {
-            const d = a.payload ?? {};
-            const extras = [
-                d.quantity > 1 ? `${d.quantity}×` : null,
-                d.spellName ? `spell: ${d.spellName}` : null,
-                d.itemChoice ? `item: ${d.itemChoice}` : null,
-            ].filter(Boolean).join(', ');
-            const label = `${d.activityName ?? d.dtaId}${extras ? ` (${extras})` : ''} — ${a.target?.characterName ?? 'Unknown character'} (DTA \`${d.dtaId}\`)`;
-            line = `\`${a.id}\` — ${label} | Player <@${a.dm.discordId}> | ${timestamp}`;
-        } else {
-            const label = a.target?.characterName
-                ? `${a.target.characterName} (+${a.payload?.amount})`
-                : a.quest?.questName ?? 'Unknown';
-            line = `\`${a.id}\` — **${a.type}** | ${label} | Requested by <@${a.dm.discordId}> | ${timestamp}`;
+            return `\`${a.id}\` — **quest-report** | ${label} | Requested by <@${a.dm.discordId}> | ${timestamp}`;
         }
 
-        if (GRANT_TYPES.has(a.type)) grantLines.push(line);
-        else if (a.type === 'item') itemLines.push(line);
-        else if (QUEST_TYPES.has(a.type)) questLines.push(line);
-        else if (DOWNTIME_START_TYPES.has(a.type)) downtimeStartLines.push(line);
-        else if (DOWNTIME_COMPLETION_TYPES.has(a.type)) downtimeCompletionLines.push(line);
-        else grantLines.push(line);
-    }
-
-    // chunk any section that overflows.
-    function chunkedFields(sectionName, sectionLines) {
-        if (sectionLines.length === 0) return [];
-        const fields = [];
-        let buf = '';
-        let part = 1;
-        for (const line of sectionLines) {
-            if ((buf + '\n' + line).length > 1000) {
-                fields.push({ name: part === 1 ? sectionName : `${sectionName} (cont.)`, value: buf.trim() });
-                buf = '';
-                part++;
-            }
-            buf += line + '\n';
-        }
-        if (buf.trim()) fields.push({ name: part === 1 ? sectionName : `${sectionName} (cont.)`, value: buf.trim() });
-        return fields;
-    }
-
-    const fields = [
-        ...chunkedFields(`💰 Currency & Milestone Grants (${grantLines.length})`, grantLines),
-        ...chunkedFields(`🎒 Item Grants (${itemLines.length})`, itemLines),
-        ...chunkedFields(`📜 Quest Actions (${questLines.length})`, questLines),
-        ...chunkedFields(`🛠️ Downtime — Start Approval (${downtimeStartLines.length})`, downtimeStartLines),
-        ...chunkedFields(`⏳ Downtime — Completion Approval (${downtimeCompletionLines.length})`, downtimeCompletionLines),
-    ].slice(0, 25);
+        const label = a.target?.characterName
+            ? `${a.target.characterName} (+${a.payload?.amount})`
+            : a.quest?.questName ?? 'Unknown';
+        return `\`${a.id}\` — **${a.type}** | ${label} | Requested by <@${a.dm.discordId}> | ${timestamp}`;
+    });
 
     const embed = new EmbedBuilder()
         .setColor(0x5865f2)
         .setTitle('⏳ Pending Actions')
-        .addFields(fields)
-        .setFooter({ text: 'Approve/reject grants & quests with /leagueadmin approve|reject. Approve downtime with /leagueadmin downtime approve.' })
+        .setDescription(lines.join('\n'))
         .setTimestamp();
 
     return interaction.editReply({ embeds: [embed] });
@@ -632,7 +568,6 @@ async function handleApprove(interaction, client) {
                         : 'None';
 
                     await approveQuestComplete(entry, interaction, { appliedLinesText });
-                    removeById(id);
                     results.push(`✅ \`${id}\` — **${entry.quest.questName}** completed, ${appliedLines.length} reward line(s) applied.`);
                 } else {
                     entry.status = 'partially_failed';
@@ -716,89 +651,6 @@ async function handleApprove(interaction, client) {
 
                     results.push(`⚠️ \`${id}\` — quest report partially applied (${summary.applied.length} ok, ${summary.failed.length} failed)${skippedNote}. Left pending for manual fix + re-approve.`);
                 }
-                continue;
-            }
-
-            if (entry.type === 'downtime-start') {
-                const { uid, quantity } = entry.payload;
-                const resolved = getBlueprintById(uid);
-                if (!resolved) {
-                    results.push(`❌ \`${id}\` — refers to a UID (\`${uid}\`) that no longer exists. Not approved — consider rejecting it instead.`);
-                    continue;
-                }
-                const { key, blueprint } = resolved;
-                const cost = resolveCostFromUID(uid, quantity ?? 1);
-                if (!cost) {
-                    results.push(`❌ \`${id}\` — could not resolve a valid cost for **${blueprint.name}** (UID \`${uid}\`). Not approved.`);
-                    continue;
-                }
-
-                const dtaId = nextDtaId();
-                try {
-                    await createDowntimeProgress({
-                        dtaId, activityId: key, activityName: blueprint.name, characterPageId: entry.target.characterPageId,
-                        activityType: blueprint.category, daysRequired: cost.daysRequired,
-                        daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: cost.tierValue,
-                        quantity: quantity ?? 1, spellName: entry.payload.spellName ?? null, itemChoice: entry.payload.itemChoice ?? null,
-                    });
-                } catch (err) {
-                    console.error(`[leagueadmin approve] Notion error creating downtime progress for ${id}:`, err);
-                    results.push(`❌ \`${id}\` — failed to create the downtime activity. Please try again.`);
-                    continue;
-                }
-
-                removeById(id);
-                await sendAdminLog(interaction.guild, new EmbedBuilder()
-                    .setColor(0x57f287)
-                    .setTitle('✅ Downtime Start Approved')
-                    .addFields(
-                        { name: 'Action ID',  value: `\`${id}\``, inline: true },
-                        { name: 'DTA ID',     value: `\`${dtaId}\``, inline: true },
-                        { name: 'Activity',   value: blueprint.name, inline: true },
-                        { name: 'Character',  value: entry.target.characterName, inline: true },
-                        { name: 'Player',     value: `<@${entry.dm.discordId}>`, inline: true },
-                        { name: 'Approved By',value: `<@${interaction.user.id}>`, inline: true },
-                    )
-                    .setTimestamp()
-                );
-                results.push(`✅ \`${id}\` — **${blueprint.name}** approved and started as \`${dtaId}\`.`);
-                continue;
-            }
-
-            if (entry.type === 'downtime-completion') {
-                const { dtaId, notionPageId, activityId, activityName, tierValue, quantity, spellName, itemChoice } = entry.payload;
-
-                await setDowntimeStatus(notionPageId, 'Completed');
-
-                let outputResult = null;
-                const blueprint = activityId ? getBlueprint(activityId) : null;
-                if (blueprint?.output) {
-                    try {
-                        outputResult = await applyDowntimeOutput({
-                            output: blueprint.output, characterPageId: entry.target.characterPageId, activityName, tierValue,
-                            quantity, spellName, itemChoice, sourceQuestId: null,
-                        }, leagueNotion, interaction.client, interaction.guild);
-                    } catch (err) {
-                        console.error(`[leagueadmin approve] Failed to apply downtime output for ${id}:`, err);
-                    }
-                }
-
-                removeById(id);
-                await sendAdminLog(interaction.guild, new EmbedBuilder()
-                    .setColor(outputResult?.needsManualGrant ? 0xe67e22 : 0x57f287)
-                    .setTitle(outputResult?.needsManualGrant ? '🎒 Downtime Output — Manual Grant Needed' : '✅ Downtime Completion Approved')
-                    .addFields(
-                        { name: 'Action ID',  value: `\`${id}\``, inline: true },
-                        { name: 'DTA ID',     value: `\`${dtaId}\``, inline: true },
-                        { name: 'Activity',   value: activityName, inline: true },
-                        { name: 'Character',  value: entry.target.characterName, inline: true },
-                        { name: 'Player',     value: `<@${entry.dm.discordId}>`, inline: true },
-                        { name: 'Approved By',value: `<@${interaction.user.id}>`, inline: true },
-                        ...(outputResult ? [{ name: 'Output', value: outputResult.message, inline: false }] : []),
-                    )
-                    .setTimestamp()
-                );
-                results.push(`✅ \`${id}\` — **${activityName}** completion approved.${outputResult ? ` ${outputResult.message}` : ''}`);
                 continue;
             }
 
@@ -946,80 +798,6 @@ async function handleReject(interaction) {
             continue;
         }
 
-        if (entry.type === 'downtime-start') {
-            if (!reason) {
-                results.push(`❌ \`${id}\` — a \`reason\` is required to reject a downtime start request.`);
-                continue;
-            }
-            removeById(id);
-
-            await sendAdminLog(interaction.guild, new EmbedBuilder()
-                .setColor(0xed4245)
-                .setTitle('❌ Downtime Start Rejected')
-                .addFields(
-                    { name: 'Activity',     value: entry.details?.activityName ?? 'Unknown', inline: true },
-                    { name: 'Character',    value: entry.target.characterName, inline: true },
-                    { name: 'Player',       value: `<@${entry.dm.discordId}>`, inline: true },
-                    { name: 'Rejected By',  value: `<@${interaction.user.id}>`, inline: true },
-                    { name: 'Reason',       value: reason, inline: false },
-                    { name: 'Action ID',    value: `\`${id}\``, inline: false },
-                )
-                .setTimestamp()
-            );
-
-            try {
-                const dmUser = await interaction.client.users.fetch(entry.dm.discordId);
-                await dmUser.send({ content: `Your request to start **${entry.details?.activityName ?? 'a downtime activity'}** on **${entry.target.characterName}** was rejected.\n**Reason:** ${reason}` });
-            } catch (err) {
-                console.warn(`[leagueadmin reject] Failed to DM ${entry.dm.discordId}:`, err.message);
-            }
-
-            results.push(`✅ \`${id}\` — downtime start for **${entry.target.characterName}** rejected, no activity created.`);
-            continue;
-        }
-
-        if (entry.type === 'downtime-completion') {
-            if (!reason) {
-                results.push(`❌ \`${id}\` — a \`reason\` is required to reject a downtime completion.`);
-                continue;
-            }
-            const { dtaId, notionPageId, activityName } = entry.payload;
-
-            try {
-                await setDowntimeStatus(notionPageId, 'In Progress');
-            } catch (err) {
-                console.error(`[leagueadmin reject] Failed to revert downtime status for ${id}:`, err);
-                results.push(`❌ \`${id}\` — failed to revert \`${dtaId}\` to In Progress. Check logs before retrying.`);
-                continue;
-            }
-            removeById(id);
-
-            await sendAdminLog(interaction.guild, new EmbedBuilder()
-                .setColor(0xed4245)
-                .setTitle('❌ Downtime Completion Rejected')
-                .addFields(
-                    { name: 'Activity',     value: activityName ?? 'Unknown', inline: true },
-                    { name: 'DTA ID',       value: `\`${dtaId}\``, inline: true },
-                    { name: 'Character',    value: entry.target.characterName, inline: true },
-                    { name: 'Player',       value: `<@${entry.dm.discordId}>`, inline: true },
-                    { name: 'Rejected By',  value: `<@${interaction.user.id}>`, inline: true },
-                    { name: 'Reason',       value: reason, inline: false },
-                    { name: 'Action ID',    value: `\`${id}\``, inline: false },
-                )
-                .setTimestamp()
-            );
-
-            try {
-                const dmUser = await interaction.client.users.fetch(entry.dm.discordId);
-                await dmUser.send({ content: `Your completion of **${activityName ?? 'a downtime activity'}** (\`${dtaId}\`) on **${entry.target.characterName}** was rejected and put back to In Progress.\n**Reason:** ${reason}\nUse \`/league downtime progress\` once it's ready to resubmit.` });
-            } catch (err) {
-                console.warn(`[leagueadmin reject] Failed to DM ${entry.dm.discordId}:`, err.message);
-            }
-
-            results.push(`✅ \`${id}\` — completion for \`${dtaId}\` rejected, reverted to In Progress.`);
-            continue;
-        }
-
         removeById(id);
 
         await sendAdminLog(interaction.guild, new EmbedBuilder()
@@ -1041,6 +819,108 @@ async function handleReject(interaction) {
     }
 
     return interaction.editReply({ content: results.join('\n') });
+}
+
+async function handleAdminDowntimeApprove(interaction) {
+    if (!isAdminChannel(interaction, 'league')) {
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
+    }
+
+    await interaction.deferReply({ flags: 64 });
+    const id = interaction.options.getString('id').toUpperCase();
+
+    const startReq = getRequest(id);
+    if (startReq) {
+        const resolved = getBlueprintById(startReq.uid);
+        if (!resolved) {
+            return interaction.editReply({ content: `❌ Request \`${id}\` refers to a UID (\`${startReq.uid}\`) that no longer exists. It was not approved — you may want to reject it instead.` });
+        }
+        const { key, blueprint } = resolved;
+
+        const cost = resolveCostFromUID(startReq.uid);
+        if (!cost) {
+            return interaction.editReply({ content: `❌ Could not resolve a valid cost for **${blueprint.name}** (UID \`${startReq.uid}\`). It was not approved.` });
+        }
+
+        const dtaId = nextDtaId();
+        try {
+            await createDowntimeProgress({
+                dtaId, activityId: key, activityName: blueprint.name, characterPageId: startReq.characterPageId,
+                activityType: blueprint.category, daysRequired: cost.daysRequired,
+                daysInvested: 0, goldRequired: cost.gpTotal, goldInvested: 0, paramValue: cost.tierValue,
+            });
+        } catch (err) {
+            console.error('[downtime approve] Notion error:', err);
+            return interaction.editReply({ content: `❌ Failed to create the downtime activity for request \`${id}\`. Please try again.` });
+        }
+
+        removeRequest(id);
+
+        await sendAdminLog(interaction.guild, new EmbedBuilder()
+            .setColor(0x2ecc71)
+            .setTitle('✅ Downtime Start Approved')
+            .addFields(
+                { name: 'Request ID', value: `\`${id}\``, inline: true },
+                { name: 'DTA ID',     value: `\`${dtaId}\``, inline: true },
+                { name: 'Activity',   value: blueprint.name, inline: true },
+                { name: 'Player',     value: `<@${startReq.discordUserId}>`, inline: true },
+                { name: 'Approved By',value: `<@${interaction.user.id}>`, inline: true },
+            )
+            .setTimestamp()
+        );
+
+        return interaction.editReply({ content: `✅ Approved start request \`${id}\` — **${blueprint.name}** created as \`${dtaId}\`.` });
+    }
+
+    const progress = await getDowntimeProgressById(id).catch(() => null);
+    if (!progress) return interaction.editReply({ content: `❌ No pending request or downtime activity found for \`${id}\`.` });
+
+    const status = progress.properties['Status']?.select?.name;
+    if (status !== 'Pending Completion Approval') {
+        return interaction.editReply({ content: `❌ \`${id}\` is not awaiting completion approval (current status: ${status}).` });
+    }
+
+    await setDowntimeStatus(progress.id, 'Completed');
+
+    const p = progress.properties;
+    const activityId = p['Activity ID']?.rich_text?.[0]?.plain_text ?? null;
+    const activityName = p['Activity Name']?.title?.[0]?.plain_text ?? 'Unknown';
+    const characterRelId = p['Character']?.relation?.[0]?.id ?? null;
+    const storedParam = p['Param Value']?.rich_text?.[0]?.plain_text ?? null;
+    const storedQuantity = p['Quantity']?.number ?? 1;
+    const storedSpell = p['Spell Name']?.rich_text?.[0]?.plain_text ?? null;
+    const storedItem = p['Item Choice']?.rich_text?.[0]?.plain_text ?? null;
+
+    let outputResult = null;
+    const blueprint = activityId ? getBlueprint(activityId) : null;
+    if (blueprint?.output && characterRelId) {
+        const tierValue = storedParam != null && !isNaN(Number(storedParam)) ? Number(storedParam) : storedParam;
+        try {
+            outputResult = await applyDowntimeOutput({
+                output: blueprint.output, characterPageId: characterRelId, activityName, tierValue,
+                quantity: storedQuantity, spellName: storedSpell, itemChoice: storedItem, sourceQuestId: null,
+            }, leagueNotion, interaction.client, interaction.guild);
+        } catch (err) {
+            console.error('[downtime approve] Failed to apply output:', err);
+        }
+    }
+    
+    if (outputResult) {
+        await sendAdminLog(interaction.guild, new EmbedBuilder()
+            .setColor(outputResult.needsManualGrant ? 0xe67e22 : 0x2ecc71)
+            .setTitle(outputResult.needsManualGrant ? '🎒 Downtime Output — Manual Grant Needed' : '🎁 Downtime Output Applied')
+            .addFields(
+                { name: 'Request ID', value: `\`${id}\``, inline: true },
+                { name: 'Activity',   value: activityName, inline: true },
+                { name: 'Output',     value: outputResult.message, inline: false },
+            )
+            .setTimestamp()
+        );
+    }
+    
+    return interaction.editReply({
+        content: `✅ Completion approved for \`${id}\`.${outputResult ? ` ${outputResult.message}` : ''}`,
+    });
 }
 
 // ─── Shared admin item-grant executor ──────────────────────────────────────────
@@ -1347,6 +1227,9 @@ async function leagueAdmin(interaction, client) {
 	}
 	if (group === 'shop')      return leagueAdminShop(interaction);
 	if (group === 'catalogue') return leagueAdminCatalogue(interaction);
+	if (group === 'downtime') {
+		if (sub === 'approve') return handleAdminDowntimeApprove(interaction);
+	}
 	if (group === 'audit') {
 		if (sub === 'characters') return handleAdminAuditCharacters(interaction);
 	}

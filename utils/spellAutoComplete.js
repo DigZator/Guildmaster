@@ -11,11 +11,11 @@ function formatChoice(spell) {
 
 async function spellAutocomplete(interaction) {
     const focused = interaction.options.getFocused().toLowerCase();
-    const uid = interaction.options.getString('activity');
+    const tierUid = interaction.options.getString('tier'); // spell level now lives on `tier`, not `activity`
 
     let level = null;
-    if (uid) {
-        const resolved = getBlueprintById(uid.toUpperCase());
+    if (tierUid && tierUid !== '__none__') {
+        const resolved = getBlueprintById(tierUid.toUpperCase());
         if (resolved?.tier?.value != null && typeof resolved.tier.value === 'number') {
             level = resolved.tier.value;
         }

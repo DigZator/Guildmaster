@@ -3,6 +3,7 @@ const { createJsonStore } = require('./jsonStore');
 const { BOT_LOG_CHANNEL_ID } = require('../data/channels');
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 const DISCORD_EPOCH = 1420070400000n;
 
 const store = createJsonStore(path.join(__dirname, '../data/threadReport.json'), { nextReportDue: null });
@@ -36,6 +37,10 @@ function formatThreadLine(thread) {
     return `• <#${thread.id}> in ${parentMention} — last activity <t:${lastActive}:R>`;
 }
 
+function withBlankLines(lines) {
+    return lines.flatMap((line, i) => i < lines.length - 1 ? [line, ''] : [line]);
+}
+
 async function runThreadActivityReport(client) {
     const logChannel = client.channels.cache.get(BOT_LOG_CHANNEL_ID);
     if (!logChannel || !logChannel.guild) {
@@ -57,12 +62,17 @@ async function runThreadActivityReport(client) {
         return;
     }
 
-    const cutoff = Date.now() - THREE_DAYS_MS;
+    const activeCutoff = Date.now() - THREE_DAYS_MS;
+    const staleCutoff = Date.now() - SEVEN_DAYS_MS;
     const stillActive = [];
     const wentSilent = [];
+    let goneStaleCount = 0;
 
     for (const thread of activeThreads) {
-        (lastActivityTimestamp(thread) >= cutoff ? stillActive : wentSilent).push(thread);
+        const lastActive = lastActivityTimestamp(thread);
+        if (lastActive >= activeCutoff) stillActive.push(thread);
+        else if (lastActive >= staleCutoff) wentSilent.push(thread);
+        else goneStaleCount++;
     }
 
     stillActive.sort((a, b) => lastActivityTimestamp(b) - lastActivityTimestamp(a));
@@ -73,10 +83,12 @@ async function runThreadActivityReport(client) {
     sections.push(`🧵 **Thread Activity Report** — ${activeThreads.length} active thread(s) total.`);
 
     sections.push(`\n**✅ Active in the last 3 days (${stillActive.length}):**`);
-    sections.push(...(stillActive.length ? stillActive.map(formatThreadLine) : ['*None.*']));
+    sections.push(...(stillActive.length ? withBlankLines(stillActive.map(formatThreadLine)) : ['*None.*']));
 
-    sections.push(`\n**💤 Went silent (no activity in 3+ days) (${wentSilent.length}):**`);
-    sections.push(...(wentSilent.length ? wentSilent.map(formatThreadLine) : ['*None.*']));
+    sections.push(`\n**💤 Went silent — 3 to 7 days inactive (${wentSilent.length}):**`);
+    sections.push(...(wentSilent.length ? withBlankLines(wentSilent.map(formatThreadLine)) : ['*None.*']));
+
+    sections.push(`\n🗑 ${goneStaleCount} thread(s) inactive 7+ days — not shown.`);
 
     for (const chunk of chunkLines(sections)) {
         await logChannel.send(chunk);
@@ -101,13 +113,11 @@ async function runAndReschedule(client) {
     setTimeout(() => runAndReschedule(client), THREE_DAYS_MS);
 }
 
-// On startup: figure out whether a report was already due
 function scheduleFromStore(client) {
     const data = store.load();
     const now = Date.now();
 
     if (!data.nextReportDue) {
-        // First run ever - nothing to catch up on, just set the baseline.
         store.save({ nextReportDue: now + THREE_DAYS_MS });
         setTimeout(() => runAndReschedule(client), THREE_DAYS_MS);
         return;

@@ -70,7 +70,7 @@
         "dc": 10
       },
       "approval": {
-        "pre": false,
+        "pre": true,
         "post": false
       },
       "prerequisites": [
@@ -181,7 +181,7 @@
         ]
       },
       "approval": {
-        "pre": false,
+        "pre": true,
         "post": false
       },
       "prerequisites": [
@@ -263,17 +263,137 @@
       "costModel": "parameterized",
       "parameter": "spellLevel",
       "tiers": [
-          { "id": "300", "value": 0, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "301", "value": 1, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "302", "value": 2, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "303", "value": 3, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "304", "value": 4, "daysRequired": 1, "costs": [{ "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "305", "value": 5, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "306", "value": 6, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "307", "value": 7, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "308", "value": 8, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] },
-          { "id": "309", "value": 9, "daysRequired": 2, "costs": [{ "type": "gp", "value": 50 }, { "type": "reference", "key": "spellScribingCost" }] }
-        ],
+        {
+          "id": "300",
+          "value": 0,
+          "daysRequired": 1,
+          "costs": [
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "301",
+          "value": 1,
+          "daysRequired": 1,
+          "costs": [
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "302",
+          "value": 2,
+          "daysRequired": 1,
+          "costs": [
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "303",
+          "value": 3,
+          "daysRequired": 1,
+          "costs": [
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "304",
+          "value": 4,
+          "daysRequired": 1,
+          "costs": [
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "305",
+          "value": 5,
+          "daysRequired": 2,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 50
+            },
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "306",
+          "value": 6,
+          "daysRequired": 2,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 50
+            },
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "307",
+          "value": 7,
+          "daysRequired": 2,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 50
+            },
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "308",
+          "value": 8,
+          "daysRequired": 2,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 50
+            },
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        },
+        {
+          "id": "309",
+          "value": 9,
+          "daysRequired": 2,
+          "costs": [
+            {
+              "type": "gp",
+              "value": 50
+            },
+            {
+              "type": "reference",
+              "key": "spellScribingCost"
+            }
+          ]
+        }
+      ],
       "approval": {
         "pre": false,
         "post": false
@@ -407,7 +527,7 @@
         }
       ],
       "approval": {
-        "pre": false,
+        "pre": true,
         "post": false
       },
       "prerequisites": [
@@ -433,7 +553,7 @@
         }
       ],
       "approval": {
-        "pre": false,
+        "pre": true,
         "post": false
       },
       "prerequisites": [

@@ -255,16 +255,27 @@ module.exports = {
       description: 'Run downtime activities between quests.',
       commands: [
         {
-          name: '/league downtime start <activity>',
-          description: 'Begin a downtime activity by its ID.',
+          name: '/league downtime start <activity> [tier] [spell] [item] [quantity]',
+          description:
+            'Begin a downtime activity — no more IDs to look up. Start typing in `activity` and pick from the list. If that activity has options (a rarity, a spell level, a tool, etc.), a `tier` field appears next — fill in `activity` first, then autocomplete `tier` narrows to just that activity\'s options. ' +
+            '`spell` is required for Scribe a Spell Scroll and `item` is required for Craft a Magic Item (both autocomplete). `quantity` only applies to crafting activities (default 1). ' +
+            'Magic item crafting, mundane item crafting, and spell scroll scribing always require admin approval before they start, since the bot can\'t verify prerequisites against your character sheet — an admin resolves this with `/leagueadmin approve` or `/leagueadmin reject`, and you\'ll be notified either way.',
         },
         {
           name: '/league downtime progress <id> <days>',
-          description: 'Invest days into an activity you\'ve already started, by its DTA ID.',
+          description: 'Invest days into an activity you\'ve already started, by its DTA ID. Some activities also require admin sign-off when they finish — you\'ll be notified either way.',
         },
         {
           name: '/league downtime list',
-          description: 'View your currently active downtime activities.',
+          description: 'View your downtime activities: in progress, awaiting completion approval, and awaiting start approval — each with quantity/spell/item spelled out where relevant.',
+        },
+        {
+          name: '/league downtime buy-days',
+          description: 'Spend 1 reputation point for 10 more downtime days. Confirm with the button that appears.',
+        },
+        {
+          name: '/league downtime activities',
+          description: 'Browse every downtime activity, its tiers, costs, and whether it needs admin approval — for reference; you don\'t need anything from here to run `start` anymore.',
         },
       ],
     },
@@ -385,7 +396,9 @@ module.exports = {
       label: 'Approvals',
       description:
         'Requires the Admin role, used in the league admin channel.\n\n' +
-        'Every DM-submitted grant (gold, reputation, milestones, items, quest completion) and every player downtime request lands in the pending queue rather than taking effect immediately. Use `pending` to see what\'s waiting, then `approve` or `reject` by action ID to resolve it. Approving finalizes the change (e.g. actually creates the item, or applies the gold); rejecting discards it with no effect.',
+        'Every DM-submitted grant (gold, reputation, milestones, items, quest completion) and every player downtime request lands in the pending queue rather than taking effect immediately. Use `pending` to see what\'s waiting, then `approve` or `reject` by action ID to resolve it. Approving finalizes the change (e.g. actually creates the item, or applies the gold); rejecting discards it with no effect.\n\n' +
+        '`pending` lists every action awaiting sign-off, including downtime activities: **downtime-start** (magic items, mundane crafting, and spell scrolls always need this) and **downtime-completion** (activities finishing where the blueprint requires post-approval). There is a single approve/reject flow for everything — `/leagueadmin approve id: <id>` and `/leagueadmin reject id: <id> reason: <why>` — no separate downtime command anymore. `reason` is required to reject a downtime-start or downtime-completion action; rejecting a start discards the request outright, rejecting a completion reverts the activity to In Progress (nothing is lost — invested days/gold stay, no output is granted, the player can pick it back up).\n\n' +
+        'The `pending` output is grouped into sections so it stays readable as the queue grows: **Currency & Milestone Grants**, **Item Grants**, **Quest Actions**, **Downtime — Start Approval**, **Downtime — Completion Approval** — each with a count in its heading.',
       commands: [
         {
           name: '/leagueadmin pending',

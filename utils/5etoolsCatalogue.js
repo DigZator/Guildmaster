@@ -151,7 +151,7 @@ function comboCode(naturalKey) {
     return 'V' + Math.abs(h).toString(36).toUpperCase().padStart(5, '0').slice(0, 5);
 }
 
-let comboCache = null; // { byBaseCombos: [...] } built lazily, busted on sync
+let comboCache = null;
 
 function invalidateComboCache() {
     comboCache = null;
@@ -324,7 +324,7 @@ function defaultPriceFor(rarity) { return DEFAULT_PRICE_BY_RARITY[rarity] ?? DEF
 
 module.exports = {
     syncCatalogue, loadCatalogue, searchCatalogue, getCatalogueItemByCode, 
-    getCatalogueItemByName, getCatalogueMeta,
+    getCatalogueItemByName, getCatalogueMeta, getComboCache,
     restockCadenceMsFor, restockQtyFor, defaultPriceFor,inferSubtype,
     invalidateComboCache,
 

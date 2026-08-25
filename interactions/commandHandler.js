@@ -21,6 +21,8 @@ const helpData = require('../helpData');
 const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');
 const { getItemAutocompleteChoices } = require('../utils/inventoryHelper');
 const { spellAutocomplete } = require('../utils/spellAutoComplete');
+const { magicItemAutocomplete } = require('../utils/magicItemAutoComplete');
+const { downtimeActivityAutocomplete, downtimeTierAutocomplete } = require('../utils/downtimeAutoComplete');
 const get_players = require('../commands/get_players');
 
 const CODE_AUTOCOMPLETE_TARGETS = new Set([
@@ -154,11 +156,23 @@ module.exports = (client) => {
                     return;
                 }
 
-                // Spell autocomplete (league downtime start) — for scroll scribing
+                // Downtime start: activity → tier (dependent) → spell/item
                 if (interaction.commandName === 'league' && group === 'downtime' && sub === 'start') {
                     const focused = interaction.options.getFocused(true);
+                    if (focused.name === 'activity') {
+                        await downtimeActivityAutocomplete(interaction);
+                        return;
+                    }
+                    if (focused.name === 'tier') {
+                        await downtimeTierAutocomplete(interaction);
+                        return;
+                    }
                     if (focused.name === 'spell') {
                         await spellAutocomplete(interaction);
+                        return;
+                    }
+                    if (focused.name === 'item') {
+                        await magicItemAutocomplete(interaction);
                         return;
                     }
                 }

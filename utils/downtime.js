@@ -3,6 +3,7 @@ const path = require('path');
 const { EmbedBuilder } = require('discord.js');
 const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('./leagueNotion');
 const { resolveLevelUps, LEVEL_CONFIG } = require('../config/leagueLeveling');
+const { getCatalogueItemByName, inferSubtype } = require('./5etoolsCatalogue');
 
 const BLUEPRINTS_PATH = path.join(__dirname, '..', 'data', 'downtimeBlueprints.json');
 const SEQUENCE_PATH    = path.join(__dirname, '..', 'data', 'downtimeSequence.json');
@@ -102,6 +103,58 @@ function loadBlueprints() {
 
 function getBlueprint(activityId) {
     return loadBlueprints()[activityId] ?? null;
+}
+
+// ─── Key-based lookup (no UID needed) ──────────────────────────────────────────
+
+function getBlueprintByKey(key) {
+    if (!key) return null;
+    const bp = loadBlueprints()[key];
+    return bp ? { key, blueprint: bp } : null;
+}
+
+function blueprintNeedsTierChoice(key, blueprint) {
+    return Boolean(blueprint.tiers) && key !== 'catch-up-level';
+}
+
+function tierLabel(blueprint, tier) {
+    const valueLabel = tier.value ?? (tier.min != null || tier.max != null ? `${tier.min ?? '–'}–${tier.max ?? '–'}` : '?');
+    const costLabel = formatTierCostShort(blueprint, tier);
+    return `${valueLabel} — ${tier.daysRequired}d${costLabel ? ` · ${costLabel}` : ''}`;
+}
+
+function formatTierCostShort(blueprint, tier) {
+    const paramName = getParamName(blueprint);
+    const params = paramName && tier.value != null ? { [paramName]: tier.value } : {};
+    const { gpTotal, gpPerDay } = sumCosts(tier.costs ?? [], params);
+    const parts = [];
+    if (gpTotal > 0) parts.push(`${gpTotal}gp`);
+    if (gpPerDay > 0) parts.push(`${gpPerDay}gp/day`);
+    return parts.join(' + ');
+}
+
+function listActivityChoices(query = '') {
+    const blueprints = loadBlueprints();
+    const q = query.toLowerCase();
+    return Object.entries(blueprints)
+        .filter(([key, bp]) => bp.name.toLowerCase().includes(q) || (bp.category ?? '').toLowerCase().includes(q))
+        .sort((a, b) => a[1].name.localeCompare(b[1].name))
+        .map(([key, bp]) => ({
+            key,
+            name: bp.name,
+            category: bp.category,
+            needsTier: blueprintNeedsTierChoice(key, bp),
+        }));
+}
+
+function listTierChoices(key, query = '') {
+    const resolved = getBlueprintByKey(key);
+    if (!resolved || !resolved.blueprint.tiers) return [];
+    const { blueprint } = resolved;
+    const q = query.toLowerCase();
+    return blueprint.tiers
+        .filter(t => tierLabel(blueprint, t).toLowerCase().includes(q))
+        .map(t => ({ id: t.id, label: tierLabel(blueprint, t), value: t.value }));
 }
 
 function getBlueprintById(UID) {
@@ -260,7 +313,7 @@ const SCROLL_VALUE_BY_LEVEL = {
     0: 15, 1: 25, 2: 50, 3: 150, 4: 500, 5: 1000, 6: 1500, 7: 2500, 8: 5000, 9: 12000,
 };
 
-async function applyDowntimeOutput({ output, characterPageId, activityName, tierValue, quantity = 1, spellName = null, sourceQuestId = null }, notion, client = null, guild = null) {
+async function applyDowntimeOutput({ output, characterPageId, activityName, tierValue, quantity = 1, spellName = null, itemChoice = null, sourceQuestId = null }, notion, client = null, guild = null) {
     if (!output) return null;
     const qty = Math.max(1, Number(quantity) || 1);
 
@@ -311,13 +364,60 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
                 : `Scribed and granted **${qty}× Scroll of ${spellName}** (each a separate item).`;
             return { needsManualGrant: false, message, itemsCreated: created.length };
         }
-        case 'item':
         case 'magicItem': {
-            const baseName = output.type === 'item'
-                ? (output.grants || activityName)
-                : `${activityName}${tierValue ? ` (${tierValue})` : ''}`;
-            const rarity = output.type === 'item' ? 'Common' : (typeof tierValue === 'string' ? tierValue : 'Common');
-            const type = output.type === 'magicItem' ? 'Magic Item' : (output.type === 'spellScroll' ? 'Scroll' : 'Item');
+            if (itemChoice) {
+                const catalogueItem = getCatalogueItemByName(itemChoice);
+                if (!catalogueItem) {
+                    return {
+                        needsManualGrant: true,
+                        message: `⚠️ **Manual grant needed:** "${itemChoice}" (chosen for this crafting activity) could not be found in the item catalogue — it may have been renamed or removed. From downtime activity "${activityName}". Use \`/leagueadmin item create\`.`,
+                    };
+                }
+
+                const created = [];
+                for (let i = 0; i < qty; i++) {
+                    const item = await notion.createInventoryItem({
+                        itemName: catalogueItem.name,
+                        characterPageId,
+                        rarity: catalogueItem.rarity,
+                        type: 'Magic Item',
+                        subtype: inferSubtype(catalogueItem),
+                        source: 'Downtime (Craft a Magic Item)',
+                        sourceQuestId,
+                        itemValue: catalogueItem.priceGp,
+                        status: 'Owned',
+                        notes: `Crafted via downtime activity "${activityName}".`,
+                    });
+                    created.push(item);
+                }
+
+                const message = qty === 1
+                    ? `Crafted and granted a **${catalogueItem.name}**.`
+                    : `Crafted and granted **${qty}× ${catalogueItem.name}** (each a separate item).`;
+                return { needsManualGrant: false, message, itemsCreated: created.length };
+            }
+
+            const baseName = `${activityName}${tierValue ? ` (${tierValue})` : ''}`;
+            const rarity = typeof tierValue === 'string' ? tierValue : 'Common';
+            const type = 'Magic Item';
+
+            if (qty === 1) {
+                return {
+                    needsManualGrant: true,
+                    message: `⚠️ **Manual grant needed:** ${baseName} (${type}, ${rarity}) — from downtime activity "${activityName}". Use \`/leagueadmin item create\`.`,
+                };
+            }
+
+            const lines = Array.from({ length: qty }, (_, i) => `  ${i + 1}. ${baseName} (${type}, ${rarity})`).join('\n');
+            return {
+                needsManualGrant: true,
+                message: `⚠️ **Manual grant needed — ${qty} separate items** from downtime activity "${activityName}":\n${lines}\nUse \`/leagueadmin item create\` for each.`,
+            };
+        }
+        case 'item': {
+            const baseName = output.grants || activityName;
+            const rarity = 'Common';
+            const type = 'Item';
 
             if (qty === 1) {
                 return {
@@ -358,4 +458,5 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
 module.exports = {
     applyMilestones, postLevelUpMessage, getTier, randomQuote, TIER_COLORS, loadQuotes,
     loadBlueprints, getBlueprint, getBlueprintById, nextDtaId, resolveCost, resolveCostFromUID, applyDowntimeOutput, getParamName, sumCosts,
+    getBlueprintByKey, blueprintNeedsTierChoice, listActivityChoices, listTierChoices, tierLabel,
 };
