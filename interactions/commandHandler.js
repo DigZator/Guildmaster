@@ -4,6 +4,7 @@ const { getCachedGames } = require('../utils/cache');
 const { getQueue } = require('../utils/activationQueue');
 const gameFields = require('../data/gameFields.json');
 const ping = require('../commands/ping');
+const create_campaign = require('../commands/create_campaign');
 const the_long_rest = require('../commands/the_long_rest');
 const announce_game = require('../commands/announce_game');
 const list_games = require('../commands/list_games');
@@ -218,6 +219,7 @@ module.exports = (client) => {
 
         try {
             if (command === 'ping') await ping(interaction);
+            if (command === 'create_campaign') await create_campaign(interaction, client);
             if (command === 'the_long_rest') await the_long_rest(interaction, client);
             if (command === 'announce_game') await announce_game(interaction, client);
             if (command === 'list_games') await list_games(interaction, client);

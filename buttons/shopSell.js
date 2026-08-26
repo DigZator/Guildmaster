@@ -30,18 +30,65 @@ module.exports = {
             const { char, characterName, items, totalPrice } = pending;
 
             let currentGold;
+            const soldItems = [];
+            const failedItems = [];
+            let goldAdjusted = false;
+
             try {
                 currentGold = await withPageLock(char.id, async () => {
                     const gold = await getCharacterGold(char.id);
-                    await Promise.all([
-                        adjustCharacterNumbersUnlocked(char.id, { Gold: totalPrice }),
-                        ...items.map(i => setItemStatus(i.pageId, 'Sold')),
-                    ]);
+
+                    // Gold first — if this fails, nothing else is attempted
+                    await adjustCharacterNumbersUnlocked(char.id, { Gold: totalPrice });
+                    goldAdjusted = true;
+
+                    // Then item statuses, one at a time
+                    for (const item of items) {
+                        try {
+                            await setItemStatus(item.pageId, 'Sold');
+                            soldItems.push(item);
+                        } catch (itemErr) {
+                            console.error(`[shopsell_confirm_yes] Failed to mark item ${item.pageId} as Sold:`, itemErr);
+                            failedItems.push(item);
+                        }
+                    }
+
                     return gold;
                 });
             } catch (err) {
                 console.error('[shopsell_confirm_yes] Notion write error:', err);
+                if (!goldAdjusted) {
+                    return interaction.editReply({ content: '❌ Sale failed. No gold or items were changed — please try again.', components: [] });
+                }
                 return interaction.editReply({ content: '❌ Sale failed partway through. Please contact an admin to verify your inventory and gold.', components: [] });
+            }
+
+            if (failedItems.length > 0) {
+                const failedLines = failedItems.map(i => i.serial != null
+                    ? `**${i.name}** (\`#${String(i.serial).padStart(3, '0')}\`) — ${formatCurrency(i.sellPrice)}`
+                    : `**${i.name}** — ${formatCurrency(i.sellPrice)}`);
+                const soldLines = soldItems.map(i => i.serial != null
+                    ? `**${i.name}** (\`#${String(i.serial).padStart(3, '0')}\`) — ${formatCurrency(i.sellPrice)}`
+                    : `**${i.name}** — ${formatCurrency(i.sellPrice)}`);
+
+                await sendAdminLog(interaction.guild, new EmbedBuilder()
+                    .setColor(0xed4245)
+                    .setTitle('⚠️ Shop Sale — Needs Reconciliation')
+                    .setDescription(`Gold **was** credited in full, but ${failedItems.length} item(s) failed to update to "Sold" and still show as in-inventory. Please fix their status manually.`)
+                    .addFields(
+                        { name: 'Character',        value: characterName,               inline: true },
+                        { name: 'Player',           value: `<@${interaction.user.id}>`, inline: true },
+                        { name: 'Gold Credited',    value: `${formatCurrency(totalPrice)}`, inline: true },
+                        { name: 'Marked Sold OK',   value: soldLines.length ? soldLines.join('\n') : '—', inline: false },
+                        { name: 'Needs Fixing',     value: failedLines.join('\n'),        inline: false },
+                    )
+                    .setTimestamp()
+                );
+
+                return interaction.editReply({
+                    content: `⚠️ Sold ${soldItems.length}/${items.length} item(s) — your gold balance was fully updated (**${formatCurrency(currentGold + totalPrice)}**), but ${failedItems.length} item(s) could not be marked as sold and an admin has been notified to fix it:\n${failedLines.join('\n')}`,
+                    components: [],
+                });
             }
 
             const itemLines = items.map(i => i.serial != null

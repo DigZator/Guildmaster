@@ -23,6 +23,7 @@ require('./flow/tlrSubmissionFlow')(client);
 require('./interactions/selectHandler')(client);
 require('./flow/rssFlow')(client);
 require('./utils/cacheWatcher').init(client);
+require('./utils/cacheAlert').init(client);
 require('./utils/registrationDefaults').init(client);
 require('./utils/scheduler').init(client);
 require('./utils/restockScheduler').init(client);

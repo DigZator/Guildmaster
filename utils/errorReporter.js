@@ -1,14 +1,14 @@
 const { EmbedBuilder } = require('discord.js');
-const { BOT_LOG_CHANNEL_ID } = require('../data/channels');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
 
 async function reportError(client, { scope = '', message, error, context = {} } = {}) {
     const prefix = scope ? `${scope} ` : '';
     console.error(`${prefix}${message}:`, error);
 
-    if (!client || !BOT_LOG_CHANNEL_ID) return;
+    if (!client || !GUILDMASTER_CTRL_CHANNEL_ID) return;
 
     try {
-        const channel = await client.channels.fetch(BOT_LOG_CHANNEL_ID);
+        const channel = await client.channels.fetch(GUILDMASTER_CTRL_CHANNEL_ID);
         if (!channel) return;
 
         const contextLines = Object.entries(context)

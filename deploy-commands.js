@@ -16,6 +16,14 @@ const commands = [
 		.setName('ping')
 		.setDescription('Replies with Pong!'),
 
+	//create_campaign
+	new SlashCommandBuilder()
+		.setName('create_campaign')
+		.setDescription('Create a campaign role, category, and text/voice channels')
+		.addStringOption(option => option
+			.setName('name')
+			.setDescription('Campaign name (leave blank for a generated default name)')),
+
 	//the_long_rest
 	new SlashCommandBuilder()
 		.setName('the_long_rest')

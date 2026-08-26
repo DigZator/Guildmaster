@@ -281,24 +281,45 @@ async function handleDowntimeProgress(interaction) {
     const needsCompletionApproval = isComplete && blueprint?.approval?.post;
 
     let currentGold;
+    let stage = 'none'; // none -> resources_deducted -> progress_logged -> complete
     try {
         currentGold = await withPageLock(char.id, async () => {
             const gold = await getCharacterGold(char.id);
             if (gold < gpCost) {
                 throw Object.assign(new Error('insufficient-gold'), { code: 'INSUFFICIENT_GOLD', gold });
             }
-            await Promise.all([
-                adjustCharacterNumbersUnlocked(char.id, { 'Gold': -gpCost, 'Downtime Days': -days }),
-                investDowntimeProgress(progress.id, { daysInvested: newDaysInvested, goldInvested: newGoldInvested }),
-            ]);
+            await adjustCharacterNumbersUnlocked(char.id, { 'Gold': -gpCost, 'Downtime Days': -days });
+            stage = 'resources_deducted';
+
+            await investDowntimeProgress(progress.id, { daysInvested: newDaysInvested, goldInvested: newGoldInvested });
+            stage = 'progress_logged';
+
             if (isComplete) await setDowntimeStatus(progress.id, needsCompletionApproval ? 'Pending Completion Approval' : 'Completed');
+            stage = 'complete';
             return gold;
         });
     } catch (err) {
         if (err.code === 'INSUFFICIENT_GOLD') {
             return interaction.editReply({ content: `❌ Not enough gold. This costs **${formatCurrency(gpCost)}** for ${days} day(s), you have **${formatCurrency(err.gold)}**.` });
         }
-        console.error('[downtime progress] Notion error:', err);
+        console.error('[downtime progress] Notion error:', err, { stage });
+        if (stage !== 'none') {
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0xe74c3c)
+                .setTitle('⚠️ Downtime Progress Failed Mid-Transaction — Needs Reconciliation')
+                .setDescription(`Failed at stage \`${stage}\`. Error: ${err.message}`)
+                .addFields(
+                    { name: 'Character',       value: char.properties['Character Name']?.title?.[0]?.plain_text ?? char.id, inline: true },
+                    { name: 'Player',          value: `<@${interaction.user.id}>`, inline: true },
+                    { name: 'Gold/Days Deducted?', value: stage === 'none' ? 'No' : 'Yes', inline: true },
+                    { name: 'Gold Cost',       value: `${formatCurrency(gpCost)}`, inline: true },
+                    { name: 'Days Cost',       value: `${days}`,                    inline: true },
+                    { name: 'Progress Logged?', value: (stage === 'progress_logged' || stage === 'complete') ? 'Yes' : 'No — days/gold were deducted but progress was not recorded', inline: false },
+                )
+                .setTimestamp()
+            );
+            return interaction.editReply({ content: '❌ Something went partly wrong logging your progress. Your gold/days may already be spent — an admin has been notified to reconcile it.' });
+        }
         return interaction.editReply({ content: '❌ Failed to log progress. Please try again.' });
     }
 

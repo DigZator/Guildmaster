@@ -1,6 +1,8 @@
 const { Client } = require('@notionhq/client');
 const { randomBytes } = require('crypto');
 const { todayISTDateString } = require('./dateFormat');
+const client = require('../client');
+const { reportError } = require('./errorReporter');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -14,7 +16,7 @@ const DB = {
   marketplace: process.env.PLAYER_MARKETPLACE_DB_ID,
 };
 
-const schemaCache = new Map(); // data_source_id -> Set<propertyName> | null (null = fetch failed, allow everything through)
+const schemaCache = new Map();
 
 async function getKnownProperties(dataSourceId) {
     if (schemaCache.has(dataSourceId)) return schemaCache.get(dataSourceId);
@@ -25,6 +27,11 @@ async function getKnownProperties(dataSourceId) {
         return names;
     } catch (err) {
         console.error(`[leagueNotion] Could not fetch schema for data source ${dataSourceId} — property filtering disabled for this run:`, err.message);
+        reportError(client, {
+            scope: '[leagueNotion]',
+            message: `Could not fetch schema for data source \`${dataSourceId}\` — property validation is disabled for this run, so mistyped/renamed properties won't be caught until the next successful schema fetch.`,
+            error: err,
+        }).catch(() => {});
         schemaCache.set(dataSourceId, null);
         return null;
     }
@@ -32,7 +39,7 @@ async function getKnownProperties(dataSourceId) {
 
 async function withKnownProperties(dataSourceId, properties, contextLabel = '') {
     const known = await getKnownProperties(dataSourceId);
-    if (known === null) return properties; // schema fetch failed — don't block the write, just try as-is
+    if (known === null) return properties;
     const filtered = {};
     const dropped = [];
     for (const [name, value] of Object.entries(properties)) {
@@ -50,7 +57,7 @@ function clearSchemaCache(dataSourceId) {
     else schemaCache.clear();
 }
 
-const pageLocks = new Map(); // pageId -> Promise chain, serializes concurrent writes to the same Notion page
+const pageLocks = new Map();
 
 function withPageLock(pageId, fn) {
 	const previous = pageLocks.get(pageId) ?? Promise.resolve();

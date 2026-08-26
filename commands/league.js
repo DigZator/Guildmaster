@@ -361,6 +361,7 @@ async function transferGold(interaction) {
     const receiverName = receiverChar.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
 
     let senderGold, receiverGold;
+    let stage = 'none'; // none -> sender_debited -> complete
     try {
         await withTwoPageLocks(senderChar.id, receiverChar.id, async () => {
             [senderGold, receiverGold] = await Promise.all([
@@ -370,10 +371,11 @@ async function transferGold(interaction) {
 
             if (senderGold < amount) throw new Error('INSUFFICIENT_GOLD');
 
-            await Promise.all([
-                adjustCharacterNumbersUnlocked(senderChar.id,   { Gold: -amount }),
-                adjustCharacterNumbersUnlocked(receiverChar.id, { Gold:  amount }),
-            ]);
+            await adjustCharacterNumbersUnlocked(senderChar.id, { Gold: -amount });
+            stage = 'sender_debited';
+
+            await adjustCharacterNumbersUnlocked(receiverChar.id, { Gold: amount });
+            stage = 'complete';
         });
     } catch (err) {
         if (err.message === 'INSUFFICIENT_GOLD') {
@@ -382,7 +384,7 @@ async function transferGold(interaction) {
             });
         }
 
-        console.error('[gold] Notion error during transfer:', err);
+        console.error('[gold] Notion error during transfer:', err, { stage });
 
         let actualSenderGold   = '?';
         let actualReceiverGold = '?';
@@ -399,7 +401,7 @@ async function transferGold(interaction) {
                     new EmbedBuilder()
                         .setColor(0xff0000)
                         .setTitle('🚨 Gold Transfer Error')
-                        .setDescription('A gold transfer failed mid-execution. Manual review may be required.')
+                        .setDescription(`A gold transfer failed mid-execution at stage \`${stage}\`. Manual review may be required.`)
                         .addFields(
                             { name: 'Sender',               value: `<@${interaction.user.id}> (${senderName})`,  inline: true },
                             { name: 'Receiver',             value: `<@${targetUser.id}> (${receiverName})`,      inline: true },
@@ -409,6 +411,7 @@ async function transferGold(interaction) {
                             { name: '\u200b',               value: '\u200b',                                     inline: true },
                             { name: 'Sender After (actual)',   value: `${formatCurrency(actualSenderGold)}`,                  inline: true },
                             { name: 'Receiver After (actual)', value: `${formatCurrency(actualReceiverGold)}`,                inline: true },
+                            { name: 'Was Receiver Credited?', value: stage === 'complete' ? 'Yes' : 'No — sender was debited but receiver was not yet credited', inline: true },
                             { name: 'Error',                value: `\`${err.message}\``,                         inline: false },
                         )
                         .setTimestamp(),

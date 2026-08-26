@@ -22,46 +22,51 @@ async function fetchGames() {
 		});
 
 		for (const page of response.results) {
-            const p = page.properties;
-            const system = p['System'].select?.name ?? '';
-            const otherSystem = p['Other System'].rich_text[0]?.plain_text ?? '';
-            const startDate = p['Start Date'].date?.start ?? '';
-            const endDate = p['End Date'].date?.start ?? '';
+            try {
+                const p = page.properties;
+                const system = p['System'].select?.name ?? '';
+                const otherSystem = p['Other System'].rich_text[0]?.plain_text ?? '';
+                const startDate = p['Start Date'].date?.start ?? '';
+                const endDate = p['End Date'].date?.start ?? '';
 
-            games.push({
-                uid:              page.id,
-                createdTime:      page.created_time,
-                title:            p['Title'].title[0]?.plain_text ?? '',
-                dm:               p['DM Name'].rich_text[0]?.plain_text ?? '',
-                system:           system === 'Other' && otherSystem ? otherSystem : system,
-                format:           p['Game Type'].select?.name ?? '',
-                type:             p['Session Type'].select?.name ?? '',
-                experienceLevel:  p['Experience Level'].select?.name ?? '',
-                level:            p['Level'].number,
-                rawDate:          startDate,
-                date:             p['Session Date'].formula.string ?? '',
-                time:             p['Session Time'].formula.string ?? '',
-                blurb:            p['Description'].rich_text[0]?.plain_text ?? '',
-                classes:          p['Classes Allowed'].rich_text[0]?.plain_text ?? '',
-                species:          p['Species Allowed'].rich_text[0]?.plain_text ?? '',
-                tone:			  p['Tone, Style and Lethality'].rich_text[0]?.plain_text ?? '',
-                tableExpect:	  p['Table/Tool Expectation'].rich_text[0]?.plain_text ?? '',
-                expDetailed:	  p['Experience Detailed'].rich_text[0]?.plain_text ?? '',
-                addRestrict:	  p['Additional Restrictions'].rich_text[0]?.plain_text ?? '',
-                notes:            p['Other Notes'].rich_text[0]?.plain_text ?? '',
-                artist:           p['Art Credits'].rich_text[0]?.plain_text ?? '',
-                artistLink:       p['Artist Link'].url ?? '',
-                location:         p['Location'].rich_text[0]?.plain_text ?? '',
-                price:            p['Price Type'].select?.name ?? '',
-                openSeats:        countOpenSeats(seatRecords, page.id),
-                totalSeats:       seatRecords.filter(s => s.gameId === page.id).length,
-                warnings:         p['Content Warnings'].multi_select.map(o => o.name).join(', '),
-                registrationLink: p['Registration Link']?.url ?? '',
-                show:             p['Show'].checkbox,
-                activate:         p['Activate'].checkbox,
-                artURL:           p['Cover Art'].files[0]?.file?.url ?? p['Cover Art'].files[0]?.external?.url ?? null,
-                rline:            p['Registration Line']?.rich_text?.[0]?.plain_text ?? '',
-            });
+                games.push({
+                    uid:              page.id,
+                    createdTime:      page.created_time,
+                    title:            p['Title'].title[0]?.plain_text ?? '',
+                    dm:               p['DM Name'].rich_text[0]?.plain_text ?? '',
+                    system:           system === 'Other' && otherSystem ? otherSystem : system,
+                    format:           p['Game Type'].select?.name ?? '',
+                    type:             p['Session Type'].select?.name ?? '',
+                    experienceLevel:  p['Experience Level'].select?.name ?? '',
+                    level:            p['Level'].number,
+                    rawDate:          startDate,
+                    date:             p['Session Date'].formula.string ?? '',
+                    time:             p['Session Time'].formula.string ?? '',
+                    blurb:            p['Description'].rich_text[0]?.plain_text ?? '',
+                    classes:          p['Classes Allowed'].rich_text[0]?.plain_text ?? '',
+                    species:          p['Species Allowed'].rich_text[0]?.plain_text ?? '',
+                    tone:			  p['Tone, Style and Lethality'].rich_text[0]?.plain_text ?? '',
+                    tableExpect:	  p['Table/Tool Expectation'].rich_text[0]?.plain_text ?? '',
+                    expDetailed:	  p['Experience Detailed'].rich_text[0]?.plain_text ?? '',
+                    addRestrict:	  p['Additional Restrictions'].rich_text[0]?.plain_text ?? '',
+                    notes:            p['Other Notes'].rich_text[0]?.plain_text ?? '',
+                    artist:           p['Art Credits'].rich_text[0]?.plain_text ?? '',
+                    artistLink:       p['Artist Link'].url ?? '',
+                    location:         p['Location'].rich_text[0]?.plain_text ?? '',
+                    price:            p['Price Type'].select?.name ?? '',
+                    openSeats:        countOpenSeats(seatRecords, page.id),
+                    totalSeats:       seatRecords.filter(s => s.gameId === page.id).length,
+                    warnings:         p['Content Warnings'].multi_select.map(o => o.name).join(', '),
+                    registrationLink: p['Registration Link']?.url ?? '',
+                    show:             p['Show'].checkbox,
+                    activate:         p['Activate'].checkbox,
+                    artURL:           p['Cover Art'].files[0]?.file?.url ?? p['Cover Art'].files[0]?.external?.url ?? null,
+                    rline:            p['Registration Line']?.rich_text?.[0]?.plain_text ?? '',
+                });
+            } catch (err) {
+                console.error(`[fetchGames] Skipping page ${page.id} — failed to parse properties:`, err.message);
+                continue;
+            }
         }
         cursor = response.has_more ? response.next_cursor : undefined;
 	} while (cursor);
@@ -93,7 +98,6 @@ async function fetchSeats() {
 }
 
 function countOpenSeats(seats, gamePageId) {
-	let seatCount = 0;
 	return seats.filter(s => {
 		return s.gameId === gamePageId && !s.taken;
 	}).length;
@@ -152,4 +156,4 @@ function stringifyPropertyValue(fieldType, rawProperty) {
 	}
 }
 
-module.exports = { fetchGames, fetchGameByUID, updateGameProperties, fetchPage, stringifyPropertyValue }
+module.exports = { fetchGames, fetchGameByUID, updateGameProperties, fetchPage, stringifyPropertyValue, countOpenSeats }

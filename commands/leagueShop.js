@@ -221,25 +221,28 @@ async function finalizePurchase(interaction, { char, characterName, code, entry,
     }
 
     let goldBefore;
+    let stage = 'none'; // none -> gold_deducted -> item_created -> complete
     try {
         goldBefore = await withPageLock(char.id, async () => {
             const gold = await getCharacterGold(char.id);
             if (gold < finalPrice) throw new Error('INSUFFICIENT_GOLD');
 
-            const writes = [
-                adjustCharacterNumbersUnlocked(char.id, { Gold: -finalPrice }),
-                createInventoryItem({
-                    itemName: entry.name,
-                    type: entry.type,
-                    rarity: entry.rarity,
-                    itemValue: entry.price,
-                    source: 'Shop Purchase',
-                    characterPageId: char.id,
-                    status: 'Owned',
-                }),
-            ];
-            if (rpCost > 0) writes.push(adjustCharacterNumbersUnlocked(char.id, { 'Reputation Points': -rpCost }));
-            await Promise.all(writes);
+            await adjustCharacterNumbersUnlocked(char.id, { Gold: -finalPrice });
+            stage = 'gold_deducted';
+
+            await createInventoryItem({
+                itemName: entry.name,
+                type: entry.type,
+                rarity: entry.rarity,
+                itemValue: entry.price,
+                source: 'Shop Purchase',
+                characterPageId: char.id,
+                status: 'Owned',
+            });
+            stage = 'item_created';
+
+            if (rpCost > 0) await adjustCharacterNumbersUnlocked(char.id, { 'Reputation Points': -rpCost });
+            stage = 'complete';
 
             return gold;
         });
@@ -247,7 +250,24 @@ async function finalizePurchase(interaction, { char, characterName, code, entry,
         if (err.message === 'INSUFFICIENT_GOLD') {
             return interaction.editReply({ content: `❌ Not enough gold. **${entry.name}** costs **${formatCurrency(finalPrice)}**.`, components: [] });
         }
-        console.error('[league shop buy] Notion write error:', err);
+        console.error('[league shop buy] Notion write error:', err, { stage });
+        if (stage !== 'none') {
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0xe74c3c)
+                .setTitle('⚠️ Shop Purchase Failed Mid-Transaction — Needs Reconciliation')
+                .setDescription(`Failed at stage \`${stage}\`. Error: ${err.message}`)
+                .addFields(
+                    { name: 'Character',        value: characterName,               inline: true },
+                    { name: 'Player',           value: `<@${interaction.user.id}>`, inline: true },
+                    { name: 'Item',             value: entry.name,                  inline: true },
+                    { name: 'Gold Deducted?',   value: stage === 'none' ? 'No' : 'Yes', inline: true },
+                    { name: 'Item Created?',    value: (stage === 'item_created' || stage === 'complete') ? 'Yes' : 'No — gold was taken but item was never granted', inline: false },
+                    { name: 'RP Deducted?',     value: rpCost > 0 ? (stage === 'complete' ? 'Yes' : 'No') : 'N/A', inline: true },
+                )
+                .setTimestamp()
+            );
+            return interaction.editReply({ content: '❌ Purchase failed partway through. Your gold may already be spent — an admin has been notified to reconcile it.', components: [] });
+        }
         return interaction.editReply({ content: '❌ Purchase failed. Please try again.', components: [] });
     }
 
