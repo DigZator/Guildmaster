@@ -519,20 +519,27 @@ async function handleApprove(interaction, client) {
         try {
             if (entry.type === 'reputation') {
 	            await adjustCharacterNumber(entry.target.characterPageId, 'Reputation Points', entry.payload.amount);
-	            await sendAdminLog(interaction.guild, new EmbedBuilder()
-	                .setColor(0x57f287)
-	                .setTitle('✅ Reputation Grant Approved')
-	                .addFields(
-	                    { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
-	                    { name: 'Character',    value: entry.target.characterName,     inline: true },
-	                    { name: 'Player',       value: `<@${entry.target.discordId}>`, inline: true },
-	                    { name: 'Approved By',  value: `<@${interaction.user.id}>`,    inline: true },
-	                    { name: 'Requested By', value: `<@${entry.dm.discordId}>`,     inline: true },
-	                    { name: 'Amount',       value: `+${entry.payload.amount}`,     inline: true },
-	                    { name: 'Action ID',    value: `\`${entry.id}\``,             inline: false },
-	                )
-	                .setTimestamp()
-	            );
+	            removeById(id);
+	            try {
+	                await sendAdminLog(interaction.guild, new EmbedBuilder()
+	                    .setColor(0x57f287)
+	                    .setTitle('✅ Reputation Grant Approved')
+	                    .addFields(
+	                        { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
+	                        { name: 'Character',    value: entry.target.characterName,     inline: true },
+	                        { name: 'Player',       value: `<@${entry.target.discordId}>`, inline: true },
+	                        { name: 'Approved By',  value: `<@${interaction.user.id}>`,    inline: true },
+	                        { name: 'Requested By', value: `<@${entry.dm.discordId}>`,     inline: true },
+	                        { name: 'Amount',       value: `+${entry.payload.amount}`,     inline: true },
+	                        { name: 'Action ID',    value: `\`${entry.id}\``,             inline: false },
+	                    )
+	                    .setTimestamp()
+	                );
+	            } catch (logErr) {
+	                console.warn(`[leagueadmin approve] Reputation applied for ${id} but admin log failed:`, logErr.message);
+	            }
+	            results.push(`✅ \`${id}\` — **${entry.target.characterName}** (reputation) approved.`);
+	            continue;
 	        }
 
             if (entry.type === 'gold') {
@@ -540,20 +547,27 @@ async function handleApprove(interaction, client) {
 	            if (entry.quest?.questPageId) {
 	                await adjustCharacterNumber(entry.quest.questPageId, 'Gold Awarded', entry.payload.amount);
 	            }
-	            await sendAdminLog(interaction.guild, new EmbedBuilder()
-	                .setColor(0x57f287)
-	                .setTitle('✅ Gold Grant Approved')
-	                .addFields(
-	                    { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
-	                    { name: 'Character',    value: entry.target.characterName,     inline: true },
-	                    { name: 'Player',       value: `<@${entry.target.discordId}>`, inline: true },
-	                    { name: 'Approved By',  value: `<@${interaction.user.id}>`,    inline: true },
-	                    { name: 'Requested By', value: `<@${entry.dm.discordId}>`,     inline: true },
-	                    { name: 'Amount',       value: `+${entry.payload.amount} gp`,  inline: true },
-	                    { name: 'Action ID',    value: `\`${entry.id}\``,             inline: false },
-	                )
-	                .setTimestamp()
-	            );
+	            removeById(id);
+	            try {
+	                await sendAdminLog(interaction.guild, new EmbedBuilder()
+	                    .setColor(0x57f287)
+	                    .setTitle('✅ Gold Grant Approved')
+	                    .addFields(
+	                        { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
+	                        { name: 'Character',    value: entry.target.characterName,     inline: true },
+	                        { name: 'Player',       value: `<@${entry.target.discordId}>`, inline: true },
+	                        { name: 'Approved By',  value: `<@${interaction.user.id}>`,    inline: true },
+	                        { name: 'Requested By', value: `<@${entry.dm.discordId}>`,     inline: true },
+	                        { name: 'Amount',       value: `+${entry.payload.amount} gp`,  inline: true },
+	                        { name: 'Action ID',    value: `\`${entry.id}\``,             inline: false },
+	                    )
+	                    .setTimestamp()
+	                );
+	            } catch (logErr) {
+	                console.warn(`[leagueadmin approve] Gold applied for ${id} but admin log failed:`, logErr.message);
+	            }
+	            results.push(`✅ \`${id}\` — **${entry.target.characterName}** (gold) approved.`);
+	            continue;
 	        }
 
             if (entry.type === 'milestone') {
@@ -564,6 +578,7 @@ async function handleApprove(interaction, client) {
                 }
 
                 const result = await applyMilestones(client, interaction.guild, character, entry.target.characterName, entry.payload.amount);
+                removeById(id);
                 const { currentLevel, newLevel, milestonesConsumed, milestonesRemaining, levelUps } = result;
 
                 const embedFields = [
@@ -580,12 +595,18 @@ async function handleApprove(interaction, client) {
                     embedFields.push({ name: 'Level', value: `${currentLevel} → ${newLevel}`, inline: true });
                 }
 
-                await sendAdminLog(interaction.guild, new EmbedBuilder()
-                    .setColor(0x57f287)
-                    .setTitle('✅ Milestone Grant Approved')
-                    .addFields(...embedFields)
-                    .setTimestamp()
-                );
+                try {
+                    await sendAdminLog(interaction.guild, new EmbedBuilder()
+                        .setColor(0x57f287)
+                        .setTitle('✅ Milestone Grant Approved')
+                        .addFields(...embedFields)
+                        .setTimestamp()
+                    );
+                } catch (logErr) {
+                    console.warn(`[leagueadmin approve] Milestone applied for ${id} but admin log failed:`, logErr.message);
+                }
+                results.push(`✅ \`${id}\` — **${entry.target.characterName}** (milestone) approved.${levelUps > 0 ? ` Levelled up to **Level ${newLevel}**!` : ''}`);
+                continue;
             }
 
             if (entry.type === 'item') {
@@ -596,21 +617,28 @@ async function handleApprove(interaction, client) {
 	                sourceQuestId: entry.quest?.questPageId ?? null,
 	                status: 'Owned',
 	            });
-	            await sendAdminLog(interaction.guild, new EmbedBuilder()
-	                .setColor(0x57f287)
-	                .setTitle('✅ Item Grant Approved')
-	                .addFields(
-	                    { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
-	                    { name: 'Item',         value: itemName,                           inline: true },
-	                    { name: 'Rarity',       value: rarity,                             inline: true },
-	                    { name: 'Character',    value: entry.target.characterName,         inline: true },
-	                    { name: 'Player',       value: `<@${entry.target.discordId}>`,     inline: true },
-	                    { name: 'Approved By',  value: `<@${interaction.user.id}>`,        inline: true },
-	                    { name: 'Requested By', value: `<@${entry.dm.discordId}>`,         inline: true },
-	                    { name: 'Notion ID',    value: `\`${page.id}\``,                  inline: false },
-	                )
-	                .setTimestamp()
-	            );
+	            removeById(id);
+	            try {
+	                await sendAdminLog(interaction.guild, new EmbedBuilder()
+	                    .setColor(0x57f287)
+	                    .setTitle('✅ Item Grant Approved')
+	                    .addFields(
+	                        { name: 'Quest',        value: entry.quest ? `${entry.quest.questName} (\`${entry.quest.questId}\`)` : 'N/A', inline: false },
+	                        { name: 'Item',         value: itemName,                           inline: true },
+	                        { name: 'Rarity',       value: rarity,                             inline: true },
+	                        { name: 'Character',    value: entry.target.characterName,         inline: true },
+	                        { name: 'Player',       value: `<@${entry.target.discordId}>`,     inline: true },
+	                        { name: 'Approved By',  value: `<@${interaction.user.id}>`,        inline: true },
+	                        { name: 'Requested By', value: `<@${entry.dm.discordId}>`,         inline: true },
+	                        { name: 'Notion ID',    value: `\`${page.id}\``,                  inline: false },
+	                    )
+	                    .setTimestamp()
+	                );
+	            } catch (logErr) {
+	                console.warn(`[leagueadmin approve] Item created for ${id} but admin log failed:`, logErr.message);
+	            }
+	            results.push(`✅ \`${id}\` — **${entry.target.characterName}** (item) approved.`);
+	            continue;
 	        }
 
             
@@ -815,6 +843,59 @@ async function handleApprove(interaction, client) {
 }
 
 // ─── /leagueadmin reject ──────────────────────────────────────────────────────────────────
+
+// ─── /leagueadmin clear ────────────────────────────────────────────────────────
+// Force-removes a stuck action from the pending queue without running any
+// approve/reject logic. Intended for entries that already took effect (the
+// mutation succeeded) but got stranded as "pending" because a later step
+// (admin log post, secondary write, etc.) failed after the fact — approving
+// or rejecting a stranded entry risks double-applying or incorrectly
+// reverting a change that already happened. This command does NOT verify or
+// undo anything; it only deletes the pending record.
+
+async function handleClear(interaction) {
+    if (!isAdminChannel(interaction, 'league')) {
+        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
+    }
+
+    const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
+    await interaction.deferReply({ flags: 64 });
+
+    const results = [];
+
+    for (const id of ids) {
+        const entry = getById(id);
+        if (!entry) {
+            results.push(`❌ \`${id}\` — not found.`);
+            continue;
+        }
+
+        removeById(id);
+
+        try {
+            await sendAdminLog(interaction.guild, new EmbedBuilder()
+                .setColor(0x99aab5)
+                .setTitle('🗑️ Pending Action Force-Cleared')
+                .setDescription('⚠️ Removed from the pending queue directly — no approve/reject logic ran. If the underlying change had already applied before this got stuck, it was **not** verified or undone here. Check the character/quest/inventory manually if unsure.')
+                .addFields(
+                    { name: 'Action ID',    value: `\`${entry.id}\``,                                                                 inline: true },
+                    { name: 'Type',         value: entry.type,                                                                        inline: true },
+                    { name: 'Status',       value: entry.status ?? 'pending',                                                         inline: true },
+                    { name: 'Target',       value: entry.target?.characterName ?? entry.quest?.questName ?? 'N/A',                    inline: true },
+                    { name: 'Requested By', value: entry.dm?.discordId ? `<@${entry.dm.discordId}>` : 'N/A',                          inline: true },
+                    { name: 'Cleared By',   value: `<@${interaction.user.id}>`,                                                       inline: true },
+                )
+                .setTimestamp()
+            );
+        } catch (logErr) {
+            console.warn(`[leagueadmin clear] Cleared ${id} but admin log failed:`, logErr.message);
+        }
+
+        results.push(`🗑️ \`${id}\` (${entry.type}) — force-cleared from pending queue.\n⚠️ **Warning:** this did not approve, reject, undo, or verify anything. If this action's change (gold, item, rep, etc.) had already partially applied before it got stuck, that change is still in effect — check manually before re-issuing the grant.`);
+    }
+
+    return interaction.editReply({ content: results.join('\n\n') });
+}
 
 async function handleReject(interaction) {
     if (!isAdminChannel(interaction, 'league')) {
@@ -1356,6 +1437,7 @@ async function leagueAdmin(interaction, client) {
 	if (sub === 'pending') return handlePending(interaction);
 	if (sub === 'approve') return handleApprove(interaction, client);
 	if (sub === 'reject') return handleReject(interaction);
+	if (sub === 'clear') return handleClear(interaction);
 }
 
 async function leagueDM(interaction, client) {

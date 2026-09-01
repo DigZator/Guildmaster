@@ -134,6 +134,7 @@ async function handleLeagueCreate(interaction, client) {
 	      { name: 'Class', 		   value: classLevels, inline: true },
 	      { name: 'Species',       value: species,     inline: true },
 	      { name: 'Background',    value: background,  inline: true },
+	      { name: 'Next Step',     value: 'Run `/league starter-items` to claim your starting equipment.', inline: false },
 	    )
 	    .setFooter({ text: `Registered by ${discordUsername}` })
 	    .setTimestamp();

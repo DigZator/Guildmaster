@@ -572,4 +572,4 @@ async function leagueDowntime(interaction) {
     }
 }
 
-module.exports = { leagueDowntime, REP_COST_PER_TOPUP, DAYS_PER_TOPUP };
+module.exports = { leagueDowntime, handleDowntimeList, REP_COST_PER_TOPUP, DAYS_PER_TOPUP };

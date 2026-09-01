@@ -19,6 +19,12 @@ module.exports = (client) => {
             if (interaction.customId === 'starter_items_select') {
                 await require('../selects/starterItemsSelect')(interaction, client);
             }
+            if (interaction.customId === 'tlrRemoveSelect') {
+                await require('../selects/tlrRemoveSelect')(interaction);
+            }
+            if (interaction.customId === 'leagueDashSwitchSelect') {
+                await require('../selects/leagueDashSwitchSelect')(interaction);
+            }
             if (interaction.customId.startsWith('questDash:')) {
                 await require('../buttons/questDashboard').handleDashboardSelect(interaction);
             }

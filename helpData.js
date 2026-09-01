@@ -12,7 +12,7 @@ module.exports = {
         },
         {
           name: '/help admin <family>',
-          description: 'General server-admin tooling — game announcements, the activation schedule, RSS feeds, and anonymous messaging. Families: game-management, scheduling, rss, messaging.',
+          description: 'General server-admin tooling — game announcements, the activation schedule, RSS feeds, anonymous messaging, and support tickets. Families: game-management, scheduling, rss, messaging, tickets.',
         },
         {
           name: '/help league <family>',
@@ -24,7 +24,7 @@ module.exports = {
         },
         {
           name: '/help leagueadmin <family>',
-          description: 'Commands for league admins — approving pending DM requests, granting rewards directly, managing items, stocking the shop/catalogue, and approving downtime. Families: approvals, rewards, items, shop-catalogue, downtime.',
+          description: 'Commands for league admins — approving pending DM requests (including downtime), granting rewards directly, managing items, stocking the shop/catalogue, and data-integrity checks. Families: approvals, rewards, items, shop-catalogue, audit.',
         },
         {
           name: 'Reading a command signature',
@@ -60,6 +60,14 @@ module.exports = {
           name: '/the_long_rest remove <message_id>',
           description: 'Remove a memorial by its message ID.',
         },
+        {
+          name: '/the_long_rest setup',
+          description: 'Admin only. Post (or refresh) the button dashboard for submitting/removing memorials, so players don\'t need the slash commands above.',
+        },
+        {
+          name: '/the_long_rest reindex',
+          description: 'Admin only. Rebuild the memorial lookup index by scanning the output channel — run once after adding the removal dashboard button, to backfill memorials posted before it existed.',
+        },
       ],
     },
   },
@@ -80,7 +88,11 @@ module.exports = {
         },
         {
           name: '/get_players <game>',
-          description: 'Get the list of players who have registered for a game.',
+          description: 'Get the list of players who have registered for a game. Also posted automatically (non-ephemeral) to the guildmaster-ctrl channel whenever a game\'s open seats hit zero.',
+        },
+        {
+          name: '/create_campaign <spectators_read_chat> <spectators_send_messages> <spectators_join_voice> [name] [use_stage] [dm]',
+          description: 'Create a campaign role, category, text channel, and voice/stage channel. The three spectator questions are required: whether the Adventurer (spectator) role can read the text chat, send messages there (only takes effect if they can read it), and join the voice/stage channel. `use_stage` (default No) creates a Stage channel instead of Voice and gives the whole campaign role speaker/moderator access so they can go live without requesting to speak. `dm`, if set, immediately grants that user the DM role and adds them to the campaign.',
         },
       ],
     },
@@ -158,6 +170,40 @@ module.exports = {
         },
       ],
     },
+    tickets: {
+      label: 'Support Tickets',
+      description: 'Set up and manage the ticket dashboard. Requires the Admin role.',
+      commands: [
+        {
+          name: '/ticket setup',
+          description: 'Post the ticket dashboard in the current channel (or refresh it in place if one was already posted).',
+        },
+        {
+          name: '/ticket config [category] [hr_category] [log_channel] [hr_log_channel]',
+          description: 'View or update where ticket channels are created and logged. Run with no options to see the current config.',
+        },
+        {
+          name: '/ticket reset_counter [type]',
+          description: 'Reset a ticket type\'s numbering back to `000`. Omit `type` to reset all counters. `type` autocompletes.',
+        },
+        {
+          name: '/ticket type add <label> [key] [slug] [emoji] [channel_tag] [modal_title] [category_group] [viewer_role] [ping_target_role]',
+          description: 'Add a new ticket type — it appears on the dashboard immediately (the posted dashboard is refreshed automatically). `key`/`slug` default to a slugified version of `label` if omitted. `category_group` is `normal` or `hr` and controls which category/log channel (set via `/ticket config`) the type\'s tickets use.',
+        },
+        {
+          name: '/ticket type edit <key> [label] [slug] [emoji] [channel_tag] [modal_title] [category_group] [viewer_role] [ping_target_role]',
+          description: 'Edit an existing ticket type. `key` autocompletes. Only the fields you provide are changed; the dashboard is refreshed automatically.',
+        },
+        {
+          name: '/ticket type remove <key>',
+          description: 'Remove a ticket type. `key` autocompletes. Existing tickets already raised under this type are unaffected; it just disappears from the dashboard and can no longer be selected for new tickets.',
+        },
+        {
+          name: '/ticket type list',
+          description: 'List all configured ticket types and their settings.',
+        },
+      ],
+    },
   },
 
   // ─── /help league <family> ──────────────────────────────────────────────
@@ -168,15 +214,15 @@ module.exports = {
       commands: [
         {
           name: '/league create',
-          description: 'Register your character in the Adventurer\'s Guild League.',
+          description: 'Register your character in the Adventurer\'s Guild League. Run inside your character profile thread in #character-profiles. After registering, run `/league starter-items` to claim your starting equipment — the character dashboard will show a warning until you do.',
         },
         {
           name: '/league profile [user]',
           description: 'View your character profile, or someone else\'s if `user` is given.',
         },
         {
-          name: '/league edit [name] [class] [background] [charsheet]',
-          description: 'Update any of your character\'s name, class, background, or character sheet link. Only the fields you provide are changed.',
+          name: '/league edit [name] [class] [species] [background] [charsheet]',
+          description: 'Update any of your character\'s name, class, species, background, or character sheet link. Only the fields you provide are changed.',
         },
         {
           name: '/league setart <image>',
@@ -185,6 +231,10 @@ module.exports = {
         {
           name: '/league starter-items <class> <background>',
           description: 'Claim your character\'s starting equipment based on class and background. Walks you through any choices (e.g. weapon or pack options) via buttons/dropdowns, then adds the resulting items and gold to your inventory. Can only be claimed once per character.',
+        },
+        {
+          name: '/league character status <character> <new_status>',
+          description: 'Change one of your characters\' status (e.g. Active/Inactive). `character` autocompletes to your own characters.',
         },
       ],
     },
@@ -308,6 +358,10 @@ module.exports = {
         {
           name: '/league leaderboard',
           description: 'View the character leaderboard, sortable by level/gold/reputation/milestones and filterable by class/species/status.',
+        },
+        {
+          name: '/league dashboard',
+          description: 'Get a personal button dashboard for quick, one-tap access to your character\'s Profile, Quests, Downtimes, Inventory, Balance, and to switch character, edit details, or set art.',
         },
       ],
     },
@@ -470,15 +524,19 @@ module.exports = {
           name: '/leagueadmin catalogue sync',
           description: 'Refresh the item catalogue from the 5e source data.',
         },
+        {
+          name: '/leagueadmin catalogue sync-spells',
+          description: 'Refresh the spell list used by downtime scroll scribing.',
+        },
       ],
     },
-    downtime: {
-      label: 'Downtime',
-      description: 'Requires the Admin role.',
+    audit: {
+      label: 'Data Integrity',
+      description: 'Requires the Admin role. Read-only checks to catch data problems early.',
       commands: [
         {
-          name: '/leagueadmin downtime approve <id>',
-          description: 'Approve a pending downtime start or completion request, by request ID or DTA ID.',
+          name: '/leagueadmin audit characters',
+          description: 'Check for players who have more than one Active character.',
         },
       ],
     },

@@ -1,6 +1,9 @@
-const { REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { REST, Routes, SlashCommandBuilder, ChannelType } = require('discord.js');
 require('dotenv').config();
 const { buildClassChoices } = require('./commands/leagueStarterItems');
+const { VALID_CATEGORY_GROUPS } = require('./config/ticketTypes');
+
+const CATEGORY_GROUP_CHOICES = VALID_CATEGORY_GROUPS.map(g => ({ name: g, value: g }));
 
 const token = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENT_ID;
@@ -20,14 +23,39 @@ const commands = [
 	new SlashCommandBuilder()
 		.setName('create_campaign')
 		.setDescription('Create a campaign role, category, and text/voice channels')
+		.addBooleanOption(option => option
+			.setName('spectators_read_chat')
+			.setDescription('Can spectators (Adventurer role) read the text chat?')
+			.setRequired(true))
+		.addBooleanOption(option => option
+			.setName('spectators_send_messages')
+			.setDescription('Can spectators send messages in the text chat? (only matters if they can read it)')
+			.setRequired(true))
+		.addBooleanOption(option => option
+			.setName('spectators_join_voice')
+			.setDescription('Can spectators join the voice/stage channel?')
+			.setRequired(true))
 		.addStringOption(option => option
 			.setName('name')
-			.setDescription('Campaign name (leave blank for a generated default name)')),
+			.setDescription('Campaign name (leave blank for a generated default name)'))
+		.addBooleanOption(option => option
+			.setName('use_stage')
+			.setDescription('Use a Stage channel instead of a Voice channel? (default: No)'))
+		.addUserOption(option => option
+			.setName('dm')
+			.setDescription('Assign this user the DM role immediately and add them to the campaign')),
 
 	//the_long_rest
 	new SlashCommandBuilder()
 		.setName('the_long_rest')
 		.setDescription('Manage character memorials')
+		//setup
+		.addSubcommand(sub => sub
+			.setName('setup')
+			.setDescription('Post (or refresh) the The Long Rest button dashboard in this channel'))
+		.addSubcommand(sub => sub
+			.setName('reindex')
+			.setDescription('Rebuild the memorial index by scanning the output channel (run once after adding this feature)'))
 		.addSubcommand(subcommand => subcommand
 			.setName('add')
 			.setDescription('Add a character memorial'))
@@ -50,6 +78,140 @@ const commands = [
 		.addBooleanOption(option => option
 			.setName('manual')
 			.setDescription('Manually input announcement details instead of using game info')),
+
+	//ticket
+	new SlashCommandBuilder()
+		.setName('ticket')
+		.setDescription('Manage the ticketing system')
+		.addSubcommand(sub => sub
+			.setName('setup')
+			.setDescription('Post or refresh the ticket dashboard in this channel'))
+		.addSubcommand(sub => sub
+			.setName('config')
+			.setDescription('View or set the ticket category / log channel')
+			.addChannelOption(opt => opt
+				.setName('category')
+				.setDescription('Category where normal ticket channels are created')
+				.addChannelTypes(ChannelType.GuildCategory)
+				.setRequired(false))
+			.addChannelOption(opt => opt
+				.setName('hr_category')
+				.setDescription('Category where HR ticket channels are created')
+				.addChannelTypes(ChannelType.GuildCategory)
+				.setRequired(false))
+			.addChannelOption(opt => opt
+				.setName('log_channel')
+				.setDescription('Channel where filed transcripts are posted as threads')
+				.addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+				.setRequired(false))
+			.addChannelOption(opt => opt
+				.setName('hr_log_channel')
+				.setDescription('Channel where filed HR ticket transcripts are posted as threads')
+				.addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+				.setRequired(false)))
+		.addSubcommand(sub => sub
+			.setName('reset_counter')
+			.setDescription('Reset a ticket type\'s counter back to 000 (or all, if left blank)')
+			.addStringOption(opt => opt
+				.setName('type')
+				.setDescription('Ticket type slug to reset (leave blank to reset all)')
+				.setRequired(false)
+				.setAutocomplete(true)))
+		.addSubcommandGroup(group => group
+			.setName('type')
+			.setDescription('Manage ticket types shown on the dashboard')
+			.addSubcommand(sub => sub
+				.setName('add')
+				.setDescription('Add a new ticket type')
+				.addStringOption(opt => opt
+					.setName('label')
+					.setDescription('Shown on the dashboard button + embeds')
+					.setRequired(true))
+				.addStringOption(opt => opt
+					.setName('key')
+					.setDescription('Internal id (defaults to a slug of the label)')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('slug')
+					.setDescription('Used in channel names, e.g. hr-000-janedoe (defaults to key)')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('emoji')
+					.setDescription('Emoji shown on the dashboard button')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('channel_tag')
+					.setDescription('Short tag used in the channel name (defaults to slug)')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('modal_title')
+					.setDescription('Override title for the creation modal (defaults to label)')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('category_group')
+					.setDescription('Which ticket category this type is created under')
+					.setRequired(false)
+					.addChoices(...CATEGORY_GROUP_CHOICES))
+				.addRoleOption(opt => opt
+					.setName('viewer_role')
+					.setDescription('Role referenced for this ticket type')
+					.setRequired(false))
+				.addRoleOption(opt => opt
+					.setName('ping_target_role')
+					.setDescription('Role pinged on ticket creation')
+					.setRequired(false)))
+			.addSubcommand(sub => sub
+				.setName('edit')
+				.setDescription('Edit an existing ticket type')
+				.addStringOption(opt => opt
+					.setName('key')
+					.setDescription('Ticket type to edit')
+					.setRequired(true)
+					.setAutocomplete(true))
+				.addStringOption(opt => opt
+					.setName('label')
+					.setDescription('Shown on the dashboard button + embeds')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('slug')
+					.setDescription('Used in channel names')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('emoji')
+					.setDescription('Emoji shown on the dashboard button')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('channel_tag')
+					.setDescription('Short tag used in the channel name')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('modal_title')
+					.setDescription('Override title for the creation modal')
+					.setRequired(false))
+				.addStringOption(opt => opt
+					.setName('category_group')
+					.setDescription('Which ticket category this type is created under')
+					.setRequired(false)
+					.addChoices(...CATEGORY_GROUP_CHOICES))
+				.addRoleOption(opt => opt
+					.setName('viewer_role')
+					.setDescription('Role referenced for this ticket type')
+					.setRequired(false))
+				.addRoleOption(opt => opt
+					.setName('ping_target_role')
+					.setDescription('Role pinged on ticket creation')
+					.setRequired(false)))
+			.addSubcommand(sub => sub
+				.setName('remove')
+				.setDescription('Remove a ticket type (existing tickets of this type are unaffected)')
+				.addStringOption(opt => opt
+					.setName('key')
+					.setDescription('Ticket type to remove')
+					.setRequired(true)
+					.setAutocomplete(true)))
+			.addSubcommand(sub => sub
+				.setName('list')
+				.setDescription('List all configured ticket types'))),
 
 	//list_games
 	new SlashCommandBuilder()
@@ -294,6 +456,10 @@ const commands = [
 				.setDescription('Update your character\'s class (e.g. Bladesinger Wizard)')
 				.setRequired(false))
 			.addStringOption(opt => opt
+				.setName('species')
+				.setDescription('Update your character\'s species')
+				.setRequired(false))
+			.addStringOption(opt => opt
 				.setName('background')
 				.setDescription('Update your character\'s background')
 				.setRequired(false))
@@ -488,6 +654,10 @@ const commands = [
 			.addBooleanOption(opt => opt
 				.setName('public')
 				.setDescription('Show the result to everyone (default: only you)')))
+		//dashboard
+		.addSubcommand(sub => sub
+			.setName('dashboard')
+			.setDescription('Get a personal button dashboard for your character (profile, quests, downtimes, etc.)'))
 		//gold
 		.addSubcommand(sub => sub
 			.setName('gold')
@@ -610,6 +780,11 @@ const commands = [
 			.addStringOption(opt => opt.setName('id').setDescription('Action ID (comma separated - "34, 756")').setRequired(true))
 			.addStringOption(opt => opt.setName('reason').setDescription('Reason (required for quest-report rejections)').setRequired(false))
 			.addStringOption(opt => opt.setName('line').setDescription('Line ID — reject only one line of a quest-report, leaving the rest pending (single id only)').setRequired(false)))
+		//clear
+		.addSubcommand(sub => sub
+			.setName('clear')
+			.setDescription('⚠️ Force-remove a stuck pending action WITHOUT approve/reject logic. Use only if it already applied.')
+			.addStringOption(opt => opt.setName('id').setDescription('Action ID (comma separated - "34, 756")').setRequired(true)))
 		.addSubcommandGroup(group => group
 			.setName('item')
 			.setDescription('Item management')
@@ -820,17 +995,17 @@ const commands = [
 			.setDescription('Grant gold to a character')
 			.addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID this grant is tied to').setRequired(true))
 			.addUserOption(opt => opt.setName('user1').setDescription('Target player 1').setRequired(true))
-			.addIntegerOption(opt => opt.setName('amount1').setDescription('Amount in gp').setRequired(true))
+			.addNumberOption(opt => opt.setName('amount1').setDescription('Amount in gp').setRequired(true))
 			.addUserOption(opt => opt.setName('user2').setDescription('Target player 2'))
-			.addIntegerOption(opt => opt.setName('amount2').setDescription('Amount in gp'))
+			.addNumberOption(opt => opt.setName('amount2').setDescription('Amount in gp'))
 			.addUserOption(opt => opt.setName('user3').setDescription('Target player 3'))
-			.addIntegerOption(opt => opt.setName('amount3').setDescription('Amount in gp'))
+			.addNumberOption(opt => opt.setName('amount3').setDescription('Amount in gp'))
 			.addUserOption(opt => opt.setName('user4').setDescription('Target player 4'))
-			.addIntegerOption(opt => opt.setName('amount4').setDescription('Amount in gp'))
+			.addNumberOption(opt => opt.setName('amount4').setDescription('Amount in gp'))
 			.addUserOption(opt => opt.setName('user5').setDescription('Target player 5'))
-			.addIntegerOption(opt => opt.setName('amount5').setDescription('Amount in gp'))
+			.addNumberOption(opt => opt.setName('amount5').setDescription('Amount in gp'))
 			.addUserOption(opt => opt.setName('user6').setDescription('Target player 6'))
-			.addIntegerOption(opt => opt.setName('amount6').setDescription('Amount in gp')))
+			.addNumberOption(opt => opt.setName('amount6').setDescription('Amount in gp')))
 		//milestone
 		.addSubcommand(sub => sub
 	        .setName('milestone')

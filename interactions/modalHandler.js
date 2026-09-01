@@ -17,6 +17,11 @@ module.exports = (client) => {
                 await require('../modals/announceEditModal')(interaction, client);
             } else if (interaction.customId.startsWith('questDash:')) {
                 await require('../buttons/questDashboard').handleDashboardModal(interaction);
+            } else if (interaction.customId.startsWith('ticketCreateModal:') || interaction.customId.startsWith('ticket:')) {
+                const result = await require('../buttons/ticket').handleTicketModal(interaction);
+                if (result === false) handled = false;
+            } else if (interaction.customId.startsWith('leagueDashEditModal:')) {
+                await require('../modals/leagueDashEdit')(interaction, client);
             } else {
                 handled = false;
             }

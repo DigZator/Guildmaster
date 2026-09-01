@@ -1,5 +1,6 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const memorialDrafts = require('../utils/memorialDrafts');
+const memorialIndex = require('../utils/memorialIndex');
 const { reportError } = require('../utils/errorReporter');
 const { THE_LONG_REST_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID } = require('../data/channels');
 
@@ -81,6 +82,13 @@ module.exports = {
 
             const submitterId = getSubmitterIdFromEmbed(modData);
             if (submitterId) memorialDrafts.delete(submitterId);
+
+            memorialIndex.addEntry({
+                messageId: sentMessage.id,
+                authorId: submitterId,
+                characterName,
+                postedAt: Date.now(),
+            });
 
             await interaction.editReply({
                 content: `✅ Memorial approved and posted to The Long Rest channel.` +

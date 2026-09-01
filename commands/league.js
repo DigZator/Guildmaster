@@ -59,6 +59,13 @@ async function league(interaction, client) {
 		case 'leaderboard':
 			return showLeaderboard(interaction, client);
 
+		case 'dashboard': {
+			await interaction.deferReply({ flags: 64 });
+			const { buildDashboardEmbed, buildDashboardRows } = require('../buttons/leagueDashboard');
+			const character = await getActiveCharacter(interaction.user.id).catch(() => null);
+			return interaction.editReply({ embeds: [buildDashboardEmbed(character)], components: buildDashboardRows(!!character) });
+		}
+
 		default:
 			return interaction.reply({
 				content: 'Unknown subcommand.',
@@ -241,10 +248,11 @@ async function setCharacterArt(interaction, client) {
 async function editCharacter(interaction) {
     const name          = interaction.options.getString('name');
     const classLevels   = interaction.options.getString('class');
+    const species       = interaction.options.getString('species');
     const background    = interaction.options.getString('background');
-    const charSheetLink = interaction.options.getString('charsheetlink');
+    const charSheetLink = interaction.options.getString('charsheet');
 
-    if (!name && !classLevels && !background && !charSheetLink) {
+    if (!name && !classLevels && !species && !background && !charSheetLink) {
         return interaction.reply({
             content: 'Please provide at least one field to update.',
             flags: 64,
@@ -270,6 +278,7 @@ async function editCharacter(interaction) {
     const updates = {};
     if (name)          updates['Character Name'] = { title: [{ text: { content: name } }] };
     if (classLevels)   updates['Class']          = { rich_text: [{ text: { content: classLevels } }] };
+    if (species)       updates['Species']        = { rich_text: [{ text: { content: species } }] };
     if (background)    updates['Background']     = { rich_text: [{ text: { content: background } }] };
     if (charSheetLink) updates['CharSheetLink']  = { url: charSheetLink };
 
@@ -286,6 +295,7 @@ async function editCharacter(interaction) {
     const changeLines = [
         name          && `**Name:** ${p['Character Name']?.title?.[0]?.plain_text ?? '—'} → ${name}`,
         classLevels   && `**Class:** ${p['Class']?.rich_text?.[0]?.plain_text ?? '—'} → ${classLevels}`,
+        species       && `**Species:** ${p['Species']?.rich_text?.[0]?.plain_text ?? '—'} → ${species}`,
         background    && `**Background:** ${p['Background']?.rich_text?.[0]?.plain_text ?? '—'} → ${background}`,
         charSheetLink && `**Sheet Link:** ${charSheetLink}`,
     ].filter(Boolean);
@@ -823,4 +833,4 @@ async function characterLogAutocomplete(interaction) {
 	await interaction.respond(choices);
 }
 
-module.exports = { league, characterLogAutocomplete, characterOwnAutocomplete, buildLeaderboardEmbedAndRow, LEADERBOARD_PAGE_SIZE };
+module.exports = { league, characterLogAutocomplete, characterOwnAutocomplete, buildLeaderboardEmbedAndRow, LEADERBOARD_PAGE_SIZE, showBalance };

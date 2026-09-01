@@ -1,12 +1,91 @@
-const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const { TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID, THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
+const { isAdminChannel } = require('../utils/isAdminChannel');
+const { getConfig, setConfig } = require('../config/tlrDashboardConfig');
+const { buildDashboardEmbed, buildDashboardRow } = require('../buttons/theLongRest');
+const { buildRemoveConfirmation } = require('../utils/tlrRemoveFlow');
+const memorialIndex = require('../utils/memorialIndex');
 
-const TLR_MOD_ROLE_IDS = [process.env.ADMINS_ROLE_ID, process.env.CLERK_OF_MORTAL_AFFAIRS_ROLE_ID].filter(Boolean);
+function getSubmitterIdFromEmbed(embed) {
+    const footerText = embed?.footer?.text || '';
+    const match = footerText.match(/AuthorID:\s*(\d{17,19})/);
+    return match ? match[1] : null;
+}
+
+async function handleReindex(interaction) {
+    if (!isAdminChannel(interaction, 'botAdmin')) {
+        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
+    }
+
+    const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
+    if (!outputChannel) {
+        return interaction.reply({ content: 'Output channel not found. Contact an admin.', flags: 64 });
+    }
+
+    await interaction.deferReply({ flags: 64 });
+
+    const entries = [];
+    let before;
+    // Discord caps a single fetch at 100
+    for (let page = 0; page < 50; page++) {
+        const batch = await outputChannel.messages.fetch({ limit: 100, ...(before ? { before } : {}) });
+        if (batch.size === 0) break;
+
+        for (const message of batch.values()) {
+            const embed = message.embeds?.[0];
+            if (!embed) continue;
+            const authorId = getSubmitterIdFromEmbed(embed);
+            if (!authorId) continue;
+            entries.push({
+                messageId: message.id,
+                authorId,
+                characterName: embed.title || 'Unknown Character',
+                postedAt: message.createdTimestamp,
+            });
+        }
+
+        before = batch.last().id;
+        if (batch.size < 100) break;
+    }
+
+    memorialIndex.replaceAll(entries);
+    await interaction.editReply({ content: `✅ Reindexed. Found **${entries.length}** memorial(s) across the channel.` });
+}
+
+async function handleSetup(interaction) {
+    if (!isAdminChannel(interaction, 'botAdmin')) {
+        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
+    }
+
+    const existing = getConfig();
+    // Try to refresh an existing dashboard message in-place first.
+    if (existing.dashboardChannelId && existing.dashboardMessageId) {
+        try {
+            const oldChannel = await interaction.guild.channels.fetch(existing.dashboardChannelId);
+            const oldMessage = await oldChannel.messages.fetch(existing.dashboardMessageId);
+            await oldMessage.edit({ embeds: [buildDashboardEmbed()], components: [buildDashboardRow()] });
+            await interaction.reply({ content: `✅ Dashboard refreshed in ${oldChannel}.`, flags: 64 });
+            return;
+        } catch { /* fall through and post a new one */ }
+    }
+
+    const message = await interaction.channel.send({ embeds: [buildDashboardEmbed()], components: [buildDashboardRow()] });
+    setConfig({ dashboardChannelId: interaction.channel.id, dashboardMessageId: message.id });
+    await interaction.reply({ content: '✅ The Long Rest dashboard posted here.', flags: 64 });
+}
 
 module.exports = async (interaction, client) => {
     if (!interaction.isChatInputCommand()) return;
 
     const subcommand = interaction.options.getSubcommand();
+
+    if (subcommand === 'setup') {
+        return handleSetup(interaction);
+    }
+
+    if (subcommand === 'reindex') {
+        return handleReindex(interaction);
+    }
 
     try {
         if (subcommand === 'add') {
@@ -88,82 +167,8 @@ module.exports = async (interaction, client) => {
             await interaction.deferReply({flags: 64});
             const messageId = interaction.options.getString('message_id');
 
-
-            if (!/^\d{17,19}$/.test(messageId)) {
-                await interaction.editReply({
-                    content: '❌ Invalid message ID format.'
-                });
-                return;
-            }
-            
-            const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
-
-            if (!outputChannel) {
-                await interaction.editReply({
-                    content: 'Output channel not found. Contact an admin.'
-                });
-                return;
-            }
-
-            let message;
-            try {
-                message = await outputChannel.messages.fetch(messageId);
-                if (!message.embeds || message.embeds.length === 0) {
-                    await interaction.editReply({
-                        content: 'The specified message is not a memorial.'
-                    });
-                    return;
-                }
-            } catch (fetchError) {
-                console.error('Error fetching message:', fetchError);
-                await interaction.editReply({
-                    content: 'Could not find a message with that ID in the output channel.'
-                });
-                return;
-            }
-
-            const member = interaction.member;
-
-            const footerText = message.embeds[0]?.footer?.text || '';
-            const authorIdMatch = footerText.match(/AuthorID:\s*(\d{17,19})/);
-            const authorId = authorIdMatch ? authorIdMatch[1] : null;
-
-            const isAuthor = authorId === interaction.user.id;
-
-            const isAdmin = TLR_MOD_ROLE_IDS.length > 0 && member.roles.cache.some(r => TLR_MOD_ROLE_IDS.includes(r.id));
-
-            if (!isAuthor && !isAdmin) {
-                await interaction.editReply({
-                    content: 'You do not have permission to remove this memorial.'
-                });
-                return;
-            }
-
-            const confirmRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`confirm_remove_${messageId}`)
-                    .setLabel('Confirm Delete')
-                    .setStyle(ButtonStyle.Danger),
-                new ButtonBuilder()
-                    .setCustomId(`cancel_remove_${messageId}`)
-                    .setLabel('Cancel')
-                    .setStyle(ButtonStyle.Secondary)
-            );
-
-            const characterName = message.embeds[0]?.title || 'Unknown Character';
-            const timestamp = message.createdAt.toLocaleString('en-GB',{
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-
-            await interaction.editReply({
-                content: `⚠️ **Confirm Deletion**\n\n` +
-                            `**Character:** ${characterName}\n` +
-                            `**Posted on:** ${timestamp}\n\n` +
-                            `This action cannot be undone.`,
-                components: [confirmRow]
-            });
+            const { payload } = await buildRemoveConfirmation(interaction, messageId);
+            await interaction.editReply(payload);
         }
     } catch (error) {
         console.error('Error handling The Long Rest command:', error);

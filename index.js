@@ -30,6 +30,7 @@ require('./utils/restockScheduler').init(client);
 require('./utils/threadActivityReport').init(client);
 require('./utils/trapChannel')(client);
 require('./utils/deactivator').init(client);
+require('./utils/ticketDashboardWatcher').init(client);
 
 const token = process.env.DISCORD_TOKEN;
 

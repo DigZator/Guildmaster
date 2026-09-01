@@ -25,6 +25,8 @@ const { spellAutocomplete } = require('../utils/spellAutoComplete');
 const { magicItemAutocomplete } = require('../utils/magicItemAutoComplete');
 const { downtimeActivityAutocomplete, downtimeTierAutocomplete } = require('../utils/downtimeAutoComplete');
 const get_players = require('../commands/get_players');
+const ticket = require('../commands/ticket');
+const { loadTicketTypes } = require('../config/ticketTypes');
 
 const CODE_AUTOCOMPLETE_TARGETS = new Set([
     'league:shop:info',
@@ -107,6 +109,32 @@ module.exports = (client) => {
                 }
             }
 
+            if (interaction.commandName === 'ticket') {
+                const group = interaction.options.getSubcommandGroup(false);
+                const sub = interaction.options.getSubcommand(false);
+                const focused = interaction.options.getFocused(true);
+                const query = focused.value.toLowerCase();
+                const types = loadTicketTypes();
+
+                if (sub === 'reset_counter' && focused.name === 'type') {
+                    const choices = types
+                        .filter(t => t.slug.toLowerCase().includes(query) || t.label.toLowerCase().includes(query))
+                        .slice(0, 25)
+                        .map(t => ({ name: `${t.label} (${t.slug})`, value: t.slug }));
+                    await interaction.respond(choices);
+                    return;
+                }
+
+                if (group === 'type' && (sub === 'edit' || sub === 'remove') && focused.name === 'key') {
+                    const choices = types
+                        .filter(t => t.key.toLowerCase().includes(query) || t.label.toLowerCase().includes(query))
+                        .slice(0, 25)
+                        .map(t => ({ name: `${t.label} (${t.key})`, value: t.key }));
+                    await interaction.respond(choices);
+                    return;
+                }
+            }
+
             if (interaction.commandName === 'help') {
                 const focused = interaction.options.getFocused(true);
 
@@ -145,19 +173,19 @@ module.exports = (client) => {
                     }
                 }
 
-                // Quest link autocomplete (leaguedm quest link) — distinct UID system, not a catalogue code
+                // Quest link autocomplete
                 if (interaction.commandName === 'leaguedm' && group === 'quest' && sub === 'link') {
                     await questLinkAutocomplete(interaction);
                     return;
                 }
 
-                // Dashboard quest_id autocomplete (leaguedm dashboard) — Active quests only
+                // Dashboard quest_id autocomplete  — Active quests only
                 if (interaction.commandName === 'leaguedm' && sub === 'dashboard') {
                     await dashboardQuestAutocomplete(interaction);
                     return;
                 }
 
-                // Downtime start: activity → tier (dependent) → spell/item
+                // Downtime start: activity → tier dependent → spell/item
                 if (interaction.commandName === 'league' && group === 'downtime' && sub === 'start') {
                     const focused = interaction.options.getFocused(true);
                     if (focused.name === 'activity') {
@@ -233,6 +261,7 @@ module.exports = (client) => {
             if (command === 'leagueadmin') await leagueAdmin(interaction, client);
             if (command === 'leaguedm') await leagueDM(interaction, client);
             if (command === 'get_players') await get_players(interaction, client);
+            if (command === 'ticket') await ticket(interaction, client);
         } catch (error) {
             console.error('Error handling interaction:', error);
 
