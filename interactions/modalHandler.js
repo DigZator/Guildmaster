@@ -22,6 +22,8 @@ module.exports = (client) => {
                 if (result === false) handled = false;
             } else if (interaction.customId.startsWith('leagueDashEditModal:')) {
                 await require('../modals/leagueDashEdit')(interaction, client);
+            } else if (interaction.customId === 'tlrRemoveModal') {
+                await require('../buttons/theLongRest').handleRemoveModalSubmit(interaction);
             } else {
                 handled = false;
             }

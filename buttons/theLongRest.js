@@ -6,9 +6,8 @@ const {
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
-    StringSelectMenuBuilder,
 } = require('discord.js');
-const memorialIndex = require('../utils/memorialIndex');
+const { buildRemoveConfirmation } = require('../utils/tlrRemoveFlow');
 
 // ─── Dashboard message (posted via /the_long_rest setup) ───────────────────
 
@@ -87,37 +86,68 @@ async function handleSubmitButton(interaction) {
 }
 
 async function handleRemoveRequestButton(interaction) {
-    const entries = memorialIndex.getEntriesForAuthor(interaction.user.id);
-
-    if (entries.length === 0) {
-        return interaction.reply({
-            content: 'You don\'t have any memorials on record. If you posted one before this feature was added, ask an admin to run `/the_long_rest reindex`.',
-            flags: 64,
-        });
-    }
-
-    const sorted = entries.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0)).slice(0, 25);
-
-    const select = new StringSelectMenuBuilder()
-        .setCustomId('tlrRemoveSelect')
-        .setPlaceholder('Choose a memorial to remove')
-        .addOptions(sorted.map(e => ({
-            label: (e.characterName || 'Unknown Character').slice(0, 100),
-            value: e.messageId,
-        })));
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId('tlrRemoveCancel')
+            .setLabel('Cancel')
+            .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+            .setCustomId('tlrRemoveProceed')
+            .setLabel('Proceed')
+            .setStyle(ButtonStyle.Danger),
+    );
 
     await interaction.reply({
-        content: 'Which memorial would you like to remove?',
-        components: [new ActionRowBuilder().addComponents(select)],
+        content:
+            '🗑️ **Remove a Memorial**\n\n' +
+            'To remove a memorial you\'ll need the **Message ID** of the memorial post.\n\n' +
+            '**How to find a Message ID:**\n' +
+            '1. Enable Developer Mode: User Settings → Advanced → toggle **Developer Mode** on.\n' +
+            '2. Go to the memorial post and right-click it (long-press on mobile).\n' +
+            '3. Select **Copy Message ID** from the menu.\n\n' +
+            'Once you\'ve got it, click **Proceed** and paste it into the form. You can only remove a memorial you posted yourself, unless you\'re a moderator.',
+        components: [row],
         flags: 64,
     });
+}
+
+async function handleRemoveProceedButton(interaction) {
+    const modal = new ModalBuilder()
+        .setCustomId('tlrRemoveModal')
+        .setTitle('Remove a Memorial');
+
+    const messageIdInput = new TextInputBuilder()
+        .setCustomId('messageId')
+        .setLabel('Memorial Message ID')
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder('e.g. 1234567890123456789')
+        .setRequired(true);
+
+    modal.addComponents(new ActionRowBuilder().addComponents(messageIdInput));
+
+    await interaction.showModal(modal);
+}
+
+async function handleRemoveCancelButton(interaction) {
+    await interaction.update({ content: '❌ Memorial removal cancelled.', components: [] });
+}
+
+async function handleRemoveModalSubmit(interaction) {
+    const messageId = interaction.fields.getTextInputValue('messageId').trim();
+
+    const { payload } = await buildRemoveConfirmation(interaction, messageId);
+
+    await interaction.reply({ ...payload, flags: 64 });
 }
 
 module.exports = {
     exact: {
         tlrSubmit: handleSubmitButton,
         tlrRemoveRequest: handleRemoveRequestButton,
+        tlrRemoveProceed: handleRemoveProceedButton,
+        tlrRemoveCancel: handleRemoveCancelButton,
     },
+    handleRemoveModalSubmit,
     buildDashboardEmbed,
     buildDashboardRow,
 };
