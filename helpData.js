@@ -12,11 +12,11 @@ module.exports = {
         },
         {
           name: '/help admin <family>',
-          description: 'General server-admin tooling — game announcements, the activation schedule, RSS feeds, anonymous messaging, and support tickets. Families: game-management, scheduling, rss, messaging, tickets.',
+          description: 'General server-admin tooling — game announcements, the activation schedule, RSS feeds, anonymous messaging, support tickets, and channel archiving. Families: game-management, scheduling, rss, messaging, tickets, archive.',
         },
         {
           name: '/help league <family>',
-          description: 'Player-facing league commands — character setup, inventory, the shop, the marketplace, downtime, gold/balance, and quests. Families: character, inventory, shop, marketplace, downtime, economy, quest.',
+          description: 'Player-facing league commands — character setup, inventory, the shop, the marketplace, downtime, gold/balance, quests, and voiding your own items/gold. Families: character, inventory, shop, marketplace, downtime, economy, quest, void.',
         },
         {
           name: '/help leaguedm <family>',
@@ -204,6 +204,20 @@ module.exports = {
         },
       ],
     },
+    archive: {
+      label: 'Archiving',
+      description: 'Lock and move channels/categories out of active use. Requires the Admin role.',
+      commands: [
+        {
+          name: '/archive <target>',
+          description: 'Lock a channel or category read-only and move it into the configured archive category. Works on text, voice, stage, announcement, and forum channels, as well as whole categories.',
+        },
+        {
+          name: '/archive-config <category>',
+          description: 'Set which category `/archive` moves archived channels into. Run this once before using `/archive`.',
+        },
+      ],
+    },
   },
 
   // ─── /help league <family> ──────────────────────────────────────────────
@@ -273,8 +287,8 @@ module.exports = {
           description: 'Buy an item from the shop by its shop listing ID.',
         },
         {
-          name: '/league shop sell <id>',
-          description: 'Sell an item from your inventory to the shop by its inventory ID.',
+          name: '/league shop sell [item] [item_id]',
+          description: 'Sell item(s) from your inventory to the shop for half value. `item` autocompletes to a single item. `item_id` is a legacy fallback for selling multiple items at once by their positional numbers (e.g. "001,003") — may fail if your inventory has changed since you last listed it.',
         },
       ],
     },
@@ -365,6 +379,20 @@ module.exports = {
         },
       ],
     },
+    void: {
+      label: 'Void',
+      description: 'Voluntarily remove an item or gold from your own active character. This is permanent and logged to the league admin channel — use it to self-correct mistakes, not as a way to trade or trigger someone else\'s pending action.',
+      commands: [
+        {
+          name: '/league void item <id>',
+          description: 'Destroy an item from your active character\'s inventory. `id` autocompletes to items you own. Cannot be undone.',
+        },
+        {
+          name: '/league void gold <amount>',
+          description: 'Remove a specific amount of gold from your active character\'s balance. Cannot be undone.',
+        },
+      ],
+    },
   },
 
   // ─── /help leaguedm <family> ─────────────────────────────────────────────
@@ -401,8 +429,8 @@ module.exports = {
           description: 'View the roster for a quest — Discord player, character name, class, species, and level.',
         },
         {
-          name: '/leaguedm quest complete <quest_id> <milestones> <reputation>',
-          description: 'Mark a quest as completed, logging the total milestones/reputation given out this quest for admin review. Do this last, after rewards are granted — this only logs the totals, it does not distribute them; use gold/rep/milestone/item for that.',
+          name: '/leaguedm quest complete <quest_id>',
+          description: 'Mark a quest as completed. Shows a summary of the quest (players, prior gold, items, and anything currently queued on the dashboard) and asks you to confirm — this is final, and once confirmed no further rewards can be queued. Whatever is shown as "Queued Rewards" at that point is granted and submitted for admin approval together with the completion, as a single approval.',
         },
         {
           name: '/leaguedm dashboard <quest_id>',

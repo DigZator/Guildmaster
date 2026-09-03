@@ -18,6 +18,7 @@ const editGameCheckbox	= require('../buttons/editGameCheckbox');
 const ticket 			= require('../buttons/ticket');
 const theLongRest 		= require('../buttons/theLongRest');
 const leagueDashboard 	= require('../buttons/leagueDashboard');
+const archive 			= require('../buttons/archive');
 
 const exactHandlers = {
     ...memorial.exact,
@@ -29,6 +30,7 @@ const exactHandlers = {
     ...starterItems.exact,
     ...theLongRest.exact,
     ...leagueDashboard.exact,
+    ...archive.exact,
 };
 
 const prefixHandlers = {
@@ -45,6 +47,7 @@ const prefixHandlers = {
     ...questDashboard.prefix,
     ...editGameCheckbox.prefix,
     ...ticket.prefix,
+    ...archive.prefix,
 };
 
 module.exports = (client) => {

@@ -26,6 +26,8 @@ const { magicItemAutocomplete } = require('../utils/magicItemAutoComplete');
 const { downtimeActivityAutocomplete, downtimeTierAutocomplete } = require('../utils/downtimeAutoComplete');
 const get_players = require('../commands/get_players');
 const ticket = require('../commands/ticket');
+const archive = require('../commands/archive');
+const archiveConfig = require('../commands/archiveConfig');
 const { loadTicketTypes } = require('../config/ticketTypes');
 
 const CODE_AUTOCOMPLETE_TARGETS = new Set([
@@ -262,6 +264,8 @@ module.exports = (client) => {
             if (command === 'leaguedm') await leagueDM(interaction, client);
             if (command === 'get_players') await get_players(interaction, client);
             if (command === 'ticket') await ticket(interaction, client);
+            if (command === 'archive') await archive(interaction, client);
+            if (command === 'archive-config') await archiveConfig(interaction, client);
         } catch (error) {
             console.error('Error handling interaction:', error);
 
