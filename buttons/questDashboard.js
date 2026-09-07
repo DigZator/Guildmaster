@@ -13,6 +13,8 @@ const { searchCatalogue, getCatalogueItemByCode, defaultPriceFor, inferSubtype }
 const { formatCurrency } = require('../utils/currency');
 const { getActiveCharacter, getCharacterInventory, getCharacterQuestLog } = require('../utils/leagueNotion');
 const { addCharacterToRoster, removeCharactersFromRoster, getQuestSummary, buildQuestSummaryEmbed, confirmQuestCompletion } = require('../commands/leagueQuest');
+const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('../config/itemChoices');
+const { setPendingManualItem, getPendingManualItem, clearPendingManualItem } = require('../utils/pendingManualItems');
 
 const BULK_PAGE_SIZE = 5; 
 const REWARD_TYPE_LABELS = { gold: 'Gold', rep: 'Reputation', milestone: 'Milestones', item: 'Item' };
@@ -176,7 +178,6 @@ async function handleSubmitCancel(interaction) {
 }
 
 // Add Reward
-
 async function handleAddReward(interaction, questId) {
     await interaction.deferReply({ flags: 64 });
 
@@ -214,7 +215,6 @@ async function handleAddReward(interaction, questId) {
 }
 
 // Add Reward — gold / rep / milestone
-
 function existingAmount(draft, characterPageId, type) {
     const line = draft.lines.find(l => l.characterPageId === characterPageId && l.type === type);
     return line?.payload?.amount ?? 0;
@@ -382,7 +382,6 @@ async function handleAddRewardBulkNext(interaction, questId, extra) {
 }
 
 // Add Reward — item
-
 async function showItemPlayerSelect(interaction, questId, dashboardMessageId) {
     await interaction.deferUpdate();
 
@@ -447,23 +446,121 @@ function buildManualItemModal(questId, characterPageId, dashboardMessageId, sour
                     .setRequired(true).setValue(prefill.itemName ?? ''),
             ),
             new ActionRowBuilder().addComponents(
-                new TextInputBuilder().setCustomId('itemType').setLabel('Type').setStyle(TextInputStyle.Short)
-                    .setRequired(false).setValue(prefill.itemType ?? ''),
-            ),
-            new ActionRowBuilder().addComponents(
-                new TextInputBuilder().setCustomId('itemSubtype').setLabel('Subtype').setStyle(TextInputStyle.Short)
-                    .setRequired(false).setValue(prefill.itemSubtype ?? ''),
-            ),
-            new ActionRowBuilder().addComponents(
-                new TextInputBuilder().setCustomId('itemRarity').setLabel('Rarity').setStyle(TextInputStyle.Short)
-                    .setRequired(false).setValue(prefill.itemRarity ?? ''),
-            ),
-            new ActionRowBuilder().addComponents(
                 new TextInputBuilder().setCustomId('itemValue').setLabel('Value (gp)').setStyle(TextInputStyle.Short)
                     .setRequired(false).setValue(prefill.itemValue ?? ''),
             ),
+            new ActionRowBuilder().addComponents(
+                new TextInputBuilder().setCustomId('itemNotes').setLabel('Notes').setStyle(TextInputStyle.Paragraph)
+                    .setRequired(false).setValue(prefill.itemNotes ?? ''),
+            ),
         );
     return modal;
+}
+
+const NONE_CHOICE_VALUE = '__none__';
+
+function renderManualItemTypeSelect(questId, characterPageId, dashboardMessageId) {
+    const select = new StringSelectMenuBuilder()
+        .setCustomId(encodeId(questId, 'addItemManualType', `${characterPageId}|${dashboardMessageId}`))
+        .setPlaceholder('Item type')
+        .addOptions(ITEM_TYPE_CHOICES.map(c => ({ label: c.name, value: c.value })));
+
+    return {
+        content: 'What type of item is this?',
+        embeds: [],
+        components: [
+            new ActionRowBuilder().addComponents(select),
+            navRow(questId, 'itemBackToAction', `${characterPageId}|${dashboardMessageId}`),
+        ],
+    };
+}
+
+function renderManualItemSubtypeSelect(questId, characterPageId, dashboardMessageId) {
+    const select = new StringSelectMenuBuilder()
+        .setCustomId(encodeId(questId, 'addItemManualSubtype', `${characterPageId}|${dashboardMessageId}`))
+        .setPlaceholder('Item subtype (optional)')
+        .addOptions(
+            { label: 'None', value: NONE_CHOICE_VALUE },
+            ...ITEM_SUBTYPE_CHOICES.map(c => ({ label: c.name, value: c.value })),
+        );
+
+    return {
+        content: 'Does it have a subtype?',
+        embeds: [],
+        components: [
+            new ActionRowBuilder().addComponents(select),
+            navRow(questId, 'itemBackToAction', `${characterPageId}|${dashboardMessageId}`),
+        ],
+    };
+}
+
+function renderManualItemRaritySelect(questId, characterPageId, dashboardMessageId) {
+    const select = new StringSelectMenuBuilder()
+        .setCustomId(encodeId(questId, 'addItemManualRarity', `${characterPageId}|${dashboardMessageId}`))
+        .setPlaceholder('Rarity (optional)')
+        .addOptions(
+            { label: 'None', value: NONE_CHOICE_VALUE },
+            ...ITEM_RARITY_CHOICES.map(c => ({ label: c.name, value: c.value })),
+        );
+
+    return {
+        content: 'What rarity is it?',
+        embeds: [],
+        components: [
+            new ActionRowBuilder().addComponents(select),
+            navRow(questId, 'itemBackToAction', `${characterPageId}|${dashboardMessageId}`),
+        ],
+    };
+}
+
+async function finalizeManualItemLine(interaction, questId, characterPageId, dashboardMessageId, pending) {
+    let state;
+    try {
+        state = await loadDashboardState(questId, {
+            discordId: interaction.user.id,
+            username: interaction.user.username,
+        });
+        assertOwner(state, interaction);
+        assertUnlocked(state);
+    } catch (err) {
+        clearPendingManualItem(interaction.user.id);
+        return interaction.editReply({ content: err.message, embeds: [], components: [] });
+    }
+
+    const character = state.roster.find(c => c.characterPageId === characterPageId);
+    if (!character) {
+        clearPendingManualItem(interaction.user.id);
+        return interaction.editReply({ content: '❌ That character is no longer on this quest\'s roster.', embeds: [], components: [] });
+    }
+
+    try {
+        questDrafts.addOrReplaceLine(questId, {
+            characterPageId: character.characterPageId,
+            characterName: character.characterName,
+            discordId: character.discordId,
+            type: 'item',
+            payload: {
+                itemName: pending.itemName,
+                type: pending.type ?? null,
+                subtype: pending.subtype ?? null,
+                rarity: pending.rarity ?? null,
+                itemValue: pending.itemValue,
+                source: pending.sourceTag === 'catalogue' ? 'Dashboard (catalogue)' : 'Dashboard (manual entry)',
+                notes: pending.itemNotes || null,
+            },
+        });
+    } catch (err) {
+        console.error(`[questDashboard] Error saving item line for quest ${questId}:`, err);
+        clearPendingManualItem(interaction.user.id);
+        return interaction.editReply({
+            content: `⚠️ "${pending.itemName}" looked valid, but I couldn't save it right now. Please try again in a moment.`,
+            embeds: [], components: [],
+        });
+    }
+
+    clearPendingManualItem(interaction.user.id);
+    await refreshDashboardMessage(interaction, questId, dashboardMessageId);
+    return finishAndDelete(interaction, { content: `✅ **${pending.itemName}** added for **${character.characterName}**.` });
 }
 
 async function handleAddItemActionSelect(interaction, questId, extra) {
@@ -538,6 +635,7 @@ async function handleAddItemSourceSelect(interaction, questId, extra) {
     const source = interaction.values[0];
 
     if (source === 'manual') {
+        setPendingManualItem(interaction.user.id, { questId, characterPageId, dashboardMessageId, sourceTag: 'manual' });
         return interaction.showModal(buildManualItemModal(questId, characterPageId, dashboardMessageId, 'manual'));
     }
 
@@ -616,11 +714,15 @@ async function handleAddItemCatalogueSelect(interaction, questId, extra) {
         return interaction.update({ content: '❌ That item is no longer in the catalogue. Try searching again.', components: [] });
     }
 
+    setPendingManualItem(interaction.user.id, {
+        questId, characterPageId, dashboardMessageId, sourceTag: 'catalogue',
+        type: item.type ?? null,
+        subtype: inferSubtype(item) ?? null,
+        rarity: item.rarity ?? null,
+    });
+
     const prefill = {
         itemName: item.name,
-        itemType: item.type ?? '',
-        itemSubtype: inferSubtype(item) ?? '',
-        itemRarity: item.rarity ?? '',
         itemValue: item.priceGp != null ? String(item.priceGp) : String(defaultPriceFor(item.rarity)),
     };
 
@@ -632,60 +734,82 @@ async function handleAddItemModalSubmit(interaction, questId, extra) {
 
     const [characterPageId, dashboardMessageId, sourceTag] = extra.split('|');
 
-    let state;
-    try {
-        state = await loadDashboardState(questId, {
-            discordId: interaction.user.id,
-            username: interaction.user.username,
+    const pending = getPendingManualItem(interaction.user.id);
+    if (!pending || pending.questId !== questId || pending.characterPageId !== characterPageId) {
+        return interaction.editReply({
+            content: '❌ This item flow expired or was interrupted — please reopen Add Item and try again.',
+            embeds: [], components: [],
         });
-        assertOwner(state, interaction);
-        assertUnlocked(state);
-    } catch (err) {
-        return interaction.editReply({ content: err.message, embeds: [], components: [] });
-    }
-
-    const character = state.roster.find(c => c.characterPageId === characterPageId);
-    if (!character) {
-        return interaction.editReply({ content: '❌ That character is no longer on this quest\'s roster.', embeds: [], components: [] });
     }
 
     const itemName = interaction.fields.getTextInputValue('itemName').trim();
-    const itemType = interaction.fields.getTextInputValue('itemType').trim() || null;
-    const itemSubtype = interaction.fields.getTextInputValue('itemSubtype').trim() || null;
-    const itemRarity = interaction.fields.getTextInputValue('itemRarity').trim() || null;
+    if (!itemName) {
+        clearPendingManualItem(interaction.user.id);
+        return interaction.editReply({ content: '❌ Item Name is required.', embeds: [], components: [] });
+    }
     const rawValue = interaction.fields.getTextInputValue('itemValue').trim();
+    const itemNotes = interaction.fields.getTextInputValue('itemNotes').trim();
 
     let itemValue = null;
     if (rawValue !== '') {
         itemValue = Number(rawValue);
         if (isNaN(itemValue)) {
+            clearPendingManualItem(interaction.user.id);
             return interaction.editReply({ content: `❌ "${rawValue}" isn't a valid number for Value (gp).`, embeds: [], components: [] });
         }
     }
 
-    const source = sourceTag === 'catalogue' ? 'Dashboard (catalogue)' : 'Dashboard (manual entry)';
+    setPendingManualItem(interaction.user.id, { ...pending, itemName, itemValue, itemNotes });
 
-    try {
-        questDrafts.addOrReplaceLine(questId, {
-            characterPageId: character.characterPageId,
-            characterName: character.characterName,
-            discordId: character.discordId,
-            type: 'item',
-            payload: {
-                itemName, type: itemType, subtype: itemSubtype, rarity: itemRarity, itemValue,
-                source, notes: null,
-            },
-        });
-    } catch (err) {
-        console.error(`[questDashboard] Error saving item line for quest ${questId}:`, err);
-        return interaction.editReply({
-            content: `⚠️ "${itemName}" looked valid, but I couldn't save it right now. Please try again in a moment.`,
-            embeds: [], components: [],
-        });
+    if (sourceTag === 'catalogue') {
+        // Type/Subtype/Rarity already came from the catalogue lookup — no need for the select steps.
+        const finalPending = { ...pending, itemName, itemValue, itemNotes };
+        return finalizeManualItemLine(interaction, questId, characterPageId, dashboardMessageId, finalPending);
     }
 
-    await refreshDashboardMessage(interaction, questId, dashboardMessageId);
-    return finishAndDelete(interaction, { content: `✅ **${itemName}** added for **${character.characterName}**.` });
+    // Manual entry: still need Type -> Subtype -> Rarity via select menus.
+    return interaction.editReply(renderManualItemTypeSelect(questId, characterPageId, dashboardMessageId));
+}
+
+async function handleAddItemManualTypeSelect(interaction, questId, extra) {
+    await interaction.deferUpdate();
+    const [characterPageId, dashboardMessageId] = extra.split('|');
+
+    const pending = getPendingManualItem(interaction.user.id);
+    if (!pending || pending.questId !== questId || pending.characterPageId !== characterPageId) {
+        return interaction.editReply({ content: '❌ This item flow expired — please reopen Add Item and try again.', embeds: [], components: [] });
+    }
+
+    setPendingManualItem(interaction.user.id, { ...pending, type: interaction.values[0] });
+    return interaction.editReply(renderManualItemSubtypeSelect(questId, characterPageId, dashboardMessageId));
+}
+
+async function handleAddItemManualSubtypeSelect(interaction, questId, extra) {
+    await interaction.deferUpdate();
+    const [characterPageId, dashboardMessageId] = extra.split('|');
+
+    const pending = getPendingManualItem(interaction.user.id);
+    if (!pending || pending.questId !== questId || pending.characterPageId !== characterPageId) {
+        return interaction.editReply({ content: '❌ This item flow expired — please reopen Add Item and try again.', embeds: [], components: [] });
+    }
+
+    const value = interaction.values[0];
+    setPendingManualItem(interaction.user.id, { ...pending, subtype: value === NONE_CHOICE_VALUE ? null : value });
+    return interaction.editReply(renderManualItemRaritySelect(questId, characterPageId, dashboardMessageId));
+}
+
+async function handleAddItemManualRaritySelect(interaction, questId, extra) {
+    await interaction.deferUpdate();
+    const [characterPageId, dashboardMessageId] = extra.split('|');
+
+    const pending = getPendingManualItem(interaction.user.id);
+    if (!pending || pending.questId !== questId || pending.characterPageId !== characterPageId) {
+        return interaction.editReply({ content: '❌ This item flow expired — please reopen Add Item and try again.', embeds: [], components: [] });
+    }
+
+    const value = interaction.values[0];
+    const finalPending = { ...pending, rarity: value === NONE_CHOICE_VALUE ? null : value };
+    return finalizeManualItemLine(interaction, questId, characterPageId, dashboardMessageId, finalPending);
 }
 
 async function handleAddItemRemoveSelect(interaction, questId, extra) {
@@ -712,7 +836,6 @@ async function handleAddItemRemoveSelect(interaction, questId, extra) {
 }
 
 // Edit Party
-
 async function handleEditParty(interaction, questId) {
     await interaction.deferReply({ flags: 64 });
 
@@ -796,7 +919,6 @@ async function handlePartyActionSelect(interaction, questId, dashboardMessageId)
 }
 
 // Edit Party — Add
-
 async function handlePartyAddUserSelect(interaction, questId, dashboardMessageId) {
     await interaction.deferUpdate();
 
@@ -884,7 +1006,6 @@ async function handlePartyAddCancel(interaction) {
 }
 
 // Edit Party — Remove
-
 async function handlePartyRemoveSelect(interaction, questId, dashboardMessageId) {
     await interaction.deferUpdate();
 
@@ -987,7 +1108,6 @@ async function handlePartyRemoveCancel(interaction) {
 }
 
 // Grouping toggle
-
 async function handleToggleGroup(interaction, questId, grouping) {
     await interaction.deferUpdate().catch(() => {});
 
@@ -1012,7 +1132,6 @@ async function handleToggleGroup(interaction, questId, grouping) {
 }
 
 // Roster — read-only view
-
 async function buildPartyInfoEmbed(state, index) {
     const character = state.roster[index];
     const total = state.roster.length;
@@ -1109,7 +1228,6 @@ async function handlePartyInfoPage(interaction, questId, extra) {
 }
 
 // Cancel Quest
-
 async function handleCancelQuest(interaction, questId) {
     await interaction.deferReply({ flags: 64 });
 
@@ -1224,6 +1342,9 @@ async function handleDashboardSelect(interaction) {
     if (action === 'addItemRemoveSelect') return handleAddItemRemoveSelect(interaction, questId, extra);
     if (action === 'addItemSource')       return handleAddItemSourceSelect(interaction, questId, extra);
     if (action === 'addItemCatalogueSelect') return handleAddItemCatalogueSelect(interaction, questId, extra);
+    if (action === 'addItemManualType')   return handleAddItemManualTypeSelect(interaction, questId, extra);
+    if (action === 'addItemManualSubtype') return handleAddItemManualSubtypeSelect(interaction, questId, extra);
+    if (action === 'addItemManualRarity') return handleAddItemManualRaritySelect(interaction, questId, extra);
     if (action === 'partyAction')         return handlePartyActionSelect(interaction, questId, extra);
     if (action === 'partyRemoveSelect')   return handlePartyRemoveSelect(interaction, questId, extra);
 

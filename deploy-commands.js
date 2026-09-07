@@ -2,6 +2,7 @@ const { REST, Routes, SlashCommandBuilder, ChannelType } = require('discord.js')
 require('dotenv').config();
 const { buildClassChoices } = require('./commands/leagueStarterItems');
 const { VALID_CATEGORY_GROUPS } = require('./config/ticketTypes');
+const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('./config/itemChoices');
 
 const CATEGORY_GROUP_CHOICES = VALID_CATEGORY_GROUPS.map(g => ({ name: g, value: g }));
 
@@ -793,47 +794,13 @@ const commands = [
 				.setDescription('Create a new inventory item')
 				.addStringOption(opt => opt.setName('name').setDescription('Item name').setRequired(true))
 				.addStringOption(opt => opt.setName('type').setDescription('Item type').setRequired(true)
-					.addChoices(
-						{ name: 'Armor',            value: 'Armor' },
-						{ name: 'Shield',           value: 'Shield' },
-						{ name: 'Weapon',           value: 'Weapon' },
-						{ name: 'Melee Weapon',     value: 'Melee Weapon' },
-						{ name: 'Ranged Weapon',    value: 'Ranged Weapon' },
-						{ name: 'Ammunition',       value: 'Ammunition' },
-						{ name: 'Tool',             value: 'Tool' },
-						{ name: 'Gaming Set',       value: 'Gaming Set' },
-						{ name: 'Instrument',       value: 'Instrument' },
-						{ name: 'Adventuring Gear', value: 'Adventuring Gear' },
-						{ name: 'Gear',             value: 'Gear' },
-						{ name: 'Potion',           value: 'Potion' },
-						{ name: 'Scroll',           value: 'Scroll' },
-						{ name: 'Rod',              value: 'Rod' },
-						{ name: 'Ring',             value: 'Ring' },
-						{ name: 'Wand',             value: 'Wand' },
-						{ name: 'Staff',            value: 'Staff' },
-						{ name: 'Wondrous Item',    value: 'Wondrous Item' },
-						{ name: 'Treasure',         value: 'Treasure' },
-						{ name: 'Trade Good',       value: 'Trade Good' },
-						{ name: 'Vehicle',          value: 'Vehicle' },
-					)
+					.addChoices(...ITEM_TYPE_CHOICES)
 				)
 				.addStringOption(opt => opt.setName('rarity').setDescription('Rarity').setRequired(true)
-					.addChoices(
-						{ name: 'Common',    value: 'Common' },
-						{ name: 'Uncommon',  value: 'Uncommon' },
-						{ name: 'Rare',      value: 'Rare' },
-						{ name: 'Very Rare', value: 'Very Rare' },
-						{ name: 'Legendary', value: 'Legendary' },
-					)
+					.addChoices(...ITEM_RARITY_CHOICES)
 				)
 				.addStringOption(opt => opt.setName('subtype').setDescription('Subtype').setRequired(false)
-					.addChoices(
-						{ name: 'Potion',      value: 'Potion' },
-						{ name: 'Spell Scroll',value: 'Spell Scroll' },
-						{ name: 'Gear',        value: 'Gear' },
-						{ name: 'Ammo',        value: 'Ammo' },
-						{ name: 'Other',       value: 'Other' },
-					)
+					.addChoices(...ITEM_SUBTYPE_CHOICES)
 				)
 				.addUserOption(opt => opt.setName('player').setDescription('Assign to a player (optional for admin, required for DM)').setRequired(false))
 				.addStringOption(opt => opt.setName('source').setDescription('How the item was obtained').setRequired(false)
@@ -927,197 +894,17 @@ const commands = [
    		        .addStringOption(opt => opt
    		            .setName('notes')
    		            .setDescription('Additional notes')
-   		            .setRequired(false)))
-  		    .addSubcommand(sub => sub
-				.setName('complete')
-				.setDescription('Mark a quest as completed (ready for admin approval)')
-				.addStringOption(opt => opt
-					.setName('quest_id')
-					.setDescription('Quest ID')
-					.setRequired(true)))
-   		    .addSubcommand(sub => sub
-   		            .setName('add')
-   		            .setDescription('Add players to a quest')
-   		            .addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID').setRequired(true))
-   		            .addUserOption(opt => opt.setName('user1').setDescription('Player 1').setRequired(true))
-   		            .addUserOption(opt => opt.setName('user2').setDescription('Player 2').setRequired(false))
-   		            .addUserOption(opt => opt.setName('user3').setDescription('Player 3').setRequired(false))
-   		            .addUserOption(opt => opt.setName('user4').setDescription('Player 4').setRequired(false))
-   		            .addUserOption(opt => opt.setName('user5').setDescription('Player 5').setRequired(false))
-   		            .addUserOption(opt => opt.setName('user6').setDescription('Player 6').setRequired(false)))
-   		        .addSubcommand(sub => sub
-   		            .setName('remove')
-   		            .setDescription('Remove players from a quest')
-   		            .addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID').setRequired(true))
-   		            .addUserOption(opt => opt.setName('user1').setDescription('Player 1').setRequired(true))
-   		            .addUserOption(opt => opt.setName('user2').setDescription('Player 2').setRequired(false))
-   		            .addUserOption(opt => opt.setName('user3').setDescription('Player 3').setRequired(false))
-   		            .addUserOption(opt => opt.setName('user4').setDescription('Player 4').setRequired(false))
-   		            .addUserOption(opt => opt.setName('user5').setDescription('Player 5').setRequired(false))
-   		            .addUserOption(opt => opt.setName('user6').setDescription('Player 6').setRequired(false)))
-   		        .addSubcommand(sub => sub
-   		            .setName('clear')
-   		            .setDescription('Remove all players from a quest')
-   		            .addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID').setRequired(true)))
-   		        .addSubcommand(sub => sub
-   		            .setName('players')
-   		            .setDescription('List the players on a quest')
-   		            .addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID').setRequired(true))))
+   		            .setRequired(false))))
 	    //dashboard
 	    .addSubcommand(sub => sub
 			.setName('dashboard')
-			.setDescription('View the live reward draft for a quest')
+			.setDescription('View the live reward draft for a quest — add/remove players and rewards, and complete the quest, all from here')
 			.addStringOption(opt => opt
 				.setName('quest_id')
 				.setDescription('Quest ID')
 				.setRequired(true)
-				.setAutocomplete(true)))
-	    //rep
-	    .addSubcommand(sub => sub
-			.setName('rep')
-			.setDescription('Request reputation grant for a character')
-			.addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID this grant is tied to').setRequired(true))
-			.addUserOption(opt => opt.setName('user1').setDescription('Target player 1').setRequired(true))
-			.addIntegerOption(opt => opt.setName('amount1').setDescription('Amount (max 2)').setRequired(true))
-			.addUserOption(opt => opt.setName('user2').setDescription('Target player 2').setRequired(false))
-			.addIntegerOption(opt => opt.setName('amount2').setDescription('Amount (max 2)'))
-			.addUserOption(opt => opt.setName('user3').setDescription('Target player 3'))
-			.addIntegerOption(opt => opt.setName('amount3').setDescription('Amount (max 2)'))
-			.addUserOption(opt => opt.setName('user4').setDescription('Target player 4'))
-			.addIntegerOption(opt => opt.setName('amount4').setDescription('Amount (max 2)'))
-			.addUserOption(opt => opt.setName('user5').setDescription('Target player 5'))
-			.addIntegerOption(opt => opt.setName('amount5').setDescription('Amount (max 2)'))
-			.addUserOption(opt => opt.setName('user6').setDescription('Target player 6'))
-			.addIntegerOption(opt => opt.setName('amount6').setDescription('Amount (max 2)')))
-		//gold
-		.addSubcommand(sub => sub
-			.setName('gold')
-			.setDescription('Grant gold to a character')
-			.addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID this grant is tied to').setRequired(true))
-			.addUserOption(opt => opt.setName('user1').setDescription('Target player 1').setRequired(true))
-			.addNumberOption(opt => opt.setName('amount1').setDescription('Amount in gp').setRequired(true))
-			.addUserOption(opt => opt.setName('user2').setDescription('Target player 2'))
-			.addNumberOption(opt => opt.setName('amount2').setDescription('Amount in gp'))
-			.addUserOption(opt => opt.setName('user3').setDescription('Target player 3'))
-			.addNumberOption(opt => opt.setName('amount3').setDescription('Amount in gp'))
-			.addUserOption(opt => opt.setName('user4').setDescription('Target player 4'))
-			.addNumberOption(opt => opt.setName('amount4').setDescription('Amount in gp'))
-			.addUserOption(opt => opt.setName('user5').setDescription('Target player 5'))
-			.addNumberOption(opt => opt.setName('amount5').setDescription('Amount in gp'))
-			.addUserOption(opt => opt.setName('user6').setDescription('Target player 6'))
-			.addNumberOption(opt => opt.setName('amount6').setDescription('Amount in gp')))
-		//milestone
-		.addSubcommand(sub => sub
-	        .setName('milestone')
-	        .setDescription('Grant milestones to a character')
-			.addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID this grant is tied to').setRequired(true))
-			.addUserOption(opt => opt.setName('user1').setDescription('Target player 1').setRequired(true))
-			.addIntegerOption(opt => opt.setName('amount1').setDescription('Number of milestones').setRequired(true))
-			.addUserOption(opt => opt.setName('user2').setDescription('Target player 2'))
-			.addIntegerOption(opt => opt.setName('amount2').setDescription('Number of milestones'))
-			.addUserOption(opt => opt.setName('user3').setDescription('Target player 3'))
-			.addIntegerOption(opt => opt.setName('amount3').setDescription('Number of milestones'))
-			.addUserOption(opt => opt.setName('user4').setDescription('Target player 4'))
-			.addIntegerOption(opt => opt.setName('amount4').setDescription('Number of milestones'))
-			.addUserOption(opt => opt.setName('user5').setDescription('Target player 5'))
-			.addIntegerOption(opt => opt.setName('amount5').setDescription('Number of milestones'))
-			.addUserOption(opt => opt.setName('user6').setDescription('Target player 6'))
-			.addIntegerOption(opt => opt.setName('amount6').setDescription('Number of milestones')))
-		//item
-		.addSubcommandGroup(group => group
-			.setName('item')
-			.setDescription('Item management')
-			.addSubcommand(sub => sub
-				.setName('create')
-				.setDescription('Create and assign an item to a player')
-				.addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID this item is tied to').setRequired(true))
-				.addStringOption(opt => opt.setName('name').setDescription('Item name').setRequired(true))
-				.addStringOption(opt => opt
-					.setName('type')
-					.setDescription('Item type')
-					.setRequired(true)
-					.addChoices(
-						{ name: 'Armor',            value: 'Armor' },
-						{ name: 'Shield',           value: 'Shield' },
-						{ name: 'Weapon',           value: 'Weapon' },
-						{ name: 'Melee Weapon',     value: 'Melee Weapon' },
-						{ name: 'Ranged Weapon',    value: 'Ranged Weapon' },
-						{ name: 'Ammunition',       value: 'Ammunition' },
-						{ name: 'Tool',             value: 'Tool' },
-						{ name: 'Gaming Set',       value: 'Gaming Set' },
-						{ name: 'Instrument',       value: 'Instrument' },
-						{ name: 'Adventuring Gear', value: 'Adventuring Gear' },
-						{ name: 'Gear',             value: 'Gear' },
-						{ name: 'Potion',           value: 'Potion' },
-						{ name: 'Scroll',           value: 'Scroll' },
-						{ name: 'Rod',              value: 'Rod' },
-						{ name: 'Ring',             value: 'Ring' },
-						{ name: 'Wand',             value: 'Wand' },
-						{ name: 'Staff',            value: 'Staff' },
-						{ name: 'Wondrous Item',    value: 'Wondrous Item' },
-						{ name: 'Treasure',         value: 'Treasure' },
-						{ name: 'Trade Good',       value: 'Trade Good' },
-						{ name: 'Vehicle',          value: 'Vehicle' },
-					)
-				)
-				.addStringOption(opt => opt
-					.setName('rarity')
-					.setDescription('Rarity')
-					.setRequired(true)
-					.addChoices(
-						{ name: 'Common',    value: 'Common' },
-						{ name: 'Uncommon',  value: 'Uncommon' },
-						{ name: 'Rare',      value: 'Rare' },
-						{ name: 'Very Rare', value: 'Very Rare' },
-						{ name: 'Legendary', value: 'Legendary' },
-					)
-				)
-				.addUserOption(opt => opt
-					.setName('player')
-					.setDescription('Player to assign the item to')
-					.setRequired(true))
-				.addStringOption(opt => opt
-					.setName('subtype')
-					.setDescription('Subtype')
-					.setRequired(false)
-					.addChoices(
-						{ name: 'Potion',       value: 'Potion' },
-						{ name: 'Spell Scroll', value: 'Spell Scroll' },
-						{ name: 'Gear',         value: 'Gear' },
-						{ name: 'Ammo',         value: 'Ammo' },
-						{ name: 'Other',        value: 'Other' },
-					)
-				)
-				.addStringOption(opt => opt
-					.setName('source')
-					.setDescription('How the item was obtained')
-					.setRequired(false)
-					.addChoices(
-						{ name: 'Quest Reward',  value: 'Quest Reward' },
-						{ name: 'Shop Purchase', value: 'Shop Purchase' },
-						{ name: 'Event',         value: 'Event' },
-						{ name: 'Admin Grant',   value: 'Admin Grant' },
-					)
-				)
-				.addIntegerOption(opt => opt.setName('value').setDescription('Item value in gp').setRequired(false).setMinValue(0))
-				.addStringOption(opt => opt.setName('notes').setDescription('Additional notes').setRequired(false)))
-			//import
-			.addSubcommand(sub => sub
-							.setName('import')
-							.setDescription('Import an item directly from the 5e catalogue and assign it to a player')
-							.addStringOption(opt => opt.setName('quest_id').setDescription('Quest ID this item is tied to').setRequired(true))
-							.addStringOption(opt => opt.setName('code').setDescription('Catalogue item code (see /league shop search)').setRequired(true).setAutocomplete(true))
-							.addUserOption(opt => opt.setName('player').setDescription('Player to assign the item to').setRequired(true))
-							.addStringOption(opt => opt.setName('source').setDescription('How the item was obtained').setRequired(false)
-								.addChoices(
-									{ name: 'Quest Reward',  value: 'Quest Reward' },
-									{ name: 'Shop Purchase', value: 'Shop Purchase' },
-									{ name: 'Event',         value: 'Event' },
-									{ name: 'Admin Grant',   value: 'Admin Grant' },
-								)
-							)
-							.addStringOption(opt => opt.setName('notes').setDescription('Override the catalogue description').setRequired(false)))),
-        
+				.setAutocomplete(true))),
+
 	//archive
 	new SlashCommandBuilder()
 		.setName('archive')

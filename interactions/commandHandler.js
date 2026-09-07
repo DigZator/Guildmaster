@@ -37,7 +37,6 @@ const CODE_AUTOCOMPLETE_TARGETS = new Set([
     'leagueadmin:shop:unstock',
     'leagueadmin:shop:restock',
     'leagueadmin:item:import',
-    'leaguedm:item:import',
 ]);
 
 const ITEM_AUTOCOMPLETE_TARGETS = new Set([

@@ -1,7 +1,6 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { randomBytes }  = require('crypto');
 const {
-    getActiveCharacter,
     updatePageProperty,
     getPageById,
     withPageLock,
@@ -24,13 +23,6 @@ const QUEST_LOG_DB_ID = process.env.LEAGUE_QUEST_LOG_DB_ID;
 
 function isDM(interaction) {
     return interaction.member.roles.cache.has(DM_ROLE_ID);
-}
-
-function isDMOnQuest(interaction, questId) {
-    const draft = questDrafts.getDraft(questId);
-    const ownerId = draft?.dm?.discordId;
-    if (!ownerId) return false;
-    return ownerId === interaction.user.id;
 }
 
 async function generateQuestId() {
@@ -250,7 +242,7 @@ async function handleQuestLink(interaction) {
     });
 }
 
-// ─── /leaguedm quest complete ─────────────────────────────────────────────────
+// ─── Quest completion summary (used by the dashboard's Submit flow) ───────────
 
 function summarizeQueuedLines(lines) {
     if (!lines || lines.length === 0) return 'None queued';
@@ -280,49 +272,6 @@ function buildQuestSummaryEmbed(summary, { title, color }) {
         )
         .setTimestamp();
     return embed;
-}
-
-async function handleQuestComplete(interaction) {
-    if (!isDM(interaction)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    const questId = interaction.options.getString('quest_id').toUpperCase();
-
-    await interaction.deferReply({ flags: 64 });
-
-    const summary = await getQuestSummary(questId);
-    if (!summary) {
-        return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
-    }
-    if (summary.status !== 'Active') {
-        return interaction.editReply({ content: `❌ Quest must be **Active** to complete. Current status: ${summary.status}.` });
-    }
-    if (!isDMOnQuest(interaction, questId)) {
-        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
-    }
-
-    const embed = buildQuestSummaryEmbed(summary, {
-        title: '📋 Confirm Quest Completion',
-        color: 0xf1c40f,
-    });
-
-    const confirmRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setCustomId(`qc_confirm:${questId}`)
-            .setLabel('Confirm')
-            .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-            .setCustomId('qc_cancel')
-            .setLabel('Cancel')
-            .setStyle(ButtonStyle.Danger),
-    );
-
-    return interaction.editReply({
-        content: `⚠️ This is final — you won't be able to grant any more rewards beyond this point. Whatever's shown as "Queued Rewards" above is exactly what will be granted and submitted for admin approval alongside the completion — a single approval covers both.`,
-        embeds: [embed],
-        components: [confirmRow],
-    });
 }
 
 async function confirmQuestCompletion(questId, dm, guild) {
@@ -380,196 +329,6 @@ async function removeCharactersFromRoster(quest, characterIds) {
     return { removedCount: existing.length - remaining.length };
 }
 
-// ─── /leaguedm quest players add ─────────────────────────────────────────────
-
-async function handleQuestPlayersAdd(interaction) {
-    if (!isDM(interaction)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const questId = interaction.options.getString('quest_id').toUpperCase();
-    const quest   = await getQuestById(questId);
-    if (!quest) {
-        return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
-    }
-    if (!isDMOnQuest(interaction, questId)) {
-        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
-    }
-
-    const questName = quest.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    const results   = [];
-
-    for (let i = 1; i <= 6; i++) {
-        const user = interaction.options.getUser(`user${i}`);
-        if (!user) continue;
-
-        const character = await getActiveCharacter(user.id).catch(() => null);
-        if (!character) {
-            results.push(`❌ **${user.username}** — no active character, skipped.`);
-            continue;
-        }
-
-        const charName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-
-        try {
-            const { alreadyPresent } = await addCharacterToRoster(quest, character.id);
-            results.push(
-                alreadyPresent
-                    ? `⚠️ **${charName}** — already on this quest, skipped.`
-                    : `✅ **${charName}** added to **${questName}**.`
-            );
-        } catch (err) {
-            console.error(`[quest players add] Error adding ${charName}:`, err);
-            results.push(`❌ **${charName}** — failed to add, check logs.`);
-        }
-    }
-
-    return interaction.editReply({ content: results.join('\n') });
-}
-
-// ─── /leaguedm quest players list ────────────────────────────────────────────
-
-async function handleQuestPlayersList(interaction) {
-    if (!isDM(interaction)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const questId = interaction.options.getString('quest_id').toUpperCase();
-    const quest   = await getQuestById(questId);
-    if (!quest) {
-        return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
-    }
-    if (!isDMOnQuest(interaction, questId)) {
-        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
-    }
-
-    const questName     = quest.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    const characterIds  = quest.properties['Characters']?.relation?.map(r => r.id) ?? [];
-
-    if (characterIds.length === 0) {
-        return interaction.editReply({ content: `**${questName}** (\`${questId}\`) has no players linked yet.` });
-    }
-
-    const characters = await Promise.all(
-        characterIds.map(id => getPageById(id).catch(() => null))
-    );
-
-    const lines = characters.map(char => {
-        if (!char) return '❌ *Unknown character (may have been deleted)*';
-
-        const name       = char.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-        const discordId  = char.properties['Discord ID']?.rich_text?.[0]?.plain_text ?? null;
-        const className  = char.properties['Class']?.rich_text?.[0]?.plain_text ?? '—';
-        const species    = char.properties['Species']?.rich_text?.[0]?.plain_text ?? '—';
-        const level      = char.properties['Level']?.number ?? '—';
-        const mention    = discordId ? `<@${discordId}>` : 'Unknown player';
-
-        return `**${name}** (${mention}) — ${className}, ${species}, Level ${level}`;
-    });
-
-    const embed = new EmbedBuilder()
-        .setColor(0x5865f2)
-        .setTitle(`👥 Players — ${questName}`)
-        .setDescription(lines.join('\n'))
-        .setFooter({ text: `Quest ID: ${questId}` })
-        .setTimestamp();
-
-    return interaction.editReply({ embeds: [embed] });
-}
-
-// ─── /leaguedm quest players remove ──────────────────────────────────────────
-
-async function handleQuestPlayersRemove(interaction) {
-    if (!isDM(interaction)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const questId = interaction.options.getString('quest_id').toUpperCase();
-    const quest   = await getQuestById(questId);
-    if (!quest) {
-        return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
-    }
-    if (!isDMOnQuest(interaction, questId)) {
-        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
-    }
-
-    const questName = quest.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    const existing  = quest.properties['Characters']?.relation?.map(r => r.id) ?? [];
-    const results   = [];
-    const toRemove  = new Set();
-    const removedNames = new Map();
-
-    for (let i = 1; i <= 6; i++) {
-        const user = interaction.options.getUser(`user${i}`);
-        if (!user) continue;
-
-        const character = await getActiveCharacter(user.id).catch(() => null);
-        if (!character) {
-            results.push(`❌ **${user.username}** — no active character, skipped.`);
-            continue;
-        }
-
-        const charName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-        if (!existing.includes(character.id)) {
-            results.push(`⚠️ **${charName}** — not on this quest, skipped.`);
-            continue;
-        }
-
-        toRemove.add(character.id);
-        removedNames.set(character.id, charName);
-    }
-
-    if (toRemove.size > 0) {
-        try {
-            await removeCharactersFromRoster(quest, [...toRemove]);
-            for (const charName of removedNames.values()) {
-                results.push(`✅ **${charName}** removed from **${questName}**.`);
-            }
-        } catch (err) {
-            console.error('[quest players remove] Error updating characters:', err);
-            return interaction.editReply({ content: '❌ Failed to update characters. Check logs.' });
-        }
-    }
-
-    return interaction.editReply({ content: results.join('\n') });
-}
-
-// ─── /leaguedm quest players clear ───────────────────────────────────────────
-
-async function handleQuestPlayersClear(interaction) {
-    if (!isDM(interaction)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const questId = interaction.options.getString('quest_id').toUpperCase();
-    const quest   = await getQuestById(questId);
-    if (!quest) {
-        return interaction.editReply({ content: `❌ No quest found with ID \`${questId}\`.` });
-    }
-    if (!isDMOnQuest(interaction, questId)) {
-        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
-    }
-
-    const questName = quest.properties['Adventure Name']?.title?.[0]?.plain_text ?? 'Unknown';
-
-    try {
-        await updatePageProperty(quest.id, { 'Characters': { relation: [] } });
-    } catch (err) {
-        console.error('[quest players clear] Error:', err);
-        return interaction.editReply({ content: '❌ Failed to clear characters. Check logs.' });
-    }
-
-    return interaction.editReply({ content: `✅ All characters cleared from **${questName}**.` });
-}
-
 // ─── Approve handlers (called from leagueGrants.js handleApprove) ─────────────
 
 async function approveQuestLink(entry, interaction) {
@@ -608,9 +367,8 @@ async function approveQuestLink(entry, interaction) {
     					`Your quest **${adventureName}** has been approved and added to the league quest log.\n\n` +
     					`**Quest ID:** \`${questId}\`\n\n` +
     					`**Next steps:**\n` +
-    					`• Use \`/leaguedm quest add\` to link your players' characters to this quest.\n` +
-                        `• Use \`/leaguedm gold\`, \`/leaguedm rep\`, \`/leaguedm milestone\`, and \`/leaguedm item create\` (with this Quest ID) to submit rewards as you go.\n` +
-                        `• When the game is fully wrapped up, use \`/league quest complete\` with this Quest ID to close it out.\n\n` +
+    					`• Use \`/leaguedm dashboard\` with this Quest ID to open your quest's dashboard.\n` +
+                        `• From the dashboard you can add/remove players, queue up gold, reputation, milestone, and item rewards, and complete the quest when it's fully wrapped up.\n\n` +
                         `_(More detailed guidance coming soon — for now, reach out to a league admin if you have questions.)_`
     				)
     				.setTimestamp()
@@ -686,14 +444,9 @@ async function approveQuestCancel(entry, interaction) {
 // ─── Routers ──────────────────────────────────────────────────────────────────
 
 async function leagueDMQuest(interaction) {
-    const sub   = interaction.options.getSubcommand();
+    const sub = interaction.options.getSubcommand();
     switch (sub) {
-		case 'link': 		return handleQuestLink(interaction);
-		case 'complete': 	return handleQuestComplete(interaction);
-		case 'add': 		return handleQuestPlayersAdd(interaction);
-		case 'remove': 		return handleQuestPlayersRemove(interaction);
-		case 'clear': 		return handleQuestPlayersClear(interaction);
-		case 'players':		return handleQuestPlayersList(interaction);
+		case 'link': return handleQuestLink(interaction);
     }
 }
 

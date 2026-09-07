@@ -3,9 +3,9 @@ const { leagueDowntime } = require('../leagueDowntime');
 const { leagueDMQuest } = require('../leagueQuest');
 const { REP_MAX } = require('./shared');
 
-const { handleAdminRep, handleAdminGold, handleAdminMilestone, handleDMRep, handleDMGold, handleDMMilestone } = require('./repGoldMilestone');
+const { handleAdminRep, handleAdminGold, handleAdminMilestone } = require('./repGoldMilestone');
 const { handleDashboard, handlePending, handleApprove, handleClear, handleReject } = require('./pendingApprovals');
-const { handleAdminItemCreate, handleAdminItemImport, handleDMItemCreate, handleDMItemImport } = require('./items');
+const { handleAdminItemCreate, handleAdminItemImport } = require('./items');
 const { handleAdminAuditCharacters } = require('./audit');
 
 // ─── Routers ──────────────────────────────────────────────────────────────────
@@ -34,14 +34,7 @@ async function leagueAdmin(interaction, client) {
 async function leagueDM(interaction, client) {
 	const sub = interaction.options.getSubcommand();
 	const group = interaction.options.getSubcommandGroup();
-	if (group === "item") {
-		if (sub === 'create') return handleDMItemCreate(interaction);
-		if (sub === 'import') return handleDMItemImport(interaction);
-	}
 	if (group === "quest") 	 return leagueDMQuest(interaction);
-	if (sub === 'rep')       return handleDMRep(interaction);
-	if (sub === 'gold')      return handleDMGold(interaction);
-	if (sub === 'milestone') return handleDMMilestone(interaction);
 	if (sub === 'dashboard') return handleDashboard(interaction);
 }
 

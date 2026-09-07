@@ -49,6 +49,7 @@ module.exports = async (interaction) => {
         fieldName,
         notionKey: fieldConfig.notion_key,
         fieldType: fieldConfig.type,
+        previousValue: currentValue,
     });
 
     if (fieldConfig.type === 'checkbox') {

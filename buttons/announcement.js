@@ -1,11 +1,11 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
 const { getRoleMention, clearSessionTimeout } = require('../utils/announcementHelper');
 const { invalidateCache } = require('../utils/cache');
 const { updateGameProperties } = require('../utils/notion');
 const { addToQueue, getQueue } = require('../utils/activationQueue');
 const { sessions } = require('../utils/sessionStore');
 const { reportError } = require('../utils/errorReporter');
-const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
+const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
 
 module.exports = {
 
@@ -87,6 +87,23 @@ module.exports = {
 
             await interaction.editReply({ content: `✅ Posted in <#${outputChannel.id}>!`, embeds: [], components: [] });
 
+            const ctrlChannel = GUILDMASTER_CTRL_CHANNEL_ID ? interaction.guild.channels.cache.get(GUILDMASTER_CTRL_CHANNEL_ID) : null;
+            if (ctrlChannel && session.game) {
+                await ctrlChannel.send({
+                    embeds: [
+                        new EmbedBuilder()
+                            .setColor(0x57f287)
+                            .setTitle('📣 Game Announced')
+                            .addFields(
+                                { name: 'Game',       value: session.game.title,                inline: true },
+                                { name: 'Posted in',  value: `<#${outputChannel.id}>`,           inline: true },
+                                { name: 'Announced by', value: `<@${interaction.user.id}>`,      inline: true },
+                            )
+                            .setTimestamp(),
+                    ],
+                }).catch(e => console.error('[announcement] Failed to post announce log to guildmaster-ctrl:', e));
+            }
+
             if (session.game) {
                 try {
                     await updateGameProperties(session.game.uid, { "Show": { checkbox: true } });
@@ -112,6 +129,22 @@ module.exports = {
                         scheduleNote = 'ℹ️ Already in the activation queue.';
                     } else {
                         scheduleNote = '📅 Added to the activation queue.';
+
+                        if (ctrlChannel) {
+                            await ctrlChannel.send({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setColor(0x5865f2)
+                                        .setTitle('📅 Game Added to Activation Schedule')
+                                        .addFields(
+                                            { name: 'Game',    value: session.game.title,           inline: true },
+                                            { name: 'Added by', value: `<@${interaction.user.id}>`, inline: true },
+                                            { name: 'Trigger', value: 'Auto-schedule on announce',  inline: true },
+                                        )
+                                        .setTimestamp(),
+                                ],
+                            }).catch(e => console.error('[announcement] Failed to post schedule log to guildmaster-ctrl:', e));
+                        }
                     }
                 } else {
                     scheduleNote = 'ℹ️ Auto-schedule is off — not added to the activation queue.';

@@ -25,13 +25,15 @@ module.exports = (client) => {
             const creatorMention = ownerId ? `<@${ownerId}>` : 'Unknown';
             const parentMention = thread.parentId ? `<#${thread.parentId}>` : 'Unknown channel';
 
-            await logChannel.send(
-                `🧵 **New thread created**\n` +
-                `Thread: <#${thread.id}>\n` +
-                `Type: ${threadTypeLabel(thread.type)}\n` +
-                `Channel: ${parentMention}\n` +
-                `Created by: ${creatorMention}`
-            );
+            await logChannel.send({
+            	content:
+	                `🧵 **New thread created**\n` +
+	                `Thread: <#${thread.id}>\n` +
+	                `Type: ${threadTypeLabel(thread.type)}\n` +
+	                `Channel: ${parentMention}\n` +
+	                `Created by: ${creatorMention}`,
+                allowedMentions: { parse : [] },
+            });
         } catch (err) {
             console.error('[threadAlertLog] Error sending thread creation alert:', err);
         }

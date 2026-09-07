@@ -20,7 +20,7 @@ module.exports = {
         },
         {
           name: '/help leaguedm <family>',
-          description: 'Commands for DMs running league quests — managing quest rosters, granting rewards, and creating/importing items. All grants go to admins for approval. Families: quest-management, rewards, items.',
+          description: 'Commands for DMs running league quests — link a game to get a quest ID, then do everything else (roster, rewards, completion) from the live dashboard. All of it goes to admins for approval. Family: quest-management.',
         },
         {
           name: '/help leagueadmin <family>',
@@ -403,70 +403,15 @@ module.exports = {
         'Requires the DM role.\n\n' +
         'The intended workflow for running a league quest:\n' +
         '1. **Link** the announced game to the quest log with `link`, so it gets a quest ID.\n' +
-        '2. **Add** the players who are on the quest with `add`.\n' +
-        '3. While the quest runs, grant rewards as they\'re earned via `/leaguedm gold`, `rep`, `milestone`, or `item create`/`item import` — each goes to admins for approval. `/leaguedm dashboard` covers all of this from one interactive panel, including editing the roster, if you\'d rather not use the individual commands.\n' +
-        '4. Only once rewards are settled, **complete** the quest — this is logged for admins and still requires approval before it\'s finalized. This can also be done from the dashboard.\n' +
-        'Use `remove`/`clear` if the roster needs correcting before completion.',
+        '2. Open `/leaguedm dashboard` with that quest ID — everything else happens from there: adding/removing players on the roster, queuing gold/rep/milestone/item rewards as they\'re earned, and completing (or cancelling) the quest once rewards are settled. All of it is submitted for admin approval from the dashboard.',
       commands: [
         {
           name: '/leaguedm quest link <game> [notes]',
           description: 'Link an announced game to the league quest log, creating a quest ID. `game` autocompletes.',
         },
         {
-          name: '/leaguedm quest add <quest_id> <user1> [user2..6]',
-          description: 'Add up to 6 players to a quest\'s roster.',
-        },
-        {
-          name: '/leaguedm quest remove <quest_id> <user1> [user2..6]',
-          description: 'Remove up to 6 players from a quest\'s roster.',
-        },
-        {
-          name: '/leaguedm quest clear <quest_id>',
-          description: 'Remove every player from a quest\'s roster.',
-        },
-        {
-          name: '/leaguedm quest players <quest_id>',
-          description: 'View the roster for a quest — Discord player, character name, class, species, and level.',
-        },
-        {
-          name: '/leaguedm quest complete <quest_id>',
-          description: 'Mark a quest as completed. Shows a summary of the quest (players, prior gold, items, and anything currently queued on the dashboard) and asks you to confirm — this is final, and once confirmed no further rewards can be queued. Whatever is shown as "Queued Rewards" at that point is granted and submitted for admin approval together with the completion, as a single approval.',
-        },
-        {
           name: '/leaguedm dashboard <quest_id>',
-          description: 'Open the live reward dashboard for a quest — an interactive panel to queue gold/rep/milestone/item rewards for the roster, edit the party, and submit the quest as complete or cancelled, all before anything is sent for admin approval. `quest_id` autocompletes to your active quests.',
-        },
-      ],
-    },
-    rewards: {
-      label: 'Rewards',
-      description: 'Requires the DM role. All grants here are submitted for admin approval before they take effect.',
-      commands: [
-        {
-          name: '/leaguedm gold <quest_id> <user1> <amount1> [user2..6] [amount2..6]',
-          description: 'Request a gold grant (gp) for up to 6 players on a quest.',
-        },
-        {
-          name: '/leaguedm rep <quest_id> <user1> <amount1> [user2..6] [amount2..6]',
-          description: 'Request a reputation grant (max 2 each) for up to 6 players on a quest.',
-        },
-        {
-          name: '/leaguedm milestone <quest_id> <user1> <amount1> [user2..6] [amount2..6]',
-          description: 'Request a milestone grant for up to 6 players on a quest.',
-        },
-      ],
-    },
-    items: {
-      label: 'Items',
-      description: 'Requires the DM role. Both submit for admin approval before the item is created.',
-      commands: [
-        {
-          name: '/leaguedm item create <quest_id> <name> <type> <rarity> <player> [subtype] [source] [value] [notes]',
-          description: 'Request a hand-made item, fully specified by you, for a player on a quest.',
-        },
-        {
-          name: '/leaguedm item import <quest_id> <code> <player> [value] [source] [notes]',
-          description: 'Request an item sourced directly from the 5e catalogue for a player on a quest — name, type, and rarity come from the catalogue automatically.',
+          description: 'Open the live reward dashboard for a quest — an interactive panel to add/remove players, queue gold/rep/milestone/item rewards for the roster, and submit the quest as complete or cancelled, all before anything is sent for admin approval. `quest_id` autocompletes to your active quests.',
         },
       ],
     },
@@ -493,6 +438,10 @@ module.exports = {
         {
           name: '/leagueadmin reject <id>',
           description: 'Reject one or more pending actions by ID (comma-separated, e.g. "34, 756").',
+        },
+        {
+          name: '/leagueadmin clear <id>',
+          description: '⚠️ Force-remove a stuck pending action without running its approve/reject logic. Only use this if the action already applied and the queue entry is just left over.',
         },
       ],
     },

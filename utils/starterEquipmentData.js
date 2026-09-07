@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const { SOURCES } = require('../config/dndSources');
 
-const ALLOWED_SOURCES = new Set(['XPHB', 'XDMG', 'XMM', 'EFA', 'FRAiF', 'FRHoF', 'LFL', 'RHW']);
+const ALLOWED_SOURCES = new Set(SOURCES);
 
 const CATEGORY_TYPE_MAP = {
     toolArtisan: 'AT',
@@ -146,7 +147,7 @@ function loadCategoryIndex(dataDir) {
 
     for (const g of groups) {
         if (!Array.isArray(g.items)) continue;
-        if (g.source !== 'XPHB') continue;
+        if (!ALLOWED_SOURCES.has(g.source)) continue;
         if (!g.type) continue;
         const prefix = g.type.split('|')[0];
         index[prefix] = { name: g.name, items: g.items };

@@ -7,6 +7,7 @@ const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANN
 
 const QUEST_BOARD_ID = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
 const { DEFAULT_REGISTRATION_LINK } = require('../data/registrationDefaults');
+const { SESSION_TYPE_ROLES } = require('./announcementHelper');
 
 let ctrlChannel = null;
 let botClient = null;
@@ -75,7 +76,7 @@ async function runReminderJob() {
 
     msg += `\nUse \`/schedule_activation add\` to schedule games.`;
 
-    await ctrlChannel.send(msg);
+    await ctrlChannel.send({ content: msg, allowedMentions: { parse: [] } });
 }
 
 async function runActivationJob({ force = false } = {}) {
@@ -104,7 +105,7 @@ async function runActivationJob({ force = false } = {}) {
         try {
             await updateGameProperties(entry.uid, { "Activate": { checkbox: true } });
             invalidateCache();
-            results.processed.push(entry.title);
+            results.processed.push(game);
         } catch (e) {
             await reportError(botClient, {
                 scope: '[Scheduler]',
@@ -121,7 +122,7 @@ async function runActivationJob({ force = false } = {}) {
     const ts = Math.floor(Date.now() / 1000);
     let msg = `⚡ **Activation Job ran at <t:${ts}:t>**\n\n`;
 
-    if (results.processed.length) msg += `**Activated:**\n${results.processed.map(t => `- ${t}`).join('\n')}\n\n`;
+    if (results.processed.length) msg += `**Activated:**\n${results.processed.map(g => `- ${g.title}`).join('\n')}\n\n`;
     if (results.skipped.length) msg += `**Already active (skipped):**\n${results.skipped.map(t => `- ${t}`).join('\n')}\n\n`;
     if (results.failed.length) msg += `**Failed:**\n${results.failed.map(t => `- ${t}`).join('\n')}\n\n`;
 
@@ -129,12 +130,24 @@ async function runActivationJob({ force = false } = {}) {
 
     await ctrlChannel.send(msg);
     if (results.processed.length) {
-    	const titleList = results.processed.map(t => `- ${t}`).join(`\n`);
+    	const titleList = results.processed.map(g => `- ${g.title}`).join(`\n`);
+    	const waTitleList = results.processed.map(g => `- ${g.title} (${g.format} ${g.type})`).join(`\n`);
 
     	const questMsg = `‼️ **Registrations for the following game/s are now live** ‼️\n\n${titleList}\n\nRegistration Link - ${DEFAULT_REGISTRATION_LINK}`;
-    	const waMsg = `‼️ *Registrations for the following game/s are now live* ‼️\n\n${titleList}\n\nRegistration Link - ${DEFAULT_REGISTRATION_LINK}`;
+    	const waMsg = `‼️ *Registrations for the following game/s are now live* ‼️\n\n${waTitleList}\n\nRegistration Link - ${DEFAULT_REGISTRATION_LINK}`;
 
-    	if (questChannel) await questChannel.send(questMsg);
+    	if (questChannel) {
+    		const roleNames = [...new Set(results.processed.map(g => SESSION_TYPE_ROLES[`${g.format} ${g.type}`]).filter(Boolean))];
+    		const roles = roleNames
+    			.map(name => questChannel.guild.roles.cache.find(r => r.name === name))
+    			.filter(Boolean);
+    		const roleMentionText = roles.map(r => `<@&${r.id}>`).join(' ');
+
+    		await questChannel.send({
+    			content: roleMentionText ? `${roleMentionText}\n\n${questMsg}` : questMsg,
+    			allowedMentions: { roles: roles.map(r => r.id) }
+    		});
+    	}
     	await ctrlChannel.send(`📋 **WhatsApp copy:**\n\`\`\`\n${waMsg}\n\`\`\``);
     }	
 }

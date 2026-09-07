@@ -1,3 +1,4 @@
+const { EmbedBuilder } = require('discord.js');
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getCachedGames } = require('../utils/cache');
 const {
@@ -10,6 +11,7 @@ const {
     toggleAutoSchedule
 } = require('../utils/activationQueue');
 const { runActivationJob } = require('../utils/scheduler');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
 
 function toDiscordTimestamp(timeStr) {
     const now = new Date();
@@ -91,6 +93,23 @@ module.exports = async (interaction, client) => {
         reply += `\n${buildQueueSummary(getQueue())}`;
 
         await interaction.reply({ content: reply, flags: 64 });
+
+        const ctrlChannel = GUILDMASTER_CTRL_CHANNEL_ID ? interaction.guild.channels.cache.get(GUILDMASTER_CTRL_CHANNEL_ID) : null;
+        if (ctrlChannel) {
+            await ctrlChannel.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(0x5865f2)
+                        .setTitle('📅 Game Added to Activation Schedule')
+                        .addFields(
+                            { name: 'Game',    value: game.title,                      inline: true },
+                            { name: 'Added by', value: `<@${interaction.user.id}>`,    inline: true },
+                            { name: 'Trigger', value: '/schedule_activation add',      inline: true },
+                        )
+                        .setTimestamp(),
+                ],
+            }).catch(e => console.error('[schedule_activation] Failed to post schedule log to guildmaster-ctrl:', e));
+        }
     }
 
     else if (sub === 'remove') {

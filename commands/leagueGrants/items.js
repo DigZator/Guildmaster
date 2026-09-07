@@ -2,9 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { isAdminChannel } = require('../../utils/isAdminChannel');
 const { getActiveCharacter, createInventoryItem } = require('../../utils/leagueNotion');
 const { getCatalogueItemByCode, defaultPriceFor } = require('../../utils/5etoolsCatalogue');
-const questDrafts = require('../../utils/questDrafts');
 const { sendAdminLog } = require('../../utils/adminLog');
-const { DM_ROLE_ID, isDMOnQuest, resolveActiveQuest } = require('./shared');
 
 async function resolveItemAssignment(interaction, label) {
     const targetUser = interaction.options.getUser('player');
@@ -80,7 +78,6 @@ async function runAdminItemGrant(interaction, config) {
 }
 
 // ─── /leagueadmin item create ──────────────────────────────────────────────────────────────────
-
 async function handleAdminItemCreate(interaction) {
     return runAdminItemGrant(interaction, {
         label: 'item create',
@@ -100,7 +97,6 @@ async function handleAdminItemCreate(interaction) {
 }
 
 // ─── Catalogue → inventory item mapping ────────────────────────────────────────
-
 const SUBTYPE_BY_CATALOGUE_TYPE = { Potion: 'Potion', Scroll: 'Spell Scroll', Ammunition: 'Ammo' };
 
 function inferSubtype(catalogueItem) {
@@ -123,7 +119,6 @@ function resolveCatalogueImport(code, overrides = {}) {
 }
 
 // ─── /leagueadmin item import ───────────────────────────────────────────────────────────────
-
 async function handleAdminItemImport(interaction) {
     return runAdminItemGrant(interaction, {
         label: 'item import',
@@ -146,109 +141,8 @@ async function handleAdminItemImport(interaction) {
     });
 }
 
-// ─── Shared DM item-grant executor ─────────────────────────────────────────────
-
-async function runDMItemGrant(interaction, config) {
-    const { label, resolveItem, entryPrefix } = config;
-
-    if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const quest = await resolveActiveQuest(interaction);
-    if (quest.error) {
-        return interaction.editReply({ content: quest.error });
-    }
-    if (!isDMOnQuest(interaction, quest.questId)) {
-        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
-    }
-
-    const resolvedItem = resolveItem(interaction);
-    if (resolvedItem.error) return interaction.editReply({ content: resolvedItem.error });
-    const { itemName, type, rarity, subtype, itemValue, source, notes, extraEmbedFields = [] } = resolvedItem;
-
-    const targetUser = interaction.options.getUser('player');
-
-    let character;
-    try {
-        character = await getActiveCharacter(targetUser.id);
-    } catch (err) {
-        console.error(`[leaguedm ${label}] Notion error:`, err);
-        return interaction.editReply({ content: '❌ Could not reach the database. Please try again.' });
-    }
-    if (!character) {
-        return interaction.editReply({ content: `❌ **${targetUser.displayName}** does not have an active character.` });
-    }
-
-    const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-    const onQuest = quest.characterIds.includes(character.id);
-    const rosterNote = onQuest ? '' : ' ⚠️ not on quest roster';
-
-    questDrafts.getOrCreateDraft(quest.questId, {
-        questPageId: quest.questPageId,
-        questName: quest.questName,
-        dm: { discordId: interaction.user.id, username: interaction.user.username },
-    });
-
-    questDrafts.addOrReplaceLine(quest.questId, {
-        characterPageId: character.id,
-        characterName,
-        discordId: targetUser.id,
-        type: 'item',
-        payload: { itemName, type, subtype, rarity, itemValue, source, notes },
-    });
-
-    return interaction.editReply({
-        content: `✅ ${entryPrefix(itemName, resolvedItem)} for **${characterName}** added to the quest draft for \`${quest.questId}\`.${rosterNote}`,
-    });
-}
-
-// ─── /leaguedm item create ──────────────────────────────────────────────────────────────────
-
-async function handleDMItemCreate(interaction) {
-    return runDMItemGrant(interaction, {
-        label: 'item create',
-        embedTitle: '⏳ Item Grant — Pending Approval',
-        resolveItem: i => ({
-            itemName:  i.options.getString('name'),
-            type:      i.options.getString('type'),
-            rarity:    i.options.getString('rarity'),
-            subtype:   i.options.getString('subtype'),
-            itemValue: i.options.getInteger('value'),
-            source:    i.options.getString('source'),
-            notes:     i.options.getString('notes'),
-        }),
-        entryPrefix: itemName => `**${itemName}**`,
-    });
-}
-
-// ─── /leaguedm item import ──────────────────────────────────────────────────────────────────
-
-async function handleDMItemImport(interaction) {
-    return runDMItemGrant(interaction, {
-        label: 'item import',
-        embedTitle: '⏳ Item Grant (Catalogue Import) — Pending Approval',
-        resolveItem: i => {
-            const code = i.options.getString('code');
-            const source = i.options.getString('source');
-            const notesOverride = i.options.getString('notes');
-            const resolved = resolveCatalogueImport(code, { notes: notesOverride });
-            if (resolved.error) return { error: resolved.error };
-            return {
-                ...resolved,
-                source,
-                extraEmbedFields: [{ name: 'Catalogue Code', value: `\`${resolved.catalogueCode}\``, inline: true }],
-            };
-        },
-        entryPrefix: (itemName, resolvedItem) => `**${itemName}** (imported from \`${resolvedItem.catalogueCode}\`)`,
-    });
-}
 
 module.exports = {
     handleAdminItemCreate,
     handleAdminItemImport,
-    handleDMItemCreate,
-    handleDMItemImport,
 };

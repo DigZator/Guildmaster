@@ -1,11 +1,10 @@
 const { EmbedBuilder } = require('discord.js');
 const { isAdminChannel } = require('../../utils/isAdminChannel');
-const { adjustCharacterNumber, getActiveCharacter } = require('../../utils/leagueNotion');
+const { adjustCharacterNumber } = require('../../utils/leagueNotion');
 const { applyMilestones } = require('../../utils/milestones');
 const { formatCurrency } = require('../../utils/currency');
 const { sendAdminLog } = require('../../utils/adminLog');
-const questDrafts = require('../../utils/questDrafts');
-const { DM_ROLE_ID, REP_MAX, ENTRY_TYPE_TO_LINE_TYPE, extractPairs, isDMOnQuest, resolveActiveQuest, resolveTarget } = require('./shared');
+const { REP_MAX, resolveTarget } = require('./shared');
 
 async function runAdminGrant(interaction, config) {
     const { label, getAmount, validateAmount, mutate, buildEmbed, buildReply } = config;
@@ -146,137 +145,8 @@ async function handleAdminMilestone(interaction, client) {
     });
 }
 
-// ─── Shared DM multi-target grant executor ─────────────────────────────────────
-async function runDMGrant(interaction, config) {
-    const {
-        label, entryType,
-        amountGetter = 'getInteger', validatePair, buildPayload, describeAmount,
-    } = config;
-    const lineType = ENTRY_TYPE_TO_LINE_TYPE[entryType];
-
-    if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-    }
-
-    await interaction.deferReply({ flags: 64 });
-
-    const quest = await resolveActiveQuest(interaction);
-    if (quest.error) {
-        return interaction.editReply({ content: quest.error });
-    }
-    if (!isDMOnQuest(interaction, quest.questId)) {
-        return interaction.editReply({ content: '❌ You are not the DM assigned to this quest.' });
-    }
-
-    questDrafts.getOrCreateDraft(quest.questId, {
-        questPageId: quest.questPageId,
-        questName: quest.questName,
-        dm: { discordId: interaction.user.id, username: interaction.user.username },
-    });
-
-    const pairs = extractPairs(interaction, amountGetter);
-    const results = [];
-
-    for (const pair of pairs) {
-        const { user, amount } = pair;
-
-        if (validatePair) {
-            const skipReason = validatePair(pair);
-            if (skipReason) {
-                results.push(skipReason);
-                continue;
-            }
-        }
-
-        let character;
-        try {
-            character = await getActiveCharacter(user.id);
-        } catch (err) {
-            console.error(`[leaguedm ${label}] Notion error:`, err);
-            results.push(`❌ **${user.username}** — database error, skipped.`);
-            continue;
-        }
-
-        if (!character) {
-            results.push(`❌ **${user.username}** — no active character found, skipped.`);
-            continue;
-        }
-
-        const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
-        const onQuest = quest.characterIds.includes(character.id);
-        const rosterNote = onQuest ? '' : ' ⚠️ not on quest roster';
-
-        const payload = buildPayload({ character, characterName, amount });
-
-        const { replaced, previousPayload } = questDrafts.addOrReplaceLine(quest.questId, {
-            characterPageId: character.id,
-            characterName,
-            discordId: user.id,
-            type: lineType,
-            payload,
-        });
-
-        results.push(replaced
-            ? `🔁 **${characterName}** — already had ${describeAmount(previousPayload)} queued for \`${quest.questId}\`. Replaced with your new total: ${describeAmount(payload)}.${rosterNote}`
-            : `✅ **${characterName}** — ${describeAmount(payload)} added to the quest draft.${rosterNote}`
-        );
-    }
-
-    return interaction.editReply({ content: results.join('\n') });
-}
-
-// ─── /leaguedm rep ────────────────────────────────────────────────────────────
-async function handleDMRep(interaction) {
-    return runDMGrant(interaction, {
-        label: 'rep',
-        entryType: 'reputation',
-        validatePair: ({ user, amount }) => amount > REP_MAX
-            ? `❌ **${user.username}** — amount exceeds max (${REP_MAX}), skipped. Contact a mod.`
-            : null,
-        buildPayload: ({ character, amount }) => ({
-            amount,
-            currentRep: character.properties['Reputation Points']?.number ?? 0,
-        }),
-        describeAmount: payload => `+${payload.amount} rep`,
-    });
-}
-
-// ─── /leaguedm gold ───────────────────────────────────────────────────────────
-async function handleDMGold(interaction) {
-    return runDMGrant(interaction, {
-        label: 'gold',
-        entryType: 'gold',
-        amountGetter: 'getNumber',
-        validatePair: ({ user, amount }) => amount < 0
-            ? `❌ **${user.username}** — DMs cannot grant negative gold, skipped.`
-            : null,
-        buildPayload: ({ character, amount }) => ({
-            amount,
-            currentGold: character.properties['Gold']?.number ?? 0,
-        }),
-        describeAmount: payload => `${payload.amount} gp`,
-    });
-}
-
-// ─── /leaguedm milestone ──────────────────────────────────────────────────────
-async function handleDMMilestone(interaction) {
-    return runDMGrant(interaction, {
-        label: 'milestone',
-        entryType: 'milestone',
-        buildPayload: ({ character, amount }) => ({
-            amount,
-            currentMilestones: character.properties['Milestones']?.number ?? 0,
-            currentLevel: character.properties['Level']?.number ?? 1,
-        }),
-        describeAmount: payload => `${payload.amount} milestone(s)`,
-    });
-}
-
 module.exports = {
     handleAdminRep,
     handleAdminGold,
     handleAdminMilestone,
-    handleDMRep,
-    handleDMGold,
-    handleDMMilestone,
 };

@@ -177,17 +177,10 @@ Commands are defined with `SlashCommandBuilder` in `deploy-commands.js` and thei
 
 ### 5.4 League DM Commands (`/leaguedm ...`)
 
-- `quest link <game> [notes]` — link an announced game to the quest log
-- `quest complete <quest_id>` — mark a quest complete, pending admin approval
-- `quest add/remove/clear/players <quest_id> [user1..user6]` — manage quest rosters (up to 6 players)
-- `dashboard <quest_id>` — view the live reward draft for a quest
-- `rep <quest_id> <user1> <amount1> [...up to user6/amount6]` — request reputation grants (max 2/player), routed for admin approval
-- `gold <quest_id> <user1> <amount1> [...up to user6/amount6]` — request gold grants
-- `milestone <quest_id> <user1> <amount1> [...up to user6/amount6]` — request milestone grants
-- `item create <quest_id> <name> <type> <rarity> <player> [subtype] [source] [value] [notes]` — create & assign a custom item
-- `item import <quest_id> <code> <player> [source] [notes]` — assign an item straight from the catalogue
+- `quest link <game> [notes]` — link an announced game to the quest log, creating a quest ID
+- `dashboard <quest_id>` — open the live reward dashboard for that quest: an interactive panel to add/remove players on the roster, queue gold/rep/milestone/item rewards, and submit the quest as complete or cancelled
 
-> All DM-initiated grants and item creations enter a **pending approval queue** reviewed by League Admins (`/leagueadmin pending / approve / reject`).
+> Everything else (roster management, rewards, completion) happens from the dashboard rather than separate subcommands. All DM-initiated grants and item creations queued from the dashboard enter a **pending approval queue** reviewed by League Admins (`/leagueadmin pending / approve / reject`).
 
 ### 5.5 League Admin Commands (`/leagueadmin ...`)
 
@@ -200,7 +193,7 @@ Commands are defined with `SlashCommandBuilder` in `deploy-commands.js` and thei
 - `shop stockall [rarity]` — bulk-stock the whole catalogue (or one rarity) at default quantities
 - `shop unstock <code>` — remove an item from the shop floor
 - `shop restock <code>` — manually trigger a restock
-- `catalogue sync` — refresh the item catalogue from the Open5e API (2024 SRD)
+- `catalogue sync` — refresh the item catalogue from the 5e source data (5etools-src), filtered by the allowed sourcebooks in `config/dndSources.js`
 - `catalogue sync-spells` — refresh the spell list used by scroll-scribing downtime
 - `audit characters` — flag players with more than one Active character
 
@@ -240,7 +233,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `anonStore.js` → `anonMessages.json` | Anonymous messages by key |
 | `activationQueue.js` → `activationQueue.json` | Game activation queue + schedule settings |
 | `shopFloor.js` → `shopFloor.json` | Current shop stock, prices, restock timers |
-| `5etoolsCatalogue.js` → `catalogue.json` | Cached 5e/Open5e item catalogue |
+| `5etoolsCatalogue.js` → `catalogue.json` | Cached 5e item catalogue, sourced from 5etools-src |
 | `5etoolsSpells.js` → `spells.json` | Cached spell list |
 | `downtime.js` → `downtimeBlueprints.json`, `downtimeQuotes.json`, `downtimeSequence.json`, `pendingDowntimeApprovals.json` | Downtime activity definitions, running quotes, and approval queue |
 | `pendingActions.js` → `pendingActions.json` | Generic pending-approval queue (rep/gold/milestone/item grants) |
@@ -285,7 +278,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 ### 8.3 League Economy (`commands/league.js` + `commands/leagueGrants/`, `commands/leagueShop.js`, `commands/leagueDowntime.js`, `commands/leagueQuest.js`, `commands/leagueVoid.js`)
 - **Approval workflow:** DM-initiated rep/gold/milestone/item grants are staged in `data/pendingActions.json` and require League Admin approval (`/leagueadmin approve|reject|pending`) before they post to Notion — direct Admin grants skip this queue.
 - **Shop vs. Marketplace:** the Shop is stocked/administered by League Admins from the catalogue (with auto-restock on a per-item cadence); the Marketplace is player-to-player, with a configurable tax (`MARKETPLACE_TAX_RATE` in `commands/leagueShop.js`) deducted from seller proceeds.
-- **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 SRD item data from **Open5e**; `sync-spells` refreshes the spell list used by the "Scribe a Spell Scroll" downtime activity.
+- **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 item data from **5etools-src** (`utils/5etoolsCatalogue.js`), filtered to the sourcebooks allow-listed in `config/dndSources.js`; `sync-spells` does the same for spells (`utils/5etoolsSpells.js`) and refreshes the list used by the "Scribe a Spell Scroll" downtime activity. Adding a new sourcebook is a one-line change to `config/dndSources.js` — see that file's comment for the current allow-list.
 - **Downtime:** activities, tiers, and approval requirements are defined as blueprints (`config` + `utils/downtime.js`); starting one produces a running "quote," and progress is invested in days via `/league downtime progress`. Some activities (e.g. crafting, scroll-scribing) require picking a spell/item and quantity.
 - **Void:** `/league void item|gold` lets a player voluntarily remove their own item or gold — useful for correcting mistakes without admin intervention.
 - **Two-page locking** (`withTwoPageLocks`) guards operations that must atomically update two Notion pages (e.g. a gold transfer between two characters) — failures mid-transaction are reported with a specific failure `stage` for manual recovery, and rolled back where possible.
