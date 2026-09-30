@@ -60,7 +60,7 @@ async function createTicket(interaction, typeKey, submissionData) {
     const number = await ticketStore.nextTicketNumber(type.slug);
     const rawUsername = interaction.user.username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     const tag = type.channelTag || type.slug;
-    const channelName = `${number}-${tag}-${rawUsername}`.slice(0, 100);
+    const channelName = `${tag}-${number}-${rawUsername}`.slice(0, 100);
 
     const channel = await interaction.guild.channels.create({
         name: channelName,
@@ -254,7 +254,7 @@ async function finalizeFile(interaction, ticket) {
     if (!thread) {
         const tag = type?.channelTag || type?.slug || ticket.type;
         thread = await logChannel.threads.create({
-            name: `${ticket.ticketNumber}-${tag}-${ticket.raiserId}`.slice(0, 100),
+            name: `${tag}-${ticket.ticketNumber}-${ticket.raiserId}`.slice(0, 100),
             reason: `Ticket ${ticket.id} filed`,
         });
     }

@@ -1,133 +1,210 @@
 const { addMessage, removeMessage, getMessage } = require('../utils/anonStore');
-const { downloadAttachment } = require('../utils/downloadAttachment');
-const fs   = require('fs');
-const path = require('path');
+const {
+    MAX_FILES,
+    deleteFiles,
+    clearPending,
+    takePending,
+    collectContent,
+    validatePayload,
+    skippedNote,
+    buildSendOptions,
+    isMissingOnDiscord,
+    logAnonAction,
+    auditWarning,
+} = require('../utils/anonHelper');
+
+const CLEAR_PREVIEW = { embeds: [], components: [], files: [], attachments: [] };
+const SESSION_GONE = '❌ This session has expired or was already handled.';
+
+const removing = new Set();
 
 module.exports = {
     exact: {
         'anon_nokey_confirm': async (interaction, client) => {
             await interaction.deferUpdate();
             const pendingKey = `nokey_${interaction.user.id}`;
-            const pending    = client.anonPending?.get(pendingKey);
 
+            const pending = takePending(client, pendingKey);
             if (!pending) {
-                return interaction.editReply({ content: '❌ Session expired.', components: [] });
+                return interaction.followUp({ content: SESSION_GONE, flags: 64 });
             }
 
-            let finalContent = pending.content;
-            let filePath     = null;
+            try {
+                let finalContent = pending.content ?? '';
+                const notes = [];
 
-            if (pending.multiline || !finalContent) {
-                await interaction.editReply({
-                    content: 'What content would you like to post? Please provide it in triple backticks.\n\nYou have 2 minutes.',
-                    components: []
-                });
+                if (pending.multiline || (!finalContent && pending.filePaths.length === 0)) {
+                    const result = await collectContent(interaction, {
+                        prompt: `What content would you like to post? Please provide it in triple backticks. You may also attach up to ${MAX_FILES} files (images, etc.).\n\nYou have 2 minutes.`,
+                        timeMs: 2 * 60 * 1000,
+                        existingCount: pending.filePaths.length,
+                    });
 
-                const filter = m => m.author.id === interaction.user.id;
-                try {
-                    const collected  = await interaction.channel.awaitMessages({ filter, max: 1, time: 2 * 60 * 1000, errors: ['time'] });
-                    const reply      = collected.first();
-                    finalContent     = reply.content.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '').trim();
-
-                    const attachment = reply.attachments.first();
-                    if (attachment) {
-                        const ext     = path.extname(attachment.name) || '.png';
-                        filePath      = path.join(__dirname, `../temp/anon_${Date.now()}${ext}`);
-                        const tempDir = path.dirname(filePath);
-                        if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-                        await downloadAttachment(attachment.url, filePath);
+                    if (result.error) {
+                        return interaction.editReply({ content: '❌ Timed out. No message sent.', ...CLEAR_PREVIEW });
                     }
 
-                    try { await reply.delete(); } catch { }
-
-                } catch {
-                    client.anonPending?.delete(pendingKey);
-                    return interaction.editReply({ content: '❌ Timed out. No message sent.' });
+                    finalContent = result.content;
+                    pending.filePaths.push(...result.filePaths);   // tracked so they get cleaned up
+                    notes.push(...result.skipped);
                 }
+
+                const problem = validatePayload(finalContent, pending.filePaths);
+                if (problem) {
+                    return interaction.editReply({ content: `${problem}${skippedNote(notes)}`, ...CLEAR_PREVIEW });
+                }
+
+                let sent;
+                try {
+                    const channel = await client.channels.fetch(pending.channelId);
+                    sent = await channel.send(buildSendOptions(finalContent, pending.filePaths, pending.mentions));
+                } catch (err) {
+                    console.error('[anon_msg] Failed to send anonymous message:', err);
+                    return interaction.editReply({ content: `❌ Couldn't post the message: ${err.message}`, ...CLEAR_PREVIEW });
+                }
+
+                const logged = await logAnonAction(client, {
+                    action: 'send',
+                    user: interaction.user,
+                    channelId: pending.channelId,
+                    messageUrl: sent.url,
+                    content: finalContent,
+                    fileCount: pending.filePaths.length,
+                    mentions: pending.mentions,
+                });
+
+                await interaction.editReply({ content: `✅ Message sent anonymously.${skippedNote(notes)}${auditWarning(logged)}`, ...CLEAR_PREVIEW });
+            } finally {
+                await deleteFiles(pending.filePaths);
             }
-
-            const channel  = await client.channels.fetch(pending.channelId);
-            const sendOpt  = { content: finalContent || '' };
-            if (filePath) sendOpt.files = [filePath];
-
-            await channel.send(sendOpt);
-
-            if (filePath) {
-                try { await fs.promises.unlink(filePath); } catch (err) { console.error('Failed to delete temp file:', err); }
-            }
-
-            client.anonPending.delete(pendingKey);
-            await interaction.editReply({ content: `✅ Message sent anonymously.`, components: [] });
         },
-        
+
         'anon_nokey_cancel': async (interaction, client) => {
             await interaction.deferUpdate();
-            client.anonPending?.delete(`nokey_${interaction.user.id}`);
-            await interaction.editReply({ content: '❌ Cancelled.', components: [] });
+            clearPending(client, `nokey_${interaction.user.id}`);
+            await interaction.editReply({ content: '❌ Cancelled.', ...CLEAR_PREVIEW });
         },
     },
     prefix: {
 
         'anon_confirm_': async (interaction, client) => {
             await interaction.deferUpdate();
-            const key     = interaction.customId.replace('anon_confirm_', '');
-            const pending = client.anonPending?.get(key);
+            const key = interaction.customId.replace('anon_confirm_', '');
 
+            const pending = takePending(client, key);
             if (!pending) {
-                return interaction.editReply({ content: '❌ Session expired.', embeds: [], components: [] });
+                return interaction.followUp({ content: SESSION_GONE, flags: 64 });
             }
 
-            const channel = await client.channels.fetch(pending.channelId);
-
-            const sendOpt = { content: pending.content || '' };
-            if (pending.filePath) {
-                sendOpt.files = [pending.filePath];
-            }
-
-            const sent    = await channel.send(sendOpt);
-
-            if (pending.filePath) {
-                try { await fs.promises.unlink(pending.filePath); } catch (err) { console.error('Failed to delete temp file:', err); 
+            try {
+                if (getMessage(key)) {
+                    return interaction.editReply({ content: `❌ Key \`${key}\` already exists.`, ...CLEAR_PREVIEW });
                 }
-            }
 
-            const result = addMessage({ key, channelId: channel.id, messageId: sent.id });
-            if (result.error) {
-                return interaction.editReply({ content: `❌ ${result.error}`, embeds: [], components: [] });
-            }
+                let sent;
+                try {
+                    const channel = await client.channels.fetch(pending.channelId);
+                    sent = await channel.send(buildSendOptions(pending.content, pending.filePaths, pending.mentions));
+                } catch (err) {
+                    console.error('[anon_msg] Failed to send anonymous message:', err);
+                    return interaction.editReply({ content: `❌ Couldn't post the message: ${err.message}`, ...CLEAR_PREVIEW });
+                }
 
-            client.anonPending.delete(key);
-            await interaction.editReply({ content: `✅ Message sent and saved as \`${key}\`.`, embeds: [], components: [] });
+                const result = addMessage({ key, channelId: sent.channelId, messageId: sent.id });
+                if (result.error) {
+                    await sent.delete().catch(() => {});
+                    return interaction.editReply({ content: `❌ ${result.error}`, ...CLEAR_PREVIEW });
+                }
+
+                const logged = await logAnonAction(client, {
+                    action: 'send',
+                    user: interaction.user,
+                    key,
+                    channelId: sent.channelId,
+                    messageUrl: sent.url,
+                    content: pending.content,
+                    fileCount: pending.filePaths.length,
+                    mentions: pending.mentions,
+                });
+
+                await interaction.editReply({ content: `✅ Message sent and saved as \`${key}\`.${auditWarning(logged)}`, ...CLEAR_PREVIEW });
+            } finally {
+                await deleteFiles(pending.filePaths);
+            }
         },
 
         'anon_cancel_': async (interaction, client) => {
             await interaction.deferUpdate();
             const key = interaction.customId.replace('anon_cancel_', '');
-            client.anonPending?.delete(key);
-            await interaction.editReply({ content: '❌ Cancelled.', embeds: [], components: [] });
+            clearPending(client, key);
+            await interaction.editReply({ content: '❌ Cancelled.', ...CLEAR_PREVIEW });
         },
 
         'anon_remove_confirm_': async (interaction, client) => {
             await interaction.deferUpdate();
-            const key    = interaction.customId.replace('anon_remove_confirm_', '');
-            const record = getMessage(key);
+            const key = interaction.customId.replace('anon_remove_confirm_', '');
 
-            if (!record) {
-                return interaction.editReply({ content: '❌ Key not found.', embeds: [], components: [] });
+            if (removing.has(key)) {
+                return interaction.followUp({ content: '⏳ This message is already being removed.', flags: 64 });
             }
-            try {
-                const channel = await client.channels.fetch(record.channelId);
-                const message = await channel.messages.fetch(record.messageId);
-                await message.delete();
-            } catch { }
+            const record = getMessage(key);
+            if (!record) {
+                return interaction.followUp({ content: '❌ Key not found — it may already have been removed.', flags: 64 });
+            }
 
-            removeMessage(key);
-            await interaction.editReply({ content: `✅ Message \`${key}\` removed.`, embeds: [], components: [] });
+            removing.add(key);
+            try {
+                let message = null;
+                let content = '*(message was already gone from Discord)*';
+                try {
+                    const channel = await client.channels.fetch(record.channelId);
+                    message = await channel.messages.fetch(record.messageId);
+                    content = message.content || message.embeds[0]?.description || (message.attachments.size ? '*Attachment only.*' : '*No content.*');
+                } catch (err) {
+                    if (!isMissingOnDiscord(err)) {
+                        console.error('[anon_msg] Failed to fetch message for removal:', err);
+                        return interaction.editReply({ content: `❌ Couldn't reach the message: ${err.message}\nThe entry for \`${key}\` was kept — try again.`, ...CLEAR_PREVIEW });
+                    }
+                }
+                const logged = await logAnonAction(client, {
+                    action: 'remove',
+                    user: interaction.user,
+                    key,
+                    channelId: record.channelId,
+                    messageUrl: message?.url,
+                    content,
+                    fileCount: message?.attachments.size ?? 0,
+                });
+
+                if (message) {
+                    try {
+                        await message.delete();
+                    } catch (err) {
+                        if (!isMissingOnDiscord(err)) {
+                            console.error('[anon_msg] Failed to delete anonymous message:', err);
+                            await logAnonAction(client, {
+                                action: 'remove_failed',
+                                user: interaction.user,
+                                key,
+                                channelId: record.channelId,
+                                messageUrl: message.url,
+                                note: err.message,
+                            });
+                            return interaction.editReply({ content: `❌ Couldn't delete the message: ${err.message}\nThe entry for \`${key}\` was kept — try again.`, ...CLEAR_PREVIEW });
+                        }
+                    }
+                }
+
+                removeMessage(key);
+                await interaction.editReply({ content: `✅ Message \`${key}\` removed.${auditWarning(logged)}`, ...CLEAR_PREVIEW });
+            } finally {
+                removing.delete(key);
+            }
         },
 
         'anon_remove_cancel_': async (interaction) => {
             await interaction.deferUpdate();
-            await interaction.editReply({ content: '❌ Removal cancelled.', embeds: [], components: [] });
+            await interaction.editReply({ content: '❌ Removal cancelled.', ...CLEAR_PREVIEW });
         },
 
     }

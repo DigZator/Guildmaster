@@ -1,4 +1,4 @@
-const { buildAnnouncementEmbed, buildWhatsApp, italizeBlurb, bulletizeNotes, getPreviewButtons, setSessionTimeout } = require('../utils/announcementHelper');
+const { buildAnnouncementEmbed, buildWhatsApp, italizeBlurb, bulletizeNotes, getPreviewButtons, getPreviewWarnings, setSessionTimeout, isCurrentPreview, STALE_PREVIEW_MESSAGE } = require('../utils/announcementHelper');
 const { sessions } = require('../utils/sessionStore');
 const { syncAnnouncementFieldToNotion, UNSYNCED_FIELDS } = require('../utils/announcementNotionSync');
 const { invalidateCache } = require('../utils/cache');
@@ -9,6 +9,11 @@ module.exports = async (interaction, client) => {
     const session = sessions.get(interaction.user.id);
     if (!session) {
         await interaction.reply({ content: '❌ Session expired.', flags: 64 });
+        return;
+    }
+
+    if (!isCurrentPreview(session, interaction)) {
+        await interaction.reply({ content: STALE_PREVIEW_MESSAGE, flags: 64 });
         return;
     }
 
@@ -24,7 +29,7 @@ module.exports = async (interaction, client) => {
     session.game[field] = processedVal;
     session.editingField = null;
     session.step = null;
-    setSessionTimeout(interaction.user.id, 600000);
+    setSessionTimeout(interaction.user.id);
 
     session.embed = buildAnnouncementEmbed(session.game, interaction.guild);
     session.whatsapp = buildWhatsApp(session.game);
@@ -42,6 +47,9 @@ module.exports = async (interaction, client) => {
             content += `\n⚠️ This preview updated, but I couldn't save the change to Notion — the two are now out of sync. Try again or use \`/edit_game\`.`;
         }
     }
+
+    const warnings = getPreviewWarnings(session.game, session.embed).trim();
+    if (warnings) content += `\n\n${warnings}`;
 
     await interaction.update({
         content,

@@ -7,7 +7,7 @@ const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANN
 
 const QUEST_BOARD_ID = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
 const { DEFAULT_REGISTRATION_LINK } = require('../data/registrationDefaults');
-const { SESSION_TYPE_ROLES } = require('./announcementHelper');
+const { getRoleMention } = require('./announcementHelper');
 
 let ctrlChannel = null;
 let botClient = null;
@@ -79,6 +79,20 @@ async function runReminderJob() {
     await ctrlChannel.send({ content: msg, allowedMentions: { parse: [] } });
 }
 
+// Builds the quest-board announcement. Each game's role tag sits on the same
+// line as the game, rather than one block of tags at the top of the message.
+function buildQuestBoardMessage(games, guild) {
+    const roleIds = new Set();
+    const lines = games.map(g => {
+        const mention = guild ? getRoleMention(g, guild) : '';
+        const roleId = mention.match(/^<@&(\d+)>$/)?.[1];
+        if (roleId) roleIds.add(roleId);
+        return `- ${g.title}${mention ? ` ${mention}` : ''}`;
+    });
+    const content = `‼️ **Registrations for the following game/s are now live** ‼️\n\n${lines.join('\n')}\n\nRegistration Link - ${DEFAULT_REGISTRATION_LINK}`;
+    return { content, roleIds: [...roleIds] };
+}
+
 async function runActivationJob({ force = false } = {}) {
     const data = getQueue();
     if (data.queue.length === 0) return;
@@ -130,22 +144,14 @@ async function runActivationJob({ force = false } = {}) {
 
     await ctrlChannel.send(msg);
     if (results.processed.length) {
-    	const titleList = results.processed.map(g => `- ${g.title}`).join(`\n`);
     	const waTitleList = results.processed.map(g => `- ${g.title} (${g.format} ${g.type})`).join(`\n`);
-
-    	const questMsg = `‼️ **Registrations for the following game/s are now live** ‼️\n\n${titleList}\n\nRegistration Link - ${DEFAULT_REGISTRATION_LINK}`;
     	const waMsg = `‼️ *Registrations for the following game/s are now live* ‼️\n\n${waTitleList}\n\nRegistration Link - ${DEFAULT_REGISTRATION_LINK}`;
 
     	if (questChannel) {
-    		const roleNames = [...new Set(results.processed.map(g => SESSION_TYPE_ROLES[`${g.format} ${g.type}`]).filter(Boolean))];
-    		const roles = roleNames
-    			.map(name => questChannel.guild.roles.cache.find(r => r.name === name))
-    			.filter(Boolean);
-    		const roleMentionText = roles.map(r => `<@&${r.id}>`).join(' ');
-
+    		const { content, roleIds } = buildQuestBoardMessage(results.processed, questChannel.guild);
     		await questChannel.send({
-    			content: roleMentionText ? `${roleMentionText}\n\n${questMsg}` : questMsg,
-    			allowedMentions: { roles: roles.map(r => r.id) }
+    			content,
+    			allowedMentions: { roles: roleIds }
     		});
     	}
     	await ctrlChannel.send(`📋 **WhatsApp copy:**\n\`\`\`\n${waMsg}\n\`\`\``);
@@ -209,4 +215,4 @@ function init(client) {
     });
 }
 
-module.exports = { init, runActivationJob };
+module.exports = { init, runActivationJob, buildQuestBoardMessage };

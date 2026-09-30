@@ -25,7 +25,9 @@ const { spellAutocomplete } = require('../utils/spellAutoComplete');
 const { magicItemAutocomplete } = require('../utils/magicItemAutoComplete');
 const { downtimeActivityAutocomplete, downtimeTierAutocomplete } = require('../utils/downtimeAutoComplete');
 const get_players = require('../commands/get_players');
+const manipulate_table = require('../commands/manipulate_table');
 const ticket = require('../commands/ticket');
+const direct_line = require('../commands/direct_line');
 const archive = require('../commands/archive');
 const archiveConfig = require('../commands/archiveConfig');
 const { loadTicketTypes } = require('../config/ticketTypes');
@@ -50,7 +52,7 @@ module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
 
         if (interaction.isAutocomplete()) {
-            if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game' || interaction.commandName === 'get_players') {
+            if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game' || interaction.commandName === 'get_players' || interaction.commandName === 'manipulate_table') {
                 await gameAutocomplete(interaction);
                 return;
             }
@@ -262,7 +264,9 @@ module.exports = (client) => {
             if (command === 'leagueadmin') await leagueAdmin(interaction, client);
             if (command === 'leaguedm') await leagueDM(interaction, client);
             if (command === 'get_players') await get_players(interaction, client);
+            if (command === 'manipulate_table') await manipulate_table(interaction, client);
             if (command === 'ticket') await ticket(interaction, client);
+            if (command === 'direct_line') await direct_line(interaction, client);
             if (command === 'archive') await archive(interaction, client);
             if (command === 'archive-config') await archiveConfig(interaction, client);
         } catch (error) {

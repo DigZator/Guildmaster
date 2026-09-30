@@ -1,7 +1,6 @@
 const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
 const memorialIndex = require('../utils/memorialIndex');
-
-const TLR_MOD_ROLE_IDS = [process.env.ADMINS_ROLE_ID, process.env.CLERK_OF_MORTAL_AFFAIRS_ROLE_ID].filter(Boolean);
+const { isTlrMod } = require('../config/tlrRoles');
 
 module.exports = {
 
@@ -24,7 +23,7 @@ module.exports = {
             const authorIdMatch = footerText.match(/AuthorID:\s*(\d{17,19})/);
             const authorId     = authorIdMatch?.[1] ?? null;
             const isAuthor     = authorId === interaction.user.id;
-            const isMod        = TLR_MOD_ROLE_IDS.length > 0 && interaction.member.roles.cache.some(r => TLR_MOD_ROLE_IDS.includes(r.id));
+            const isMod        = isTlrMod(interaction.member);
 
             if (!isAuthor && !isMod) return interaction.reply({ content: 'You do not have permission to delete this message.', flags: 64 });
 

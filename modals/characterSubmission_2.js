@@ -1,17 +1,16 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const memorialDrafts = require('../utils/memorialDrafts');
 const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
-
-const previewButtons = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-        .setCustomId('memorial_preview_confirm')
-        .setLabel("Submit")
-        .setStyle(ButtonStyle.Success),
-    new ButtonBuilder()
-        .setCustomId('memorial_preview_cancel')
-        .setLabel("Cancel")
-        .setStyle(ButtonStyle.Danger)
-)
+const { buildPreviewButtons } = require('../utils/memorialButtons');
+const {
+    FIELD_VALUE_MAX,
+    TITLE_MAX,
+    EMBED_TOTAL_MAX,
+    clip,
+    safe,
+    longTextFields,
+    embedSize,
+} = require('../utils/memorialEmbed');
 
 async function validateImageURL(url) {
     const controller = new AbortController();
@@ -52,7 +51,9 @@ module.exports = async (interaction, client) => {
     await interaction.deferReply({ flags: 64 });
 
     const storedData = memorialDrafts.get(interaction.user.id);
-    if (!storedData) {
+    // storedData.name only exists on the part-1 draft; once part 2 is done the
+    // draft is replaced by the preview record, so a stale button lands here too.
+    if (!storedData || !storedData.name) {
         await interaction.editReply({
             content: "Error: Your session expired. Please start over.",
             flags: 64
@@ -97,22 +98,44 @@ module.exports = async (interaction, client) => {
         return;
     }
 
-    // Build embed
-    const embed = new EmbedBuilder()
-        .setTitle(storedData.name)
-        .setImage(portraitURL)
-        .setColor(embedColor)
-        .addFields(
-            { name: 'Species', value: storedData.species, inline: true },
-            { name: 'Class/Subclass', value: storedData.class, inline: true },
-            { name: 'Aliases', value: storedData.aliases, inline: false },
-            { name: 'Faction', value: storedData.faction, inline: true },
-            { name: 'Backstory', value: backstory, inline: false },
-            { name: 'Manner of Death', value: mannerOfDeath, inline: false },
-            { name: 'Campaign', value: campaign, inline: false }
-        )
-        .setFooter({ text: `Submitted by ${interaction.user.tag} | AuthorID: ${interaction.user.id}` })
-        .setTimestamp();
+    // Build embed. Discord rejects field values over 1024 characters and embeds
+    // over 6000 characters combined, so long text is split across fields and the
+    // total is checked. Anything thrown here must be reported — the reply is
+    // already deferred, so an uncaught error would leave the user on "thinking…".
+    let embed;
+    try {
+        embed = new EmbedBuilder()
+            .setTitle(clip(safe(storedData.name), TITLE_MAX))
+            .setImage(portraitURL)
+            .setColor(embedColor)
+            .addFields(
+                { name: 'Species', value: clip(safe(storedData.species), FIELD_VALUE_MAX), inline: true },
+                { name: 'Class/Subclass', value: clip(safe(storedData.class), FIELD_VALUE_MAX), inline: true },
+                { name: 'Aliases', value: clip(safe(storedData.aliases), FIELD_VALUE_MAX), inline: false },
+                { name: 'Faction', value: clip(safe(storedData.faction), FIELD_VALUE_MAX), inline: true },
+                ...longTextFields('Backstory', backstory),
+                ...longTextFields('Manner of Death', mannerOfDeath),
+                { name: 'Campaign', value: clip(safe(campaign), FIELD_VALUE_MAX), inline: false }
+            )
+            .setFooter({ text: `Submitted by ${interaction.user.tag} | AuthorID: ${interaction.user.id}` })
+            .setTimestamp();
+
+        const size = embedSize(embed);
+        if (size > EMBED_TOTAL_MAX) {
+            await interaction.editReply({
+                content: `❌ Your submission is too long for Discord (${size} of ${EMBED_TOTAL_MAX} characters). Please shorten the backstory or manner of death and start over.`,
+                flags: 64
+            });
+            return;
+        }
+    } catch (err) {
+        console.error('[characterSubmission_2] Failed to build the memorial embed:', err);
+        await interaction.editReply({
+            content: '❌ Something went wrong building your preview. Please check your details and start over.',
+            flags: 64
+        });
+        return;
+    }
 
     memorialDrafts.set(
         interaction.user.id, {
@@ -126,6 +149,6 @@ module.exports = async (interaction, client) => {
     await interaction.editReply({
         content: 'Here’s a preview of your submission. Please confirm:',
         embeds: [embed],
-        components: [previewButtons]
+        components: [buildPreviewButtons()]
     });
 };

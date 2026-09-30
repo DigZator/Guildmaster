@@ -1,5 +1,6 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const { sessions } = require('../utils/sessionStore');
+const { isCurrentPreview, STALE_PREVIEW_MESSAGE } = require('../utils/announcementHelper');
 
 const MAX_MODAL_VALUE_LENGTH = 4000;
 
@@ -30,6 +31,11 @@ module.exports = async (interaction, client) => {
 
     if (!session) {
         await interaction.reply({ content: '❌ Session expired.', flags: 64 });
+        return;
+    }
+
+    if (!isCurrentPreview(session, interaction)) {
+        await interaction.reply({ content: STALE_PREVIEW_MESSAGE, flags: 64 });
         return;
     }
 

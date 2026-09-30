@@ -4,10 +4,44 @@ const {
     ButtonBuilder,
     ButtonStyle,
     ModalBuilder,
+    StringSelectMenuBuilder,
     TextInputBuilder,
     TextInputStyle,
 } = require('discord.js');
 const { buildRemoveConfirmation } = require('../utils/tlrRemoveFlow');
+const memorialIndex = require('../utils/memorialIndex');
+const { isTlrMod } = require('../config/tlrRoles');
+const { MEMORIAL_LIMITS } = require('../utils/memorialEmbed');
+
+const MAX_SELECT_OPTIONS = 25; // Discord's limit for a select menu
+
+// ─── Shared submission modal (Part 1) ──────────────────────────────────────
+
+function buildSubmissionModal() {
+    const modal = new ModalBuilder()
+        .setCustomId('characterSubmission_1')
+        .setTitle('Character Memorial Submission - 1/2');
+
+    const input = (id, label, required, max) =>
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId(id)
+                .setLabel(label)
+                .setStyle(TextInputStyle.Short)
+                .setRequired(required)
+                .setMaxLength(max)
+        );
+
+    modal.addComponents(
+        input('characterName', 'Character Name', true, MEMORIAL_LIMITS.name),
+        input('species', 'Species', true, MEMORIAL_LIMITS.species),
+        input('class', 'Class/Subclass', true, MEMORIAL_LIMITS.class),
+        input('aliases', 'Aliases (optional)', false, MEMORIAL_LIMITS.aliases),
+        input('faction', 'Faction/Affiliation (optional)', false, MEMORIAL_LIMITS.faction),
+    );
+
+    return modal;
+}
 
 // ─── Dashboard message (posted via /the_long_rest setup) ───────────────────
 
@@ -17,7 +51,7 @@ function buildDashboardEmbed() {
         .setDescription(
             'Click a button below.\n\n' +
             '**Submit a Memorial** — start a fallen-character memorial submission.\n' +
-            '**Remove a Memorial** — request removal of a memorial you posted, by message ID.'
+            '**Remove a Memorial** — pick one of your own memorials to remove.'
         )
         .setColor(0x5865f2);
 }
@@ -40,78 +74,87 @@ function buildDashboardRow() {
 // ─── Button handlers ─────────────────────────────────────────────────────
 
 async function handleSubmitButton(interaction) {
-    const modal = new ModalBuilder()
-        .setCustomId('characterSubmission_1')
-        .setTitle('Character Memorial Submission - 1/2');
+    await interaction.showModal(buildSubmissionModal());
+}
 
-    const characterNameInput = new TextInputBuilder()
-        .setCustomId('characterName')
-        .setLabel('Character Name')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true);
-
-    const speciesInput = new TextInputBuilder()
-        .setCustomId('species')
-        .setLabel('Species')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true);
-
-    const classInput = new TextInputBuilder()
-        .setCustomId('class')
-        .setLabel('Class/Subclass')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true);
-
-    const aliasesInput = new TextInputBuilder()
-        .setCustomId('aliases')
-        .setLabel('Aliases (optional)')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(false);
-
-    const factionInput = new TextInputBuilder()
-        .setCustomId('faction')
-        .setLabel('Faction/Affiliation (optional)')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(false);
-
-    modal.addComponents(
-        new ActionRowBuilder().addComponents(characterNameInput),
-        new ActionRowBuilder().addComponents(speciesInput),
-        new ActionRowBuilder().addComponents(classInput),
-        new ActionRowBuilder().addComponents(aliasesInput),
-        new ActionRowBuilder().addComponents(factionInput)
-    );
-
-    await interaction.showModal(modal);
+function formatPostedDate(timestamp) {
+    if (!timestamp) return 'Unknown date';
+    return new Date(timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 async function handleRemoveRequestButton(interaction) {
-    const row = new ActionRowBuilder().addComponents(
+    const isMod = isTlrMod(interaction.member);
+
+    const entries = memorialIndex
+        .getEntriesForAuthor(interaction.user.id)
+        .sort((a, b) => (b.postedAt ?? 0) - (a.postedAt ?? 0));
+
+    const rows = [];
+    let content;
+
+    if (entries.length > 0) {
+        const shown = entries.slice(0, MAX_SELECT_OPTIONS);
+        rows.push(new ActionRowBuilder().addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId('tlrRemoveSelect')
+                .setPlaceholder('Choose a memorial to remove')
+                .addOptions(shown.map(entry => ({
+                    label: String(entry.characterName || 'Unknown Character').slice(0, 100),
+                    description: `Posted ${formatPostedDate(entry.postedAt)}`,
+                    value: entry.messageId,
+                }))),
+        ));
+        content =
+            '🗑️ **Remove a Memorial**\n\n' +
+            'Pick the memorial you want to remove. You\'ll be asked to confirm before anything is deleted.' +
+            (entries.length > shown.length ? `\n\n_Showing your ${shown.length} most recent memorials._` : '');
+    } else {
+        content =
+            '🗑️ **Remove a Memorial**\n\n' +
+            'I couldn\'t find any memorials posted by you.' +
+            (isMod ? '' : '\n\nIf you think this is a mistake, please contact a moderator.');
+    }
+
+    if (isMod) {
+        content += '\n\n_Moderators can also remove any memorial by its message ID._';
+    }
+
+    const buttons = [
         new ButtonBuilder()
             .setCustomId('tlrRemoveCancel')
             .setLabel('Cancel')
             .setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder()
-            .setCustomId('tlrRemoveProceed')
-            .setLabel('Proceed')
-            .setStyle(ButtonStyle.Danger),
-    );
+    ];
+    if (isMod) {
+        buttons.push(
+            new ButtonBuilder()
+                .setCustomId('tlrRemoveProceed')
+                .setLabel('Use a Message ID')
+                .setStyle(ButtonStyle.Danger),
+        );
+    }
+    rows.push(new ActionRowBuilder().addComponents(...buttons));
 
-    await interaction.reply({
-        content:
-            '🗑️ **Remove a Memorial**\n\n' +
-            'To remove a memorial you\'ll need the **Message ID** of the memorial post.\n\n' +
-            '**How to find a Message ID:**\n' +
-            '1. Enable Developer Mode: User Settings → Advanced → toggle **Developer Mode** on.\n' +
-            '2. Go to the memorial post and right-click it (long-press on mobile).\n' +
-            '3. Select **Copy Message ID** from the menu.\n\n' +
-            'Once you\'ve got it, click **Proceed** and paste it into the form. You can only remove a memorial you posted yourself, unless you\'re a moderator.',
-        components: [row],
-        flags: 64,
+    await interaction.reply({ content, components: rows, flags: 64 });
+}
+
+async function handleRemoveSelect(interaction) {
+    await interaction.deferUpdate();
+
+    const messageId = interaction.values[0];
+    const { payload } = await buildRemoveConfirmation(interaction, messageId);
+
+    await interaction.editReply({
+        content: payload.content,
+        components: payload.components ?? [],
     });
 }
 
 async function handleRemoveProceedButton(interaction) {
+    if (!isTlrMod(interaction.member)) {
+        return interaction.reply({ content: '❌ Only moderators can remove a memorial by message ID.', flags: 64 });
+    }
+
     const modal = new ModalBuilder()
         .setCustomId('tlrRemoveModal')
         .setTitle('Remove a Memorial');
@@ -147,7 +190,9 @@ module.exports = {
         tlrRemoveProceed: handleRemoveProceedButton,
         tlrRemoveCancel: handleRemoveCancelButton,
     },
+    handleRemoveSelect,
     handleRemoveModalSubmit,
+    buildSubmissionModal,
     buildDashboardEmbed,
     buildDashboardRow,
 };

@@ -1,17 +1,16 @@
-const TLR_MOD_ROLE_IDS = [process.env.ADMINS_ROLE_ID, process.env.CLERK_OF_MORTAL_AFFAIRS_ROLE_ID].filter(Boolean);
+const { TLR_SUBMISSION_CHANNEL_ID } = require('../data/channels');
+const { isTlrMod } = require('../config/tlrRoles');
 
 module.exports = (client) => {
     client.on('messageCreate', async (message) => {
         if (message.author.bot) return;
-        if (message.channel.name !== 'tlr-submission') return;
-        
+        if (!TLR_SUBMISSION_CHANNEL_ID || message.channelId !== TLR_SUBMISSION_CHANNEL_ID) return;
+
         if (message.channel.isThread()) return;
 
         if (message.content.startsWith('/')) return;
 
-        const isValid = TLR_MOD_ROLE_IDS.length > 0 && message.member.roles.cache.some(r => TLR_MOD_ROLE_IDS.includes(r.id));
-        
-        if (!isValid) {
+        if (!isTlrMod(message.member)) {
             try {
                 await message.delete();
             } catch (error) {

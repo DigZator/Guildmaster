@@ -287,9 +287,10 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - Feeds are polled and new items posted automatically to a configured channel (defaults to `FEEDS_CHANNEL_ID`).
 - `rssFlow.js` provides a guided setup conversation as an alternative to filling out all `/rss add` options directly.
 
-### 8.5 Anonymous Messaging (`/anon_msg`, `utils/anonStore.js`)
+### 8.5 Anonymous Messaging (`/anon_msg`, `utils/anonStore.js`, `utils/anonHelper.js`)
 - Each message is stored under a unique `key`, enabling later `edit`/`rmv` without needing the original message content.
 - Supports both single-line (`content` option) and multi-line (`multiline` flag → paste-in-backticks flow) input.
+- Attachments: one file via the `attachment` option, or up to 10 via the multiline reply. Files are downloaded to `temp/` under generic names, previewed, posted, then deleted (also on cancel, timeout, or after 10 minutes; stale `temp/anon_*` files are swept on each `/anon_msg add`). Shared logic lives in `utils/anonHelper.js`. `edit` changes text only and leaves attachments untouched.
 
 ### 8.6 Archiving (`/archive`, `/archive-config`, `utils/archiveChannel.js`, `config/archiveConfig.js`)
 - Moves a channel or category into a configured "archive" category and locks it read-only.

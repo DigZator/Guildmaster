@@ -24,27 +24,40 @@ const commands = [
 	new SlashCommandBuilder()
 		.setName('create_campaign')
 		.setDescription('Create a campaign role, category, and text/voice channels')
+		.addStringOption(option => option
+			.setName('name')
+			.setDescription('Campaign name, e.g. Lost Mines of Phandelver')
+			.setMaxLength(92)
+			.setRequired(true))
+		.addUserOption(option => option
+			.setName('dm')
+			.setDescription('The DM: gets the DM role and the campaign role')
+			.setRequired(true))
 		.addBooleanOption(option => option
 			.setName('spectators_read_chat')
 			.setDescription('Can spectators (Adventurer role) read the text chat?')
 			.setRequired(true))
 		.addBooleanOption(option => option
 			.setName('spectators_send_messages')
-			.setDescription('Can spectators send messages in the text chat? (only matters if they can read it)')
+			.setDescription('Can spectators send messages in the text chat? (only applies if they can read it)')
 			.setRequired(true))
 		.addBooleanOption(option => option
 			.setName('spectators_join_voice')
 			.setDescription('Can spectators join the voice/stage channel?')
 			.setRequired(true))
-		.addStringOption(option => option
-			.setName('name')
-			.setDescription('Campaign name (leave blank for a generated default name)'))
+		.addBooleanOption(option => option
+			.setName('spectators_send_voice_chat')
+			.setDescription('Can spectators send messages in the voice/stage channel chat?')
+			.setRequired(true))
 		.addBooleanOption(option => option
 			.setName('use_stage')
 			.setDescription('Use a Stage channel instead of a Voice channel? (default: No)'))
-		.addUserOption(option => option
-			.setName('dm')
-			.setDescription('Assign this user the DM role immediately and add them to the campaign')),
+		.addUserOption(option => option.setName('player_1').setDescription('Player 1: gets the campaign role'))
+		.addUserOption(option => option.setName('player_2').setDescription('Player 2: gets the campaign role'))
+		.addUserOption(option => option.setName('player_3').setDescription('Player 3: gets the campaign role'))
+		.addUserOption(option => option.setName('player_4').setDescription('Player 4: gets the campaign role'))
+		.addUserOption(option => option.setName('player_5').setDescription('Player 5: gets the campaign role'))
+		.addUserOption(option => option.setName('player_6').setDescription('Player 6: gets the campaign role')),
 
 	//the_long_rest
 	new SlashCommandBuilder()
@@ -75,10 +88,8 @@ const commands = [
 		.addStringOption(option => option
 			.setName('game')
 			.setDescription('Select a game to announce')
-			.setAutocomplete(true))
-		.addBooleanOption(option => option
-			.setName('manual')
-			.setDescription('Manually input announcement details instead of using game info')),
+			.setRequired(true)
+			.setAutocomplete(true)),
 
 	//ticket
 	new SlashCommandBuilder()
@@ -86,7 +97,11 @@ const commands = [
 		.setDescription('Manage the ticketing system')
 		.addSubcommand(sub => sub
 			.setName('setup')
-			.setDescription('Post or refresh the ticket dashboard in this channel'))
+			.setDescription('Post or refresh the ticket dashboard in this channel')
+			.addBooleanOption(option => option
+				.setName('relocate')
+				.setDescription('Move the dashboard here instead of refreshing it in its current channel')
+				.setRequired(false)))
 		.addSubcommand(sub => sub
 			.setName('config')
 			.setDescription('View or set the ticket category / log channel')
@@ -214,6 +229,56 @@ const commands = [
 				.setName('list')
 				.setDescription('List all configured ticket types'))),
 
+	//direct_line
+	new SlashCommandBuilder()
+		.setName('direct_line')
+		.setDescription('HR-only: open and manage a private direct line of communication with one or more members')
+		.addSubcommand(sub => sub
+			.setName('create')
+			.setDescription('Open a new direct line channel with one to four targets')
+			.addUserOption(option => option
+				.setName('target')
+				.setDescription('The primary person this direct line is with')
+				.setRequired(true))
+			.addUserOption(option => option
+				.setName('target2')
+				.setDescription('Additional target (optional)')
+				.setRequired(false))
+			.addUserOption(option => option
+				.setName('target3')
+				.setDescription('Additional target (optional)')
+				.setRequired(false))
+			.addUserOption(option => option
+				.setName('target4')
+				.setDescription('Additional target (optional)')
+				.setRequired(false)))
+		.addSubcommand(sub => sub
+			.setName('attach')
+			.setDescription('Run inside a direct line channel: add or remove people\'s access to it')
+			.addUserOption(option => option
+				.setName('target')
+				.setDescription('Person to add or remove')
+				.setRequired(true))
+			.addBooleanOption(option => option
+				.setName('remove')
+				.setDescription('Set true to remove the target(s) instead of adding them')
+				.setRequired(true))
+			.addUserOption(option => option
+				.setName('target2')
+				.setDescription('Additional target (optional)')
+				.setRequired(false))
+			.addUserOption(option => option
+				.setName('target3')
+				.setDescription('Additional target (optional)')
+				.setRequired(false))
+			.addUserOption(option => option
+				.setName('target4')
+				.setDescription('Additional target (optional)')
+				.setRequired(false)))
+		.addSubcommand(sub => sub
+			.setName('file')
+			.setDescription('Run inside a direct line channel: log the transcript to HR and delete the channel')),
+
 	//list_games
 	new SlashCommandBuilder()
 		.setName('list_games')
@@ -252,6 +317,16 @@ const commands = [
 	        .setName('game')
 	        .setDescription('Select a game/table')
 	        .setRequired(true)
+	        .setAutocomplete(true)),
+
+	//manipulate_table (scoped to the "Test" game only — see utils/tableAdminData.js)
+	new SlashCommandBuilder()
+	    .setName('manipulate_table')
+	    .setDescription('Admin dashboard for managing seats on the Test game')
+	    .addStringOption(opt => opt
+	        .setName('game')
+	        .setDescription('Select a game/table (currently only "Test" is supported)')
+	        .setRequired(false)
 	        .setAutocomplete(true)),
 	        
 	//game_info
@@ -315,6 +390,7 @@ const commands = [
 			.addStringOption(opt => opt
 				.setName('key')
 				.setDescription('Unique key to identify this message (required for edit)')
+				.setMaxLength(80) // keeps the button custom IDs under Discord's 100-character limit
 				.setRequired(false))
 			.addStringOption(opt => opt
 				.setName('content')
@@ -322,7 +398,15 @@ const commands = [
 				.setRequired(false))
 			.addBooleanOption(opt => opt
 				.setName('multiline')
-				.setDescription('Provide content interactively in triple backticks')
+				.setDescription('Provide content interactively in triple backticks (also lets you attach up to 10 files)')
+				.setRequired(false))
+			.addAttachmentOption(opt => opt
+				.setName('attachment')
+				.setDescription('A file or image to post with the message (use multiline to attach several)')
+				.setRequired(false))
+			.addBooleanOption(opt => opt
+				.setName('mentions')
+				.setDescription('Let @users, @roles and @everyone in the message actually ping (default: off)')
 				.setRequired(false)))
 		//rmv
 		.addSubcommand(sub => sub
@@ -341,7 +425,11 @@ const commands = [
 			.setName('key')
 			.setDescription('Key of the message to edit')
 			.setRequired(true)
-			.setAutocomplete(true))),
+			.setAutocomplete(true))
+		.addBooleanOption(opt => opt
+			.setName('mentions')
+			.setDescription('Let @users, @roles and @everyone in the new text actually ping (default: off)')
+			.setRequired(false))),
 
 	//schedule_activation
 	new SlashCommandBuilder()
@@ -898,7 +986,7 @@ const commands = [
 	    //dashboard
 	    .addSubcommand(sub => sub
 			.setName('dashboard')
-			.setDescription('View the live reward draft for a quest — add/remove players and rewards, and complete the quest, all from here')
+			.setDescription('View and manage the live reward draft for a quest')
 			.addStringOption(opt => opt
 				.setName('quest_id')
 				.setDescription('Quest ID')

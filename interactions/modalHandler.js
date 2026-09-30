@@ -24,6 +24,10 @@ module.exports = (client) => {
                 await require('../modals/leagueDashEdit')(interaction, client);
             } else if (interaction.customId === 'tlrRemoveModal') {
                 await require('../buttons/theLongRest').handleRemoveModalSubmit(interaction);
+            } else if (interaction.customId.startsWith('tableAdminAddPlayerModal:')) {
+                await require('../modals/tableAdminAddPlayerModal')(interaction, client);
+            } else if (interaction.customId.startsWith('tableAdminNumberModal:')) {
+                await require('../modals/tableAdminNumberModal')(interaction, client);
             } else {
                 handled = false;
             }

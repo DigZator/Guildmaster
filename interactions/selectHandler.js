@@ -13,6 +13,9 @@ module.exports = (client) => {
             if (interaction.customId === 'announce_edit_select') {
                 await require('../selects/announceEditSelect')(interaction, client);
             }
+            if (interaction.customId === 'tlrRemoveSelect') {
+                await require('../buttons/theLongRest').handleRemoveSelect(interaction);
+            }
             if (interaction.customId === 'shopbuy_discount_select') {
                 await require('../selects/shopDiscountSelect')(interaction, client);
             }
@@ -24,6 +27,9 @@ module.exports = (client) => {
             }
             if (interaction.customId.startsWith('questDash:')) {
                 await require('../buttons/questDashboard').handleDashboardSelect(interaction);
+            }
+            if (interaction.customId.startsWith('tableAdminSeatSelect:')) {
+                await require('../selects/tableAdminSeatSelect').handle(interaction);
             }
         } catch (error) {
             if (error.code === 10062) {

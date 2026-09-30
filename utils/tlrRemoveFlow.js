@@ -1,7 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
-
-const TLR_MOD_ROLE_IDS = [process.env.ADMINS_ROLE_ID, process.env.CLERK_OF_MORTAL_AFFAIRS_ROLE_ID].filter(Boolean);
+const { isTlrMod } = require('../config/tlrRoles');
+const memorialIndex = require('./memorialIndex');
 
 async function buildRemoveConfirmation(interaction, messageId) {
     if (!/^\d{17,19}$/.test(messageId)) {
@@ -22,6 +22,7 @@ async function buildRemoveConfirmation(interaction, messageId) {
         }
     } catch (fetchError) {
         console.error('Error fetching message:', fetchError);
+        if (fetchError?.code === 10008) memorialIndex.removeEntry(messageId);
         return { ok: false, payload: { content: 'Could not find a message with that ID in the output channel.' } };
     }
 
@@ -32,7 +33,7 @@ async function buildRemoveConfirmation(interaction, messageId) {
     const authorId = authorIdMatch ? authorIdMatch[1] : null;
 
     const isAuthor = authorId === interaction.user.id;
-    const isAdmin = TLR_MOD_ROLE_IDS.length > 0 && member.roles.cache.some(r => TLR_MOD_ROLE_IDS.includes(r.id));
+    const isAdmin = isTlrMod(member);
 
     if (!isAuthor && !isAdmin) {
         return { ok: false, payload: { content: 'You do not have permission to remove this memorial.' } };

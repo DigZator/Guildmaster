@@ -9,7 +9,9 @@
 //   channelTag    - short tag used in the channel name (falls back to slug)
 //   modalTitle    - optional override for the creation modal title
 //   viewerRoleId  - role pinged/referenced for this ticket type (does NOT grant channel perms — see categoryGroup)
-//   pingTargetId  - role or user id pinged on creation (may differ from viewerRoleId)
+//                   Omitted by default: resolved from .env via ENV_ROLE_FALLBACKS below. Only present
+//                   in data/ticketTypes.json if an admin explicitly overrides it with `/ticket type edit`.
+//   pingTargetId  - role or user id pinged on creation (may differ from viewerRoleId). Same default-from-.env behavior.
 //   categoryGroup - which ticket category this type's channels are created under ('normal' | 'hr').
 
 const path = require('path');
@@ -23,8 +25,6 @@ const DEFAULT_TICKET_TYPES = [
         buttonEmoji: '🎮',
         slug: 'game-support',
         channelTag: 'GA',
-        viewerRoleId: process.env.ADMINS_ROLE_ID || null,
-        pingTargetId: process.env.CMD_ROLE_ID || null,
         categoryGroup: 'normal',
     },
     {
@@ -33,8 +33,6 @@ const DEFAULT_TICKET_TYPES = [
         buttonEmoji: '💬',
         slug: 'discord-support',
         channelTag: 'DS',
-        viewerRoleId: process.env.ADMINS_ROLE_ID || null,
-        pingTargetId: process.env.CMD_ROLE_ID || null,
         categoryGroup: 'normal',
     },
     {
@@ -42,8 +40,6 @@ const DEFAULT_TICKET_TYPES = [
         label: 'HR Ticket',
         buttonEmoji: '🗂️',
         slug: 'hr',
-        viewerRoleId: process.env.HR_ROLE_ID || null,
-        pingTargetId: process.env.HR_ROLE_ID || null,
         categoryGroup: 'hr',
     },
     {
@@ -52,8 +48,6 @@ const DEFAULT_TICKET_TYPES = [
         buttonEmoji: '📦',
         slug: 'asset-request',
         channelTag: 'PAR',
-        viewerRoleId: process.env.ADMINS_ROLE_ID || null,
-        pingTargetId: process.env.INVENTORY_ROLE_ID || null,
         categoryGroup: 'normal',
     },
     {
@@ -62,8 +56,6 @@ const DEFAULT_TICKET_TYPES = [
         buttonEmoji: '❓',
         slug: 'misc',
         channelTag: 'MISC',
-        viewerRoleId: process.env.ADMINS_ROLE_ID || null,
-        pingTargetId: process.env.ADMINS_ROLE_ID || null,
         categoryGroup: 'normal',
     },
 ];
@@ -73,8 +65,30 @@ const typesStore = createJsonStore(path.join(__dirname, '../data/ticketTypes.jso
 const EDITABLE_FIELDS = ['label', 'modalTitle', 'buttonEmoji', 'slug', 'channelTag', 'viewerRoleId', 'pingTargetId', 'categoryGroup'];
 const VALID_CATEGORY_GROUPS = ['normal', 'hr'];
 
+const ENV_ROLE_FALLBACKS = {
+    game_support:     { viewerRoleId: 'ADMINS_ROLE_ID',   pingTargetId: 'CMD_ROLE_ID' },
+    discord_support:  { viewerRoleId: 'ADMINS_ROLE_ID',   pingTargetId: 'CMD_ROLE_ID' },
+    hr:               { viewerRoleId: 'HR_ROLE_ID',       pingTargetId: 'HR_ROLE_ID' },
+    physical_asset:   { viewerRoleId: 'ADMINS_ROLE_ID',   pingTargetId: 'INVENTORY_ROLE_ID' },
+    misc:             { viewerRoleId: 'ADMINS_ROLE_ID',   pingTargetId: 'ADMINS_ROLE_ID' },
+};
+
+function applyEnvFallbacks(type) {
+    const fallback = ENV_ROLE_FALLBACKS[type.key];
+    if (!fallback) return type;
+
+    const resolved = { ...type };
+    if (resolved.viewerRoleId === undefined && fallback.viewerRoleId) {
+        resolved.viewerRoleId = process.env[fallback.viewerRoleId] || null;
+    }
+    if (resolved.pingTargetId === undefined && fallback.pingTargetId) {
+        resolved.pingTargetId = process.env[fallback.pingTargetId] || null;
+    }
+    return resolved;
+}
+
 function loadTicketTypes() {
-    return typesStore.load();
+    return typesStore.load().map(applyEnvFallbacks);
 }
 
 const TICKET_TYPES = loadTicketTypes();
@@ -100,7 +114,7 @@ function validateCategoryGroup(group) {
 }
 
 function addTicketType(input) {
-    const types = loadTicketTypes();
+    const types = typesStore.load(); // raw, unresolved — never persist resolved env values
 
     const key = slugifyKey(input.key || input.label);
     if (!key) return { ok: false, error: 'Could not derive a valid key from the label/key provided.' };
@@ -119,10 +133,10 @@ function addTicketType(input) {
         buttonEmoji: input.buttonEmoji || '🎫',
         slug,
         channelTag: input.channelTag || null,
-        viewerRoleId: input.viewerRoleId || null,
-        pingTargetId: input.pingTargetId || null,
         categoryGroup,
     };
+    if (input.viewerRoleId) type.viewerRoleId = input.viewerRoleId;
+    if (input.pingTargetId) type.pingTargetId = input.pingTargetId;
 
     types.push(type);
     typesStore.save(types);
@@ -130,7 +144,7 @@ function addTicketType(input) {
 }
 
 function updateTicketType(key, patch) {
-    const types = loadTicketTypes();
+    const types = typesStore.load(); // raw, unresolved — never persist resolved env values
     const idx = types.findIndex(t => t.key === key);
     if (idx === -1) return { ok: false, error: `No ticket type with key \`${key}\` found.` };
 
@@ -160,7 +174,7 @@ function updateTicketType(key, patch) {
 }
 
 function removeTicketType(key) {
-    const types = loadTicketTypes();
+    const types = typesStore.load(); // raw, unresolved — never persist resolved env values
     const idx = types.findIndex(t => t.key === key);
     if (idx === -1) return { ok: false, error: `No ticket type with key \`${key}\` found.` };
 

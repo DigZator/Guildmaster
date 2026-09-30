@@ -54,8 +54,10 @@ async function handleSetup(interaction) {
         return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
     }
 
+    const relocate = interaction.options.getBoolean('relocate') || false;
     const existing = getConfig();
-    if (existing.dashboardChannelId && existing.dashboardMessageId) {
+
+    if (!relocate && existing.dashboardChannelId && existing.dashboardMessageId) {
         try {
             const oldChannel = await interaction.guild.channels.fetch(existing.dashboardChannelId);
             const oldMessage = await oldChannel.messages.fetch(existing.dashboardMessageId);
@@ -65,9 +67,17 @@ async function handleSetup(interaction) {
         } catch {  }
     }
 
+    if (relocate && existing.dashboardChannelId && existing.dashboardMessageId) {
+        try {
+            const oldChannel = await interaction.guild.channels.fetch(existing.dashboardChannelId);
+            const oldMessage = await oldChannel.messages.fetch(existing.dashboardMessageId);
+            await oldMessage.delete();
+        } catch {  }
+    }
+
     const message = await interaction.channel.send({ embeds: [buildDashboardEmbed()], components: buildDashboardRow() });
     setConfig({ dashboardChannelId: interaction.channel.id, dashboardMessageId: message.id });
-    await interaction.reply({ content: '✅ Ticket dashboard posted here.', flags: 64 });
+    await interaction.reply({ content: `✅ Ticket dashboard posted here.${relocate ? ' Old dashboard removed.' : ''}`, flags: 64 });
 }
 
 async function handleConfig(interaction) {

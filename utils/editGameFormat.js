@@ -5,8 +5,10 @@ function formatValue(fieldType, raw) {
         case 'title':
             return { title: [{ text: { content: raw } }] };
 
-        case 'rich_text':
-            return { rich_text: [{ text: { content: raw } }] };
+        case 'rich_text': {
+            const segments = raw.match(/[\s\S]{1,2000}/g) ?? [''];
+            return { rich_text: segments.map(content => ({ text: { content } })) };
+        }
 
         case 'number': {
             const num = parseFloat(raw);

@@ -79,8 +79,8 @@ module.exports = {
       description: 'Announcing and editing games on the quest board. General server admins.',
       commands: [
         {
-          name: '/announce_game [game] [manual]',
-          description: 'Pull a game from Notion and post it to the quest board. `game` autocompletes; `manual` skips Notion and lets you compose the announcement by hand.',
+          name: '/announce_game <game>',
+          description: 'Pull a game from Notion and post it to the quest board. `game` autocompletes. The preview warns about missing fields, and Edit lets you fix them before confirming.',
         },
         {
           name: '/edit_game <game> <field>',
@@ -157,12 +157,12 @@ module.exports = {
       description: 'Send and manage anonymous messages posted through the bot.',
       commands: [
         {
-          name: '/anon_msg add <channel> [key] [content] [multiline]',
-          description: 'Post anonymously to a channel. `key` lets you edit it later; `content` is a single-line message, or set `multiline` to compose it interactively in triple backticks instead.',
+          name: '/anon_msg add <channel> [key] [content] [multiline] [mentions]',
+          description: 'Post anonymously to a channel. `key` lets you edit it later (max 80 characters); `content` is a single-line message, or set `multiline` to compose it interactively in triple backticks instead. Mentions are off unless you set `mentions` to true. Every send, edit and removal is logged privately in guildmaster-ctrl.',
         },
         {
-          name: '/anon_msg edit <key>',
-          description: 'Edit a previously sent message. `key` autocompletes.',
+          name: '/anon_msg edit <key> [mentions]',
+          description: 'Edit a previously sent message. `key` autocompletes. Set `mentions` to true to let mentions in the new text ping.',
         },
         {
           name: '/anon_msg rmv <key>',

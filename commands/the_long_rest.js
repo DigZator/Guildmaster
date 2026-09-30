@@ -1,16 +1,9 @@
-const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const { TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID, THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getConfig, setConfig } = require('../config/tlrDashboardConfig');
-const { buildDashboardEmbed, buildDashboardRow } = require('../buttons/theLongRest');
+const { buildDashboardEmbed, buildDashboardRow, buildSubmissionModal } = require('../buttons/theLongRest');
 const { buildRemoveConfirmation } = require('../utils/tlrRemoveFlow');
-const memorialIndex = require('../utils/memorialIndex');
-
-function getSubmitterIdFromEmbed(embed) {
-    const footerText = embed?.footer?.text || '';
-    const match = footerText.match(/AuthorID:\s*(\d{17,19})/);
-    return match ? match[1] : null;
-}
+const { reindexChannel } = require('../utils/memorialReindex');
 
 async function handleReindex(interaction) {
     if (!isAdminChannel(interaction, 'botAdmin')) {
@@ -24,32 +17,16 @@ async function handleReindex(interaction) {
 
     await interaction.deferReply({ flags: 64 });
 
-    const entries = [];
-    let before;
-    // Discord caps a single fetch at 100
-    for (let page = 0; page < 50; page++) {
-        const batch = await outputChannel.messages.fetch({ limit: 100, ...(before ? { before } : {}) });
-        if (batch.size === 0) break;
-
-        for (const message of batch.values()) {
-            const embed = message.embeds?.[0];
-            if (!embed) continue;
-            const authorId = getSubmitterIdFromEmbed(embed);
-            if (!authorId) continue;
-            entries.push({
-                messageId: message.id,
-                authorId,
-                characterName: embed.title || 'Unknown Character',
-                postedAt: message.createdTimestamp,
-            });
-        }
-
-        before = batch.last().id;
-        if (batch.size < 100) break;
+    try {
+        const { count, truncated } = await reindexChannel(outputChannel);
+        await interaction.editReply({
+            content: `✅ Reindexed. Found **${count}** memorial(s) across the channel.` +
+                     (truncated ? '\n⚠️ Scan cap reached — older memorials may be missing.' : '')
+        });
+    } catch (err) {
+        console.error('[the_long_rest] Reindex failed:', err);
+        await interaction.editReply({ content: `❌ Reindex failed: ${err.message}\nThe existing index was left unchanged.` });
     }
-
-    memorialIndex.replaceAll(entries);
-    await interaction.editReply({ content: `✅ Reindexed. Found **${entries.length}** memorial(s) across the channel.` });
 }
 
 async function handleSetup(interaction) {
@@ -58,7 +35,6 @@ async function handleSetup(interaction) {
     }
 
     const existing = getConfig();
-    // Try to refresh an existing dashboard message in-place first.
     if (existing.dashboardChannelId && existing.dashboardMessageId) {
         try {
             const oldChannel = await interaction.guild.channels.fetch(existing.dashboardChannelId);
@@ -90,9 +66,11 @@ module.exports = async (interaction, client) => {
     try {
         if (subcommand === 'add') {
 
-            if (interaction.channel.name !== 'tlr-submission') {
+            if (interaction.channel.id !== TLR_SUBMISSION_CHANNEL_ID) {
                 await interaction.reply({
-                    content: 'This command can only be used in the `tlr-submission` channel.',
+                    content: TLR_SUBMISSION_CHANNEL_ID
+                        ? `This command can only be used in <#${TLR_SUBMISSION_CHANNEL_ID}>.`
+                        : 'The submission channel is not configured. Contact an admin.',
                     flags: 64
                 });
                 return;
@@ -108,50 +86,7 @@ module.exports = async (interaction, client) => {
                 return;
             }
 
-            // Modal 1 for character submission
-            const modal_1 = new ModalBuilder()
-                .setCustomId('characterSubmission_1')
-                .setTitle('Character Memorial Submission - 1/2');
-
-            const characterNameInput = new TextInputBuilder()
-                .setCustomId('characterName')
-                .setLabel("Character Name")
-                .setStyle(TextInputStyle.Short)
-                .setRequired(true);
-
-            const speciesInput = new TextInputBuilder()
-                .setCustomId('species')
-                .setLabel("Species")
-                .setStyle(TextInputStyle.Short)
-                .setRequired(true);
-
-            const classInput = new TextInputBuilder()
-                .setCustomId('class')
-                .setLabel("Class/Subclass")
-                .setStyle(TextInputStyle.Short)
-                .setRequired(true);
-
-            const aliasesInput = new TextInputBuilder()
-                .setCustomId('aliases')
-                .setLabel("Aliases (optional)")
-                .setStyle(TextInputStyle.Short)
-                .setRequired(false);
-
-            const factionInput = new TextInputBuilder()
-                .setCustomId('faction')
-                .setLabel("Faction/Affiliation (optional)")
-                .setStyle(TextInputStyle.Short)
-                .setRequired(false);
-
-            modal_1.addComponents(
-                new ActionRowBuilder().addComponents(characterNameInput),
-                new ActionRowBuilder().addComponents(speciesInput),
-                new ActionRowBuilder().addComponents(classInput),
-                new ActionRowBuilder().addComponents(aliasesInput),
-                new ActionRowBuilder().addComponents(factionInput)
-            );
-
-            await interaction.showModal(modal_1);
+            await interaction.showModal(buildSubmissionModal());
             return;
         }
 
@@ -159,7 +94,7 @@ module.exports = async (interaction, client) => {
             const allowedChannel = [TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID];
             if (!allowedChannel.includes(interaction.channel.id)) {
                 await interaction.reply({
-                    content: 'This command can only be used in the `tlr-submission` channel.',
+                    content: 'This command can only be used in the memorial submission or control channel.',
                     flags: 64
                 });
                 return;
