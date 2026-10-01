@@ -19,12 +19,49 @@ function isTicketRaiser(interaction, ticket) {
 const STAFF_ONLY_ACTIONS = new Set(['claim', 'unclaim', 'resurrect', 'resurrectYes', 'resurrectNo', 'file', 'fileYes', 'fileNo']);
 const RAISER_OR_STAFF_ACTIONS = new Set(['close', 'closeYes', 'closeNo']);
 
+const REQUIRED_STATUS = {
+    claim: 'open',
+    unclaim: 'open',
+    close: 'open',
+    closeYes: 'open',
+    closeFeedbackModal: 'open',
+    resurrect: 'closed',
+    resurrectYes: 'closed',
+    file: 'closed',
+    fileYes: 'closed',
+};
+
+const PROMPT_ACTIONS = new Set(['closeYes', 'resurrectYes', 'fileYes']);
+
+async function handleOutOfDate(interaction, ticketId, action) {
+    const latest = ticketStore.getTicketById(ticketId);
+    const text = latest
+        ? `⚠️ That button is out of date — this ticket is ${ticketFlow.describeStatus(latest.status)}.`
+        : '❌ This ticket record no longer exists.';
+
+    if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ content: text, components: [] });
+    } else if (PROMPT_ACTIONS.has(action)) {
+        await interaction.update({ content: text, components: [] });
+    } else {
+        await interaction.reply({ content: text, flags: 64 });
+    }
+
+    const message = interaction.message;
+    if (!latest || !message || message.flags?.has?.('Ephemeral')) return;
+
+    if (message.id === latest.controlMessageId) {
+        if (latest.status !== 'filing') await ticketFlow.syncControlMessage(interaction.guild, latest);
+    } else {
+        await message.edit({ components: [] }).catch(() => {});
+    }
+}
+
 function denyMessage() {
     return { content: '❌ You don\'t have permission to do that on this ticket.', flags: 64 };
 }
 
 // ─── Dashboard type-select buttons (customId: `ticketCreate:<typeKey>`) ─────
-
 function ticketCreateCustomId(typeKey) {
     return `ticketCreate:${typeKey}`;
 }
@@ -56,7 +93,6 @@ async function handleTicketCreateButton(interaction) {
 }
 
 // ─── Ticket action buttons (customId: `ticket:<ticketId>:<action>`) ─────────
-
 function resolveTicket(interaction) {
     const { ticketId } = decodeId(interaction.customId);
     const ticket = ticketStore.getTicketById(ticketId);
@@ -79,11 +115,22 @@ async function handleTicketButton(interaction) {
         return interaction.reply(denyMessage());
     }
 
+    const required = REQUIRED_STATUS[action];
+    if (required && ticket.status !== required) {
+        return handleOutOfDate(interaction, ticket.id, action);
+    }
+
     switch (action) {
-        case 'claim':
-            return ticketFlow.claimTicket(interaction, ticket);
-        case 'unclaim':
-            return ticketFlow.unclaimTicket(interaction, ticket);
+        case 'claim': {
+            const result = await ticketFlow.claimTicket(interaction, ticket);
+            if (!result.ok) return handleOutOfDate(interaction, ticket.id, action);
+            return;
+        }
+        case 'unclaim': {
+            const result = await ticketFlow.unclaimTicket(interaction, ticket);
+            if (!result.ok) return handleOutOfDate(interaction, ticket.id, action);
+            return;
+        }
         case 'close':
             return ticketFlow.promptCloseConfirm(interaction, ticket);
         case 'closeYes':
@@ -92,10 +139,12 @@ async function handleTicketButton(interaction) {
             return ticketFlow.cancelClose(interaction);
         case 'resurrect':
             return ticketFlow.promptResurrectConfirm(interaction, ticket);
-        case 'resurrectYes':
+        case 'resurrectYes': {
             await interaction.deferUpdate();
-            await ticketFlow.finalizeResurrect(interaction, ticket);
-            return interaction.editReply({ content: '✅ Ticket resurrected.', components: [] });
+            const result = await ticketFlow.finalizeResurrect(interaction, ticket);
+            if (!result.ok) return handleOutOfDate(interaction, ticket.id, action);
+            return interaction.editReply({ content: `✅ Ticket resurrected.${formatWarnings(result.warnings)}`, components: [] });
+        }
         case 'resurrectNo':
             return interaction.update({ content: 'Cancelled.', components: [] });
         case 'file':
@@ -103,8 +152,13 @@ async function handleTicketButton(interaction) {
         case 'fileYes': {
             await interaction.deferUpdate();
             const result = await ticketFlow.finalizeFile(interaction, ticket);
-            if (result) await interaction.editReply({ content: '✅ Ticket filed and channel removed.', components: [] });
-            return;
+            if (!result.ok) {
+                if (result.reason === 'status' || result.reason === 'missing') {
+                    return handleOutOfDate(interaction, ticket.id, action);
+                }
+                return interaction.editReply({ content: result.message, components: [] });
+            }
+            return interaction.editReply({ content: `✅ Ticket filed and channel removed.${formatWarnings(result.warnings)}`, components: [] });
         }
         case 'fileNo':
             return interaction.update({ content: 'Cancelled.', components: [] });
@@ -113,8 +167,11 @@ async function handleTicketButton(interaction) {
     }
 }
 
-// ─── Modal routing (called from modalHandler.js) ────────────────────────────
+function formatWarnings(warnings = []) {
+    return warnings.length ? `\n${warnings.map(w => `⚠️ ${w}`).join('\n')}` : '';
+}
 
+// ─── Modal routing (called from modalHandler.js) ────────────────────────────
 async function handleTicketModal(interaction) {
     if (interaction.customId.startsWith('ticketCreateModal:')) {
         const typeKey = interaction.customId.split(':')[1];
@@ -136,11 +193,16 @@ async function handleTicketModal(interaction) {
                 return interaction.reply(denyMessage());
             }
 
+            if (ticket.status !== REQUIRED_STATUS.closeFeedbackModal) {
+                return handleOutOfDate(interaction, ticket.id, action);
+            }
+
             const reason = interaction.fields.getTextInputValue('reason');
             const feedback = interaction.fields.getTextInputValue('feedback') || '';
             await interaction.deferReply({ flags: 64 });
-            await ticketFlow.finalizeClose(interaction, ticket, { reason, feedback });
-            return interaction.editReply({ content: '🔒 Ticket closed.' });
+            const result = await ticketFlow.finalizeClose(interaction, ticket, { reason, feedback });
+            if (!result.ok) return handleOutOfDate(interaction, ticket.id, action);
+            return interaction.editReply({ content: `🔒 Ticket closed.${formatWarnings(result.warnings)}` });
         }
     }
 

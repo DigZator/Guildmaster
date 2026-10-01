@@ -1,14 +1,17 @@
 const { randomUUID } = require('crypto');
 const {
     ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder,
-    ChannelType,
+    ChannelType, OverwriteType, PermissionFlagsBits, PermissionsBitField,
 } = require('discord.js');
 
 const { getTicketType } = require('../config/ticketTypes');
 const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../config/ticketGuildConfig');
 const ticketStore = require('../utils/ticketStore');
-const { buildTranscriptChunks } = require('../utils/ticketTranscript');
+const { buildTranscript, sendTranscript, formatStamp } = require('../utils/ticketTranscript');
+const { reportError } = require('../utils/errorReporter');
 const { encodeId } = require('../interactions/ticketId');
+
+const creating = new Set();
 
 function actionRow(ticketId, status, claimerId) {
     const buttons = [];
@@ -40,111 +43,197 @@ function confirmRow(ticketId, action) {
     );
 }
 
-// ─── Create ─────────────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
+const STATUS_TEXT = {
+    open: 'open',
+    closed: 'closed',
+    filing: 'being filed right now',
+    filed: 'already filed',
+};
+
+function describeStatus(status) {
+    return STATUS_TEXT[status] ?? status;
+}
+
+function slugifyName(name) {
+    return String(name ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+async function resolveRaiserName(client, ticket) {
+    if (ticket.raiserName) return ticket.raiserName;
+    const user = await client.users.fetch(ticket.raiserId).catch(() => null);
+    return user?.username ?? null;
+}
+
+function buildTicketOverwrites(category, raiserId) {
+    const raiserBits = [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages];
+
+    const overwrites = [...category.permissionOverwrites.cache.values()]
+        .filter(ow => ow.id !== raiserId)
+        .map(ow => ({ id: ow.id, type: ow.type, allow: ow.allow.bitfield, deny: ow.deny.bitfield }));
+
+    const existing = category.permissionOverwrites.cache.get(raiserId);
+    const allow = new PermissionsBitField(existing?.allow ?? 0n).add(raiserBits);
+    const deny = new PermissionsBitField(existing?.deny ?? 0n).remove(raiserBits);
+    overwrites.push({ id: raiserId, type: OverwriteType.Member, allow: allow.bitfield, deny: deny.bitfield });
+
+    return overwrites;
+}
+
+async function syncControlMessage(guild, ticket) {
+    if (!ticket.controlMessageId || !ticket.channelId) return false;
+    try {
+        const channel = guild.channels.cache.get(ticket.channelId) ?? await guild.channels.fetch(ticket.channelId);
+        if (!channel) return false;
+        const msg = await channel.messages.fetch(ticket.controlMessageId);
+        await msg.edit({ components: actionRow(ticket.id, ticket.status, ticket.claimerId) });
+        return true;
+    } catch (err) {
+        console.warn(`[ticketFlow] Could not refresh ticket message for ${ticket.id}:`, err.message);
+        return false;
+    }
+}
+
+// ─── Create ─────────────────────────────────────────────────────────────────
 async function createTicket(interaction, typeKey, submissionData) {
     const type = getTicketType(typeKey);
     if (!type) {
         return interaction.editReply({ content: `❌ Unknown ticket type \`${typeKey}\`.` });
     }
-    const categoryId = type.categoryId || getCategoryIdForGroup(type.categoryGroup);
-    if (!categoryId) {
-        return interaction.editReply({ content: `❌ No ticket category configured for this type (\`${type.categoryGroup || 'normal'}\`). An admin needs to run \`/ticket config\` first.` });
+
+    const lockKey = `${interaction.user.id}:${type.key}`;
+    if (creating.has(lockKey)) {
+        return interaction.editReply({ content: '⏳ Your ticket is already being created — give it a moment.' });
     }
+    creating.add(lockKey);
 
-    const category = await interaction.guild.channels.fetch(categoryId).catch(() => null);
-    if (!category) {
-        return interaction.editReply({ content: `❌ The configured ticket category no longer exists. An admin needs to run \`/ticket config\` again.` });
+    let channel = null;
+    let record = null;
+
+    try {
+        const categoryId = type.categoryId || getCategoryIdForGroup(type.categoryGroup);
+        if (!categoryId) {
+            return await interaction.editReply({ content: `❌ No ticket category configured for this type (\`${type.categoryGroup || 'normal'}\`). An admin needs to run \`/ticket config\` first.` });
+        }
+
+        const category = await interaction.guild.channels.fetch(categoryId).catch(() => null);
+        if (!category) {
+            return await interaction.editReply({ content: `❌ The configured ticket category no longer exists. An admin needs to run \`/ticket config\` again.` });
+        }
+
+        const number = await ticketStore.nextTicketNumber(type.slug);
+        const rawUsername = slugifyName(interaction.user.username);
+        const tag = type.channelTag || type.slug;
+        const channelName = `${tag}-${number}-${rawUsername}`.slice(0, 100);
+
+        channel = await interaction.guild.channels.create({
+            name: channelName,
+            type: ChannelType.GuildText,
+            parent: categoryId,
+            permissionOverwrites: buildTicketOverwrites(category, interaction.user.id),
+        });
+
+        const ticketId = randomUUID();
+        record = {
+            id: ticketId,
+            ticketNumber: number,
+            type: type.key,
+            raiserId: interaction.user.id,
+            raiserName: interaction.user.username,
+            channelId: channel.id,
+            logThreadId: null,
+            claimerId: null,
+            status: 'open',
+            createdAt: Date.now(),
+            closedAt: null,
+            filedAt: null,
+            closeReason: null,
+            closeFeedback: null,
+            closedBy: null,
+            filedBy: null,
+            submissionData,
+            controlMessageId: null,
+        };
+        await ticketStore.addTicket(record);
+
+        const embed = new EmbedBuilder()
+            .setTitle(`${type.buttonEmoji} ${type.label} — #${number}`)
+            .setDescription(submissionData.details || '*No additional details provided.*')
+            .addFields(
+                { name: 'Reason', value: submissionData.reason || '—' },
+                { name: 'Name / Identification', value: submissionData.identification || '—' },
+            )
+            .setFooter({ text: claimLine(null).replace('🔧 ', '') })
+            .setColor(0x5865f2)
+            .setTimestamp();
+
+        const pingTarget = type.pingTargetId ? `<@&${type.pingTargetId}>` : '';
+        const controlMessage = await channel.send({
+            content: `<@${interaction.user.id}> ${pingTarget}`.trim(),
+            embeds: [embed],
+            components: actionRow(ticketId, 'open', null),
+        });
+
+        await ticketStore.updateTicket(ticketId, { controlMessageId: controlMessage.id });
+
+        await interaction.editReply({ content: `✅ Ticket created: ${channel}` })
+            .catch(err => console.warn('[ticketFlow] Ticket created but the confirmation reply failed:', err.message));
+        return;
+    } catch (err) {
+        const leftovers = [];
+        if (record) {
+            await ticketStore.removeTicket(record.id).catch(removeErr => {
+                leftovers.push('ticket record');
+                console.error('[ticketFlow] Rollback: could not remove ticket record:', removeErr);
+            });
+        }
+        if (channel) {
+            await channel.delete('Ticket creation failed — rolling back').catch(deleteErr => {
+                leftovers.push(`channel <#${channel.id}>`);
+                console.error('[ticketFlow] Rollback: could not delete channel:', deleteErr);
+            });
+        }
+
+        await reportError(interaction.client, {
+            scope: '[Tickets]',
+            message: leftovers.length ? 'Ticket creation failed and the rollback was incomplete' : 'Ticket creation failed (rolled back cleanly)',
+            error: err,
+            context: {
+                raiser: `<@${interaction.user.id}>`,
+                type: type.key,
+                ...(leftovers.length ? { 'needs manual cleanup': leftovers.join(', ') } : {}),
+            },
+        });
+
+        return interaction.editReply({
+            content: leftovers.length
+                ? '❌ Something went wrong creating your ticket. Please contact a staff member — a leftover channel may need removing.'
+                : '❌ Something went wrong creating your ticket. Nothing was created — please try again.',
+        }).catch(() => {});
+    } finally {
+        creating.delete(lockKey);
     }
-
-    const number = await ticketStore.nextTicketNumber(type.slug);
-    const rawUsername = interaction.user.username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    const tag = type.channelTag || type.slug;
-    const channelName = `${tag}-${number}-${rawUsername}`.slice(0, 100);
-
-    const channel = await interaction.guild.channels.create({
-        name: channelName,
-        type: ChannelType.GuildText,
-        parent: categoryId,
-    });
-
-    await channel.permissionOverwrites.create(interaction.user.id, {
-        ViewChannel: true,
-        SendMessages: true,
-    });
-
-    const ticketId = randomUUID();
-    const record = {
-        id: ticketId,
-        ticketNumber: number,
-        type: type.key,
-        raiserId: interaction.user.id,
-        channelId: channel.id,
-        logThreadId: null,
-        claimerId: null,
-        status: 'open',
-        createdAt: Date.now(),
-        closedAt: null,
-        filedAt: null,
-        closeReason: null,
-        closeFeedback: null,
-        closedBy: null,
-        submissionData,
-        controlMessageId: null,
-    };
-    await ticketStore.addTicket(record);
-
-    const embed = new EmbedBuilder()
-        .setTitle(`${type.buttonEmoji} ${type.label} — #${number}`)
-        .setDescription(submissionData.details || '*No additional details provided.*')
-        .addFields(
-            { name: 'Reason', value: submissionData.reason || '—' },
-            { name: 'Name / Identification', value: submissionData.identification || '—' },
-        )
-        .setFooter({ text: claimLine(null).replace('🔧 ', '') })
-        .setColor(0x5865f2)
-        .setTimestamp();
-
-    const pingTarget = type.pingTargetId ? `<@&${type.pingTargetId}>` : '';
-    const controlMessage = await channel.send({
-        content: `<@${interaction.user.id}> ${pingTarget}`.trim(),
-        embeds: [embed],
-        components: actionRow(ticketId, 'open', null),
-    });
-
-    await ticketStore.updateTicket(ticketId, { controlMessageId: controlMessage.id });
-
-    await interaction.editReply({ content: `✅ Ticket created: ${channel}` });
 }
 
 // ─── Claim / Unclaim ────────────────────────────────────────────────────────
-
 async function claimTicket(interaction, ticket) {
-    const updated = await ticketStore.updateTicket(ticket.id, { claimerId: interaction.user.id });
-    await refreshTicketMessage(interaction, updated);
+    const result = await ticketStore.transitionTicket(ticket.id, ['open'], { claimerId: interaction.user.id });
+    if (!result.ok) return result;
+    await syncControlMessage(interaction.guild, result.ticket);
     await interaction.reply({ content: claimLine(interaction.user.id) });
+    return result;
 }
 
 async function unclaimTicket(interaction, ticket) {
-    const updated = await ticketStore.updateTicket(ticket.id, { claimerId: null });
-    await refreshTicketMessage(interaction, updated);
+    const result = await ticketStore.transitionTicket(ticket.id, ['open'], { claimerId: null });
+    if (!result.ok) return result;
+    await syncControlMessage(interaction.guild, result.ticket);
     await interaction.reply({ content: claimLine(null) });
-}
-
-async function refreshTicketMessage(interaction, ticket) {
-    if (!ticket.controlMessageId || !ticket.channelId) return;
-    try {
-        const channel = interaction.guild.channels.cache.get(ticket.channelId);
-        if (!channel) return;
-        const msg = await channel.messages.fetch(ticket.controlMessageId);
-        await msg.edit({ components: actionRow(ticket.id, ticket.status, ticket.claimerId) });
-    } catch (err) {
-        console.warn(`[ticketFlow] Could not refresh ticket message for ${ticket.id}:`, err.message);
-    }
+    return result;
 }
 
 // ─── Close ──────────────────────────────────────────────────────────────────
-
 async function promptCloseConfirm(interaction, ticket) {
     await interaction.reply({
         content: '⚠️ Close this ticket? The raiser will lose visibility.',
@@ -174,30 +263,50 @@ async function promptCloseFeedbackModal(interaction, ticket) {
 }
 
 async function finalizeClose(interaction, ticket, { reason, feedback } = {}) {
-    const updated = await ticketStore.updateTicket(ticket.id, {
+    const result = await ticketStore.transitionTicket(ticket.id, ['open'], {
         status: 'closed',
         closedAt: Date.now(),
         closedBy: interaction.user.id,
         closeReason: reason || null,
         closeFeedback: feedback?.length ? feedback : null,
     });
+    if (!result.ok) return result;
+
+    const updated = result.ticket;
+    const warnings = [];
 
     const channel = interaction.guild.channels.cache.get(ticket.channelId);
-    if (channel) {
-        await channel.permissionOverwrites.edit(ticket.raiserId, { ViewChannel: false }).catch(() => {});
-        if (ticket.controlMessageId) {
-            const msg = await channel.messages.fetch(ticket.controlMessageId).catch(() => null);
-            if (msg) await msg.edit({ components: actionRow(ticket.id, 'closed', updated.claimerId) }).catch(() => {});
-        }
-        await channel.send(`🔒 Ticket closed by <@${interaction.user.id}>. Reason: ${reason || 'No feedback provided'}`);
-        await channel.send('⚠️ Reminder: filing this ticket will **not** preserve images/attachments in the log — save anything important separately before filing.');
+    if (!channel) {
+        warnings.push('The ticket channel could not be found.');
+        return { ok: true, ticket: updated, warnings };
     }
 
-    return updated;
+    try {
+        await channel.permissionOverwrites.edit(ticket.raiserId, { ViewChannel: false });
+    } catch (err) {
+        console.warn(`[ticketFlow] Could not hide closed ticket ${ticket.id} from the raiser:`, err.message);
+        warnings.push(`I couldn't remove the raiser's access — they may still see the channel (${err.message}).`);
+    }
+
+    if (!(await syncControlMessage(interaction.guild, updated))) {
+        warnings.push("I couldn't update the ticket's buttons.");
+    }
+
+    try {
+        await channel.send({
+            content: `🔒 Ticket closed by <@${interaction.user.id}>. Reason: ${reason || 'No feedback provided'}`,
+            allowedMentions: { parse: [] },
+        });
+        await channel.send('ℹ️ Filing this ticket saves a transcript (including the request details) and reposts attachments to the log. Anything too large or that can\'t be downloaded is listed as not preserved — save anything important separately before filing.');
+    } catch (err) {
+        console.warn(`[ticketFlow] Could not post the close notice for ${ticket.id}:`, err.message);
+        warnings.push("I couldn't post the close notice in the channel.");
+    }
+
+    return { ok: true, ticket: updated, warnings };
 }
 
 // ─── Resurrect ──────────────────────────────────────────────────────────────
-
 async function promptResurrectConfirm(interaction, ticket) {
     await interaction.reply({
         content: '♻️ Resurrect this ticket? The raiser will regain visibility.',
@@ -207,22 +316,43 @@ async function promptResurrectConfirm(interaction, ticket) {
 }
 
 async function finalizeResurrect(interaction, ticket) {
-    const updated = await ticketStore.updateTicket(ticket.id, { status: 'open', closedAt: null, closedBy: null, closeReason: null, closeFeedback: null });
+    const result = await ticketStore.transitionTicket(ticket.id, ['closed'], {
+        status: 'open', closedAt: null, closedBy: null, closeReason: null, closeFeedback: null,
+    });
+    if (!result.ok) return result;
+
+    const updated = result.ticket;
+    const warnings = [];
 
     const channel = interaction.guild.channels.cache.get(ticket.channelId);
-    if (channel) {
-        await channel.permissionOverwrites.edit(ticket.raiserId, { ViewChannel: true, SendMessages: true }).catch(() => {});
-        await channel.send({ content: `♻️ Ticket resurrected by <@${interaction.user.id}>.`, components: actionRow(ticket.id, 'open', updated.claimerId) });
+    if (!channel) {
+        warnings.push('The ticket channel could not be found.');
+        return { ok: true, ticket: updated, warnings };
     }
 
-    return updated;
+    try {
+        await channel.permissionOverwrites.edit(ticket.raiserId, { ViewChannel: true, SendMessages: true });
+    } catch (err) {
+        console.warn(`[ticketFlow] Could not restore raiser access for ${ticket.id}:`, err.message);
+        warnings.push(`I couldn't restore the raiser's access (${err.message}).`);
+    }
+
+    if (!(await syncControlMessage(interaction.guild, updated))) {
+        warnings.push("I couldn't update the ticket's buttons.");
+    }
+
+    await channel.send({
+        content: `♻️ Ticket resurrected by <@${interaction.user.id}>.`,
+        allowedMentions: { parse: [] },
+    }).catch(err => console.warn(`[ticketFlow] Could not post the resurrect notice for ${ticket.id}:`, err.message));
+
+    return { ok: true, ticket: updated, warnings };
 }
 
 // ─── File ───────────────────────────────────────────────────────────────────
-
 async function promptFileConfirm(interaction, ticket) {
     await interaction.reply({
-        content: '🗄️ File this ticket? This is **irreversible** — the channel will be deleted after the transcript is logged. ⚠️ Images/attachments in this ticket will **not** be preserved in the log.',
+        content: '🗄️ File this ticket? This is **irreversible** — the channel will be deleted once the transcript is logged. The transcript includes the request details, and attachments are reposted to the log where possible (anything too large or that can\'t be downloaded is listed as not preserved).',
         components: [confirmRow(ticket.id, 'file')],
         flags: 64,
     });
@@ -235,49 +365,89 @@ async function finalizeFile(interaction, ticket) {
     const channel = interaction.guild.channels.cache.get(ticket.channelId);
 
     if (!logChannel) {
-        await interaction.editReply({ content: `❌ No log channel configured for this ticket type (\`${type?.categoryGroup || 'normal'}\`). An admin needs to run \`/ticket config\` first. Filing aborted.` });
-        return null;
+        return { ok: false, reason: 'config', message: `❌ No log channel configured for this ticket type (\`${type?.categoryGroup || 'normal'}\`). An admin needs to run \`/ticket config\` first. Filing aborted.` };
     }
     if (!channel) {
-        await interaction.editReply({ content: '❌ Ticket channel no longer exists.' });
-        return null;
+        return { ok: false, reason: 'channel', message: '❌ Ticket channel no longer exists.' };
     }
 
-    const header = `Ticket #${ticket.ticketNumber} — ${type?.label || ticket.type} — raised by <@${ticket.raiserId}>`;
-    const chunks = await buildTranscriptChunks(channel, {
-        header,
-        closeReason: ticket.closeReason,
-        closeFeedback: ticket.closeFeedback,
-    });
+    const claimed = await ticketStore.transitionTicket(ticket.id, ['closed'], { status: 'filing' });
+    if (!claimed.ok) return claimed;
 
-    let thread = ticket.logThreadId ? await logChannel.threads.fetch(ticket.logThreadId).catch(() => null) : null;
-    if (!thread) {
+    const warnings = [];
+    const filedAt = Date.now();
+
+    try {
+        const raiserName = await resolveRaiserName(interaction.client, ticket);
         const tag = type?.channelTag || type?.slug || ticket.type;
-        thread = await logChannel.threads.create({
-            name: `${tag}-${ticket.ticketNumber}-${ticket.raiserId}`.slice(0, 100),
-            reason: `Ticket ${ticket.id} filed`,
-        });
-    }
 
-    for (const chunk of chunks) {
-        await thread.send(chunk);
+        let thread = ticket.logThreadId ? await logChannel.threads.fetch(ticket.logThreadId).catch(() => null) : null;
+        const isRetry = Boolean(thread);
+        if (!thread) {
+            thread = await logChannel.threads.create({
+                name: `${tag}-${ticket.ticketNumber}-${slugifyName(raiserName) || ticket.raiserId}`.slice(0, 100),
+                reason: `Ticket ${ticket.id} filed`,
+            });
+        }
+        if (thread.id !== ticket.logThreadId) {
+            await ticketStore.updateTicket(ticket.id, { logThreadId: thread.id });
+        }
+        if (isRetry) {
+            await thread.send({ content: '-# ↻ An earlier filing attempt was interrupted — the transcript restarts below.', allowedMentions: { parse: [] } });
+        }
+
+        const meta = [
+            ['Raised by', `<@${ticket.raiserId}>${raiserName ? ` (${raiserName})` : ''}`],
+            ['Opened', formatStamp(ticket.createdAt)],
+            ticket.closedAt ? ['Closed', `${formatStamp(ticket.closedAt)}${ticket.closedBy ? ` by <@${ticket.closedBy}>` : ''}`] : null,
+            ['Close reason', ticket.closeReason || 'No reason given'],
+            ['Close feedback', ticket.closeFeedback?.length ? ticket.closeFeedback : 'No feedback provided'],
+            ['Filed by', `<@${interaction.user.id}> — ${formatStamp(filedAt)}`],
+        ].filter(Boolean);
+
+        const transcript = await buildTranscript(channel, {
+            header: `🎫 Ticket #${ticket.ticketNumber} — ${type?.label || ticket.type}`,
+            meta,
+            preserveAttachments: true,
+        });
+
+        const sent = await sendTranscript(thread, transcript);
+        if (sent.notPreserved.length) {
+            warnings.push(`${sent.notPreserved.length} attachment(s) could not be preserved — they are listed at the end of the log.`);
+        }
+    } catch (err) {
+        await ticketStore.updateTicket(ticket.id, { status: 'closed' });
+        await reportError(interaction.client, {
+            scope: '[Tickets]',
+            message: `Filing ticket #${ticket.ticketNumber} failed before the channel was deleted`,
+            error: err,
+            context: { ticket: ticket.id, filedBy: `<@${interaction.user.id}>` },
+        });
+        return { ok: false, reason: 'error', message: `❌ Filing failed: ${err.message}\nThe ticket is still closed and its channel is untouched — you can try again.` };
     }
 
     const updated = await ticketStore.updateTicket(ticket.id, {
         status: 'filed',
-        filedAt: Date.now(),
-        channelId: null,
-        logThreadId: thread.id,
+        filedAt,
+        filedBy: interaction.user.id,
     });
 
-    await channel.delete().catch(err => console.warn(`[ticketFlow] Failed to delete filed ticket channel:`, err.message));
+    try {
+        await channel.delete(`Ticket ${ticket.id} filed`);
+        await ticketStore.updateTicket(ticket.id, { channelId: null });
+    } catch (err) {
+        console.warn('[ticketFlow] Failed to delete filed ticket channel:', err.message);
+        warnings.push(`The transcript is saved, but I couldn't delete <#${channel.id}> — please delete it manually (${err.message}).`);
+    }
 
-    return updated;
+    return { ok: true, ticket: updated, warnings };
 }
 
 module.exports = {
     actionRow,
     claimLine,
+    describeStatus,
+    syncControlMessage,
     createTicket,
     claimTicket,
     unclaimTicket,

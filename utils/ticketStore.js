@@ -76,6 +76,45 @@ function updateTicket(id, patch) {
     });
 }
 
+function transitionTicket(id, allowedStatuses, patch) {
+    return withLock('__tickets__', () => {
+        const tickets = loadTickets();
+        const idx = tickets.findIndex(t => t.id === id);
+        if (idx === -1) return { ok: false, reason: 'missing' };
+        if (!allowedStatuses.includes(tickets[idx].status)) {
+            return { ok: false, reason: 'status', ticket: tickets[idx] };
+        }
+        tickets[idx] = { ...tickets[idx], ...patch };
+        saveTickets(tickets);
+        return { ok: true, ticket: tickets[idx] };
+    });
+}
+
+function removeTicket(id) {
+    return withLock('__tickets__', () => {
+        const tickets = loadTickets();
+        const remaining = tickets.filter(t => t.id !== id);
+        if (remaining.length === tickets.length) return false;
+        saveTickets(remaining);
+        return true;
+    });
+}
+
+function recoverInterruptedFilings() {
+    return withLock('__tickets__', () => {
+        const tickets = loadTickets();
+        let recovered = 0;
+        for (const ticket of tickets) {
+            if (ticket.status === 'filing') {
+                ticket.status = 'closed';
+                recovered++;
+            }
+        }
+        if (recovered) saveTickets(tickets);
+        return recovered;
+    });
+}
+
 module.exports = {
     nextTicketNumber,
     resetCounter,
@@ -86,4 +125,7 @@ module.exports = {
     getTicketById,
     addTicket,
     updateTicket,
+    transitionTicket,
+    removeTicket,
+    recoverInterruptedFilings,
 };

@@ -20,6 +20,7 @@ const theLongRest 		= require('../buttons/theLongRest');
 const leagueDashboard 	= require('../buttons/leagueDashboard');
 const archive 			= require('../buttons/archive');
 const tableAdmin 		= require('../buttons/tableAdmin');
+const createCampaign 	= require('../buttons/createCampaign');
 
 const exactHandlers = {
     ...memorial.exact,
@@ -32,6 +33,7 @@ const exactHandlers = {
     ...theLongRest.exact,
     ...leagueDashboard.exact,
     ...archive.exact,
+    ...createCampaign.exact,
 };
 
 const prefixHandlers = {

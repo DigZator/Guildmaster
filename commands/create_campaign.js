@@ -1,4 +1,4 @@
-const { EmbedBuilder, ChannelType, PermissionFlagsBits } = require('discord.js');
+const { EmbedBuilder, ChannelType, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
 const {
@@ -17,10 +17,10 @@ const ADVENTURER_ROLE_ID = process.env.ADVENTURER_ROLE_ID;
 const DM_ROLE_ID         = process.env.DM_ROLE_ID;
 
 const MAX_PLAYERS       = 6;
-const MAX_NAME_LENGTH   = 92;     // "[Table] " (8 chars) + name must fit Discord's 100-char channel limit
+const MAX_NAME_LENGTH   = 92;     // "[Table] " (8 chars) + name - 100-char channel limit
 const GUILD_ROLE_LIMIT  = 250;
 const GUILD_CHAN_LIMIT  = 500;
-const EMBED_BUDGET      = 5500;   // Discord caps a message's embeds at 6000 characters combined
+const EMBED_BUDGET      = 5500;   // Discord caps a message's embeds at 6000 characters
 
 const ICON = {
     ok:         '✅',
@@ -42,10 +42,12 @@ const ERROR_HINTS = {
     50035: 'Discord rejected the request as invalid',
 };
 
-// Campaigns currently being created, so two admins can't race on the same name.
+// Campaigns currently being created, so two admins can't race
 const inProgress = new Set();
 
-// ── Small helpers ───────────────────────────────────────────────────────────
+const pendingPreviews = new Map();
+const PREVIEW_TTL_MS = 5 * 60 * 1000;
+const PLACEHOLDER_CAMPAIGN_ROLE = 'campaign-role-not-created-yet';   // stands in for the role in the predicted matrix
 
 function slugify(input) {
     return input
@@ -164,7 +166,6 @@ async function preflight(interaction, opts) {
         problems.push('`ADMINS_ROLE_ID`, `CLANKERS_ROLE_ID` and `ADVENTURER_ROLE_ID` must be three different roles.');
     }
 
-    // Fresh server state
     let roles = null;
     let channels = null;
     try {
@@ -236,7 +237,7 @@ async function preflight(interaction, opts) {
         }
     }
 
-    // Players (optional, best-effort: bad entries are skipped and reported, not fatal)
+    // Players
     const seen = new Set([opts.dmUser.id]);
     const playerPlan = [];
     for (const { slot, user } of opts.playerUsers) {
@@ -268,7 +269,6 @@ async function preflight(interaction, opts) {
 }
 
 // ── Rollback ────────────────────────────────────────────────────────────────
-
 async function deleteWithRetry(object, reason) {
     let lastError;
     for (let attempt = 1; attempt <= 2; attempt++) {
@@ -520,12 +520,10 @@ const OUTCOME_STYLE = {
     rollback_incomplete: { color: 0x992d22, title: '🚨 Campaign Failed — Rollback INCOMPLETE, manual cleanup needed' },
 };
 
-function buildReportEmbeds({ interaction, opts, plan, result }) {
-    const outcome = outcomeOf(result);
-    const style = OUTCOME_STYLE[outcome];
+// The admin's answers, as shown in both the preview and the final report.
+function conditionLines(opts) {
     const spectatorsSeeVoice = opts.readChat || opts.joinVoice;
-
-    const conditions = [
+    return [
         `**Campaign name:** ${opts.rawName.trim()}`,
         `**DM:** <@${opts.dmUser.id}>`,
         `**Use stage:** ${yn(opts.useStage)}`,
@@ -535,6 +533,12 @@ function buildReportEmbeds({ interaction, opts, plan, result }) {
         `**Spectators send chat in voice:** ${yn(opts.sendVoiceChat)}${spectatorsSeeVoice ? '' : ' _(not applied — voice is hidden)_'}`,
         `**Players:** ${opts.playerUsers.length ? opts.playerUsers.map(p => `<@${p.user.id}>`).join(' ') : 'none'}`,
     ].join('\n');
+}
+
+function buildReportEmbeds({ interaction, opts, plan, result }) {
+    const outcome = outcomeOf(result);
+    const style = OUTCOME_STYLE[outcome];
+    const conditions = conditionLines(opts);
 
     const summary = new EmbedBuilder()
         .setColor(style.color)
@@ -620,7 +624,6 @@ async function deliverReport(interaction, embeds) {
     const guild = interaction.guild;
     const chunks = chunkEmbeds(embeds);
 
-    // 1. Ephemeral reply to the admin
     try {
         await interaction.editReply({ content: '', embeds: chunks[0] });
         for (const chunk of chunks.slice(1)) {
@@ -630,7 +633,6 @@ async function deliverReport(interaction, embeds) {
         console.error('[create_campaign] ⚠️ Failed to deliver the ephemeral report:', err);
     }
 
-    // 2. Guildmaster control channel
     let ctrlError = null;
     if (!GUILDMASTER_CTRL_CHANNEL_ID) {
         ctrlError = '`GUILDMASTER_CTRL_CHANNEL_ID` is not configured';
@@ -660,8 +662,119 @@ async function deliverReport(interaction, embeds) {
     }
 }
 
-// ── Entry point ─────────────────────────────────────────────────────────────
+// ── Preview ─────────────────────────────────────────────────────────────────
 
+function buildPreview(interaction, opts, plan) {
+    const ids = { ...plan.roleIds, campaign: PLACEHOLDER_CAMPAIGN_ROLE };
+    const overwrites = buildOverwrites({
+        ids,
+        readChat: opts.readChat,
+        sendMessages: opts.sendMessages,
+        joinVoice: opts.joinVoice,
+        sendVoiceChat: opts.sendVoiceChat,
+        useStage: opts.useStage,
+        moderateStage: plan.moderateStage,
+    });
+
+    const matrixFor = kind => renderMatrix(
+        columnsFor(kind, { useStage: opts.useStage, moderateStage: plan.moderateStage }),
+        overwritesToMap(overwrites[kind], ids),
+    );
+
+    const willCreate = [
+        `**Role:** ${plan.roleName}`,
+        `**Category:** ${plan.categoryName}`,
+        `**Text channel:** #${plan.textName}`,
+        `**${opts.useStage ? 'Stage' : 'Voice'} channel:** ${plan.voiceName}`,
+    ].join('\n');
+
+    const people = [`**DM:** <@${opts.dmUser.id}>${plan.dmNeedsRole ? ' — will also be given the DM role' : ''}`];
+    for (const p of plan.playerPlan) {
+        people.push(`**Player ${p.slot}:** <@${p.user.id}>${p.skip ? ` — ⏭️ will be skipped (${p.skip})` : ''}`);
+    }
+
+    const summary = new EmbedBuilder()
+        .setColor(0x5865f2)
+        .setTitle('📝 Create campaign — preview')
+        .setDescription('**Nothing has been created yet.** Check the details below, then confirm.')
+        .addFields(
+            { name: 'Will be created', value: clip(willCreate, 1024), inline: false },
+            { name: 'People', value: clip(people.join('\n'), 1024), inline: false },
+            { name: 'Your answers', value: clip(conditionLines(opts), 1024), inline: false },
+        );
+
+    const matrix = new EmbedBuilder()
+        .setColor(0x5865f2)
+        .setTitle('Planned permission matrix')
+        .setDescription('✔ allowed · ✖ denied · – not set (server defaults apply)\nSpectators = the Adventurer role. The Campaign role holds the DM and players.')
+        .addFields(
+            { name: 'Category', value: matrixFor('category'), inline: false },
+            { name: 'Text channel', value: matrixFor('text'), inline: false },
+            { name: opts.useStage ? 'Stage channel' : 'Voice channel', value: matrixFor('voice'), inline: false },
+        )
+        .setFooter({ text: `This preview expires in ${PREVIEW_TTL_MS / 60000} minutes. Everything is re-checked when you confirm.` });
+
+    const buttons = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('create_campaign_confirm').setLabel('Create campaign').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId('create_campaign_cancel').setLabel('Cancel').setStyle(ButtonStyle.Secondary),
+    );
+
+    return { embeds: [summary, matrix], components: [buttons] };
+}
+
+function discardPreview(userId) {
+    const pending = pendingPreviews.get(userId);
+    if (!pending) return null;
+    clearTimeout(pending.timer);
+    pendingPreviews.delete(userId);
+    return pending;
+}
+
+function problemsEmbed(problems, title) {
+    return new EmbedBuilder()
+        .setColor(0xed4245)
+        .setTitle(title)
+        .setDescription(clip(problems.map(p => `• ${p}`).join('\n'), 4000));
+}
+
+// ── Running a confirmed campaign ────────────────────────────────────────────
+
+async function runCampaign(interaction, opts, plan) {
+    const lockKey = opts.rawName.trim().toLowerCase();
+
+    if (inProgress.has(lockKey)) {
+        await interaction.editReply({ content: `❌ A campaign named \`${opts.rawName.trim()}\` is already being created. Wait for it to finish.`, embeds: [], components: [] });
+        return;
+    }
+    inProgress.add(lockKey);
+
+    try {
+        const result = await execute(interaction, opts, plan);
+
+        let embeds;
+        try {
+            embeds = buildReportEmbeds({ interaction, opts, plan, result });
+        } catch (err) {
+            console.error('[create_campaign] ⚠️ Failed to build the report embeds:', err);
+            await interaction.editReply({ content: fallbackText(result), embeds: [], components: [] }).catch(() => {});
+            return;
+        }
+
+        await deliverReport(interaction, embeds);
+        console.log(`[create_campaign] Finished "${plan.baseName}" — outcome: ${outcomeOf(result)}`);
+    } catch (err) {
+        console.error('[create_campaign] ❌ Unexpected error:', err);
+        await interaction.editReply({
+            content: `❌ Unexpected error: \`${clip(describeError(err), 500)}\`\nCheck the campaign's role/category/channels manually and the bot logs.`,
+            embeds: [],
+            components: [],
+        }).catch(() => {});
+    } finally {
+        inProgress.delete(lockKey);
+    }
+}
+
+// ── Entry point ─────────────────────────────────────────────────────────────
 module.exports = async (interaction) => {
     if (!isAdminChannel(interaction, 'botAdmin')) {
         await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
@@ -675,47 +788,83 @@ module.exports = async (interaction) => {
     await interaction.deferReply({ flags: 64 });
 
     const opts = readOptions(interaction);
-    const lockKey = opts.rawName.trim().toLowerCase();
-
-    if (inProgress.has(lockKey)) {
-        await interaction.editReply({ content: `❌ A campaign named \`${opts.rawName.trim()}\` is already being created. Wait for it to finish.` });
-        return;
-    }
-    inProgress.add(lockKey);
 
     try {
+        discardPreview(interaction.user.id);
+
         const { problems, plan } = await preflight(interaction, opts);
 
         if (problems.length) {
-            const embed = new EmbedBuilder()
-                .setColor(0xed4245)
-                .setTitle('❌ Campaign not created — nothing was changed')
-                .setDescription(clip(problems.map(p => `• ${p}`).join('\n'), 4000));
-            await interaction.editReply({ embeds: [embed] });
+            await interaction.editReply({ embeds: [problemsEmbed(problems, '❌ Campaign not created — nothing was changed')] });
             console.log(`[create_campaign] Preflight failed for "${opts.rawName.trim()}": ${problems.length} problem(s)`);
             return;
         }
 
-        const result = await execute(interaction, opts, plan);
+        const preview = await interaction.editReply({ content: '', ...buildPreview(interaction, opts, plan) });
 
-        let embeds;
-        try {
-            embeds = buildReportEmbeds({ interaction, opts, plan, result });
-        } catch (err) {
-            console.error('[create_campaign] ⚠️ Failed to build the report embeds:', err);
-            await interaction.editReply({ content: fallbackText(result), embeds: [] }).catch(() => {});
+        const timer = setTimeout(() => {
+            if (pendingPreviews.get(interaction.user.id)?.previewMessageId !== preview.id) return;
+            pendingPreviews.delete(interaction.user.id);
+            interaction.editReply({ content: '⌛ This preview expired — nothing was created. Run `/create_campaign` again.', embeds: [], components: [] }).catch(() => {});
+        }, PREVIEW_TTL_MS);
+
+        pendingPreviews.set(interaction.user.id, { opts, previewMessageId: preview.id, timer });
+    } catch (err) {
+        console.error('[create_campaign] ❌ Unexpected error while preparing the preview:', err);
+        await interaction.editReply({
+            content: `❌ Unexpected error: \`${clip(describeError(err), 500)}\`\nNothing was created.`,
+            embeds: [],
+            components: [],
+        }).catch(() => {});
+    }
+};
+
+// ── Button handlers (wired up in buttons/createCampaign.js) ─────────────────
+function claimPreview(interaction) {
+    const pending = pendingPreviews.get(interaction.user.id);
+    if (!pending) {
+        interaction.followUp({ content: '❌ This preview has expired or was already handled.', flags: 64 }).catch(() => {});
+        return null;
+    }
+    if (pending.previewMessageId !== interaction.message?.id) {
+        interaction.editReply({ content: '⚠️ This preview is outdated — a newer one replaced it.', embeds: [], components: [] }).catch(() => {});
+        return null;
+    }
+    // Claimed synchronously (no await since the lookup), so a double-click can't run it twice.
+    return discardPreview(interaction.user.id);
+}
+
+module.exports.confirmCampaign = async (interaction) => {
+    await interaction.deferUpdate();
+
+    const pending = claimPreview(interaction);
+    if (!pending) return;
+
+    try {
+        const { problems, plan } = await preflight(interaction, pending.opts);
+        if (problems.length) {
+            await interaction.editReply({ content: '', embeds: [problemsEmbed(problems, '❌ Campaign not created — things changed since the preview, nothing was changed')], components: [] });
+            console.log(`[create_campaign] Re-check failed for "${pending.opts.rawName.trim()}": ${problems.length} problem(s)`);
             return;
         }
 
-        await deliverReport(interaction, embeds);
-        console.log(`[create_campaign] Finished "${plan.baseName}" — outcome: ${outcomeOf(result)}`);
+        await interaction.editReply({ content: '⏳ Creating the campaign…', embeds: [], components: [] });
+        await runCampaign(interaction, pending.opts, plan);
     } catch (err) {
-        console.error('[create_campaign] ❌ Unexpected error:', err);
+        console.error('[create_campaign] ❌ Unexpected error on confirm:', err);
         await interaction.editReply({
             content: `❌ Unexpected error: \`${clip(describeError(err), 500)}\`\nCheck the campaign's role/category/channels manually and the bot logs.`,
             embeds: [],
+            components: [],
         }).catch(() => {});
-    } finally {
-        inProgress.delete(lockKey);
     }
+};
+
+module.exports.cancelCampaign = async (interaction) => {
+    await interaction.deferUpdate();
+
+    const pending = claimPreview(interaction);
+    if (!pending) return;
+
+    await interaction.editReply({ content: '❌ Cancelled — nothing was created.', embeds: [], components: [] });
 };
