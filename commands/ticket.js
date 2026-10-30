@@ -10,6 +10,12 @@ const {
 const { getConfig, setConfig } = require('../config/ticketGuildConfig');
 const { ticketCreateCustomId } = require('../buttons/ticket');
 const ticketStore = require('../utils/ticketStore');
+const ticketFlow = require('../flow/ticketFlow');
+const { getTicketType } = require('../config/ticketTypes');
+const { isTicketStaff, isTicketRaiser, denyMessage } = require('../utils/ticketPermissions');
+const { buildCreateModal } = require('../utils/ticketModals');
+
+const CLOSE_MODAL_WHEN_FEEDBACK_MISSING = false;
 
 function buildDashboardEmbed() {
     return new EmbedBuilder()
@@ -231,6 +237,70 @@ async function handleTypeRemove(interaction) {
     });
 }
 
+// ─── Player-facing commands ─────────────────────────────────────────────────
+function resolveType(input) {
+    const wanted = String(input || '').trim().toLowerCase();
+    if (!wanted) return null;
+    return getTicketType(wanted)
+        || loadTicketTypes().find(t => t.key.toLowerCase() === wanted || t.slug.toLowerCase() === wanted || t.label.toLowerCase() === wanted)
+        || null;
+}
+
+async function handleRaise(interaction) {
+    const type = resolveType(interaction.options.getString('type', true));
+    if (!type) {
+        return interaction.reply({ content: '❌ Unknown ticket type — pick one from the list as you type.', flags: 64 });
+    }
+
+    const reason = interaction.options.getString('reason')?.trim() || '';
+    const identification = interaction.options.getString('identification')?.trim() || '';
+    const details = interaction.options.getString('details')?.trim() || '';
+
+    if (reason && identification) {
+        await interaction.deferReply({ flags: 64 });
+        return ticketFlow.createTicket(interaction, type.key, { reason, identification, details });
+    }
+
+    return interaction.showModal(buildCreateModal(type, { reason, identification, details }));
+}
+
+async function handleClose(interaction) {
+    const ticket = ticketStore.getTicketByChannelId(interaction.channelId);
+    if (!ticket) {
+        return interaction.reply({ content: '❌ This command only works inside a ticket channel.', flags: 64 });
+    }
+
+    if (!isTicketStaff(interaction, ticket) && !isTicketRaiser(interaction, ticket)) {
+        return interaction.reply(denyMessage());
+    }
+
+    if (ticket.status !== 'open') {
+        return interaction.reply({
+            content: `⚠️ This ticket is ${ticketFlow.describeStatus(ticket.status)} — it can only be closed while it's open.`,
+            flags: 64,
+        });
+    }
+
+    const reason = interaction.options.getString('reason')?.trim() || '';
+    const feedback = interaction.options.getString('feedback')?.trim() || '';
+
+    if (!reason || (CLOSE_MODAL_WHEN_FEEDBACK_MISSING && !feedback)) {
+        return ticketFlow.promptCloseFeedbackModal(interaction, ticket, { reason, feedback });
+    }
+
+    await interaction.deferReply({ flags: 64 });
+    const result = await ticketFlow.finalizeClose(interaction, ticket, { reason, feedback });
+    if (!result.ok) {
+        const latest = ticketStore.getTicketById(ticket.id);
+        return interaction.editReply({
+            content: latest
+                ? `⚠️ This ticket is ${ticketFlow.describeStatus(latest.status)} — it can no longer be closed.`
+                : '❌ This ticket record no longer exists.',
+        });
+    }
+    return interaction.editReply({ content: `🔒 Ticket closed.${ticketFlow.formatWarnings(result.warnings)}` });
+}
+
 module.exports = async function ticket(interaction) {
     const group = interaction.options.getSubcommandGroup(false);
     const sub = interaction.options.getSubcommand();
@@ -242,6 +312,8 @@ module.exports = async function ticket(interaction) {
         if (sub === 'list') return handleTypeList(interaction);
     }
 
+    if (sub === 'raise') return handleRaise(interaction);
+    if (sub === 'close') return handleClose(interaction);
     if (sub === 'setup') return handleSetup(interaction);
     if (sub === 'config') return handleConfig(interaction);
     if (sub === 'reset_counter') return handleResetCounter(interaction);

@@ -1,20 +1,9 @@
-const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const { getTicketType } = require('../config/ticketTypes');
-const { isAdminChannel } = require('../utils/isAdminChannel');
+const { isTicketStaff, isTicketRaiser, isTicketCloser, fileDenyMessage, denyMessage } = require('../utils/ticketPermissions');
+const { buildCreateModal } = require('../utils/ticketModals');
 const ticketStore = require('../utils/ticketStore');
 const ticketFlow = require('../flow/ticketFlow');
 const { decodeId } = require('../interactions/ticketId');
-
-function isTicketStaff(interaction, ticket) {
-    if (isAdminChannel(interaction, 'botAdmin')) return true;
-    const type = getTicketType(ticket.type);
-    if (!type?.viewerRoleId) return false;
-    return interaction.member?.roles?.cache?.has(type.viewerRoleId) ?? false;
-}
-
-function isTicketRaiser(interaction, ticket) {
-    return interaction.user.id === ticket.raiserId;
-}
 
 const STAFF_ONLY_ACTIONS = new Set(['claim', 'unclaim', 'resurrect', 'resurrectYes', 'resurrectNo', 'file', 'fileYes', 'fileNo']);
 const RAISER_OR_STAFF_ACTIONS = new Set(['close', 'closeYes', 'closeNo']);
@@ -57,10 +46,6 @@ async function handleOutOfDate(interaction, ticketId, action) {
     }
 }
 
-function denyMessage() {
-    return { content: '❌ You don\'t have permission to do that on this ticket.', flags: 64 };
-}
-
 // ─── Dashboard type-select buttons (customId: `ticketCreate:<typeKey>`) ─────
 function ticketCreateCustomId(typeKey) {
     return `ticketCreate:${typeKey}`;
@@ -73,22 +58,7 @@ async function handleTicketCreateButton(interaction) {
         return interaction.reply({ content: '❌ Unknown ticket type.', flags: 64 });
     }
 
-    const modalTitle = type.modalTitle || type.label;
-    const modal = new ModalBuilder()
-        .setCustomId(`ticketCreateModal:${typeKey}`)
-        .setTitle(modalTitle.slice(0, 45))
-        .addComponents(
-            new ActionRowBuilder().addComponents(
-                new TextInputBuilder().setCustomId('reason').setLabel('Reason for raising the ticket').setStyle(TextInputStyle.Short).setRequired(true),
-            ),
-            new ActionRowBuilder().addComponents(
-                new TextInputBuilder().setCustomId('identification').setLabel('Name (and Game Name if relevant)').setStyle(TextInputStyle.Short).setRequired(true),
-            ),
-            new ActionRowBuilder().addComponents(
-                new TextInputBuilder().setCustomId('details').setLabel("What do you need? Extra info?").setStyle(TextInputStyle.Paragraph).setRequired(false),
-            ),
-        );
-
+    const modal = buildCreateModal(type);
     await interaction.showModal(modal);
 }
 
@@ -118,6 +88,14 @@ async function handleTicketButton(interaction) {
     const required = REQUIRED_STATUS[action];
     if (required && ticket.status !== required) {
         return handleOutOfDate(interaction, ticket.id, action);
+    }
+
+    if ((action === 'file' || action === 'fileYes') && await isTicketCloser(interaction, ticket)) {
+        const deny = fileDenyMessage();
+        if (action === 'fileYes') {
+            return interaction.update({ content: deny.content, components: [] });
+        }
+        return interaction.reply(deny);
     }
 
     switch (action) {
@@ -167,9 +145,7 @@ async function handleTicketButton(interaction) {
     }
 }
 
-function formatWarnings(warnings = []) {
-    return warnings.length ? `\n${warnings.map(w => `⚠️ ${w}`).join('\n')}` : '';
-}
+const { formatWarnings } = ticketFlow;
 
 // ─── Modal routing (called from modalHandler.js) ────────────────────────────
 async function handleTicketModal(interaction) {

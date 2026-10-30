@@ -1,7 +1,7 @@
 const { randomUUID } = require('crypto');
 const {
     ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder,
-    ChannelType, OverwriteType, PermissionFlagsBits, PermissionsBitField,
+    ChannelType, MessageType,
 } = require('discord.js');
 
 const { getTicketType } = require('../config/ticketTypes');
@@ -10,6 +10,9 @@ const ticketStore = require('../utils/ticketStore');
 const { buildTranscript, sendTranscript, formatStamp } = require('../utils/ticketTranscript');
 const { reportError } = require('../utils/errorReporter');
 const { encodeId } = require('../interactions/ticketId');
+const { buildCloseModal } = require('../utils/ticketModals');
+const { mention } = require('../utils/ticketCommands');
+const { isTicketCloser, fileDenyMessage } = require('../utils/ticketPermissions');
 
 const creating = new Set();
 
@@ -66,21 +69,6 @@ async function resolveRaiserName(client, ticket) {
     return user?.username ?? null;
 }
 
-function buildTicketOverwrites(category, raiserId) {
-    const raiserBits = [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages];
-
-    const overwrites = [...category.permissionOverwrites.cache.values()]
-        .filter(ow => ow.id !== raiserId)
-        .map(ow => ({ id: ow.id, type: ow.type, allow: ow.allow.bitfield, deny: ow.deny.bitfield }));
-
-    const existing = category.permissionOverwrites.cache.get(raiserId);
-    const allow = new PermissionsBitField(existing?.allow ?? 0n).add(raiserBits);
-    const deny = new PermissionsBitField(existing?.deny ?? 0n).remove(raiserBits);
-    overwrites.push({ id: raiserId, type: OverwriteType.Member, allow: allow.bitfield, deny: deny.bitfield });
-
-    return overwrites;
-}
-
 async function syncControlMessage(guild, ticket) {
     if (!ticket.controlMessageId || !ticket.channelId) return false;
     try {
@@ -93,6 +81,24 @@ async function syncControlMessage(guild, ticket) {
         console.warn(`[ticketFlow] Could not refresh ticket message for ${ticket.id}:`, err.message);
         return false;
     }
+}
+
+function formatWarnings(warnings = []) {
+    return warnings.length ? `\n${warnings.map(w => `⚠️ ${w}`).join('\n')}` : '';
+}
+
+async function pinControlMessage(channel, message) {
+    try {
+        await message.pin();
+    } catch (err) {
+        console.warn(`[ticketFlow] Could not pin the control message in ${channel.id}:`, err.message);
+        return false;
+    }
+    try {
+        const recent = await channel.messages.fetch({ limit: 5 });
+        await recent.find(m => m.type === MessageType.ChannelPinnedMessage)?.delete();
+    } catch { /* cosmetic only */ }
+    return true;
 }
 
 // ─── Create ─────────────────────────────────────────────────────────────────
@@ -131,8 +137,22 @@ async function createTicket(interaction, typeKey, submissionData) {
             name: channelName,
             type: ChannelType.GuildText,
             parent: categoryId,
-            permissionOverwrites: buildTicketOverwrites(category, interaction.user.id),
         });
+
+        try {
+            await channel.permissionOverwrites.edit(interaction.user.id, {
+                ViewChannel: true,
+                SendMessages: true,
+                UseApplicationCommands: true,
+            });
+        } catch (err) {
+            const mine = channel.permissionsFor(interaction.guild.members.me);
+            console.error(
+                `[ticketFlow] Could not grant raiser access on ${channel.id}. ` +
+                `Bot perms in new channel: ${mine ? mine.toArray().join(', ') : 'unresolvable'}`,
+            );
+            throw err;
+        }
 
         const ticketId = randomUUID();
         record = {
@@ -154,6 +174,7 @@ async function createTicket(interaction, typeKey, submissionData) {
             filedBy: null,
             submissionData,
             controlMessageId: null,
+            closeControlMessageId: null,
         };
         await ticketStore.addTicket(record);
 
@@ -163,6 +184,7 @@ async function createTicket(interaction, typeKey, submissionData) {
             .addFields(
                 { name: 'Reason', value: submissionData.reason || '—' },
                 { name: 'Name / Identification', value: submissionData.identification || '—' },
+                { name: '💡 Quick commands', value: `Use ${mention('close')} anywhere in this channel to close this ticket — no need to scroll up for the buttons.` },
             )
             .setFooter({ text: claimLine(null).replace('🔧 ', '') })
             .setColor(0x5865f2)
@@ -176,6 +198,7 @@ async function createTicket(interaction, typeKey, submissionData) {
         });
 
         await ticketStore.updateTicket(ticketId, { controlMessageId: controlMessage.id });
+        await pinControlMessage(channel, controlMessage);
 
         await interaction.editReply({ content: `✅ Ticket created: ${channel}` })
             .catch(err => console.warn('[ticketFlow] Ticket created but the confirmation reply failed:', err.message));
@@ -236,7 +259,7 @@ async function unclaimTicket(interaction, ticket) {
 // ─── Close ──────────────────────────────────────────────────────────────────
 async function promptCloseConfirm(interaction, ticket) {
     await interaction.reply({
-        content: '⚠️ Close this ticket? The raiser will lose visibility.',
+        content: `⚠️ Close this ticket? The raiser will lose visibility.\n-# 💡 You can also use ${mention('close')} to close tickets.`,
         components: [confirmRow(ticket.id, 'close')],
         flags: 64,
     });
@@ -246,20 +269,8 @@ async function cancelClose(interaction) {
     await interaction.update({ content: 'Cancelled.', components: [] });
 }
 
-async function promptCloseFeedbackModal(interaction, ticket) {
-    const { ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
-    const modal = new ModalBuilder()
-        .setCustomId(encodeId(ticket.id, 'closeFeedbackModal'))
-        .setTitle('Close Ticket')
-        .addComponents(
-            new ActionRowBuilder().addComponents(
-                new TextInputBuilder().setCustomId('reason').setLabel('Reason for closing').setStyle(TextInputStyle.Short).setRequired(true),
-            ),
-            new ActionRowBuilder().addComponents(
-                new TextInputBuilder().setCustomId('feedback').setLabel('Additional feedback').setStyle(TextInputStyle.Paragraph).setRequired(false),
-            ),
-        );
-    await interaction.showModal(modal);
+async function promptCloseFeedbackModal(interaction, ticket, prefill = {}) {
+    await interaction.showModal(buildCloseModal(ticket.id, prefill));
 }
 
 async function finalizeClose(interaction, ticket, { reason, feedback } = {}) {
@@ -293,11 +304,14 @@ async function finalizeClose(interaction, ticket, { reason, feedback } = {}) {
     }
 
     try {
-        await channel.send({
-            content: `🔒 Ticket closed by <@${interaction.user.id}>. Reason: ${reason || 'No feedback provided'}`,
+        const reasonText = (reason || 'No reason given').slice(0, 1000);
+        const closeMessage = await channel.send({
+            content: `🔒 Ticket closed by <@${interaction.user.id}>. Reason: ${reasonText}\n` +
+                'ℹ️ Filing this ticket saves a transcript (including the request details) and reposts attachments to the log. Anything too large or that can\'t be downloaded is listed as not preserved — save anything important separately before filing.',
+            components: actionRow(ticket.id, 'closed', null),
             allowedMentions: { parse: [] },
         });
-        await channel.send('ℹ️ Filing this ticket saves a transcript (including the request details) and reposts attachments to the log. Anything too large or that can\'t be downloaded is listed as not preserved — save anything important separately before filing.');
+        await ticketStore.updateTicket(ticket.id, { closeControlMessageId: closeMessage.id });
     } catch (err) {
         console.warn(`[ticketFlow] Could not post the close notice for ${ticket.id}:`, err.message);
         warnings.push("I couldn't post the close notice in the channel.");
@@ -317,7 +331,7 @@ async function promptResurrectConfirm(interaction, ticket) {
 
 async function finalizeResurrect(interaction, ticket) {
     const result = await ticketStore.transitionTicket(ticket.id, ['closed'], {
-        status: 'open', closedAt: null, closedBy: null, closeReason: null, closeFeedback: null,
+        status: 'open', closedAt: null, closedBy: null, closeReason: null, closeFeedback: null, closeControlMessageId: null,
     });
     if (!result.ok) return result;
 
@@ -331,7 +345,7 @@ async function finalizeResurrect(interaction, ticket) {
     }
 
     try {
-        await channel.permissionOverwrites.edit(ticket.raiserId, { ViewChannel: true, SendMessages: true });
+        await channel.permissionOverwrites.edit(ticket.raiserId, { ViewChannel: true, SendMessages: true, UseApplicationCommands: true });
     } catch (err) {
         console.warn(`[ticketFlow] Could not restore raiser access for ${ticket.id}:`, err.message);
         warnings.push(`I couldn't restore the raiser's access (${err.message}).`);
@@ -339,6 +353,11 @@ async function finalizeResurrect(interaction, ticket) {
 
     if (!(await syncControlMessage(interaction.guild, updated))) {
         warnings.push("I couldn't update the ticket's buttons.");
+    }
+
+    if (ticket.closeControlMessageId) {
+        await channel.messages.delete(ticket.closeControlMessageId)
+            .catch(err => console.warn(`[ticketFlow] Could not remove the close-controls message for ${ticket.id}:`, err.message));
     }
 
     await channel.send({
@@ -359,6 +378,10 @@ async function promptFileConfirm(interaction, ticket) {
 }
 
 async function finalizeFile(interaction, ticket) {
+    if (await isTicketCloser(interaction, ticket)) {
+        return { ok: false, reason: 'closer', message: fileDenyMessage().content };
+    }
+
     const type = getTicketType(ticket.type);
     const logChannelId = getLogChannelIdForGroup(type?.categoryGroup);
     const logChannel = logChannelId ? interaction.guild.channels.cache.get(logChannelId) : null;
@@ -447,6 +470,7 @@ module.exports = {
     actionRow,
     claimLine,
     describeStatus,
+    formatWarnings,
     syncControlMessage,
     createTicket,
     claimTicket,

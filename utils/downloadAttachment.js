@@ -4,7 +4,7 @@ const https = require('https');
 const DEFAULT_MAX_BYTES = 25 * 1024 * 1024;
 const REDIRECT_CODES = [301, 302, 303, 307, 308];
 
-function downloadAttachment(url, dest, { maxBytes = DEFAULT_MAX_BYTES, redirects = 3 } = {}) {
+function downloadAttachment(url, dest, { maxBytes = DEFAULT_MAX_BYTES, redirects = 3, timeoutMs = 0 } = {}) {
     return new Promise((resolve, reject) => {
         const fail = err => {
             fs.unlink(dest, () => {});
@@ -16,7 +16,7 @@ function downloadAttachment(url, dest, { maxBytes = DEFAULT_MAX_BYTES, redirects
                 res.resume();
                 if (redirects <= 0) return reject(new Error('Too many redirects'));
                 const next = new URL(res.headers.location, url).toString();
-                return downloadAttachment(next, dest, { maxBytes, redirects: redirects - 1 }).then(resolve, reject);
+                return downloadAttachment(next, dest, { maxBytes, redirects: redirects - 1, timeoutMs }).then(resolve, reject);
             }
 
             if (res.statusCode !== 200) {
@@ -43,6 +43,7 @@ function downloadAttachment(url, dest, { maxBytes = DEFAULT_MAX_BYTES, redirects
             res.pipe(file);
         });
 
+        if (timeoutMs) req.setTimeout(timeoutMs, () => req.destroy(new Error('Download timed out')));
         req.on('error', fail);
     });
 }

@@ -1,14 +1,26 @@
+const fs = require('fs');
+const path = require('path');
+const { randomUUID } = require('crypto');
 const { AttachmentBuilder } = require('discord.js');
+const { downloadAttachment: downloadToFile } = require('./downloadAttachment');
 
 const DISCORD_CHUNK_LIMIT = 2000;
 const CHUNK_SIZE = DISCORD_CHUNK_LIMIT - 10;
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 const GROUP_GAP_MS = 5 * 60 * 1000;
 
-const MAX_ATTACHMENTS = 25;
+const TEMP_ROOT = path.join(__dirname, '../temp');
 const FILES_PER_MESSAGE = 10;
 const DOWNLOAD_TIMEOUT_MS = 20 * 1000;
+const DOWNLOAD_ATTEMPTS = 3;
+const DOWNLOAD_RETRY_BASE_MS = 1000;
+const DOWNLOAD_CONCURRENCY = 3;
 const MB = 1024 * 1024;
+
+const MEMORY_BATCH_MAX_BYTES = 32 * MB;
+
+const UNKNOWN_SIZE_ESTIMATE = 2 * MB;
+const MIN_FREE_DISK_BYTES = 50 * MB;
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -81,15 +93,31 @@ function renderEmbed(embed) {
     return lines.map(line => `> ${line}`);
 }
 
-function renderHistory(history, { preserveAttachments = false, maxFileBytes = 0 } = {}) {
+function nameFromUrl(url, fallback) {
+    try {
+        const base = path.basename(new URL(url).pathname);
+        return base && base.includes('.') ? base : fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+function renderHistory(history, {
+    preserveAttachments = false,
+    maxFileBytes = 0,
+    maxAttachments = Infinity,
+    includeEmbedImages = false,
+    labelSystemMessages = false,
+} = {}, state = {}) {
     const lines = [];
     const attachmentGroups = [];
     const notPreserved = [];
-    let fileCount = 0;
+    const lost = [];
+    let fileCount = state.fileCount ?? 0;
 
-    let lastDay = null;
-    let lastAuthorId = null;
-    let lastTimestamp = 0;
+    let lastDay = state.lastDay ?? null;
+    let lastAuthorId = state.lastAuthorId ?? null;
+    let lastTimestamp = state.lastTimestamp ?? 0;
 
     for (const message of history) {
         const ts = message.createdTimestamp;
@@ -128,24 +156,55 @@ function renderHistory(history, { preserveAttachments = false, maxFileBytes = 0 
         }
 
         const files = [];
-        for (const attachment of message.attachments?.values() ?? []) {
+        const considerFile = ({ label, name: fileName, url, size, extra = {} }) => {
             hasBody = true;
-            const base = `📎 ${attachment.name} (${formatSize(attachment.size)})`;
 
             let problem = null;
             if (!preserveAttachments) problem = 'not preserved';
-            else if (fileCount >= MAX_ATTACHMENTS) problem = `not preserved — more than ${MAX_ATTACHMENTS} files`;
-            else if (attachment.size > maxFileBytes) problem = 'not preserved — too large to repost';
+            else if (fileCount >= maxAttachments) problem = `not preserved — more than ${maxAttachments} files`;
+            else if (size > maxFileBytes) problem = 'not preserved — too large to repost';
 
             if (problem) {
-                lines.push(`${base} — ${problem}`);
-                notPreserved.push(`${attachment.name} (${problem.replace('not preserved — ', '')})`);
+                const reason = problem.replace('not preserved — ', '');
+                lines.push(`${label} — ${problem}`);
+                notPreserved.push(`${fileName} (${reason})`);
+                lost.push({ name: fileName, size, reason, messageId: message.id, channelId: message.channelId });
             } else {
-                lines.push(`${base} — reposted below`);
-                files.push({ name: attachment.name, url: attachment.url, size: attachment.size });
+                lines.push(`${label} — reposted below`);
+                files.push({ name: fileName, url, size, ...extra, messageId: message.id, channelId: message.channelId });
                 fileCount++;
             }
+        };
+
+        for (const attachment of message.attachments?.values() ?? []) {
+            considerFile({
+                label: `📎 ${attachment.name} (${formatSize(attachment.size)})`,
+                name: attachment.name,
+                url: attachment.url,
+                size: attachment.size,
+                extra: { id: attachment.id },
+            });
         }
+
+        if (includeEmbedImages) {
+            for (const [index, embed] of [...(message.embeds ?? [])].entries()) {
+                const type = embed.data?.type ?? embed.type;
+                if (type && type !== 'rich') continue;
+                for (const key of ['image', 'thumbnail']) {
+                    const url = embed[key]?.url;
+                    if (!url || url.startsWith('attachment://')) continue;
+                    const fileName = nameFromUrl(url, `${message.id}-${index}-${key}.png`);
+                    considerFile({
+                        label: `🖼️ ${fileName} (embed ${key})`,
+                        name: fileName,
+                        url,
+                        size: 0,
+                        extra: { sizeUnknown: true, embedRef: { index, key } },
+                    });
+                }
+            }
+        }
+
         if (files.length) {
             attachmentGroups.push({ label: `**${name}** · ${formatStamp(ts)}`, files });
         }
@@ -155,10 +214,15 @@ function renderHistory(history, { preserveAttachments = false, maxFileBytes = 0 
             hasBody = true;
         }
 
-        if (!hasBody) lines.push('*[no text]*');
+        if (!hasBody) lines.push(labelSystemMessages && message.system ? '*[system message]*' : '*[no text]*');
     }
 
-    return { lines, attachmentGroups, notPreserved };
+    state.lastDay = lastDay;
+    state.lastAuthorId = lastAuthorId;
+    state.lastTimestamp = lastTimestamp;
+    state.fileCount = fileCount;
+
+    return { lines, attachmentGroups, notPreserved, lost };
 }
 
 function buildHeaderLines({ header, meta = [], closeReason, closeFeedback }) {
@@ -231,10 +295,10 @@ function keepFencesBalanced(chunks) {
 }
 
 // ─── Public API ─────────────────────────────────────────────────────────────
-async function buildTranscript(channel, { header, meta, closeReason, closeFeedback, preserveAttachments = false } = {}) {
+async function buildTranscript(channel, { header, meta, closeReason, closeFeedback, preserveAttachments = false, maxAttachments } = {}) {
     const history = await fetchFullHistory(channel);
     const maxFileBytes = uploadLimitBytes(channel.guild);
-    const rendered = renderHistory(history, { preserveAttachments, maxFileBytes });
+    const rendered = renderHistory(history, { preserveAttachments, maxFileBytes, maxAttachments });
 
     const lines = [...buildHeaderLines({ header, meta, closeReason, closeFeedback }), ...rendered.lines];
 
@@ -250,10 +314,83 @@ async function buildTranscriptChunks(channel, options = {}) {
     return chunks;
 }
 
-async function downloadAttachment(file) {
-    const response = await fetch(file.url, { signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS) });
+// ─── Attachment staging ─────────────────────────────────────────────────────
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function safeFileName(name) {
+    return String(name ?? 'file').replace(/[^\w.\-]+/g, '_').slice(-100) || 'file';
+}
+
+async function mapLimit(items, limit, fn) {
+    const results = new Array(items.length);
+    let next = 0;
+    const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+        while (next < items.length) {
+            const i = next++;
+            results[i] = await fn(items[i], i);
+        }
+    });
+    await Promise.all(workers);
+    return results;
+}
+
+async function fetchBuffer(url, { maxBytes, timeoutMs = DOWNLOAD_TIMEOUT_MS } = {}) {
+    const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return Buffer.from(await response.arrayBuffer());
+
+    const declared = Number(response.headers?.get?.('content-length'));
+    if (maxBytes && declared && declared > maxBytes) throw new Error('File is too large');
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    if (maxBytes && buffer.length > maxBytes) throw new Error('File is too large');
+    return buffer;
+}
+
+function sizeMismatch(file, actual) {
+    return !file.sizeUnknown && Number.isFinite(file.size) && file.size > 0 && actual !== file.size
+        ? new Error(`Size mismatch (${actual} of ${file.size} bytes)`)
+        : null;
+}
+
+async function withStaging(file, { refreshUrl, attempts = DOWNLOAD_ATTEMPTS, retryBaseMs = DOWNLOAD_RETRY_BASE_MS }, attempt, cleanup = () => {}) {
+    let lastError;
+    for (let n = 1; n <= attempts; n++) {
+        try {
+            let url = file.url;
+            if (refreshUrl) {
+                try { url = (await refreshUrl(file, n)) || file.url; } catch { url = file.url; }
+            }
+            return await attempt(url);
+        } catch (err) {
+            lastError = err;
+            cleanup();
+            if (n < attempts) await sleep(retryBaseMs * 3 ** (n - 1));
+        }
+    }
+    throw lastError;
+}
+
+function stageBuffer(file, { fetchBuffer: fetcher = fetchBuffer, maxBytes, timeoutMs, ...retry } = {}) {
+    return withStaging(file, retry, async url => {
+        const buffer = await fetcher(url, { maxBytes: maxBytes ?? Math.max(file.size, 1), timeoutMs });
+        const mismatch = sizeMismatch(file, buffer.length);
+        if (mismatch) throw mismatch;
+        return buffer;
+    });
+}
+
+function stageFile(file, dir, index, { download = downloadToFile, maxBytes, timeoutMs = DOWNLOAD_TIMEOUT_MS, ...retry } = {}) {
+    const dest = path.join(dir, `${index}-${safeFileName(file.name)}`);
+    return withStaging(file, retry, async url => {
+        await download(url, dest, { maxBytes: maxBytes ?? Math.max(file.size, 1), timeoutMs });
+        const mismatch = sizeMismatch(file, fs.statSync(dest).size);
+        if (mismatch) throw mismatch;
+        return dest;
+    }, () => fs.rmSync(dest, { force: true })).then(() => dest);
+}
+
+function estimatedSize(file) {
+    return file.sizeUnknown ? UNKNOWN_SIZE_ESTIMATE : file.size;
 }
 
 function packBatches(files, limit) {
@@ -261,91 +398,169 @@ function packBatches(files, limit) {
     let current = [];
     let bytes = 0;
     for (const file of files) {
-        if (current.length && (current.length >= FILES_PER_MESSAGE || bytes + file.size > limit)) {
+        const size = estimatedSize(file);
+        if (current.length && (current.length >= FILES_PER_MESSAGE || bytes + size > limit)) {
             batches.push(current);
             current = [];
             bytes = 0;
         }
         current.push(file);
-        bytes += file.size;
+        bytes += size;
     }
     if (current.length) batches.push(current);
     return batches;
 }
 
-async function sendTranscript(thread, transcript) {
+function freeDiskBytes(dir) {
+    try {
+        fs.mkdirSync(dir, { recursive: true });
+        const stats = fs.statfsSync(dir);
+        return Number(stats.bavail) * Number(stats.bsize);
+    } catch {
+        return Infinity;
+    }
+}
+
+async function postAttachmentGroups(thread, groups, {
+    initialNotPreserved = [],
+    send = payload => thread.send(payload),
+    tempDir,
+    refreshUrl,
+    download,
+    fetchBuffer: fetcher,
+    retryBaseMs,
+    timeoutMs,
+    header = true,
+} = {}) {
+    const allowedMentions = { parse: [] };
+    const workDir = tempDir ?? path.join(TEMP_ROOT, `transcript-${randomUUID()}`);
+    const notPreserved = [...initialNotPreserved];
+    const failures = [];
+    const limit = uploadLimitBytes(thread.guild);
+    let reposted = 0;
+
+    const fail = (file, reason) => {
+        notPreserved.push(`${file.name} (${reason})`);
+        failures.push({ file, reason });
+    };
+
+    if (header && groups.length) {
+        try {
+            await send({ content: '### 📎 Attachments', allowedMentions });
+        } catch (err) {
+            console.warn('[ticketTranscript] Could not post attachments header:', err.message);
+        }
+    }
+
+    for (const group of groups) {
+        const batches = packBatches(group.files, limit);
+
+        for (let i = 0; i < batches.length; i++) {
+            const label = i === 0 ? group.label : `${group.label} (continued)`;
+            const batch = batches[i];
+            const useDisk = batch.reduce((sum, file) => sum + estimatedSize(file), 0) > MEMORY_BATCH_MAX_BYTES;
+
+            if (useDisk && freeDiskBytes(path.dirname(workDir)) < MIN_FREE_DISK_BYTES + limit) {
+                for (const file of batch) fail(file, 'not enough free disk space');
+                continue;
+            }
+            if (useDisk) fs.mkdirSync(workDir, { recursive: true });
+
+            const staged = await mapLimit(batch, DOWNLOAD_CONCURRENCY, async (file, n) => {
+                try {
+                    const common = { refreshUrl, retryBaseMs, maxBytes: limit, timeoutMs };
+                    return useDisk
+                        ? { file, filePath: await stageFile(file, workDir, `${i}-${n}`, { ...common, download }) }
+                        : { file, buffer: await stageBuffer(file, { ...common, fetchBuffer: fetcher }) };
+                } catch (error) {
+                    return { file, error };
+                }
+            });
+
+            const ready = [];
+            for (const item of staged) {
+                if (item.error) {
+                    console.warn(`[ticketTranscript] Could not download ${item.file.name}:`, item.error.message);
+                    fail(item.file, 'download failed');
+                } else {
+                    ready.push(item);
+                }
+            }
+
+            try {
+                if (!ready.length) continue;
+
+                const toAttachment = ({ file, filePath, buffer }) => new AttachmentBuilder(filePath ?? buffer, { name: file.name });
+
+                try {
+                    await send({ content: label, files: ready.map(toAttachment), allowedMentions });
+                    reposted += ready.length;
+                } catch (err) {
+                    console.warn('[ticketTranscript] Batch upload failed, retrying individually:', err.message);
+                    for (const item of ready) {
+                        try {
+                            await send({ content: label, files: [toAttachment(item)], allowedMentions });
+                            reposted += 1;
+                        } catch (singleErr) {
+                            console.warn(`[ticketTranscript] Could not upload ${item.file.name}:`, singleErr.message);
+                            fail(item.file, 'upload failed');
+                        }
+                    }
+                }
+            } finally {
+                for (const { filePath } of ready) if (filePath) fs.rmSync(filePath, { force: true });
+            }
+        }
+    }
+
+    fs.rmSync(workDir, { recursive: true, force: true });
+
+    if (notPreserved.length) {
+        const list = notPreserved.map(entry => `• ${entry}`).join('\n');
+        try {
+            await send({ content: `### ⚠️ Not preserved\n${list}`.slice(0, 2000), allowedMentions });
+        } catch (err) {
+            console.warn('[ticketTranscript] Could not post the not-preserved list:', err.message);
+        }
+    }
+
+    return { reposted, notPreserved, failures };
+}
+
+async function sendTranscript(thread, transcript, options = {}) {
     const allowedMentions = { parse: [] };
 
     for (const chunk of transcript.chunks) {
         await thread.send({ content: chunk, allowedMentions });
     }
 
-    const notPreserved = [...transcript.notPreserved];
-    const limit = uploadLimitBytes(thread.guild);
-    let reposted = 0;
-
-    if (transcript.attachmentGroups.length) {
-        try {
-            await thread.send({ content: '### 📎 Attachments', allowedMentions });
-        } catch (err) {
-            console.warn('[ticketTranscript] Could not post attachments header:', err.message);
-        }
-    }
-
-    for (const group of transcript.attachmentGroups) {
-        const batches = packBatches(group.files, limit);
-
-        for (let i = 0; i < batches.length; i++) {
-            const label = i === 0 ? group.label : `${group.label} (continued)`;
-
-            const ready = [];
-            for (const file of batches[i]) {
-                try {
-                    ready.push({ file, buffer: await downloadAttachment(file) });
-                } catch (err) {
-                    console.warn(`[ticketTranscript] Could not download ${file.name}:`, err.message);
-                    notPreserved.push(`${file.name} (download failed)`);
-                }
-            }
-            if (!ready.length) continue;
-
-            const toAttachment = ({ file, buffer }) => new AttachmentBuilder(buffer, { name: file.name });
-
-            try {
-                await thread.send({ content: label, files: ready.map(toAttachment), allowedMentions });
-                reposted += ready.length;
-            } catch (err) {
-                console.warn('[ticketTranscript] Batch upload failed, retrying individually:', err.message);
-                for (const item of ready) {
-                    try {
-                        await thread.send({ content: label, files: [toAttachment(item)], allowedMentions });
-                        reposted += 1;
-                    } catch (singleErr) {
-                        console.warn(`[ticketTranscript] Could not upload ${item.file.name}:`, singleErr.message);
-                        notPreserved.push(`${item.file.name} (upload failed)`);
-                    }
-                }
-            }
-        }
-    }
-
-    if (notPreserved.length) {
-        const list = notPreserved.map(entry => `• ${entry}`).join('\n');
-        try {
-            await thread.send({ content: `### ⚠️ Not preserved\n${list}`.slice(0, 2000), allowedMentions });
-        } catch (err) {
-            console.warn('[ticketTranscript] Could not post the not-preserved list:', err.message);
-        }
-    }
+    const { reposted, notPreserved } = await postAttachmentGroups(thread, transcript.attachmentGroups, {
+        ...options,
+        initialNotPreserved: transcript.notPreserved,
+    });
 
     return { reposted, notPreserved };
 }
 
 module.exports = {
     fetchFullHistory,
+    renderHistory,
+    buildHeaderLines,
     chunkLines,
+    packBatches,
+    stageBuffer,
+    stageFile,
+    fetchBuffer,
+    mapLimit,
+    uploadLimitBytes,
+    freeDiskBytes,
+    formatDate,
+    formatTime,
     formatStamp,
+    formatSize,
     buildTranscript,
     buildTranscriptChunks,
+    postAttachmentGroups,
     sendTranscript,
+    MIN_FREE_DISK_BYTES,
 };
