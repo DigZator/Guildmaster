@@ -2,6 +2,11 @@ const { GUILDMASTER_CTRL_CHANNEL_ID, LEAGUE_ADMIN_CHANNEL_ID } = require('../dat
 
 const ADMINS_ROLE_ID = process.env.ADMINS_ROLE_ID;
 const HR_ROLE_ID = process.env.HR_ROLE_ID;
+const CMD_ROLE_ID = process.env.CMD_ROLE_ID;
+
+if (!CMD_ROLE_ID) {
+    console.warn('[isAdminChannel] CMD_ROLE_ID is not set — the "cmd" check will deny everyone.');
+}
 
 const ADMIN_CONFIG = {
     bot: {
@@ -28,6 +33,11 @@ const ADMIN_CONFIG = {
         mode: 'role',
         channels: [],
         roleIds: [HR_ROLE_ID].filter(Boolean),
+    },
+    cmd: {
+        mode: 'role',
+        channels: [],
+        roleIds: [CMD_ROLE_ID].filter(Boolean),
     },
 };
 
@@ -62,4 +72,4 @@ function isAdminChannel(interaction, type = 'bot') {
     }
 }
 
-module.exports = { isAdminChannel, isAdmin: isAdminChannel, ADMIN_CONFIG, HR_ROLE_ID, ADMINS_ROLE_ID };
+module.exports = { isAdminChannel, isAdmin: isAdminChannel, ADMIN_CONFIG, HR_ROLE_ID, ADMINS_ROLE_ID, CMD_ROLE_ID };

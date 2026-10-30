@@ -1,4 +1,4 @@
-const { ChannelType, PermissionFlagsBits } = require('discord.js');
+const { ChannelType, PermissionFlagsBits, Routes } = require('discord.js');
 
 const TEXT_WRITE_BITS = [
     PermissionFlagsBits.SendMessages,
@@ -20,12 +20,13 @@ const VOICE_WRITE_BITS = [
 
 const VOICE_TYPES = [ChannelType.GuildVoice, ChannelType.GuildStageVoice];
 
-function writeBitsFor(channel) {
-    return VOICE_TYPES.includes(channel.type) ? VOICE_WRITE_BITS : TEXT_WRITE_BITS;
+function writeBitsFor(channel, includeTextBits = false) {
+    if (!VOICE_TYPES.includes(channel.type)) return TEXT_WRITE_BITS;
+    return includeTextBits ? [...VOICE_WRITE_BITS, ...TEXT_WRITE_BITS] : VOICE_WRITE_BITS;
 }
 
-async function lockChannelToReadOnly(channel) {
-    const writeBits = writeBitsFor(channel);
+async function lockChannelToReadOnly(channel, { reason = 'Channel archived: locked to read-only', includeTextBits = false } = {}) {
+    const writeBits = writeBitsFor(channel, includeTextBits);
     const guild = channel.guild;
     const botMember = guild.members.me;
     const botHighestPosition = botMember?.roles.highest.position ?? 0;
@@ -37,7 +38,9 @@ async function lockChannelToReadOnly(channel) {
 
     await channel.permissionOverwrites.edit(guild.roles.everyone.id, Object.fromEntries(
         writeBits.map(bit => [bitName(bit), false])
-    ), { reason: 'Channel archived: locked to read-only' });
+    ), { reason });
+
+    const skipped = [];
 
     const existingOverwrites = [...channel.permissionOverwrites.cache.values()];
 
@@ -60,17 +63,21 @@ async function lockChannelToReadOnly(channel) {
 
         if (targetPosition === null || targetPosition >= botHighestPosition) {
             console.warn(`[archiveChannel] Skipped locking overwrite ${overwrite.id} in #${channel.name} — outranks or unresolved relative to bot's highest role.`);
+            skipped.push({ id: overwrite.id, reason: 'outranks the bot or could not be resolved' });
             continue;
         }
 
         try {
             await channel.permissionOverwrites.edit(overwrite.id, Object.fromEntries(
                 writeBits.map(bit => [bitName(bit), false])
-            ), { reason: 'Channel archived: locked to read-only' });
+            ), { reason });
         } catch (err) {
             console.warn(`[archiveChannel] Failed to lock overwrite ${overwrite.id} in #${channel.name}: ${err.message}`);
+            skipped.push({ id: overwrite.id, reason: err.message });
         }
     }
+
+    return { skipped };
 }
 
 const BIT_NAME_MAP = new Map(
@@ -81,6 +88,70 @@ function bitName(bit) {
     const name = BIT_NAME_MAP.get(bit);
     if (!name) throw new Error(`Unknown permission bit: ${bit}`);
     return name;
+}
+
+// ─── Permission snapshot / restore ──────────────────────────────────────────
+function snapshotOverwrites(channel) {
+    return {
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        takenAt: Date.now(),
+        overwrites: [...channel.permissionOverwrites.cache.values()].map(o => ({
+            id: o.id,
+            type: o.type,
+            allow: o.allow.bitfield.toString(),
+            deny: o.deny.bitfield.toString(),
+        })),
+    };
+}
+
+function overwriteMap(channel) {
+    return new Map([...channel.permissionOverwrites.cache.values()].map(o => [
+        o.id, { type: o.type, allow: o.allow.bitfield.toString(), deny: o.deny.bitfield.toString() },
+    ]));
+}
+
+
+async function restoreOverwrites(channel, snapshot, { reason = 'Channel filing aborted: restoring permissions' } = {}) {
+    const failed = [];
+    const wanted = new Map(snapshot.overwrites.map(o => [o.id, o]));
+    const current = overwriteMap(channel);
+
+    for (const [id, want] of wanted) {
+        const have = current.get(id);
+        if (have && have.allow === want.allow && have.deny === want.deny) continue;
+        try {
+            await channel.client.rest.put(Routes.channelPermission(channel.id, id), {
+                body: { type: want.type, allow: want.allow, deny: want.deny },
+                reason,
+            });
+        } catch (err) {
+            failed.push({ id, action: 'restore', error: err.message });
+        }
+    }
+
+    for (const id of current.keys()) {
+        if (wanted.has(id)) continue;
+        try {
+            await channel.client.rest.delete(Routes.channelPermission(channel.id, id), { reason });
+        } catch (err) {
+            failed.push({ id, action: 'delete', error: err.message });
+        }
+    }
+
+    let verified = false;
+    try {
+        const fresh = await channel.guild.channels.fetch(channel.id, { force: true });
+        const now = overwriteMap(fresh);
+        verified = now.size === wanted.size && [...wanted].every(([id, w]) => {
+            const n = now.get(id);
+            return n && n.allow === w.allow && n.deny === w.deny;
+        });
+    } catch (err) {
+        failed.push({ id: channel.id, action: 'verify', error: err.message });
+    }
+
+    return { ok: failed.length === 0 && verified, verified, failed };
 }
 
 async function archiveSingleChannel(channel, archiveCategory) {
@@ -123,6 +194,8 @@ module.exports = {
     lockChannelToReadOnly,
     archiveSingleChannel,
     archiveCategoryChannels,
+    snapshotOverwrites,
+    restoreOverwrites,
     TEXT_WRITE_BITS,
     VOICE_WRITE_BITS,
 };
