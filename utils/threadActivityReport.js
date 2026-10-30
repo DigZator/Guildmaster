@@ -1,9 +1,12 @@
 const path = require('path');
 const { createJsonStore } = require('./jsonStore');
 const { BOT_LOG_CHANNEL_ID } = require('../data/channels');
+const keepAliveStore = require('./keepAliveStore');
+const { runKeepAliveRefresh, realLastActivity } = require('./keepAlive');
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 const DISCORD_EPOCH = 1420070400000n;
 
 const store = createJsonStore(path.join(__dirname, '../data/threadReport.json'), { nextReportDue: null });
@@ -41,6 +44,13 @@ function withBlankLines(lines) {
     return lines.flatMap((line, i) => i < lines.length - 1 ? [line, ''] : [line]);
 }
 
+function formatKeptLine(thread, entry, lastActive) {
+    const parentMention = thread.parentId ? `<#${thread.parentId}>` : 'unknown channel';
+    const quiet = Date.now() - lastActive >= THIRTY_DAYS_MS ? '⚠️ ' : '';
+    const owner = entry?.addedBy ? ` · added by <@${entry.addedBy}>` : '';
+    return `• ${quiet}<#${thread.id}> in ${parentMention} — last activity <t:${Math.floor(lastActive / 1000)}:R>${owner}`;
+}
+
 async function runThreadActivityReport(client) {
     const logChannel = client.channels.cache.get(BOT_LOG_CHANNEL_ID);
     if (!logChannel || !logChannel.guild) {
@@ -57,7 +67,10 @@ async function runThreadActivityReport(client) {
         return;
     }
 
-    if (activeThreads.length === 0) {
+    const keptEntries = keepAliveStore.getAll();
+    const keptById = new Map(keptEntries.map(e => [e.threadId, e]));
+
+    if (activeThreads.length === 0 && keptEntries.length === 0) {
         await logChannel.send('🧵 **Thread Activity Report** — no active threads right now.');
         return;
     }
@@ -66,9 +79,14 @@ async function runThreadActivityReport(client) {
     const staleCutoff = Date.now() - SEVEN_DAYS_MS;
     const stillActive = [];
     const wentSilent = [];
+    const keptActive = [];
     let goneStaleCount = 0;
 
     for (const thread of activeThreads) {
+        if (keptById.has(thread.id)) {
+            keptActive.push(thread);
+            continue;
+        }
         const lastActive = lastActivityTimestamp(thread);
         if (lastActive >= activeCutoff) stillActive.push(thread);
         else if (lastActive >= staleCutoff) wentSilent.push(thread);
@@ -78,9 +96,20 @@ async function runThreadActivityReport(client) {
     stillActive.sort((a, b) => lastActivityTimestamp(b) - lastActivityTimestamp(a));
     wentSilent.sort((a, b) => lastActivityTimestamp(b) - lastActivityTimestamp(a));
 
+    const keptLines = [];
+    for (const thread of keptActive) {
+        const entry = keptById.get(thread.id);
+        const lastActive = await realLastActivity(thread, entry, lastActivityTimestamp);
+        keptLines.push({ lastActive, line: formatKeptLine(thread, entry, lastActive) });
+    }
+    keptLines.sort((a, b) => b.lastActive - a.lastActive);
+
+    const activeIds = new Set(activeThreads.map(t => t.id));
+    const keptMissing = keptEntries.filter(e => !activeIds.has(e.threadId));
+
     const sections = [];
 
-    sections.push(`🧵 **Thread Activity Report** — ${activeThreads.length} active thread(s) total.`);
+    sections.push(`🧵 **Thread Activity Report** — ${activeThreads.length - keptActive.length} active thread(s), ${keptEntries.length} kept alive.`);
 
     sections.push(`\n**✅ Active in the last 3 days (${stillActive.length}):**`);
     sections.push(...(stillActive.length ? withBlankLines(stillActive.map(formatThreadLine)) : ['*None.*']));
@@ -90,8 +119,18 @@ async function runThreadActivityReport(client) {
 
     sections.push(`\n🗑 ${goneStaleCount} thread(s) inactive 7+ days — not shown.`);
 
+    sections.push(`\n**📌 Kept alive (${keptActive.length}):** ⚠️ = no activity for 30+ days`);
+    sections.push(...(keptLines.length ? withBlankLines(keptLines.map(k => k.line)) : ['*None.*']));
+
+    if (keptMissing.length) {
+        sections.push(`\n**⚠️ Kept-alive but not active — archived or unreachable (${keptMissing.length}):**`);
+        sections.push(...withBlankLines(keptMissing.map(e =>
+            `• <#${e.threadId}> — not in the active thread list${e.addedBy ? ` · added by <@${e.addedBy}>` : ''}`
+        )));
+    }
+
     for (const chunk of chunkLines(sections)) {
-        await logChannel.send(chunk);
+        await logChannel.send({ content: chunk, allowedMentions: { parse: [] } });
     }
 }
 
@@ -103,6 +142,11 @@ function init(client) {
 }
 
 async function runAndReschedule(client) {
+    try {
+        await runKeepAliveRefresh(client);
+    } catch (err) {
+        console.error('[threadActivityReport] Keep Alive refresh error:', err);
+    }
     try {
         await runThreadActivityReport(client);
     } catch (err) {
