@@ -10,7 +10,8 @@ const DEFAULT_QUEUE = {
     queue: [],
     flaggedUids: [],
     lastActivationRun: [],
-    lastRunDate: null
+    lastRunDate: null,
+    lastReminderDate: null
 };
 
 const store = createJsonStore(path.join(__dirname, '../data/activationQueue.json'), DEFAULT_QUEUE);
@@ -70,6 +71,29 @@ function claimRunForDate(dateStr) {
     return true;
 }
 
+function releaseRunForDate(dateStr, previousDate = null) {
+    const data = getQueue();
+    if (data.lastRunDate !== dateStr) return;
+    data.lastRunDate = previousDate;
+    writeQueue(data);
+}
+
+function claimReminderForDate(dateStr) {
+    const data = getQueue();
+    if (data.lastReminderDate === dateStr) return false;
+    data.lastReminderDate = dateStr;
+    writeQueue(data);
+    return true;
+}
+
+function completeQueueEntries(doneUids, activatedUids = doneUids) {
+    const data = getQueue();
+    const done = new Set(doneUids);
+    data.queue = data.queue.filter(g => !done.has(g.uid));
+    data.lastActivationRun = activatedUids;
+    writeQueue(data);
+}
+
 function addFlaggedUid(uid) {
     const data = getQueue();
     if (!data.flaggedUids.includes(uid)) {
@@ -116,6 +140,9 @@ module.exports = {
     clearLastActivationRun,
     getLastRunDate,
     claimRunForDate,
+    releaseRunForDate,
+    claimReminderForDate,
+    completeQueueEntries,
     addFlaggedUid,
     isFlagged,
     setReminderTime,

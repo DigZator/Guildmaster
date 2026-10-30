@@ -11,15 +11,8 @@ const {
     toggleAutoSchedule
 } = require('../utils/activationQueue');
 const { runActivationJob } = require('../utils/scheduler');
+const { toDiscordTimestamp, istMinutesOfDay, parseTimeToMinutes } = require('../utils/istTime');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
-
-function toDiscordTimestamp(timeStr) {
-    const now = new Date();
-    const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    const [h, m] = timeStr.split(':').map(Number);
-    ist.setHours(h, m, 0, 0);
-    return Math.floor(ist.getTime() / 1000);
-}
 
 function isValidTime(str) {
     return /^\d{2}:\d{2}$/.test(str) && str.split(':')[0] < 24 && str.split(':')[1] < 60;
@@ -68,11 +61,8 @@ module.exports = async (interaction, client) => {
 
         const data = getQueue();
         const activationTs = toDiscordTimestamp(data.activationTime);
-        const now = new Date();
-        const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-        const currentMinutes = ist.getHours() * 60 + ist.getMinutes();
-		const [ah, am] = data.activationTime.split(':').map(Number);
-        const activationMinutes = ah * 60 + am;
+        const currentMinutes = istMinutesOfDay();
+        const activationMinutes = parseTimeToMinutes(data.activationTime);
         
         const added = addToQueue(game, interaction.user.id);
 
@@ -167,13 +157,38 @@ module.exports = async (interaction, client) => {
     }
 
     else if (sub === 'run-now') {
+        const announce = interaction.options.getBoolean('announce') ?? true;
         const data = getQueue();
         if (data.queue.length === 0) {
             await interaction.reply({ content: '⚠️ Queue is empty — nothing to activate.', flags: 64 });
             return;
         }
-        await interaction.reply({ content: '🔄 Running activation job now (forced)...', flags: 64 });
-        await runActivationJob({ force: true });
+
+        await interaction.reply({
+            content: `🔄 Running activation job now (forced, ${announce ? 'with' : 'without'} announcement)...`,
+            flags: 64
+        });
+
+        let outcome;
+        try {
+            outcome = await runActivationJob({ force: true, announce });
+        } catch (e) {
+            console.error('[schedule_activation] run-now failed:', e);
+            await interaction.editReply({ content: `❌ Activation job crashed: ${String(e?.message ?? e).slice(0, 200)}` });
+            return;
+        }
+
+        let result;
+        if (!outcome?.ran) {
+            result = outcome?.reason === 'no_ctrl_channel'
+                ? '❌ Control channel not found — the activation job did not run.'
+                : '⚠️ Nothing was run.';
+        } else {
+            result = `✅ Done — activated: **${outcome.activated}**, already active: **${outcome.skipped}**, failed: **${outcome.failed}**.\n`
+                + (announce ? 'Announcement posted for any newly activated games.' : '🔕 Announcement skipped.')
+                + '\nSee the control channel for the full summary.';
+        }
+        await interaction.editReply({ content: result });
     }
 
     else if (sub === 'toggle-auto') {

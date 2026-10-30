@@ -3,6 +3,7 @@ const { getRoleMention, sendChunkedText, clearSessionTimeout, restoreSession, is
 const { invalidateCache } = require('../utils/cache');
 const { updateGameProperties } = require('../utils/notion');
 const { addToQueue, getQueue } = require('../utils/activationQueue');
+const { hasCustomRegistrationLink } = require('../utils/registrationDefaults');
 const { sessions } = require('../utils/sessionStore');
 const { reportError } = require('../utils/errorReporter');
 const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
@@ -114,10 +115,44 @@ module.exports = {
                 });
             }
 
-            const queueData = getQueue();
             let scheduleNote = null;
 
-            if (queueData.autoSchedule) {
+            if (hasCustomRegistrationLink(session.game)) {
+                // Custom-link games can't be queued for activation, so tick their
+                // Reminder checkbox (Notion: "Reminder Override") on announcement.
+                if (session.game.reminderOverride) {
+                    scheduleNote = '🔔 This game has a custom registration link — its **Reminder** checkbox was already ticked, so nothing was changed.';
+                } else {
+                    try {
+                        await updateGameProperties(session.game.uid, { 'Reminder Override': { checkbox: true } });
+                        scheduleNote = '🔔 This game has a custom registration link, so its **Reminder** checkbox was ticked automatically.';
+
+                        if (ctrlChannel) {
+                            await ctrlChannel.send({
+                                embeds: [
+                                    new EmbedBuilder()
+                                        .setColor(0xfee75c)
+                                        .setTitle('🔔 Reminder Enabled Automatically')
+                                        .addFields(
+                                            { name: 'Game',        value: session.game.title,           inline: true },
+                                            { name: 'Announced by', value: `<@${interaction.user.id}>`, inline: true },
+                                            { name: 'Reason',      value: 'Custom registration link',   inline: true },
+                                        )
+                                        .setTimestamp(),
+                                ],
+                            }).catch(e => console.error('[announcement] Failed to post reminder log to guildmaster-ctrl:', e));
+                        }
+                    } catch (e) {
+                        await reportError(client, {
+                            scope: '[Announcement]',
+                            message: 'Failed to set Reminder Override on Notion',
+                            error: e,
+                            context: { gameUid: session.game.uid, gameTitle: session.game.title, announcedBy: interaction.user.tag }
+                        });
+                        scheduleNote = '⚠️ This game has a custom registration link, but I couldn\'t tick its **Reminder** checkbox. Please set it with `/edit_game` (field: Reminder).';
+                    }
+                }
+            } else if (getQueue().autoSchedule) {
                 const queueResult = addToQueue(session.game, interaction.user.id);
                 if (queueResult === 'custom_form') {
                     scheduleNote = '⚠️ Not added to the activation queue — this game has a custom registration form.';

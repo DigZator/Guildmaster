@@ -146,6 +146,17 @@ function getNoteLines(game) {
     return [...structured, ...freeform];
 }
 
+// The stored registration line uses Discord markdown (e.g. "**!! text !!**").
+// WhatsApp bolds with a single "*" and we want the double-bang emoji, so convert
+// at output time only. Stored values, the Discord embed and the default-line
+// constants are left alone so the custom-link logic in registrationDefaults.js
+// (which compares the stored string) keeps working.
+function toWhatsAppRegistrationLine(line) {
+    return String(line ?? '')
+        .replace(/\*{2,}/g, '*')
+        .replace(/!!/g, '‼️');
+}
+
 function getDisplay(game) {
     const registrationLink = game.registrationLink || DEFAULT_REGISTRATION_LINK;
 
@@ -165,6 +176,7 @@ function getDisplay(game) {
         cost: formatCost(game.price),
         artist: game.artist || 'N/A',
         registration: [game.rline, registrationLink].filter(Boolean).join('\n'),
+        registrationWhatsApp: [toWhatsAppRegistrationLine(game.rline), registrationLink].filter(Boolean).join('\n'),
         noteLines: getNoteLines(game),
     };
 }
@@ -251,7 +263,7 @@ ${d.noteLines.join('\n') || '-'}
 
 *Art Credits:* _${d.artist}_
 
-${d.registration}`;
+${d.registrationWhatsApp}`;
 }
 
 function getRoleMention(game, guild) {
@@ -368,6 +380,7 @@ module.exports = {
     STALE_PREVIEW_MESSAGE,
     buildAnnouncementEmbed,
     buildWhatsApp,
+    toWhatsAppRegistrationLine,
     sendChunkedText,
     getRoleMention,
     getPreviewButtons,

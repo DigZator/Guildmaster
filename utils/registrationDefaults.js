@@ -2,6 +2,11 @@ const { onCacheRefresh, invalidateCache } = require('./cache');
 const { updateGameProperties } = require('./notion');
 const { DEFAULT_REGISTRATION_LINE, DEFAULT_REGISTRATION_LINK, LINKED_REGISTRATION_LINE } = require('../data/registrationDefaults');
 
+function hasCustomRegistrationLink(game) {
+    const link = String(game?.registrationLink ?? '').trim();
+    return link !== '' && link !== DEFAULT_REGISTRATION_LINK;
+}
+
 function init(client) {
     onCacheRefresh(async (previous, current) => {
         let wrote = false;
@@ -42,4 +47,4 @@ function init(client) {
     });
 }
 
-module.exports = { init };
+module.exports = { init, hasCustomRegistrationLink };
