@@ -1,4 +1,4 @@
-const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getCachedGames } = require('../utils/cache');
 const gameFields = require('../data/gameFields.json');
@@ -50,7 +50,23 @@ module.exports = async (interaction) => {
         notionKey: fieldConfig.notion_key,
         fieldType: fieldConfig.type,
         previousValue: currentValue,
+        channelId: interaction.channelId,
     });
+
+    if (fieldConfig.type === 'files') {
+        const session = editGameSession.get(interaction.user.id);
+        session.step = 'awaiting_art';
+
+        const payload = {
+            content: `🖼️ **${fieldName}** for **${game.title}**\nSend an **image** in this channel, or paste a **link** to one, within 10 minutes. Type \`cancel\` to abort.\nPNG, JPEG, GIF or WebP, up to 20 MB.`,
+            flags: 64,
+        };
+        if (currentValue) {
+            payload.embeds = [new EmbedBuilder().setDescription('Current cover art:').setImage(currentValue)];
+        }
+        await interaction.reply(payload);
+        return;
+    }
 
     if (fieldConfig.type === 'checkbox') {
         const currentLabel = currentValue === '' ? 'unknown' : currentValue;
