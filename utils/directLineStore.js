@@ -41,7 +41,9 @@ function addDirectLine(record) {
             id: crypto.randomUUID(),
             status: 'open',
             filedAt: null,
+            filedBy: null,
             logThreadId: null,
+            accessLog: [],
             ...record,
         };
         records.push(full);
@@ -61,6 +63,31 @@ function updateDirectLine(id, patch) {
     });
 }
 
+function mutateDirectLine(id, fn) {
+    return withLock('__dl__', () => {
+        const records = loadDirectLines();
+        const idx = records.findIndex(dl => dl.id === id);
+        if (idx === -1) return null;
+        records[idx] = { ...records[idx], ...fn(records[idx]) };
+        saveDirectLines(records);
+        return records[idx];
+    });
+}
+
+function transitionDirectLine(id, allowedStatuses, patch) {
+    return withLock('__dl__', () => {
+        const records = loadDirectLines();
+        const idx = records.findIndex(dl => dl.id === id);
+        if (idx === -1) return { ok: false, reason: 'missing' };
+        if (!allowedStatuses.includes(records[idx].status)) {
+            return { ok: false, reason: 'status', record: records[idx] };
+        }
+        records[idx] = { ...records[idx], ...patch };
+        saveDirectLines(records);
+        return { ok: true, record: records[idx] };
+    });
+}
+
 function removeDirectLine(id) {
     return withLock('__dl__', () => {
         const records = loadDirectLines();
@@ -72,6 +99,21 @@ function removeDirectLine(id) {
     });
 }
 
+(function recoverInterruptedFilings() {
+    const records = loadDirectLines();
+    let recovered = 0;
+    for (const record of records) {
+        if (record.status === 'filing') {
+            record.status = 'open';
+            recovered++;
+        }
+    }
+    if (recovered) {
+        saveDirectLines(records);
+        console.warn(`[directLineStore] ${recovered} direct line(s) were mid-filing when the bot stopped and have been set back to open. Check for a partial log thread before filing again.`);
+    }
+})();
+
 module.exports = {
     loadDirectLines,
     saveDirectLines,
@@ -80,5 +122,7 @@ module.exports = {
     countChannelNameUses,
     addDirectLine,
     updateDirectLine,
+    mutateDirectLine,
+    transitionDirectLine,
     removeDirectLine,
 };
