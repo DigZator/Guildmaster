@@ -4,6 +4,7 @@ const { getCachedGames } = require('../utils/cache');
 const { getQueue } = require('../utils/activationQueue');
 const gameFields = require('../data/gameFields.json');
 const ping = require('../commands/ping');
+const keep_alive = require('../commands/keep_alive');
 const create_campaign = require('../commands/create_campaign');
 const the_long_rest = require('../commands/the_long_rest');
 const announce_game = require('../commands/announce_game');
@@ -30,6 +31,8 @@ const ticket = require('../commands/ticket');
 const direct_line = require('../commands/direct_line');
 const archive = require('../commands/archive');
 const archiveConfig = require('../commands/archiveConfig');
+const channelFile = require('../commands/channelFile');
+const verification = require('../commands/verification');
 const { loadTicketTypes } = require('../config/ticketTypes');
 
 const CODE_AUTOCOMPLETE_TARGETS = new Set([
@@ -118,6 +121,15 @@ module.exports = (client) => {
                 const focused = interaction.options.getFocused(true);
                 const query = focused.value.toLowerCase();
                 const types = loadTicketTypes();
+
+                if (sub === 'raise' && focused.name === 'type') {
+                    const choices = types
+                        .filter(t => t.key.toLowerCase().includes(query) || t.label.toLowerCase().includes(query))
+                        .slice(0, 25)
+                        .map(t => ({ name: `${t.buttonEmoji || '🎫'} ${t.label}`.slice(0, 100), value: t.key }));
+                    await interaction.respond(choices);
+                    return;
+                }
 
                 if (sub === 'reset_counter' && focused.name === 'type') {
                     const choices = types
@@ -250,6 +262,7 @@ module.exports = (client) => {
 
         try {
             if (command === 'ping') await ping(interaction);
+            if (command === 'keep_alive') await keep_alive(interaction, client);
             if (command === 'create_campaign') await create_campaign(interaction, client);
             if (command === 'the_long_rest') await the_long_rest(interaction, client);
             if (command === 'announce_game') await announce_game(interaction, client);
@@ -269,6 +282,8 @@ module.exports = (client) => {
             if (command === 'direct_line') await direct_line(interaction, client);
             if (command === 'archive') await archive(interaction, client);
             if (command === 'archive-config') await archiveConfig(interaction, client);
+            if (command === 'channel_file') await channelFile(interaction, client);
+            if (command === 'verification') await verification(interaction, client);
         } catch (error) {
             console.error('Error handling interaction:', error);
 

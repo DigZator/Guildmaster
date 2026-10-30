@@ -20,6 +20,11 @@ const commands = [
 		.setName('ping')
 		.setDescription('Replies with Pong!'),
 
+	//keep_alive
+	new SlashCommandBuilder()
+		.setName('keep_alive')
+		.setDescription('Toggle Keep Alive on this thread so it is never archived for inactivity'),
+
 	//create_campaign
 	new SlashCommandBuilder()
 		.setName('create_campaign')
@@ -94,7 +99,43 @@ const commands = [
 	//ticket
 	new SlashCommandBuilder()
 		.setName('ticket')
-		.setDescription('Manage the ticketing system')
+		.setDescription('Raise or close a support ticket, and manage the ticketing system')
+		.addSubcommand(sub => sub
+			.setName('raise')
+			.setDescription('Open a support ticket — fill in what you can, a form asks for the rest')
+			.addStringOption(opt => opt
+				.setName('type')
+				.setDescription('What kind of ticket is this?')
+				.setRequired(true)
+				.setAutocomplete(true))
+			.addStringOption(opt => opt
+				.setName('reason')
+				.setDescription('Reason for raising the ticket')
+				.setMaxLength(1000)
+				.setRequired(false))
+			.addStringOption(opt => opt
+				.setName('identification')
+				.setDescription('Your name (and game name if relevant)')
+				.setMaxLength(1000)
+				.setRequired(false))
+			.addStringOption(opt => opt
+				.setName('details')
+				.setDescription('What do you need? Any extra info?')
+				.setMaxLength(1000)
+				.setRequired(false)))
+		.addSubcommand(sub => sub
+			.setName('close')
+			.setDescription('Close the ticket you are in (run inside a ticket channel)')
+			.addStringOption(opt => opt
+				.setName('reason')
+				.setDescription('Reason for closing — a form opens if you leave this blank')
+				.setMaxLength(1000)
+				.setRequired(false))
+			.addStringOption(opt => opt
+				.setName('feedback')
+				.setDescription('Additional feedback (optional)')
+				.setMaxLength(1000)
+				.setRequired(false)))
 		.addSubcommand(sub => sub
 			.setName('setup')
 			.setDescription('Post or refresh the ticket dashboard in this channel')
@@ -484,7 +525,15 @@ const commands = [
 		//status
 		.addSubcommand(sub => sub
 			.setName('status')
-			.setDescription('Show current schedule settings and queue')),
+			.setDescription('Show current schedule settings and queue'))
+		//run-now
+		.addSubcommand(sub => sub
+			.setName('run-now')
+			.setDescription('Force the activation job to run now for every queued game')
+			.addBooleanOption(opt => opt
+				.setName('announce')
+				.setDescription('Post the announcement (WhatsApp copy + quest board)? Default: yes')
+				.setRequired(false))),
 	//help
 	new SlashCommandBuilder()
 		.setName('help')
@@ -1019,6 +1068,123 @@ const commands = [
 			.setDescription('The category to use as the archive destination')
 			.setRequired(true)
 			.addChannelTypes(ChannelType.GuildCategory)),
+
+	//channel_file (CMD role only: enforced at runtime in commands/channelFile.js)
+	new SlashCommandBuilder()
+		.setName('channel_file')
+		.setDescription('Copy a channel (and its threads) into a thread, then delete the original after review')
+		.addSubcommand(sub => sub
+			.setName('file')
+			.setDescription('File a channel into a thread, verify the copy, then delete the original once approved')
+			.addChannelOption(opt => opt
+				.setName('target')
+				.setDescription('The channel or thread to file (and delete after review)')
+				.setRequired(true)
+				.addChannelTypes(
+					ChannelType.GuildCategory,
+					ChannelType.GuildText,
+					ChannelType.GuildAnnouncement,
+					ChannelType.GuildVoice,
+					ChannelType.GuildStageVoice,
+					ChannelType.GuildForum,
+					ChannelType.GuildMedia,
+					ChannelType.PublicThread,
+					ChannelType.PrivateThread,
+					ChannelType.AnnouncementThread,
+				))
+			.addChannelOption(opt => opt
+				.setName('location')
+				.setDescription('The text channel the filed thread is created in')
+				.setRequired(true)
+				.addChannelTypes(ChannelType.GuildText))
+			.addBooleanOption(opt => opt
+				.setName('private')
+				.setDescription('Make the filed main thread private (true) or public (false)')
+				.setRequired(true)))
+		.addSubcommandGroup(group => group
+			.setName('protect')
+			.setDescription('Admin: manage channels that /channel_file can never file')
+			.addSubcommand(sub => sub
+				.setName('add')
+				.setDescription('Protect a channel from being filed')
+				.addChannelOption(opt => opt
+					.setName('channel')
+					.setDescription('The channel to protect')
+					.setRequired(true)
+					.addChannelTypes(
+						ChannelType.GuildCategory,
+						ChannelType.GuildText,
+						ChannelType.GuildAnnouncement,
+						ChannelType.GuildVoice,
+						ChannelType.GuildStageVoice,
+						ChannelType.GuildForum,
+						ChannelType.GuildMedia,
+						ChannelType.PublicThread,
+						ChannelType.PrivateThread,
+						ChannelType.AnnouncementThread,
+					)))
+			.addSubcommand(sub => sub
+				.setName('remove')
+				.setDescription('Remove a channel from the manual protect list')
+				.addChannelOption(opt => opt
+					.setName('channel')
+					.setDescription('The channel to unprotect')
+					.setRequired(true)))
+			.addSubcommand(sub => sub
+				.setName('list')
+				.setDescription('Show the manually protected channels'))),
+
+	//verification (admin only: enforced at runtime in commands/verification.js)
+	new SlashCommandBuilder()
+		.setName('verification')
+		.setDescription('Admin: manage member verification')
+		.addSubcommand(sub => sub
+			.setName('setup')
+			.setDescription('Post (or repost) the verification dashboard')
+			.addChannelOption(opt => opt
+				.setName('channel')
+				.setDescription('Dashboard channel (defaults to this channel)')
+				.addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+				.setRequired(false))
+			.addRoleOption(opt => opt
+				.setName('role')
+				.setDescription('Adventurer role (defaults to ADVENTURER_ROLE_ID)')
+				.setRequired(false))
+			.addChannelOption(opt => opt
+				.setName('log_channel')
+				.setDescription('Verification log channel (defaults to BOT_LOG_CHANNEL_ID)')
+				.addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+				.setRequired(false)))
+		.addSubcommand(sub => sub
+			.setName('settings')
+			.setDescription('View or change timers, attempts and the unverified-member cleanup')
+			.addIntegerOption(opt => opt.setName('question_time_limit').setDescription('Minutes a question stays valid (1-30)').setMinValue(1).setMaxValue(30).setRequired(false))
+			.addIntegerOption(opt => opt.setName('lockout').setDescription('Minutes locked out after using every attempt (1-1440)').setMinValue(1).setMaxValue(1440).setRequired(false))
+			.addIntegerOption(opt => opt.setName('max_attempts').setDescription('Attempts before a lockout (1-10)').setMinValue(1).setMaxValue(10).setRequired(false))
+			.addIntegerOption(opt => opt.setName('deadline_days').setDescription('Days an unverified member has before cleanup (1-90)').setMinValue(1).setMaxValue(90).setRequired(false))
+			.addStringOption(opt => opt.setName('reminder_days').setDescription('Days-left reminders, comma separated, e.g. 7,3,1').setRequired(false))
+			.addStringOption(opt => opt.setName('cleanup_mode').setDescription('Kick members who never verify')
+				.addChoices(
+					{ name: 'Enabled (remind + kick)', value: 'enabled' },
+					{ name: 'Dry run (log only, no DMs, no kicks)', value: 'dryrun' },
+					{ name: 'Disabled (no checks at all)', value: 'disabled' },
+				)
+				.setRequired(false)))
+		.addSubcommand(sub => sub
+			.setName('force')
+			.setDescription('Give a user the Adventurer role without the quiz (e.g. to verify a bot)')
+			.addUserOption(opt => opt.setName('user').setDescription('Who to verify').setRequired(true)))
+		.addSubcommand(sub => sub
+			.setName('pending')
+			.setDescription('List unverified members with their deadlines'))
+		.addSubcommand(sub => sub
+			.setName('extend')
+			.setDescription('Give an unverified member extra days before cleanup')
+			.addUserOption(opt => opt.setName('user').setDescription('Member to extend').setRequired(true))
+			.addIntegerOption(opt => opt.setName('days').setDescription('Extra days (1-60)').setMinValue(1).setMaxValue(60).setRequired(true)))
+		.addSubcommand(sub => sub
+			.setName('status')
+			.setDescription('Show verification config and counts')),
 
 ].map(cmd => cmd.toJSON());
 

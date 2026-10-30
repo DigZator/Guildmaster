@@ -28,6 +28,10 @@ module.exports = (client) => {
                 await require('../modals/tableAdminAddPlayerModal')(interaction, client);
             } else if (interaction.customId.startsWith('tableAdminNumberModal:')) {
                 await require('../modals/tableAdminNumberModal')(interaction, client);
+            } else if (interaction.customId.startsWith('channelFile:')) {
+                await require('../buttons/channelFile').handleModal(interaction, client);
+            } else if (interaction.customId === 'verification:modal') {
+                await require('../buttons/verification').handleModalSubmit(interaction, client);
             } else {
                 handled = false;
             }

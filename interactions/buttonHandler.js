@@ -21,6 +21,8 @@ const leagueDashboard 	= require('../buttons/leagueDashboard');
 const archive 			= require('../buttons/archive');
 const tableAdmin 		= require('../buttons/tableAdmin');
 const createCampaign 	= require('../buttons/createCampaign');
+const verification 	= require('../buttons/verification');
+const channelFile 	= require('../buttons/channelFile');
 
 const exactHandlers = {
     ...memorial.exact,
@@ -34,6 +36,7 @@ const exactHandlers = {
     ...leagueDashboard.exact,
     ...archive.exact,
     ...createCampaign.exact,
+    ...verification.exact,
 };
 
 const prefixHandlers = {
@@ -52,6 +55,8 @@ const prefixHandlers = {
     ...directLine.prefix,
     ...archive.prefix,
     ...tableAdmin.prefix,
+    ...verification.prefix,
+    ...channelFile.prefix,
 };
 
 module.exports = (client) => {

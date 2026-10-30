@@ -19,6 +19,7 @@ require('./interactions/buttonHandler')(client);
 require('./interactions/modalHandler')(client);
 require('./interactions/threadAlertLog')(client);
 require('./flow/announcementFlow')(client);
+require('./flow/editGameArtFlow')(client);
 require('./flow/tlrSubmissionFlow')(client);
 require('./interactions/selectHandler')(client);
 require('./flow/rssFlow')(client);
@@ -28,10 +29,14 @@ require('./utils/registrationDefaults').init(client);
 require('./utils/scheduler').init(client);
 require('./utils/restockScheduler').init(client);
 require('./utils/threadActivityReport').init(client);
+require('./utils/keepAlive').initListeners(client);
 require('./utils/trapChannel')(client);
 require('./utils/deactivator').init(client);
 require('./utils/ticketDashboardWatcher').init(client);
+require('./utils/ticketCommands').init(client);
+require('./utils/verificationWatcher').init(client);
 require('./utils/memorialReindex').init(client);
+require('./utils/channelFileReview').init(client);
 
 const token = process.env.DISCORD_TOKEN;
 
