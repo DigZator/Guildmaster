@@ -65,6 +65,9 @@ Defined in `.env.example`; copy to `.env` and fill in before running.
 **Core Discord**
 `DISCORD_TOKEN`, `CLIENT_ID`, `GUILD_ID`, `DEV_MODE`
 
+**Keep Alive**
+`KEEP_ALIVE_METHOD` — how kept-alive threads have their archive timer reset: `quiet` (default; flips the thread's auto-archive duration and back, invisible) or `message` (posts a short message in the thread and deletes it). Unknown values fall back to `quiet`.
+
 **Notion integration**
 `NOTION_TOKEN`, `DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEATS_DATASOURCE_ID`
 `LEAGUE_CHARACTERS_DB_ID`, `LEAGUE_INVENTORY_DB_ID`, `LEAGUE_QUEST_LOG_DB_ID`, `LEAGUE_DOWNTIME_DB_ID`, `LEAGUE_TRADES_DB_ID`, `GUILD_SHOP_DB_ID`, `PLAYER_MARKETPLACE_DB_ID`
@@ -123,13 +126,17 @@ Commands are defined with `SlashCommandBuilder` in `deploy-commands.js` and thei
 |---|---|
 | `/create_campaign <spectators_read_chat> <spectators_send_messages> <spectators_join_voice> [name] [use_stage] [dm]` | Creates a campaign role, category, text channel, and voice/stage channel in one step, with configurable spectator permissions. Rolls back on partial failure. |
 | `/announce_game <game> [manual]` | Post a game announcement to the quest board, from existing game data or a manual entry flow |
-| `/edit_game <game> <field>` | Edit a single field on a game record in Notion (autocomplete-driven field picker) |
-| `/schedule_activation add/remove/view/set-reminder-time/set-activation-time/toggle-reminder/toggle-auto/status` | Manage the automated daily game-activation queue and its reminder/activation times (IST) |
+| `/edit_game <game> <field>` | Edit a single field on a game record in Notion (autocomplete-driven field picker). Cover Art is set by sending an image or image link in chat, which is re-hosted at Notion |
+| `/schedule_activation add/remove/view/set-reminder-time/set-activation-time/toggle-reminder/toggle-auto/status/run-now` | Manage the automated daily game-activation queue and its reminder/activation times (IST). `run-now [announce]` forces an immediate activation run; `announce: No` activates without the WhatsApp copy / quest-board post |
 | `/rss add/remove/list` | Manage RSS feeds that auto-post new items to a channel |
 | `/anon_msg add/rmv/edit` | Create, edit, or remove anonymous messages posted to a channel under a tracked key |
 | `/ticket setup/config/reset_counter/type add/edit/remove/list` | Deploy and configure the support-ticket dashboard, including custom ticket types, categories, and log channels |
+| `/ticket raise <type> [reason] [identification] [details]` | *(Everyone)* Open a ticket. Creates it immediately if `reason` and `identification` are given, otherwise opens the creation form pre-filled with what was typed |
+| `/ticket close [reason] [feedback]` | *(Raiser or ticket staff, inside a ticket channel)* Close the current ticket. Opens a pre-filled form if `reason` is blank. Closing posts a bottom-of-channel message with Resurrect / File buttons; the ticket's control message is pinned |
 | `/archive <target>` | Lock and move a channel or category into the configured archive category |
 | `/archive-config <category>` | Set the destination category used by `/archive` |
+| `/channel_file file <target> <location> <private>` | *(CMD role)* Copy a channel and its threads into a thread, verify the copy, then delete the original once an admin approves in the control channel |
+| `/channel_file protect add/remove/list` | *(Admins role)* Manage the manual list of channels `/channel_file` may never file |
 | `/help <group> <family>` | Contextual, family-organized help browser |
 
 ### 5.3 League — Player Commands (`/league ...`)
@@ -210,7 +217,8 @@ Initialized in `index.js` at boot, these run independently of any single interac
 | `utils/registrationDefaults.js` | Loads default registration-link settings |
 | `utils/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
 | `utils/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`utils/shopFloor.js`, `utils/5etoolsCatalogue.js`); also runs once ~30s after startup |
-| `utils/threadActivityReport.js` | Periodic thread-activity reporting |
+| `utils/threadActivityReport.js` | Periodic thread-activity reporting; also triggers the Keep Alive refresh every 3 days |
+| `utils/keepAlive.js` | Keep Alive refresh job, permission checks, safety-net listeners |
 | `utils/trapChannel.js` | Monitors a designated "trap" channel (likely anti-spam/honeypot) |
 | `utils/deactivator.js` | Handles scheduled deactivation logic |
 | `utils/ticketDashboardWatcher.js` | Keeps the ticket dashboard message in sync |
@@ -242,6 +250,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `priceOverrides.json` | Manual price overrides for catalogue items |
 | `archiveConfig.js` → `archiveConfig.json` | Destination category for `/archive` |
 | `threadReport.json` | Thread-activity report state |
+| `keepAliveStore.js` → `keepAliveThreads.json` | Threads registered with `/keep_alive` |
 | `gameFields.json` | Field metadata for `/edit_game` autocomplete |
 | `registrationDefaults.js` | Default registration link |
 | `channels.js` | Central export of channel-ID env vars for reuse across modules |
@@ -268,7 +277,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - Config-driven: ticket **types** (label, emoji, channel slug/tag, category group, roles) are stored in `data/ticketTypes.json` and editable at runtime via `/ticket type add|edit|remove|list` — no redeploy needed for new ticket categories.
 - Two category groups: `normal` and `hr`, each with its own creation category and transcript log channel.
 - Opening a ticket creates a private channel named from the type's slug/tag plus a counter (e.g. `#hr-000-janedoe`); counters are per-type and resettable via `/ticket reset_counter`.
-- On close, `ticketTranscript.js` generates and posts a transcript thread to the configured log channel.
+- On close, `ticketTranscript.js` generates and posts a transcript thread to the configured log channel. This module is the shared transcript engine: direct lines and `/channel_file` use it too. Attachments are reposted without a file-count cap, held in RAM per batch (no disk writes) and only staged through `temp/` when a single batch exceeds 32 MB.
 
 ### 8.2 Game Announcements & Activation (`announce_game`, `edit_game`, `schedule_activation`, `utils/scheduler.js`, `utils/cache.js`)
 - Games are cached in memory (`cache.js`, refreshed on login and by `cacheWatcher.js`) for fast autocomplete across many commands (`get_players`, `game_info`, `edit_game`, `announce_game`, `schedule_activation`).
@@ -304,6 +313,19 @@ Many options across the bot use live autocomplete, implemented in dedicated `uti
 
 ### 8.9 Error Reporting (`utils/errorReporter.js`)
 Centralized helper for reporting unexpected errors to an incident/debugging channel, used throughout commands and background services to surface failures (especially mid-transaction failures in gold transfers, shop purchases, and campaign creation) without crashing the process.
+
+### 8.10 Channel Filing (`/channel_file`, `commands/channelFile.js`, `utils/channelFiler.js`, `utils/channelFileReview.js`, `utils/channelFileGuards.js`, `utils/channelFileJobs.js`, `buttons/channelFile.js`)
+- **Access:** `/channel_file file` and every review button/form need the `CMD_ROLE_ID` role (if unset, nobody passes); `protect` needs the Admin role. Slash-command visibility is not restricted — the runtime role check is authoritative.
+- **Flow:** guards and warnings → confirm → freeze (permission snapshot saved to `data/channelFileJobs/` and posted to the control channel, channel made read-only) → file into a thread in `location`, 64 messages at a time → second check → review message in `GUILDMASTER_CTRL_CHANNEL_ID` → Proceed (type the channel name) or Abort.
+- **Freezing is best effort.** The permission snapshot must be saved (otherwise the job fails), but if the channel cannot be made read-only, or some active threads cannot be locked, the filing carries on. The problem is recorded as a `freeze` snag and the review message shows a prominent "not fully frozen" warning, because anything posted while filing runs is not in the copy. Missing *Manage Permissions* on the target is a warning in the confirm step for the same reason.
+- **What gets filed:** every message with embeds, stickers, attachments and embed images. The filed thread is named after the channel (a short job id is added only if that name is already taken); the filing date is in the thread header. Public child threads (active and archived) are inlined after the main chat between start/end markers. Private child threads each become their own private thread (non-invitable), with a generic placeholder in the main thread; their original members are written inside the new thread and listed to admins in the completion note. Without Manage Threads the bot cannot see archived/private threads — a warning is shown.
+- **Batches:** messages are read and posted 64 at a time. After each batch (its text and its attachments) the bot reads those posts back from the filed thread and compares them (content hash, file names and sizes). A mismatch is re-read a couple of times, then the filing fails and reverts rather than continuing with a gap. Nothing is deleted while this happens.
+- **Two checks:** (1) *filed copy* — the batch read-backs above (a full re-read of the whole filed copy happens on **Re-run checks**); (2) *source re-scan* — the frozen source and its thread list are scanned again. Any mismatch becomes a *snag*, shown ephemerally via **Display errors**. Messages deleted mid-run, dead/expired links and oversized files are snags; new messages posted during the freeze are noted but not filed.
+- **Review buttons:** CMD role only, and they never expire — the job sits in review (state on disk, survives restarts) until someone presses Proceed or Abort; a 72-hour reminder pings the CMD role. The moment Proceed, Abort or Re-run checks is accepted the buttons are removed from the review message; they come back if nothing was deleted (wrong name, channel now protected, Discord refused the delete, re-check finished).
+- **Never auto-deletes:** the delete code path must pass `assertDeletable` (phase, verified flag, approver, snapshot and an intact job file). Protection is re-checked at Proceed. Any failure before review triggers a hard revert (unfreeze, restore exact permissions, filed threads renamed `aborted · …`).
+- **Protection:** the manual list (`data/channelFileProtected.json`, managed with `/channel_file protect add|remove|list`) **starts empty** and is the only thing that protects a channel, apart from two things that are always protected because the filing cannot work without them: the control channel (`GUILDMASTER_CTRL_CHANNEL_ID`, and threads inside it) and the destination channel of the current filing. Admins should add whatever else they care about (ticket, direct line, RSS and dashboard channels, Keep Alive threads, …). Discord's own special channels (rules, community updates, safety alerts, system, AFK) only produce a warning, since Discord may refuse to delete them. Manual protection is not inherited by threads.
+- **Raspberry Pi / SD card:** messages are rendered one batch at a time and only IDs are kept; attachment batches live in RAM; job state is written only at phase changes, the message inventory once per filing (`<id>.manifest.json`). A restart during filing reverts the job (re-run the command); a restart during review (or during *Re-run checks*) changes nothing.
+- Shared engine: `utils/ticketTranscript.js` (also used by tickets and direct lines). Tests: `node test/channelFileFoundation.js`, `node test/channelFileFlow.test.js`.
 
 ---
 

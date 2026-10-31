@@ -1,11 +1,10 @@
-const { ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const {
     loadTicketTypes,
     addTicketType,
     updateTicketType,
     removeTicketType,
-    VALID_CATEGORY_GROUPS,
 } = require('../config/ticketTypes');
 const { getConfig, setConfig } = require('../config/ticketGuildConfig');
 const { ticketCreateCustomId } = require('../buttons/ticket');

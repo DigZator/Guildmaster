@@ -4,8 +4,6 @@ const net = require('net');
 const { Client } = require('@notionhq/client');
 const { formatDateForDisplay } = require('./dateFormat');
 
-const URL = "https://adventuring-guild-mumbai.notion.site/api/v3/queryCollection";
-
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DATASOURCE_ID = process.env.DATASOURCE_ID;
 const SEATS_DATASOURCE_ID = process.env.SEATS_DATASOURCE_ID;
@@ -34,7 +32,6 @@ async function fetchGames() {
                 const system = p['System'].select?.name ?? '';
                 const otherSystem = richText(p['Other System'].rich_text);
                 const startDate = p['Start Date'].date?.start ?? '';
-                const endDate = p['End Date'].date?.start ?? '';
 
                 games.push({
                     uid:              page.id,

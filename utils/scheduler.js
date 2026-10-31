@@ -14,7 +14,6 @@ const ACTIVATION_RETRY_DELAY_MS = 10 * 60 * 1000;
 
 let ctrlChannel = null;
 let botClient = null;
-let schedulerInterval = null;
 let lastTickMs = null;
 let retryTimer = null;
 
@@ -280,7 +279,7 @@ async function runStartupCheck(client) {
 function init(client) {
     client.once('clientReady', async () => {
         await runStartupCheck(client);
-        schedulerInterval = setInterval(tick, 60 * 1000);
+        setInterval(tick, 60 * 1000);
         console.log('[Scheduler] Started.');
     });
 }

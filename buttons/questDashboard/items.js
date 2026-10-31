@@ -12,7 +12,7 @@ const { loadDashboardState } = require('../../interactions/questDashboardRender'
 const questDrafts = require('../../utils/questDrafts');
 const { searchCatalogue, getCatalogueItemByCode, defaultPriceFor, inferSubtype } = require('../../utils/5etoolsCatalogue');
 const { formatCurrency } = require('../../utils/currency');
-const { ITEM_TYPE_CHOICES } = require('../../config/itemChoices');
+const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('../../config/itemChoices');
 const { setPendingManualItem, getPendingManualItem, clearPendingManualItem } = require('../../utils/pendingManualItems');
 const { assertOwner, assertUnlocked, finishAndDelete, navRow, refreshDashboardMessage } = require('./common');
 
@@ -448,7 +448,7 @@ async function handleAddItemManualRaritySelect(interaction, questId, extra) {
 async function handleAddItemRemoveSelect(interaction, questId, extra) {
     await interaction.deferUpdate();
 
-    const [characterPageId, dashboardMessageId] = extra.split('|');
+    const [, dashboardMessageId] = extra.split('|');
     const lineId = interaction.values[0];
 
     let state;

@@ -13,7 +13,7 @@ const {
 const { addAction, getAll: getAllPendingActions } = require('../utils/pendingActions');
 const {
     loadBlueprints, resolveCostFromUID, getBlueprint, getBlueprintById, getBlueprintByKey,
-    blueprintNeedsTierChoice, listTierChoices, nextDtaId, resolveCost, applyDowntimeOutput, getParamName, sumCosts,
+    blueprintNeedsTierChoice, listTierChoices, nextDtaId, applyDowntimeOutput, getParamName, sumCosts,
 } = require('../utils/downtime');
 const leagueNotion = require('../utils/leagueNotion');
 const { getCatalogueItemByName } = require('../utils/5etoolsCatalogue');
@@ -280,10 +280,9 @@ async function handleDowntimeProgress(interaction) {
     const isComplete = newDaysInvested >= daysRequired;
     const needsCompletionApproval = isComplete && blueprint?.approval?.post;
 
-    let currentGold;
     let stage = 'none'; // none -> resources_deducted -> progress_logged -> complete
     try {
-        currentGold = await withPageLock(char.id, async () => {
+        await withPageLock(char.id, async () => {
             const gold = await getCharacterGold(char.id);
             if (gold < gpCost) {
                 throw Object.assign(new Error('insufficient-gold'), { code: 'INSUFFICIENT_GOLD', gold });

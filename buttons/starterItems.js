@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
-const { currentStep, applyPick, isComplete } = require('../utils/starterEquipmentFlow');
+const { currentStep, applyPick } = require('../utils/starterEquipmentFlow');
 const {
     createInventoryItem,
     adjustCharacterNumber,

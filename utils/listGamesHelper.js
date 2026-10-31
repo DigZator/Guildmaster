@@ -3,7 +3,6 @@ const { EmbedBuilder } = require('discord.js');
 function formatGameLine(game, isAdmin) {
     const hidden = isAdmin && !game.show ? '[HIDDEN] ' : '';
     const seatsLeft = game.openSeats !== undefined ? game.openSeats : 'N/A';
-    const lock = !game.activate ? ' 🔒' : '';
     const level = game.level === '0' ? 'N/A' : game.level;
     const levelinfo = game.type === 'Workshop' ? `` :  `📊 Lvl ${level} ${game.experienceLevel}`;
 

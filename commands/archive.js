@@ -2,7 +2,6 @@ const { EmbedBuilder, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle 
 const { isAdminChannel } = require('../utils/isAdminChannel');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
 const { getArchiveCategoryId } = require('../config/archiveConfig');
-const { archiveSingleChannel, archiveCategoryChannels } = require('../utils/archiveChannel');
 
 const MAX_CHANNELS_PER_CATEGORY = 50;
 
