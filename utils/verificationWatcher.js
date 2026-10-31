@@ -7,10 +7,6 @@ const { reportError } = require('./errorReporter');
 const TICK_MS = 60 * 1000;
 let busy = false;
 
-function getGuild(client) {
-    return client.guilds.cache.get(process.env.GUILD_ID) ?? client.guilds.cache.first();
-}
-
 async function checkDashboard(client) {
     const cfg = getConfig();
     if (!cfg.dashboardChannelId || !cfg.dashboardMessageId) return;

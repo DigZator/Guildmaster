@@ -2,20 +2,6 @@ const { randomBytes } = require('crypto');
 const { todayISTDateString } = require('../dateFormat');
 const { notion, DB, withPageLock, queryAllPages } = require('./core');
 
-// ─── guild_shop ──────────────────────────────────────────────────────────────
-async function getShopItemByCatalogueCode(code) {
-    const response = await notion.dataSources.query({
-        data_source_id: DB.shop,
-        filter: { property: 'Open5e Code', rich_text: { equals: code.toLowerCase() } },
-        page_size: 1,
-    });
-    return response.results[0] ?? null;
-}
-
-async function getAllShopItems() {
-    return queryAllPages(DB.shop);
-}
-
 // ─── player_marketplace ──────────────────────────────────────────────────────
 
 async function getOpenListings({ rarity, sortBy } = {}) {
