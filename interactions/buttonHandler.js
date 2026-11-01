@@ -79,6 +79,7 @@ module.exports = (client) => {
         		console.warn(`[buttonHandler] Interaction expired before we could respond: ${interaction.customId}`);
         		return;
         	}
+        	console.error(`[buttonHandler] Error handling button ${interaction.customId}:`, error);
         	try {
                 if (interaction.replied || interaction.deferred) {
                 	await interaction.followUp({ content: 'Something went wrong.', flags:64 });
