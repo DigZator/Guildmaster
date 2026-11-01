@@ -14,8 +14,6 @@ client.once('clientReady', () => {
     console.log(`Logged in as ${client.user.tag}`);
 });
 
-// client.tempSubmissions = new Map();
-// client.announcementSessions = new Map();
 client.leaderboardSessions = new Map();
 
 module.exports = client;
