@@ -6,8 +6,10 @@
   "scripts": {
     "test": "node tests/run.js",
     "lint": "eslint .",
-    "verify": "npm run lint && npm test",
-    "snapshots:update": "node tests/tools/updateSnapshots.js"
+    "verify": "npm run lint && npm run typecheck && npm test",
+    "snapshots:update": "node tests/tools/updateSnapshots.js",
+    "typecheck": "node tests/tools/typecheck.js",
+    "typecheck:update": "node tests/tools/typecheck.js --update"
   },
   "author": "",
   "license": "ISC",
@@ -21,6 +23,7 @@
   },
   "devDependencies": {
     "eslint": "^9.39.5",
-    "globals": "^17.13.0"
+    "globals": "^17.13.0",
+    "typescript": "^7.0.2"
   }
 }
