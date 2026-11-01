@@ -46,6 +46,42 @@ function commandPaths(commands) {
     return out;
 }
 
+
+function commandRouteList(commands) {
+    const out = [];
+    for (const c of commands) {
+        const subs = (c.options || []).filter(o => o.type === 1 || o.type === 2);
+        if (!subs.length) { out.push({ command: c.name }); continue; }
+        for (const s of subs) {
+            if (s.type === 1) { out.push({ command: c.name, sub: s.name }); continue; }
+            for (const leaf of (s.options || []).filter(o => o.type === 1)) out.push({ command: c.name, group: s.name, sub: leaf.name });
+        }
+    }
+    return out;
+}
+
+const chainIds = (chain) => chain.map(e => ({ id: e.match === 'prefix' ? e.value + 'zz' : e.value, target: e.target }));
+
+// Who gets what on every route today: drives the real routers with fake interactions (see routePermsCli.js).
+function buildRoutePermissions() {
+    const { commands } = buildCommandSnapshot();
+    const buttons = getButtonRoutes();
+    const selects = scan.scanChain('interactions/selectHandler.js');
+    const modals = scan.scanChain('interactions/modalHandler.js');
+    const input = {
+        commands: commandRouteList(commands),
+        buttons: [...buttons.exact.map(r => r.key), ...buttons.prefix.map(r => r.key + 'zz')],
+        selects: chainIds(selects).map(e => ({ id: e.id, user: /UserSelect/.test(e.target) })),
+        modals: chainIds(modals).map(e => e.id),
+    };
+    const result = spawnSync(process.execPath, [path.join(__dirname, 'routePermsCli.js')], {
+        cwd: root, env: { PATH: process.env.PATH, HOME: process.env.HOME, TZ: 'UTC', ...testEnv }, input: JSON.stringify(input), encoding: 'utf8', timeout: 180000, killSignal: 'SIGKILL',
+    });
+    const match = (result.stdout || '').match(/ROUTEPERMS_JSON_START\n([\s\S]*?)\nROUTEPERMS_JSON_END/);
+    if (!match) throw new Error('Could not characterize route permissions:\n' + (result.stderr || '').slice(0, 800));
+    return plain(JSON.parse(match[1]));
+}
+
 async function buildInventory() {
     const { commands } = buildCommandSnapshot();
     const names = commands.map(c => c.name);
@@ -72,4 +108,4 @@ async function buildInventory() {
     });
 }
 
-module.exports = { buildCommandSnapshot, buildInventory, getButtonRoutes, sortKeys, plain };
+module.exports = { buildCommandSnapshot, buildInventory, buildRoutePermissions, getButtonRoutes, sortKeys, plain };

@@ -1,0 +1,3559 @@
+{
+  "personas": [
+    "nobody",
+    "admins-role",
+    "hr-role",
+    "cmd-role",
+    "clerk+clankers",
+    "dm-role",
+    "player-roles",
+    "discord-administrator",
+    "nobody@ctrl-channel",
+    "nobody@league-channel",
+    "admins-role@ctrl-channel"
+  ],
+  "commands": [
+    {
+      "route": "ping",
+      "results": {
+        "no-isAdminChannel-call | Pong! 🏓": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "keep_alive",
+      "results": {
+        "no-isAdminChannel-call | ❌ `/keep_alive` can only be used inside a thread.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferReply)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest setup",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ✅ The Long Rest dashboard posted here.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest reindex",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferReply)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest add",
+      "results": {
+        "no-isAdminChannel-call | The submission channel is not configured. Contact an admin.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest remove",
+      "results": {
+        "no-isAdminChannel-call | This command can only be used in the memorial submission or control channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "announce_game",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ Please select a game from the dropdown.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket raise",
+      "results": {
+        "no-isAdminChannel-call | ❌ Unknown ticket type — pick one from the list as you type.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket close",
+      "results": {
+        "no-isAdminChannel-call | ❌ This command only works inside a ticket channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket setup",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ✅ Ticket dashboard posted here.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket config",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | Current config: • Category (normal): *not set* • Category (HR): *not set* • Log ": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket reset_counter",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ✅ All ticket counters reset to `000`.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ Could not derive a valid key from the label/key provided.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ Provide at least one field to change.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket type remove",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ No ticket type with key `null` found.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket type list",
+      "results": {
+        "botAdmin=false | ❌ You don't have permission to run this.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | 🎮 **Game - Announcement, Digital Asset Req and Support** — key: `game_support`,": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "direct_line create",
+      "results": {
+        "hr=false | ❌ Only HR can use this command.": [
+          "nobody",
+          "admins-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "hr=true | ❌ You must provide at least one target.": [
+          "hr-role"
+        ]
+      }
+    },
+    {
+      "route": "direct_line attach",
+      "results": {
+        "hr=false | ❌ Only HR can use this command.": [
+          "nobody",
+          "admins-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "hr=true | ❌ You must provide at least one target.": [
+          "hr-role"
+        ]
+      }
+    },
+    {
+      "route": "direct_line file",
+      "results": {
+        "hr=false | ❌ Only HR can use this command.": [
+          "nobody",
+          "admins-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "hr=true | ❌ This can only be used inside a direct line channel (one whose name starts with": [
+          "hr-role"
+        ]
+      }
+    },
+    {
+      "route": "list_games",
+      "results": {
+        "bot=false | (deferReply)": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@league-channel"
+        ],
+        "bot=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "get_players",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ Please select a game.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "manipulate_table",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferReply)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "game_info",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "rss add",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the admin channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | (deferReply)": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "rss remove",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the admin channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ❌ Feed not found.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "rss list",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the admin channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | No RSS feeds configured yet.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg add",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the admin channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | (deferReply)": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg rmv",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the admin channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ❌ Key `null` not found.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg edit",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the admin channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ❌ Key `null` not found.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation add",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ❌ Game not found.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation remove",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ❌ Game not found in queue.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation view",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | **Activation Queue Status** Reminder: <t:1793626200:t> — ✅ Enabled Activation: <": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation set-reminder-time",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ❌ Invalid time format. Use HH:MM in 24hr IST.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation set-activation-time",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ❌ Invalid time format. Use HH:MM in 24hr IST.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation toggle-reminder",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ✅ Daily reminder is now **disabled**.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation toggle-auto",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ✅ Auto-scheduler is now **enabled**.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation status",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | **Activation Queue Status** Reminder: <t:1793626200:t> — ✅ Enabled Activation: <": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation run-now",
+      "results": {
+        "botChannelAdmin=false | ❌ This command can only be used by admins in the mod channel.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botChannelAdmin=true | ⚠️ Queue is empty — nothing to activate.": [
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "help",
+      "results": {
+        "no-isAdminChannel-call | ❌ Unknown help group.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "edit_game",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ Please provide both a game and a field.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league create",
+      "results": {
+        "no-isAdminChannel-call | You need to run `/league create` inside your character profile thread in the **#": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league profile",
+      "results": {
+        "no-isAdminChannel-call | Could not reach the database right now. Please try again in a moment.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league edit",
+      "results": {
+        "no-isAdminChannel-call | Please provide at least one field to update.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league setart",
+      "results": {
+        "no-isAdminChannel-call | You need to run `/league setart` inside your character profile thread in the **#": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league inv",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league item",
+      "results": {
+        "no-isAdminChannel-call | Pick an item from the list, or use `id` with the exact number from `/league inv`": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league character status",
+      "results": {
+        "no-isAdminChannel-call | ❌ Could not reach the database. Please try again.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league shop browse",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league shop buy",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league shop sell",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league shop search",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league shop info",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace browse",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace buy",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace list",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace unlist",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league log",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league leaderboard",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league dashboard",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league gold",
+      "results": {
+        "no-isAdminChannel-call | There was an error while executing this command!": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league balance",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league quest list",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league downtime start",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league downtime progress",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league downtime list",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league downtime buy-days",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league downtime activities",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league starter-items",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league void item",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "league void gold",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin rep",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin gold",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin milestone",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin pending",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin approve",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | There was an error while executing this command!": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin reject",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | There was an error while executing this command!": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin clear",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | There was an error while executing this command!": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item import",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop stock",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop stockall",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop unstock",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop restock",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin catalogue sync",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin catalogue sync-spells",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin audit characters",
+      "results": {
+        "league=false | ❌ You must be an admin or use this in the league admin channel.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator"
+        ],
+        "league=true | (deferReply)": [
+          "admins-role",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leaguedm quest link",
+      "results": {
+        "no-isAdminChannel-call | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "no-isAdminChannel-call | (deferReply)": [
+          "dm-role"
+        ]
+      }
+    },
+    {
+      "route": "leaguedm dashboard",
+      "results": {
+        "no-isAdminChannel-call | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "no-isAdminChannel-call | (deferReply)": [
+          "dm-role"
+        ]
+      }
+    },
+    {
+      "route": "archive",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ No archive category is configured yet. Run `/archive-config` and pick a catego": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "archive-config",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | There was an error while executing this command!": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "channel_file file",
+      "results": {
+        "cmd=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "cmd=true | (deferReply)": [
+          "cmd-role"
+        ]
+      }
+    },
+    {
+      "route": "channel_file protect add",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | There was an error while executing this command!": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "channel_file protect remove",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | There was an error while executing this command!": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "channel_file protect list",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | 🛡️ **Manually protected channels** *None yet.* -# Only the bot's control channe": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification setup",
+      "results": {
+        "botAdmin=false | (deferReply)": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferReply)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification settings",
+      "results": {
+        "botAdmin=false | (deferReply)": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferReply)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification force",
+      "results": {
+        "botAdmin=false | (deferReply)": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferReply)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification pending",
+      "results": {
+        "botAdmin=false | (embed/components)": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (embed/components)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification extend",
+      "results": {
+        "botAdmin=false | (deferReply)": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferReply)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification status",
+      "results": {
+        "botAdmin=false | (embed/components)": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (embed/components)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    }
+  ],
+  "buttons": [
+    {
+      "route": "announce_cancel",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "announce_confirm",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "announce_edit",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "anon_nokey_cancel",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "anon_nokey_confirm",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "archive_cancel",
+      "results": {
+        "no-isAdminChannel-call | Archive cancelled.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "continue_memorial_part2",
+      "results": {
+        "no-isAdminChannel-call | (showModal)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign_cancel",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign_confirm",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "dtbuy_cancel",
+      "results": {
+        "no-isAdminChannel-call | ❌ Cancelled — no reputation spent.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "dtbuy_confirm",
+      "results": {
+        "no-isAdminChannel-call | ⏳ Processing...": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashBalance",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashDowntimes",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashEdit",
+      "results": {
+        "no-isAdminChannel-call | You do not have an active character. Use /league create to register one.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashInventory",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashProfile",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashQuests",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashSetArt",
+      "results": {
+        "no-isAdminChannel-call | You need to use this inside your character profile thread in the #characters for": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashSwitch",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "memorial_mod_approve",
+      "results": {
+        "no-isAdminChannel-call | (embed/components)": [
+          "nobody"
+        ],
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "memorial_mod_deny",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "memorial_preview_cancel",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "memorial_preview_confirm",
+      "results": {
+        "no-isAdminChannel-call | ⏳ Submitting…": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopbuy_discount_no",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopbuy_discount_yes",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopsell_confirm_no",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopsell_confirm_yes",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "startitems_cancel",
+      "results": {
+        "no-isAdminChannel-call | ❌ Cancelled — no items were added.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "startitems_confirm",
+      "results": {
+        "no-isAdminChannel-call | ❌ Session expired.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tlrRemoveCancel",
+      "results": {
+        "no-isAdminChannel-call | ❌ Memorial removal cancelled.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tlrRemoveProceed",
+      "results": {
+        "no-isAdminChannel-call | ❌ Only moderators can remove a memorial by message ID.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "no-isAdminChannel-call | (showModal)": [
+          "admins-role",
+          "clerk+clankers",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tlrRemoveRequest",
+      "results": {
+        "no-isAdminChannel-call | 🗑️ **Remove a Memorial** I couldn't find any memorials posted by you. If you th": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "no-isAdminChannel-call | 🗑️ **Remove a Memorial** I couldn't find any memorials posted by you. _Moderato": [
+          "admins-role",
+          "clerk+clankers",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tlrSubmit",
+      "results": {
+        "no-isAdminChannel-call | (showModal)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification:retry",
+      "results": {
+        "no-isAdminChannel-call | (showModal)": [
+          "nobody"
+        ],
+        "no-isAdminChannel-call | ✅ You don't need to verify.": [
+          "admins-role",
+          "hr-role",
+          "clerk+clankers",
+          "admins-role@ctrl-channel"
+        ],
+        "no-isAdminChannel-call | ⏳ Your question is already opening. Check for the pop-up window.": [
+          "cmd-role",
+          "dm-role",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "no-isAdminChannel-call | ✅ You're already verified. Nothing more to do!": [
+          "player-roles"
+        ]
+      }
+    },
+    {
+      "route": "verification:start",
+      "results": {
+        "no-isAdminChannel-call | ⏳ Your question is already opening. Check for the pop-up window.": [
+          "nobody",
+          "cmd-role",
+          "dm-role",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "no-isAdminChannel-call | ✅ You don't need to verify.": [
+          "admins-role",
+          "hr-role",
+          "clerk+clankers",
+          "admins-role@ctrl-channel"
+        ],
+        "no-isAdminChannel-call | ✅ You're already verified. Nothing more to do!": [
+          "player-roles"
+        ]
+      }
+    },
+    {
+      "route": "anon_cancel_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "anon_confirm_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "anon_remove_cancel_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "anon_remove_confirm_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "archive_confirm_zz",
+      "results": {
+        "no-isAdminChannel-call | ⏳ Archiving…": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "cancel_remove_zz",
+      "results": {
+        "no-isAdminChannel-call | Deletion cancelled.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "channelFile:zz",
+      "results": {
+        "cmd=false | ❌ You do not have permission to use this.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "cmd=true | Something went wrong.": [
+          "cmd-role"
+        ]
+      }
+    },
+    {
+      "route": "charstatus_cancel:zz",
+      "results": {
+        "no-isAdminChannel-call | Status change cancelled.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "charstatus_confirm:zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "confirm_remove_zz",
+      "results": {
+        "no-isAdminChannel-call | You do not have permission to delete this message.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "no-isAdminChannel-call | Message successfully deleted.": [
+          "admins-role",
+          "clerk+clankers",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "dl:zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ This direct line record no longer exists.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "editgame_checkbox_zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ This isn't your edit session.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "inv_next_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "inv_prev_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leaderboard_page:zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ Only the person who ran this command can page through it.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "list_games_next_zz",
+      "results": {
+        "no-isAdminChannel-call | Something went wrong.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "list_games_prev_zz",
+      "results": {
+        "no-isAdminChannel-call | Something went wrong.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "marketbrowse_next_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "marketbrowse_prev_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "questDash:zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ This dashboard control isn't wired up yet.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopbrowse_next_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopbrowse_prev_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopsearch_next_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopsearch_prev_zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "startitems_pick_zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ Session expired.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tableAdmin:zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tableAdminReactivate:zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket:zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ This ticket record no longer exists.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticketCreate:zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ Unknown ticket type.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification:pending:zz",
+      "results": {
+        "botAdmin=false | (embed/components)": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (embed/components)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    }
+  ],
+  "selects": [
+    {
+      "route": "questDash:zz (user select)",
+      "results": {
+        "no-isAdminChannel-call | ❌ This dashboard control isn't wired up yet.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "announce_edit_select",
+      "results": {
+        "no-isAdminChannel-call | ❌ Session expired.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tlrRemoveSelect",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "shopbuy_discount_select",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "starter_items_select",
+      "results": {
+        "no-isAdminChannel-call | ❌ Session expired.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashSwitchSelect",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "questDash:zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ This dashboard control isn't wired up yet.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tableAdminSeatSelect:zz",
+      "results": {
+        "no-isAdminChannel-call | (no reply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    }
+  ],
+  "modals": [
+    {
+      "route": "characterSubmission_1",
+      "results": {
+        "no-isAdminChannel-call | ✅ **Part 1 Complete!** **Character:** **Species:** **Class:** **Please keep the ": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "characterSubmission_2",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueCreate",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "editgame_modal_zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ Session expired. Run `/edit_game` again.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "announceedit_modal_zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ Session expired.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "questDash:zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ This dashboard control isn't wired up yet.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticketCreateModal:zz",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "ticket:zz",
+      "results": {
+        "no-isAdminChannel-call | ❌ This form isn't wired up yet.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "leagueDashEditModal:zz",
+      "results": {
+        "no-isAdminChannel-call | (deferReply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tlrRemoveModal",
+      "results": {
+        "no-isAdminChannel-call | ❌ Invalid message ID format.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tableAdminAddPlayerModal:zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "tableAdminNumberModal:zz",
+      "results": {
+        "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "channelFile:zz",
+      "results": {
+        "cmd=false | ❌ You do not have permission to use this.": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "cmd=true | ❌ Unknown form.": [
+          "cmd-role"
+        ]
+      }
+    },
+    {
+      "route": "verification:modal",
+      "results": {
+        "no-isAdminChannel-call | ⌛ That question expired (this doesn't count against you). Press **Start Verifica": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "no-isAdminChannel-call | ✅ You're already verified. Nothing more to do!": [
+          "player-roles"
+        ]
+      }
+    }
+  ]
+}
