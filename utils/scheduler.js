@@ -284,4 +284,4 @@ function init(client) {
     });
 }
 
-module.exports = { init, runActivationJob, buildQuestBoardMessage };
+module.exports = { init, runActivationJob };

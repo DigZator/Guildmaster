@@ -116,5 +116,3 @@ module.exports = async (interaction, client) => {
     }
     return handleFile(interaction, client);
 };
-
-module.exports.handleProtect = handleProtect;

@@ -162,7 +162,6 @@ function renderMainView(draft, roster, { grouping = 'character', quest = null } 
 }
 
 module.exports = {
-    GROUPINGS,
     renderMainView,
     loadDashboardState,
 };

@@ -168,4 +168,4 @@ function init(client, options) {
     });
 }
 
-module.exports = { init, runMappingCheck, checkMappings, buildReportEmbed, buildResolvedEmbed, signature, severity };
+module.exports = { init, runMappingCheck, checkMappings, buildReportEmbed, signature, severity };

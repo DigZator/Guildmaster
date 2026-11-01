@@ -145,4 +145,4 @@ function isComplete(session) {
     return session.steps.length === 0;
 }
 
-module.exports = { buildInitialSession, currentStep, applyPick, isComplete, inferType };
+module.exports = { buildInitialSession, currentStep, applyPick, isComplete };

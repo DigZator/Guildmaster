@@ -218,5 +218,4 @@ module.exports = {
     },
     handleModalSubmit,
     START_ID,
-    MODAL_ID,
 };

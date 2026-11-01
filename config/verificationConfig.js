@@ -44,4 +44,4 @@ function setConfig(patch) {
     return next;
 }
 
-module.exports = { getConfig, setConfig, DEFAULTS, BOUNDS, CLEANUP_MODES };
+module.exports = { getConfig, setConfig, BOUNDS, CLEANUP_MODES };

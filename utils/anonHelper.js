@@ -203,7 +203,6 @@ function auditWarning(logged) {
 
 module.exports = {
     MAX_FILES,
-    MAX_CONTENT,
     MAX_KEY_LENGTH,
     stripCodeFence,
     deleteFiles,

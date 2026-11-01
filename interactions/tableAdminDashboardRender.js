@@ -103,4 +103,4 @@ async function renderDashboard(gameUID) {
 	return { embeds: [embed], components: [actionRow, capacityRow, utilityRow] };
 }
 
-module.exports = { renderDashboard, formatTimestamp };
+module.exports = { renderDashboard };

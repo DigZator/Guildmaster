@@ -105,7 +105,6 @@ module.exports = {
         module.exports.inventorySessions.set(message.id, { characterName, items, totalPages });
     },
 
-    inventorySessions: new Map(),
 
     prefix: {
         inv_prev_: async (interaction) => {

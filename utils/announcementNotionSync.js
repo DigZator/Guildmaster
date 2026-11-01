@@ -50,4 +50,4 @@ async function syncAnnouncementFieldToNotion(game, field, value) {
     }
 }
 
-module.exports = { syncAnnouncementFieldToNotion, isSyncableField, FIELD_TO_NOTION, UNSYNCED_FIELDS };
+module.exports = { syncAnnouncementFieldToNotion, isSyncableField, UNSYNCED_FIELDS };

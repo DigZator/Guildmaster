@@ -71,4 +71,4 @@ function todayISTDateString() {
     return `${y}-${m}-${d}`;
 }
 
-module.exports = { formatDateForDisplay, parseDateFromInput, todayISTDateString, IST_OFFSET_MINUTES };
+module.exports = { formatDateForDisplay, parseDateFromInput, todayISTDateString };

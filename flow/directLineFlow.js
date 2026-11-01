@@ -417,7 +417,6 @@ async function finalizeFile(interaction, record) {
 }
 
 module.exports = {
-    CHANNEL_PREFIX,
     isDirectLineChannel,
     getOpenDirectLineForChannel,
     createDirectLine,

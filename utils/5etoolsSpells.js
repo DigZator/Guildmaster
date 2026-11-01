@@ -113,6 +113,6 @@ function getSpellsMeta() {
 }
 
 module.exports = {
-    syncSpells, loadSpells, searchSpells, getSpellByCode, getSpellByName, getSpellsMeta, invalidateSpellCache,
+    syncSpells, searchSpells, getSpellByCode, getSpellByName, getSpellsMeta, 
     SOURCES,
 };

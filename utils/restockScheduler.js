@@ -24,4 +24,4 @@ function init(client) {
     });
 }
 
-module.exports = { init, runRestockScan };
+module.exports = { init };

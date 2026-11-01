@@ -196,8 +196,6 @@ function diffMaps(columns, planned, actual, label) {
 }
 
 module.exports = {
-    ROLE_KEYS,
-    ROLE_LABELS,
     ALLOW,
     DENY,
     NONE,

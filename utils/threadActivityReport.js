@@ -177,4 +177,4 @@ function scheduleFromStore(client) {
     setTimeout(() => runAndReschedule(client), remainingMs);
 }
 
-module.exports = { init, runThreadActivityReport };
+module.exports = { init };

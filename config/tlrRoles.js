@@ -14,4 +14,4 @@ function isTlrMod(member) {
     return member.roles?.cache?.some(r => TLR_MOD_ROLE_IDS.includes(r.id)) ?? false;
 }
 
-module.exports = { TLR_MOD_ROLE_IDS, TLR_MOD_PING_ROLE_ID, isTlrMod };
+module.exports = { TLR_MOD_PING_ROLE_ID, isTlrMod };

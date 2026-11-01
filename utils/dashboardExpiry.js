@@ -23,4 +23,4 @@ function attachDashboardExpiry(message, questId) {
     return collector;
 }
 
-module.exports = { attachDashboardExpiry, DASHBOARD_IDLE_MS };
+module.exports = { attachDashboardExpiry };

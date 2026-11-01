@@ -335,4 +335,4 @@ function filesPropertyFromUpload({ fileUploadId, filename }) {
     return { files: [{ name: filename, type: 'file_upload', file_upload: { id: fileUploadId } }] };
 }
 
-module.exports = { fetchGames, fetchGameByUID, updateGameProperties, fetchPage, stringifyPropertyValue, countOpenSeats, fetchSeats, createSeat, createPlayerPage, assignPlayerToSeat, setSeatStatus, fetchAllPlayers, rehostImageToNotion, filesPropertyFromUpload }
+module.exports = { fetchGames, fetchGameByUID, updateGameProperties, fetchPage, stringifyPropertyValue, fetchSeats, createSeat, createPlayerPage, assignPlayerToSeat, setSeatStatus, fetchAllPlayers, rehostImageToNotion, filesPropertyFromUpload }

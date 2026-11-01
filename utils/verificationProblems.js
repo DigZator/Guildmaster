@@ -39,4 +39,4 @@ function parseAnswer(raw) {
     return /^\d{1,4}$/.test(s) ? Number(s) : null;
 }
 
-module.exports = { generateProblem, parseAnswer, LABEL_LIMIT };
+module.exports = { generateProblem, parseAnswer };

@@ -325,7 +325,6 @@ module.exports = {
     syncCatalogue, loadCatalogue, searchCatalogue, getCatalogueItemByCode, 
     getCatalogueItemByName, getCatalogueMeta, getComboCache,
     restockCadenceMsFor, restockQtyFor, defaultPriceFor,inferSubtype,
-    invalidateComboCache,
 
-    RESTOCK_CADENCE_MS, RESTOCK_QTY_BY_RARITY, DEFAULT_PRICE_BY_RARITY, BASE_VALUE_PRICE_FACTOR,
+    DEFAULT_PRICE_BY_RARITY, 
 };

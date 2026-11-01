@@ -174,5 +174,4 @@ module.exports = {
     loadCategoryIndex,
     resolveCategory,
     describeEntry,
-    previewText,
 };

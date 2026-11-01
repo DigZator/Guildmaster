@@ -31,4 +31,4 @@ function buildEmbed(games, page, isAdmin) {
     };
 }
 
-module.exports = { formatGameLine, buildEmbed };
+module.exports = { buildEmbed };

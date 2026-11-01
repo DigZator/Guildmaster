@@ -115,8 +115,6 @@ function removeDirectLine(id) {
 })();
 
 module.exports = {
-    loadDirectLines,
-    saveDirectLines,
     getDirectLineByChannelId,
     getDirectLineById,
     countChannelNameUses,

@@ -375,12 +375,10 @@ function isCurrentPreview(session, interaction) {
 }
 
 module.exports = {
-    SESSION_TYPE_ROLES,
     SESSION_GONE_MESSAGE,
     STALE_PREVIEW_MESSAGE,
     buildAnnouncementEmbed,
     buildWhatsApp,
-    toWhatsAppRegistrationLine,
     sendChunkedText,
     getRoleMention,
     getPreviewButtons,

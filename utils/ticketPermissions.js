@@ -42,4 +42,4 @@ function denyMessage() {
     return { content: '❌ You don\'t have permission to do that on this ticket.', flags: 64 };
 }
 
-module.exports = { isTicketStaff, isTicketRaiser, isTicketCloser, resolveCloserId, fileDenyMessage, denyMessage };
+module.exports = { isTicketStaff, isTicketRaiser, isTicketCloser, fileDenyMessage, denyMessage };

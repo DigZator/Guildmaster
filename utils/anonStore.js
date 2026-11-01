@@ -36,4 +36,4 @@ function getKeys() {
     return getMessages().map(m => m.key);
 }
 
-module.exports = { getMessages, addMessage, removeMessage, getMessage, getKeys };
+module.exports = { addMessage, removeMessage, getMessage, getKeys };

@@ -231,9 +231,7 @@ function initListeners(client) {
 
 module.exports = {
     KEEP_ALIVE_DURATION,
-    getMethod,
     missingPermissions,
-    refreshThread,
     runKeepAliveRefresh,
     realLastActivity,
     sendToCtrl,

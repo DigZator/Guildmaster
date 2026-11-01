@@ -1,4 +1,4 @@
-const { clearSchemaCache, withPageLock, withTwoPageLocks, updatePageProperty, getPageById, queryAllPages } = require('./core');
+const { withPageLock, withTwoPageLocks, updatePageProperty, getPageById } = require('./core');
 const {
     getCharacterGold,
     getActiveCharacter,
@@ -9,19 +9,16 @@ const {
     setCharacterStatus,
     findCharacterStatusIssues,
     adjustCharacterNumber,
-    adjustCharacterNumbers,
     adjustCharacterNumbersUnlocked,
     setCharacterLevel,
     updateCharacterArt,
 } = require('./characters');
-const { createInventoryItem, getCharacterInventory, destroyAllCharacterItems, setItemStatus } = require('./inventory');
+const { createInventoryItem, getCharacterInventory, setItemStatus } = require('./inventory');
 const { createQuestLogEntry, getCharacterQuestLog } = require('./questLog');
 const {
     createDowntimeProgress,
     getDowntimeProgressById,
     getActiveDowntimeForCharacter,
-    getDowntimeForCharacterByStatus,
-    getDowntimeByStatus,
     investDowntimeProgress,
     setDowntimeStatus,
 } = require('./downtime');
@@ -30,8 +27,6 @@ const {
     getListingById,
     createListing,
     generateListingId,
-    createListingWithUniqueId,
-    createTrade,
 } = require('./marketplace');
 
 module.exports = {
@@ -39,7 +34,6 @@ module.exports = {
 	updatePageProperty,
 	getCharacterGold,
 	getPageById,
-	queryAllPages,
 
 	// Characters
 	getActiveCharacter,
@@ -49,7 +43,6 @@ module.exports = {
 	createCharacter,
 	setCharacterStatus,
 	adjustCharacterNumber,
-	adjustCharacterNumbers,
 	adjustCharacterNumbersUnlocked,
 	setCharacterLevel,
 	updateCharacterArt,
@@ -58,7 +51,6 @@ module.exports = {
 	// Inventory
 	createInventoryItem,
 	getCharacterInventory,
-	destroyAllCharacterItems,
 	setItemStatus,
 
 	// Quest Log
@@ -73,9 +65,6 @@ module.exports = {
 	createDowntimeProgress,
 	getDowntimeProgressById,
 	getActiveDowntimeForCharacter,
-	clearSchemaCache,
-	getDowntimeForCharacterByStatus,
-	getDowntimeByStatus,
 	investDowntimeProgress,
 	setDowntimeStatus,
 
@@ -84,8 +73,6 @@ module.exports = {
 	createListing,
 	getListingById,
 	generateListingId,
-	createListingWithUniqueId,
 
 	// Trades
-	createTrade,
 };

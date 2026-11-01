@@ -129,5 +129,5 @@ function runRestockCheck() {
 
 module.exports = {
     tierMinFor, getShopEntry, getBuyableEntry, getAllStockedEntries, stockItem, unstockItem, restockItem,
-    decrementStock, runRestockCheck, getPriceOverride, setPriceOverride,
+    decrementStock, runRestockCheck, getPriceOverride, 
 };

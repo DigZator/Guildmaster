@@ -237,10 +237,7 @@ async function autoAssignWaitlist(uid) {
 }
 
 module.exports = {
-	TARGET_GAME_TITLE,
-	VALID_SEAT_STATUSES,
 	getTestGame,
-	fetchCurrentCount,
 	fetchTestGameCounts,
 	fetchGameSeats,
 	fetchMergedPlayerList,

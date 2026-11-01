@@ -37,7 +37,7 @@ const dur = ms => {
 };
 
 module.exports = {
-    COLORS, ts, who, dur, post,
+    ts, who, post,
 
     passed: (client, user, { attempts, max, tookMs }) => post(client, {
         title: '✅ Verification passed',

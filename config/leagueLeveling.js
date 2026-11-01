@@ -52,4 +52,4 @@ function resolveLevelUps(currentLevel, currentMilstones) {
 	};
 }
 
-module.exports = { LEVEL_CONFIG, MAX_LEVEL, resolveLevelUps }
+module.exports = { LEVEL_CONFIG, resolveLevelUps }

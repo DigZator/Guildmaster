@@ -268,8 +268,6 @@ function assertDeletable(id) {
 
 module.exports = {
     PHASES,
-    FINAL_PHASES,
-    RUNNING_PHASES,
     JOBS_DIR,
     loadAll,
     listJobs,

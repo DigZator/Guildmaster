@@ -72,4 +72,4 @@ function isAdminChannel(interaction, type = 'bot') {
     }
 }
 
-module.exports = { isAdminChannel, isAdmin: isAdminChannel, ADMIN_CONFIG, HR_ROLE_ID, ADMINS_ROLE_ID, CMD_ROLE_ID };
+module.exports = { isAdminChannel, ADMIN_CONFIG, HR_ROLE_ID, ADMINS_ROLE_ID, CMD_ROLE_ID };

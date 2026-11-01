@@ -190,7 +190,6 @@ async function runGuards({ guild, target, location, isPrivate }) {
 }
 
 module.exports = {
-    SUPPORTED_TARGET_TYPES,
     THREAD_TYPES,
     listProtected,
     addProtected,

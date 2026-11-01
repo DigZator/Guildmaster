@@ -124,6 +124,5 @@ function buildByRewardEmbed(draft, roster = []) {
 module.exports = {
     buildByCharacterEmbed,
     buildByRewardEmbed,
-    formatLine,
     itemAverageValue,
 };

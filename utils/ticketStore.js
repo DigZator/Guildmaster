@@ -119,8 +119,6 @@ module.exports = {
     nextTicketNumber,
     resetCounter,
     resetAllCounters,
-    loadTickets,
-    saveTickets,
     getTicketByChannelId,
     getTicketById,
     addTicket,

@@ -196,6 +196,4 @@ module.exports = {
     archiveCategoryChannels,
     snapshotOverwrites,
     restoreOverwrites,
-    TEXT_WRITE_BITS,
-    VOICE_WRITE_BITS,
 };

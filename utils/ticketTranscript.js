@@ -543,21 +543,12 @@ async function sendTranscript(thread, transcript, options = {}) {
 }
 
 module.exports = {
-    fetchFullHistory,
     renderHistory,
     buildHeaderLines,
     chunkLines,
-    packBatches,
-    stageBuffer,
-    stageFile,
-    fetchBuffer,
-    mapLimit,
     uploadLimitBytes,
     freeDiskBytes,
-    formatDate,
-    formatTime,
     formatStamp,
-    formatSize,
     buildTranscript,
     buildTranscriptChunks,
     postAttachmentGroups,

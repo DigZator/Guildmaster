@@ -468,7 +468,6 @@ async function finalizeFile(interaction, ticket) {
 
 module.exports = {
     actionRow,
-    claimLine,
     describeStatus,
     formatWarnings,
     syncControlMessage,

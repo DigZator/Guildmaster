@@ -51,12 +51,6 @@ function availableDiscounts(repPoints, rarity) {
 }
 
 module.exports = {
-	REP_TIERS,
-	DISCOUNT_RP_COST,
-	COMMON_DISCOUNT,
 	RARITIES,
-	DISCOUNT_STEPS,
-	tierForRep,
-	maxDiscountFor,
 	availableDiscounts,
 };

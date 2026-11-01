@@ -153,10 +153,6 @@ async function applyReportLines(entry, { client, guild, retry } = {}) {
 
 module.exports = {
     withRetry,
-    applyGoldLine,
-    applyRepLine,
-    applyMilestoneLine,
-    applyItemLine,
     rejectReportLine,
     applyReportLines,
 };

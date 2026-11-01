@@ -55,6 +55,4 @@ module.exports = {
     setConfig,
     getCategoryIdForGroup,
     getLogChannelIdForGroup,
-    CATEGORY_GROUP_KEYS,
-    LOG_CHANNEL_GROUP_KEYS,
 };

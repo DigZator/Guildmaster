@@ -16,4 +16,4 @@ function checkGoldAgainstTierLimit(tier, totalGold) {
         `This report is likely to be rejected by the League Admins.`;
 }
 
-module.exports = { TIER_GOLD_LIMITS, checkGoldAgainstTierLimit };
+module.exports = { checkGoldAgainstTierLimit };
