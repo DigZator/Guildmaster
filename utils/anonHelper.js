@@ -70,11 +70,6 @@ async function sweepStaleTemp() {
     }
 }
 
-// ── Pending previews (client.anonPending) ───────────────────────────────────
-function getPending(client, key) {
-    return client.anonPending?.get(key);
-}
-
 function setPending(client, key, data) {
     clearPending(client, key);
     if (!client.anonPending) client.anonPending = new Map();
@@ -209,7 +204,6 @@ module.exports = {
     saveAttachments,
     toAttachments,
     sweepStaleTemp,
-    getPending,
     setPending,
     clearPending,
     takePending,

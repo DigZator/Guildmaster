@@ -22,10 +22,6 @@ const FIELD_TO_NOTION = {
 
 const UNSYNCED_FIELDS = new Set(['date', 'time']);
 
-function isSyncableField(field) {
-    return Object.prototype.hasOwnProperty.call(FIELD_TO_NOTION, field);
-}
-
 async function syncAnnouncementFieldToNotion(game, field, value) {
     if (UNSYNCED_FIELDS.has(field)) {
         return { synced: false, reason: 'not_supported' };
@@ -50,4 +46,4 @@ async function syncAnnouncementFieldToNotion(game, field, value) {
     }
 }
 
-module.exports = { syncAnnouncementFieldToNotion, isSyncableField, UNSYNCED_FIELDS };
+module.exports = { syncAnnouncementFieldToNotion, UNSYNCED_FIELDS };

@@ -19,8 +19,4 @@ function release(key, { holdMs = 0 } = {}) {
     held.delete(key);
 }
 
-function isHeld(key) {
-    return held.has(key);
-}
-
-module.exports = { tryAcquire, release, isHeld };
+module.exports = { tryAcquire, release };

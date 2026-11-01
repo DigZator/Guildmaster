@@ -46,19 +46,6 @@ function removeFromQueue(uid) {
     return data.queue.length < before;
 }
 
-function clearQueue() {
-    const data = getQueue();
-    data.lastActivationRun = data.queue.map(g => g.uid);
-    data.queue = [];
-    writeQueue(data);
-}
-
-function clearLastActivationRun() {
-    const data = getQueue();
-    data.lastActivationRun = [];
-    writeQueue(data);
-}
-
 function getLastRunDate() {
     return getQueue().lastRunDate;
 }
@@ -136,8 +123,6 @@ module.exports = {
     getQueue,
     addToQueue,
     removeFromQueue,
-    clearQueue,
-    clearLastActivationRun,
     getLastRunDate,
     claimRunForDate,
     releaseRunForDate,

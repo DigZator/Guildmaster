@@ -163,11 +163,6 @@ async function updateControlMessage(client, job, payload) {
     return message;
 }
 
-// ─── Running a job ──────────────────────────────────────────────────────────
-function isStarting() {
-    return starting;
-}
-
 async function startJob(client, { guild, target, location, isPrivate, userId }) {
     if (starting || jobsStore.getRunningJob()) return { error: 'Another filing is running right now. Wait for it to reach review, then try again.' };
     if (jobsStore.getActiveJobForTarget(target.id)) return { error: 'A filing for this channel is already in progress.' };
@@ -626,7 +621,6 @@ function init(client) {
 
 module.exports = {
     customId,
-    isStarting,
     startJob,
     runJob,
     buildReviewMessage,

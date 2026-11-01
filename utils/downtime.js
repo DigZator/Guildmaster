@@ -224,52 +224,6 @@ function sumCosts(costs, params) {
     return { gpTotal, gpPerDay };
 }
 
-function findTier(tiers, val) {
-    if (!tiers) return null;
-    const exact = tiers.find(t => t.value !== undefined && String(t.value) === String(val));
-    if (exact) return exact;
-    return tiers.find(t => {
-        const min = t.min ?? t.minLevel;
-        const max = t.max ?? t.maxLevel;
-        if (min == null && max == null) return false;
-        if (min != null && val < min) return false;
-        if (max != null && val > max) return false;
-        return true;
-    }) ?? null;
-}
-
-function resolveCost(blueprint, params = {}) {
-    let daysRequired, costs, tierValue = null;
-
-    if (blueprint.costModel === 'parameterized') {
-        const paramName = getParamName(blueprint);
-        const val = params[paramName];
-        const tier = findTier(blueprint.tiers, val);
-        if (!tier) return null;
-        daysRequired = tier.daysRequired;
-        costs = tier.costs ?? (tier.flatGp != null ? [{ type: 'gp', value: tier.flatGp }] : []);
-        tierValue = tier.value ?? val;
-    } else if (blueprint.costModel === 'flat' || blueprint.costModel === 'perDay') {
-        daysRequired = blueprint.daysRequired;
-        costs = blueprint.costs ?? [
-            ...(blueprint.flatGp != null ? [{ type: 'gp', value: blueprint.flatGp }] : []),
-            ...(blueprint.gpPerDay != null ? [{ type: 'gpPerDay', value: blueprint.gpPerDay }] : []),
-        ];
-    } else {
-        return null;
-    }
-
-    const { gpTotal, gpPerDay } = sumCosts(costs, params);
-    const finalGpTotal = gpTotal + (gpPerDay ? gpPerDay * daysRequired : 0);
-
-    return {
-        daysRequired,
-        gpTotal: finalGpTotal,
-        gpPerDay: gpPerDay || (daysRequired ? finalGpTotal / daysRequired : 0),
-        tierValue,
-    };
-}
-
 function resolveCostFromUID(UID, quantity = 1) {
     const result = getBlueprintById(UID);
     if (!result) return null;
@@ -457,6 +411,6 @@ async function applyDowntimeOutput({ output, characterPageId, activityName, tier
 
 module.exports = {
     applyMilestones, postLevelUpMessage, getTier, randomQuote, TIER_COLORS, loadQuotes,
-    loadBlueprints, getBlueprint, getBlueprintById, nextDtaId, resolveCost, resolveCostFromUID, applyDowntimeOutput, getParamName, sumCosts,
+    loadBlueprints, getBlueprint, getBlueprintById, nextDtaId, resolveCostFromUID, applyDowntimeOutput, getParamName, sumCosts,
     getBlueprintByKey, blueprintNeedsTierChoice, listActivityChoices, listTierChoices, tierLabel,
 };

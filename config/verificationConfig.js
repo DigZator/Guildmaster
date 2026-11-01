@@ -15,8 +15,6 @@ const DEFAULTS = {
     cleanupEnabledAt: null,  // timestamp of the last disabled-active switch
 };
 
-const CLEANUP_MODES = ['enabled', 'dryrun', 'disabled'];
-
 // Min/max bounds for every editable setting (inclusive)
 const BOUNDS = {
     questionTimeLimitMin: [1, 30],
@@ -44,4 +42,4 @@ function setConfig(patch) {
     return next;
 }
 
-module.exports = { getConfig, setConfig, BOUNDS, CLEANUP_MODES };
+module.exports = { getConfig, setConfig, BOUNDS };

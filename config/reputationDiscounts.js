@@ -17,8 +17,6 @@ const DISCOUNT_RP_COST = {
 	50: 10,
 };
 
-const RARITIES = ['Common', 'Uncommon', 'Rare', 'Very Rare', 'Legendary'];
-
 const DISCOUNT_STEPS = [10, 20, 30, 40, 50];
 
 const COMMON_DISCOUNT = { discount: 20, rpCost: 1 };
@@ -51,6 +49,5 @@ function availableDiscounts(repPoints, rarity) {
 }
 
 module.exports = {
-	RARITIES,
 	availableDiscounts,
 };

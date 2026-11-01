@@ -309,11 +309,6 @@ async function buildTranscript(channel, { header, meta, closeReason, closeFeedba
     };
 }
 
-async function buildTranscriptChunks(channel, options = {}) {
-    const { chunks } = await buildTranscript(channel, { ...options, preserveAttachments: false });
-    return chunks;
-}
-
 // ─── Attachment staging ─────────────────────────────────────────────────────
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -550,7 +545,6 @@ module.exports = {
     freeDiskBytes,
     formatStamp,
     buildTranscript,
-    buildTranscriptChunks,
     postAttachmentGroups,
     sendTranscript,
     MIN_FREE_DISK_BYTES,

@@ -59,13 +59,6 @@ function isDirectLineChannel(channel) {
     return !!channel && typeof channel.name === 'string' && channel.name.startsWith(CHANNEL_PREFIX);
 }
 
-function getOpenDirectLineForChannel(channel) {
-    if (!isDirectLineChannel(channel)) return null;
-    const record = directLineStore.getDirectLineByChannelId(channel.id);
-    if (!record || record.status !== 'open') return null;
-    return record;
-}
-
 // ─── Create ─────────────────────────────────────────────────────────────────
 
 async function createDirectLine(interaction, targets) {
@@ -418,7 +411,6 @@ async function finalizeFile(interaction, record) {
 
 module.exports = {
     isDirectLineChannel,
-    getOpenDirectLineForChannel,
     createDirectLine,
     attachTargets,
     promptFileConfirm,

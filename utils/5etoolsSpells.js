@@ -97,22 +97,12 @@ function searchSpells(query, { level = null, limit = 25 } = {}) {
     return results;
 }
 
-function getSpellByCode(code) {
-    const c = (code ?? '').trim().toUpperCase();
-    return (loadSpells().spells ?? []).find(s => s.code === c) ?? null;
-}
-
-function getSpellByName(name) {
-    const target = (name ?? '').trim().toLowerCase();
-    return (loadSpells().spells ?? []).find(s => s.name.toLowerCase() === target) ?? null;
-}
-
 function getSpellsMeta() {
     const { syncedAt, spells } = loadSpells();
     return { syncedAt, count: (spells ?? []).length };
 }
 
 module.exports = {
-    syncSpells, searchSpells, getSpellByCode, getSpellByName, getSpellsMeta, 
+    syncSpells, searchSpells, getSpellsMeta, 
     SOURCES,
 };

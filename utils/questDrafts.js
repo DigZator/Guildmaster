@@ -26,24 +26,9 @@ function now() {
     return new Date().toISOString();
 }
 
-// ---- read ----
-function getAllDrafts() {
-    return store.load();
-}
-
 function getDraft(questId) {
     const drafts = store.load();
     return drafts[questId] ?? null;
-}
-
-function draftExists(questId) {
-    return getDraft(questId) !== null;
-}
-
-function getLine(questId, lineId) {
-    const draft = getDraft(questId);
-    if (!draft) return null;
-    return draft.lines.find((l) => l.lineId === lineId) ?? null;
 }
 
 // Deep copy of a draft's lines, safe to embed in a pendingActions payload.
@@ -51,11 +36,6 @@ function snapshotLines(questId) {
 	const draft = getDraft(questId);
 	if (!draft) return [];
 	return JSON.parse(JSON.stringify(draft.lines));
-}
-
-function listDraftsByDM(discordId) {
-    const drafts = store.load();
-    return Object.values(drafts).filter((d) => d.dm?.discordId === discordId);
 }
 
 function createDraft(questId, { questPageId, questName, dm }) {
@@ -135,20 +115,6 @@ function addOrReplaceLine(questId, { characterPageId, characterName, discordId, 
     return { line: existing, replaced: true, previousPayload };
 }
 
-function updateLine(questId, lineId, updates) {
-    const drafts = store.load();
-    const draft = drafts[questId];
-    if (!draft) return null;
-
-    const line = draft.lines.find((l) => l.lineId === lineId);
-    if (!line) return null;
-
-    Object.assign(line, updates);
-    draft.updatedAt = now();
-    store.save(drafts);
-    return line;
-}
-
 function removeLine(questId, lineId) {
     const drafts = store.load();
     const draft = drafts[questId];
@@ -159,13 +125,6 @@ function removeLine(questId, lineId) {
     draft.updatedAt = now();
     store.save(drafts);
     return draft.lines.length < before;
-}
-
-function markLineApplyStatus(questId, lineId, applyStatus) {
-    if (!Object.values(LINE_APPLY_STATUSES).includes(applyStatus)) {
-        throw new Error(`[questDrafts] Unknown apply status "${applyStatus}".`);
-    }
-    return updateLine(questId, lineId, { applyStatus });
 }
 
 function setStatus(questId, status) {
@@ -186,18 +145,6 @@ function restoreDraft(questId) {
     return setStatus(questId, STATUSES.DRAFT);
 }
 
-function resetDraft(questId) {
-    const drafts = store.load();
-    const draft = drafts[questId];
-    if (!draft) return null;
-
-    draft.lines = [];
-    draft.status = STATUSES.DRAFT;
-    draft.updatedAt = now();
-    store.save(drafts);
-    return draft;
-}
-
 function deleteDraft(questId) {
     const drafts = store.load();
     if (!drafts[questId]) return false;
@@ -208,18 +155,12 @@ function deleteDraft(questId) {
 
 module.exports = {
     STATUSES,
-    getAllDrafts,
     getDraft,
-    draftExists,
-    getLine,
     snapshotLines,
-    listDraftsByDM,
     getOrCreateDraft,
     addOrReplaceLine,
     removeLine,
-    markLineApplyStatus,
     setStatus,
     restoreDraft,
-    resetDraft,
     deleteDraft,
 };

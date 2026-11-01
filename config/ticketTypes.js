@@ -91,14 +91,11 @@ function loadTicketTypes() {
     return typesStore.load().map(applyEnvFallbacks);
 }
 
-const TICKET_TYPES = loadTicketTypes();
+// Runs at load so data/ticketTypes.json is created with the defaults on first boot.
+loadTicketTypes();
 
 function getTicketType(key) {
     return loadTicketTypes().find(t => t.key === key) || null;
-}
-
-function getTicketTypeBySlug(slug) {
-    return loadTicketTypes().find(t => t.slug === slug) || null;
 }
 
 function slugifyKey(input) {
@@ -184,10 +181,8 @@ function removeTicketType(key) {
 }
 
 module.exports = {
-    TICKET_TYPES,
     loadTicketTypes,
     getTicketType,
-    getTicketTypeBySlug,
     addTicketType,
     updateTicketType,
     removeTicketType,
