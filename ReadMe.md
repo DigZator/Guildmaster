@@ -244,6 +244,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `5etoolsCatalogue.js` → `catalogue.json` | Cached 5e item catalogue, sourced from 5etools-src |
 | `5etoolsSpells.js` → `spells.json` | Cached spell list |
 | `downtime.js` → `downtimeBlueprints.json`, `downtimeQuotes.json`, `downtimeSequence.json` | Downtime activity definitions, running quotes, and the list of downtime IDs already issued |
+| `channelMap.js` → `channelMap.json` | Channel mappings set with `/config` (they override `.env`; applied when the bot starts) |
 | `pendingActions.js` → `pendingActions.json` | Generic pending-approval queue (rep/gold/milestone/item grants) |
 | `questDrafts.js` / `questReportDrafts` → `questRewardDrafts.json` | In-progress quest reward dashboards |
 | `memorialIndex.js` → `memorialIndex.json` | The Long Rest memorial index |

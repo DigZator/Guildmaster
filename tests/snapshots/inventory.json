@@ -22,6 +22,7 @@
       "leaguedm",
       "archive",
       "archive-config",
+      "config",
       "channel_file",
       "verification"
     ],
@@ -117,6 +118,9 @@
       "leaguedm dashboard",
       "archive",
       "archive-config",
+      "config status",
+      "config set",
+      "config clear",
       "channel_file file",
       "channel_file protect add",
       "channel_file protect remove",
@@ -150,6 +154,7 @@
       "direct_line",
       "archive",
       "archive-config",
+      "config",
       "channel_file",
       "verification"
     ],
@@ -241,6 +246,10 @@
         "handler": "archiveConfig"
       },
       {
+        "command": "config",
+        "handler": "config"
+      },
+      {
         "command": "channel_file",
         "handler": "channelFile"
       },
@@ -251,6 +260,7 @@
     ],
     "autocomplete": {
       "tokens": [
+        "commandName=config",
         "commandName=game_info",
         "commandName=announce_game",
         "commandName=get_players",
@@ -343,7 +353,8 @@
       "tableAdmin",
       "createCampaign",
       "verification",
-      "channelFile"
+      "channelFile",
+      "configButtons"
     ],
     "exact": [
       {
@@ -664,6 +675,14 @@
         ],
         "alsoMatches": [],
         "winner": "characterStatus.prefix[charstatus_confirm:]"
+      },
+      {
+        "key": "config:",
+        "declaredBy": [
+          "configButtons"
+        ],
+        "alsoMatches": [],
+        "winner": "configButtons.prefix[config:]"
       },
       {
         "key": "confirm_remove_",
@@ -1191,6 +1210,10 @@
       "dynamic: customId(job.id, 'proceedModal')",
       "dynamic: customId(job.id, 'rerun')"
     ],
+    "utils/configCommand.js": [
+      "config:cancel:${…}",
+      "config:confirm:${…}"
+    ],
     "utils/memorialButtons.js": [
       "memorial_mod_approve",
       "memorial_mod_deny",
@@ -1217,6 +1240,11 @@
     "buttons/channelFile.js": {
       "isAdminChannel": {
         "cmd": 2
+      }
+    },
+    "buttons/config.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
       }
     },
     "buttons/directLine.js": {
@@ -1352,6 +1380,11 @@
     },
     "commands/verification.js": {
       "permissions.has": 2
+    },
+    "utils/configCommand.js": {
+      "isAdminChannel": {
+        "botAdmin": 2
+      }
     },
     "utils/ticketPermissions.js": {
       "isAdminChannel": {

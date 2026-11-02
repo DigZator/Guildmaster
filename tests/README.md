@@ -14,6 +14,8 @@ Offline safety net. Nothing here connects to Discord or Notion, and nothing writ
 | `customId` | the four ID encoders and that each prefix is routed |
 | `permissions` | who passes each `isAdminChannel` check today |
 | `routePermissions` | every command, subcommand, button, select and modal driven through the real routers by eleven fake members; records which `isAdminChannel` check each route reaches and what each member gets back (offline; `data/` is verified untouched) |
+| `channelMap` | the `data/channelMap.json` store behind `/config`: loading into the environment, what may be stored, and the load-order guard |
+| `configCommand` | `/config status`, `set`, `clear` and the trap-channel confirm button, with fake interactions (admin role only, nothing saved on a failed check, audit trail) |
 | `mappings` | the channel mapping check and its report, the registry, and that `.env.example` covers every variable the code reads |
 
 A failing `contract` test is not always a bug: if the change is intended, update the snapshot and commit the diff with the code change.

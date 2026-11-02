@@ -2230,6 +2230,61 @@
       "type": 1
     },
     {
+      "description": "Change where the bot sends things (applies after a restart)",
+      "name": "config",
+      "options": [
+        {
+          "description": "Show every channel mapping, its health, and any change waiting for a restart",
+          "name": "status",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Point a mapping at a different channel",
+          "name": "set",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Which mapping to change",
+              "name": "key",
+              "required": true,
+              "type": 3
+            },
+            {
+              "channel_types": [
+                0,
+                5,
+                15,
+                11,
+                12,
+                10
+              ],
+              "description": "The new channel",
+              "name": "channel",
+              "required": true,
+              "type": 7
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Remove a saved override so the .env value is used again",
+          "name": "clear",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Which override to remove",
+              "name": "key",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        }
+      ],
+      "type": 1
+    },
+    {
       "description": "Copy a channel (and its threads) into a thread, then delete the original after review",
       "name": "channel_file",
       "options": [

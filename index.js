@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./utils/channelMap').applyToEnv();
 const client = require('./client');
 
 process.on('unhandledRejection', (error) => {

@@ -31,6 +31,8 @@ const ticket = require('../commands/ticket');
 const direct_line = require('../commands/direct_line');
 const archive = require('../commands/archive');
 const archiveConfig = require('../commands/archiveConfig');
+const config = require('../commands/config');
+const configCommand = require('../utils/configCommand');
 const channelFile = require('../commands/channelFile');
 const verification = require('../commands/verification');
 const { loadTicketTypes } = require('../config/ticketTypes');
@@ -55,6 +57,11 @@ module.exports = (client) => {
     client.on('interactionCreate', async (interaction) => {
 
         if (interaction.isAutocomplete()) {
+            if (interaction.commandName === 'config') {
+                await configCommand.autocomplete(interaction);
+                return;
+            }
+
             if (interaction.commandName === 'game_info' || interaction.commandName === 'announce_game' || interaction.commandName === 'get_players' || interaction.commandName === 'manipulate_table') {
                 await gameAutocomplete(interaction);
                 return;
@@ -282,6 +289,7 @@ module.exports = (client) => {
             if (command === 'direct_line') await direct_line(interaction, client);
             if (command === 'archive') await archive(interaction, client);
             if (command === 'archive-config') await archiveConfig(interaction, client);
+            if (command === 'config') await config(interaction, client);
             if (command === 'channel_file') await channelFile(interaction, client);
             if (command === 'verification') await verification(interaction, client);
         } catch (error) {

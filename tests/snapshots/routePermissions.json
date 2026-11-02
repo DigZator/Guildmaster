@@ -1758,6 +1758,66 @@
       }
     },
     {
+      "route": "config status",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferReply)": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "config set",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ Pick a mapping from the list.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "config clear",
+      "results": {
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
+          "nobody",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ❌ Pick a mapping from the list.": [
+          "admins-role",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
       "route": "channel_file file",
       "results": {
         "cmd=false | ❌ You do not have permission to use this command.": [
@@ -2755,6 +2815,24 @@
       "route": "charstatus_confirm:zz",
       "results": {
         "no-isAdminChannel-call | (deferUpdate)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "config:zz",
+      "results": {
+        "no-isAdminChannel-call | That confirmation expired. Run `/config set` again.": [
           "nobody",
           "admins-role",
           "hr-role",

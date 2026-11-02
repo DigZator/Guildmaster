@@ -23,6 +23,7 @@ const tableAdmin 		= require('../buttons/tableAdmin');
 const createCampaign 	= require('../buttons/createCampaign');
 const verification 	= require('../buttons/verification');
 const channelFile 	= require('../buttons/channelFile');
+const configButtons 	= require('../buttons/config');
 
 const exactHandlers = {
     ...memorial.exact,
@@ -57,6 +58,7 @@ const prefixHandlers = {
     ...tableAdmin.prefix,
     ...verification.prefix,
     ...channelFile.prefix,
+    ...configButtons.prefix,
 };
 
 module.exports = (client) => {

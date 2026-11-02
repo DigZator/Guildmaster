@@ -1,6 +1,6 @@
 {
   "note": "Known tsc --checkJs findings (file | code | message -> count). Fix them to shrink this file; never grow it by hand.",
-  "total": 193,
+  "total": 191,
   "findings": {
     "buttons/announcement.js | TS2353 | Object literal may only specify known properties, and 'message' does not exist in type '{ context?: {}; scope?: string; }'.": 3,
     "buttons/archive.js | TS2305 | Module '\"../commands/archive\"' has no exported member 'MAX_CHANNELS_PER_CATEGORY'.": 1,
@@ -96,8 +96,6 @@
     "utils/leagueNotion/marketplace.js | TS2339 | Property 'properties' does not exist on type 'GetPageResponse'.": 3,
     "utils/leagueNotion/marketplace.js | TS2339 | Property 'rarity' does not exist on type '{}'.": 1,
     "utils/leagueNotion/marketplace.js | TS2339 | Property 'sortBy' does not exist on type '{}'.": 1,
-    "utils/mappingCheck.js | TS2339 | Property 'guildId' does not exist on type '{ dev?: boolean; log?: Console; mappings?: Readonly<{ key: string; label: string; tier: string; types: ChannelType[]; needs: string[]; usedBy: string; gate: false; managed: false; skipInDev: false; read: () => string; fix: string; } | { ...; } | { ...; } | { ...; }>[]; }'.": 1,
-    "utils/mappingCheck.js | TS2339 | Property 'store' does not exist on type '{ dev?: boolean; log?: Console; mappings?: Readonly<{ key: string; label: string; tier: string; types: ChannelType[]; needs: string[]; usedBy: string; gate: false; managed: false; skipInDev: false; read: () => string; fix: string; } | { ...; } | { ...; } | { ...; }>[]; }'.": 1,
     "utils/mappingCheck.js | TS2353 | Object literal may only specify known properties, and 'signature' does not exist in type 'any[]'.": 1,
     "utils/memorialIndex.js | TS2322 | Type 'undefined[]' is not assignable to type '() => ArrayIterator<[number, any]>'.": 1,
     "utils/milestones.js | TS2339 | Property 'properties' does not exist on type 'GetPageResponse'.": 1,

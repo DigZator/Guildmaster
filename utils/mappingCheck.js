@@ -139,6 +139,7 @@ async function deliver(client, channelIds, payload, log) {
     return null;
 }
 
+/** @param {any} client @param {{ mappings?: any[], store?: any, log?: any, guildId?: string, dev?: boolean }} [options] */
 async function runMappingCheck(client, { mappings = MAPPINGS, store, log = console, guildId, dev = process.env.DEV_MODE === 'true' } = {}) {
     const results = await checkMappings(client, { mappings, guildId, dev });
     const problems = results.filter(r => severity(r) !== 'ok');
@@ -168,4 +169,4 @@ function init(client, options) {
     });
 }
 
-module.exports = { init, runMappingCheck, checkMappings, buildReportEmbed, signature, severity };
+module.exports = { init, runMappingCheck, checkMappings, buildReportEmbed, signature, severity, chunkLines };
