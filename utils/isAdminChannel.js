@@ -47,9 +47,20 @@ function hasAdminRole(interaction, type) {
     return interaction.member?.roles?.cache?.some(r => roleIds.includes(r.id)) ?? false;
 }
 
+// The ids this interaction counts as being "in": its own channel, plus the parent channel when it happens
+// inside a thread. channelId is always present on an interaction, so an uncached channel no longer throws.
+function currentChannelIds(interaction) {
+    const ids = [];
+    const id = interaction.channelId ?? interaction.channel?.id;
+    if (id) ids.push(id);
+    const channel = interaction.channel;
+    if (channel?.isThread?.() && channel.parentId) ids.push(channel.parentId);
+    return ids;
+}
+
 function inAdminChannel(interaction, type) {
     const channels = ADMIN_CONFIG[type]?.channels || [];
-    return channels.includes(interaction.channel.id);
+    return currentChannelIds(interaction).some(id => channels.includes(id));
 }
 
 function isAdminChannel(interaction, type = 'bot') {

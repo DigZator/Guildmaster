@@ -83,8 +83,52 @@ test('modes: channel / role / both / either behave as named', () => {
     } finally { cfg.mode = original; }
 });
 
-test('documents current behaviour: channel-based checks throw when the interaction has no channel', () => {
-    const noChannel = { member: { roles: { cache: [] } }, channel: null };
-    assert.throws(() => isAdminChannel(noChannel, 'bot'), TypeError);
-    assert.equal(isAdminChannel(noChannel, 'botAdmin'), false);
+// --- section 6.3: the channel check reads channelId and treats a thread as its parent channel ---
+
+const inChannel = (roles, channelId, extra = {}) => ({
+    member: { roles: { cache: roles.map(id => ({ id })) } },
+    channelId,
+    channel: null,
+    ...extra,
+});
+const thread = (parentId, id = '300000000000000777') => ({ id, parentId, isThread: () => true });
+
+test('an uncached channel no longer throws: channelId alone decides', () => {
+    assert.equal(isAdminChannel(inChannel([], CTRL), 'bot'), true);
+    assert.equal(isAdminChannel(inChannel([], ELSEWHERE), 'bot'), false);
+    assert.equal(isAdminChannel(inChannel([ROLE.admin], ELSEWHERE), 'bot'), true);
+    assert.equal(isAdminChannel({ member: { roles: { cache: [] } }, channel: null }, 'bot'), false);
+    assert.equal(isAdminChannel({ member: { roles: { cache: [] } }, channel: null }, 'botAdmin'), false);
+});
+
+test('a thread inside the control channel counts as the control channel', () => {
+    const t = thread(CTRL);
+    assert.equal(isAdminChannel(inChannel([], t.id, { channel: t }), 'bot'), true);
+    assert.equal(isAdminChannel(inChannel([], t.id, { channel: t }), 'league'), true);
+    assert.equal(isAdminChannel(inChannel([ROLE.admin], t.id, { channel: t }), 'botChannelAdmin'), true);
+    assert.equal(isAdminChannel(inChannel([], t.id, { channel: t }), 'botChannelAdmin'), false, 'the role is still required');
+});
+
+test('a thread inside the league-admin channel counts as the league-admin channel (league only)', () => {
+    const t = thread(LEAGUE);
+    assert.equal(isAdminChannel(inChannel([], t.id, { channel: t }), 'league'), true);
+    assert.equal(isAdminChannel(inChannel([], t.id, { channel: t }), 'bot'), false);
+});
+
+test('a thread under some other channel grants nothing', () => {
+    const t = thread(ELSEWHERE);
+    for (const type of ['bot', 'league', 'botAdmin', 'botChannelAdmin', 'hr', 'cmd']) {
+        assert.equal(isAdminChannel(inChannel([], t.id, { channel: t }), type), false, type);
+    }
+});
+
+test('role-only types ignore the channel, threads included', () => {
+    const t = thread(CTRL);
+    assert.equal(isAdminChannel(inChannel([], t.id, { channel: t }), 'botAdmin'), false);
+    assert.equal(isAdminChannel(inChannel([ROLE.admin], ELSEWHERE), 'botAdmin'), true);
+});
+
+test('the old shape (channel.id only, no channelId) still works', () => {
+    assert.equal(isAdminChannel(who([], CTRL), 'bot'), true);
+    assert.equal(isAdminChannel(who([], ELSEWHERE), 'bot'), false);
 });
