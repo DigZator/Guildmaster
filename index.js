@@ -37,6 +37,7 @@ require('./utils/ticketCommands').init(client);
 require('./utils/verificationWatcher').init(client);
 require('./utils/memorialReindex').init(client);
 require('./utils/channelFileReview').init(client);
+require('./utils/mappingCheck').init(client);
 
 const token = process.env.DISCORD_TOKEN;
 
