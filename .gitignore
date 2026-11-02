@@ -13,6 +13,7 @@ data/*
 !data/downtimeQuotes.json
 
 temp/
+tests/
 test/
 
 # Dependencies
