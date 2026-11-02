@@ -1,0 +1,1401 @@
+{
+  "commands": {
+    "registered": [
+      "ping",
+      "keep_alive",
+      "create_campaign",
+      "the_long_rest",
+      "announce_game",
+      "ticket",
+      "direct_line",
+      "list_games",
+      "get_players",
+      "manipulate_table",
+      "game_info",
+      "rss",
+      "anon_msg",
+      "schedule_activation",
+      "help",
+      "edit_game",
+      "league",
+      "leagueadmin",
+      "leaguedm",
+      "archive",
+      "archive-config",
+      "channel_file",
+      "verification"
+    ],
+    "paths": [
+      "ping",
+      "keep_alive",
+      "create_campaign",
+      "the_long_rest setup",
+      "the_long_rest reindex",
+      "the_long_rest add",
+      "the_long_rest remove",
+      "announce_game",
+      "ticket raise",
+      "ticket close",
+      "ticket setup",
+      "ticket config",
+      "ticket reset_counter",
+      "ticket type add",
+      "ticket type edit",
+      "ticket type remove",
+      "ticket type list",
+      "direct_line create",
+      "direct_line attach",
+      "direct_line file",
+      "list_games",
+      "get_players",
+      "manipulate_table",
+      "game_info",
+      "rss add",
+      "rss remove",
+      "rss list",
+      "anon_msg add",
+      "anon_msg rmv",
+      "anon_msg edit",
+      "schedule_activation add",
+      "schedule_activation remove",
+      "schedule_activation view",
+      "schedule_activation set-reminder-time",
+      "schedule_activation set-activation-time",
+      "schedule_activation toggle-reminder",
+      "schedule_activation toggle-auto",
+      "schedule_activation status",
+      "schedule_activation run-now",
+      "help",
+      "edit_game",
+      "league create",
+      "league profile",
+      "league edit",
+      "league setart",
+      "league inv",
+      "league item",
+      "league character status",
+      "league shop browse",
+      "league shop buy",
+      "league shop sell",
+      "league shop search",
+      "league shop info",
+      "league marketplace browse",
+      "league marketplace buy",
+      "league marketplace list",
+      "league marketplace unlist",
+      "league log",
+      "league leaderboard",
+      "league dashboard",
+      "league gold",
+      "league balance",
+      "league quest list",
+      "league downtime start",
+      "league downtime progress",
+      "league downtime list",
+      "league downtime buy-days",
+      "league downtime activities",
+      "league starter-items",
+      "league void item",
+      "league void gold",
+      "leagueadmin rep",
+      "leagueadmin gold",
+      "leagueadmin milestone",
+      "leagueadmin pending",
+      "leagueadmin approve",
+      "leagueadmin reject",
+      "leagueadmin clear",
+      "leagueadmin item create",
+      "leagueadmin item import",
+      "leagueadmin shop stock",
+      "leagueadmin shop stockall",
+      "leagueadmin shop unstock",
+      "leagueadmin shop restock",
+      "leagueadmin catalogue sync",
+      "leagueadmin catalogue sync-spells",
+      "leagueadmin audit characters",
+      "leaguedm quest link",
+      "leaguedm dashboard",
+      "archive",
+      "archive-config",
+      "channel_file file",
+      "channel_file protect add",
+      "channel_file protect remove",
+      "channel_file protect list",
+      "verification setup",
+      "verification settings",
+      "verification force",
+      "verification pending",
+      "verification extend",
+      "verification status"
+    ],
+    "routed": [
+      "ping",
+      "keep_alive",
+      "create_campaign",
+      "the_long_rest",
+      "announce_game",
+      "list_games",
+      "game_info",
+      "rss",
+      "anon_msg",
+      "schedule_activation",
+      "help",
+      "edit_game",
+      "league",
+      "leagueadmin",
+      "leaguedm",
+      "get_players",
+      "manipulate_table",
+      "ticket",
+      "direct_line",
+      "archive",
+      "archive-config",
+      "channel_file",
+      "verification"
+    ],
+    "registeredWithoutHandler": [],
+    "handlerWithoutRegistration": [],
+    "handlers": [
+      {
+        "command": "ping",
+        "handler": "ping"
+      },
+      {
+        "command": "keep_alive",
+        "handler": "keep_alive"
+      },
+      {
+        "command": "create_campaign",
+        "handler": "create_campaign"
+      },
+      {
+        "command": "the_long_rest",
+        "handler": "the_long_rest"
+      },
+      {
+        "command": "announce_game",
+        "handler": "announce_game"
+      },
+      {
+        "command": "list_games",
+        "handler": "list_games"
+      },
+      {
+        "command": "game_info",
+        "handler": "game_info"
+      },
+      {
+        "command": "rss",
+        "handler": "rss"
+      },
+      {
+        "command": "anon_msg",
+        "handler": "anon_msg"
+      },
+      {
+        "command": "schedule_activation",
+        "handler": "schedule_activation"
+      },
+      {
+        "command": "help",
+        "handler": "help"
+      },
+      {
+        "command": "edit_game",
+        "handler": "edit_game"
+      },
+      {
+        "command": "league",
+        "handler": "league"
+      },
+      {
+        "command": "leagueadmin",
+        "handler": "leagueAdmin"
+      },
+      {
+        "command": "leaguedm",
+        "handler": "leagueDM"
+      },
+      {
+        "command": "get_players",
+        "handler": "get_players"
+      },
+      {
+        "command": "manipulate_table",
+        "handler": "manipulate_table"
+      },
+      {
+        "command": "ticket",
+        "handler": "ticket"
+      },
+      {
+        "command": "direct_line",
+        "handler": "direct_line"
+      },
+      {
+        "command": "archive",
+        "handler": "archive"
+      },
+      {
+        "command": "archive-config",
+        "handler": "archiveConfig"
+      },
+      {
+        "command": "channel_file",
+        "handler": "channelFile"
+      },
+      {
+        "command": "verification",
+        "handler": "verification"
+      }
+    ],
+    "autocomplete": {
+      "tokens": [
+        "commandName=game_info",
+        "commandName=announce_game",
+        "commandName=get_players",
+        "commandName=manipulate_table",
+        "commandName=anon_msg",
+        "commandName=schedule_activation",
+        "sub=add",
+        "sub=remove",
+        "commandName=edit_game",
+        "focused.name=game",
+        "focused.name=field",
+        "commandName=ticket",
+        "sub=raise",
+        "focused.name=type",
+        "sub=reset_counter",
+        "focused.name=type",
+        "group=type",
+        "sub=edit",
+        "sub=remove",
+        "focused.name=key",
+        "commandName=help",
+        "focused.name=family",
+        "commandName=league",
+        "commandName=leagueadmin",
+        "commandName=leaguedm",
+        "commandName=league",
+        "sub=starter-items",
+        "focused.name=background",
+        "commandName=leaguedm",
+        "group=quest",
+        "sub=link",
+        "commandName=leaguedm",
+        "sub=dashboard",
+        "commandName=league",
+        "group=downtime",
+        "sub=start",
+        "focused.name=activity",
+        "focused.name=tier",
+        "focused.name=spell",
+        "focused.name=item",
+        "commandName=league",
+        "sub=log",
+        "focused.name=character",
+        "commandName=league",
+        "group=character",
+        "sub=status",
+        "focused.name=character"
+      ],
+      "sets": {
+        "CODE_AUTOCOMPLETE_TARGETS": [
+          "league:shop:info",
+          "league:shop:buy",
+          "leagueadmin:shop:stock",
+          "leagueadmin:shop:unstock",
+          "leagueadmin:shop:restock",
+          "leagueadmin:item:import"
+        ],
+        "ITEM_AUTOCOMPLETE_TARGETS": [
+          "league:void:item",
+          "league:marketplace:list",
+          "league:shop:sell",
+          "league:item"
+        ]
+      }
+    }
+  },
+  "buttons": {
+    "routerModules": [
+      "memorial",
+      "announcement",
+      "listGames",
+      "deletions",
+      "anonMessages",
+      "inventory",
+      "shopSearch",
+      "shopBrowse",
+      "shopDiscount",
+      "shopSell",
+      "downtimeBuyDays",
+      "starterItems",
+      "leaderboard",
+      "characterStatus",
+      "questDashboard",
+      "editGameCheckbox",
+      "ticket",
+      "directLine",
+      "theLongRest",
+      "leagueDashboard",
+      "archive",
+      "tableAdmin",
+      "createCampaign",
+      "verification",
+      "channelFile"
+    ],
+    "exact": [
+      {
+        "key": "announce_cancel",
+        "declaredBy": [
+          "announcement"
+        ],
+        "winner": "announcement.exact[announce_cancel]"
+      },
+      {
+        "key": "announce_confirm",
+        "declaredBy": [
+          "announcement"
+        ],
+        "winner": "announcement.exact[announce_confirm]"
+      },
+      {
+        "key": "announce_edit",
+        "declaredBy": [
+          "announcement"
+        ],
+        "winner": "announcement.exact[announce_edit]"
+      },
+      {
+        "key": "anon_nokey_cancel",
+        "declaredBy": [
+          "anonMessages"
+        ],
+        "winner": "anonMessages.exact[anon_nokey_cancel]"
+      },
+      {
+        "key": "anon_nokey_confirm",
+        "declaredBy": [
+          "anonMessages"
+        ],
+        "winner": "anonMessages.exact[anon_nokey_confirm]"
+      },
+      {
+        "key": "archive_cancel",
+        "declaredBy": [
+          "archive"
+        ],
+        "winner": "archive.exact[archive_cancel]"
+      },
+      {
+        "key": "continue_memorial_part2",
+        "declaredBy": [
+          "memorial"
+        ],
+        "winner": "memorial.exact[continue_memorial_part2]"
+      },
+      {
+        "key": "create_campaign_cancel",
+        "declaredBy": [
+          "createCampaign"
+        ],
+        "winner": "createCampaign.exact[create_campaign_cancel]"
+      },
+      {
+        "key": "create_campaign_confirm",
+        "declaredBy": [
+          "createCampaign"
+        ],
+        "winner": "createCampaign.exact[create_campaign_confirm]"
+      },
+      {
+        "key": "dtbuy_cancel",
+        "declaredBy": [
+          "downtimeBuyDays"
+        ],
+        "winner": "downtimeBuyDays.exact[dtbuy_cancel]"
+      },
+      {
+        "key": "dtbuy_confirm",
+        "declaredBy": [
+          "downtimeBuyDays"
+        ],
+        "winner": "downtimeBuyDays.exact[dtbuy_confirm]"
+      },
+      {
+        "key": "leagueDashBalance",
+        "declaredBy": [
+          "leagueDashboard"
+        ],
+        "winner": "leagueDashboard.exact[leagueDashBalance]"
+      },
+      {
+        "key": "leagueDashDowntimes",
+        "declaredBy": [
+          "leagueDashboard"
+        ],
+        "winner": "leagueDashboard.exact[leagueDashDowntimes]"
+      },
+      {
+        "key": "leagueDashEdit",
+        "declaredBy": [
+          "leagueDashboard"
+        ],
+        "winner": "leagueDashboard.exact[leagueDashEdit]"
+      },
+      {
+        "key": "leagueDashInventory",
+        "declaredBy": [
+          "leagueDashboard"
+        ],
+        "winner": "leagueDashboard.exact[leagueDashInventory]"
+      },
+      {
+        "key": "leagueDashProfile",
+        "declaredBy": [
+          "leagueDashboard"
+        ],
+        "winner": "leagueDashboard.exact[leagueDashProfile]"
+      },
+      {
+        "key": "leagueDashQuests",
+        "declaredBy": [
+          "leagueDashboard"
+        ],
+        "winner": "leagueDashboard.exact[leagueDashQuests]"
+      },
+      {
+        "key": "leagueDashSetArt",
+        "declaredBy": [
+          "leagueDashboard"
+        ],
+        "winner": "leagueDashboard.exact[leagueDashSetArt]"
+      },
+      {
+        "key": "leagueDashSwitch",
+        "declaredBy": [
+          "leagueDashboard"
+        ],
+        "winner": "leagueDashboard.exact[leagueDashSwitch]"
+      },
+      {
+        "key": "memorial_mod_approve",
+        "declaredBy": [
+          "memorial"
+        ],
+        "winner": "memorial.exact[memorial_mod_approve]"
+      },
+      {
+        "key": "memorial_mod_deny",
+        "declaredBy": [
+          "memorial"
+        ],
+        "winner": "memorial.exact[memorial_mod_deny]"
+      },
+      {
+        "key": "memorial_preview_cancel",
+        "declaredBy": [
+          "memorial"
+        ],
+        "winner": "memorial.exact[memorial_preview_cancel]"
+      },
+      {
+        "key": "memorial_preview_confirm",
+        "declaredBy": [
+          "memorial"
+        ],
+        "winner": "memorial.exact[memorial_preview_confirm]"
+      },
+      {
+        "key": "shopbuy_discount_no",
+        "declaredBy": [
+          "shopDiscount"
+        ],
+        "winner": "shopDiscount.exact[shopbuy_discount_no]"
+      },
+      {
+        "key": "shopbuy_discount_yes",
+        "declaredBy": [
+          "shopDiscount"
+        ],
+        "winner": "shopDiscount.exact[shopbuy_discount_yes]"
+      },
+      {
+        "key": "shopsell_confirm_no",
+        "declaredBy": [
+          "shopSell"
+        ],
+        "winner": "shopSell.exact[shopsell_confirm_no]"
+      },
+      {
+        "key": "shopsell_confirm_yes",
+        "declaredBy": [
+          "shopSell"
+        ],
+        "winner": "shopSell.exact[shopsell_confirm_yes]"
+      },
+      {
+        "key": "startitems_cancel",
+        "declaredBy": [
+          "starterItems"
+        ],
+        "winner": "starterItems.exact[startitems_cancel]"
+      },
+      {
+        "key": "startitems_confirm",
+        "declaredBy": [
+          "starterItems"
+        ],
+        "winner": "starterItems.exact[startitems_confirm]"
+      },
+      {
+        "key": "tlrRemoveCancel",
+        "declaredBy": [
+          "theLongRest"
+        ],
+        "winner": "theLongRest.exact[tlrRemoveCancel]"
+      },
+      {
+        "key": "tlrRemoveProceed",
+        "declaredBy": [
+          "theLongRest"
+        ],
+        "winner": "theLongRest.exact[tlrRemoveProceed]"
+      },
+      {
+        "key": "tlrRemoveRequest",
+        "declaredBy": [
+          "theLongRest"
+        ],
+        "winner": "theLongRest.exact[tlrRemoveRequest]"
+      },
+      {
+        "key": "tlrSubmit",
+        "declaredBy": [
+          "theLongRest"
+        ],
+        "winner": "theLongRest.exact[tlrSubmit]"
+      },
+      {
+        "key": "verification:retry",
+        "declaredBy": [
+          "verification"
+        ],
+        "winner": "verification.exact[verification:retry]"
+      },
+      {
+        "key": "verification:start",
+        "declaredBy": [
+          "verification"
+        ],
+        "winner": "verification.exact[verification:start]"
+      }
+    ],
+    "prefix": [
+      {
+        "key": "anon_cancel_",
+        "declaredBy": [
+          "anonMessages"
+        ],
+        "alsoMatches": [],
+        "winner": "anonMessages.prefix[anon_cancel_]"
+      },
+      {
+        "key": "anon_confirm_",
+        "declaredBy": [
+          "anonMessages"
+        ],
+        "alsoMatches": [],
+        "winner": "anonMessages.prefix[anon_confirm_]"
+      },
+      {
+        "key": "anon_remove_cancel_",
+        "declaredBy": [
+          "anonMessages"
+        ],
+        "alsoMatches": [],
+        "winner": "anonMessages.prefix[anon_remove_cancel_]"
+      },
+      {
+        "key": "anon_remove_confirm_",
+        "declaredBy": [
+          "anonMessages"
+        ],
+        "alsoMatches": [],
+        "winner": "anonMessages.prefix[anon_remove_confirm_]"
+      },
+      {
+        "key": "archive_confirm_",
+        "declaredBy": [
+          "archive"
+        ],
+        "alsoMatches": [],
+        "winner": "archive.prefix[archive_confirm_]"
+      },
+      {
+        "key": "cancel_remove_",
+        "declaredBy": [
+          "deletions"
+        ],
+        "alsoMatches": [],
+        "winner": "deletions.prefix[cancel_remove_]"
+      },
+      {
+        "key": "channelFile:",
+        "declaredBy": [
+          "channelFile"
+        ],
+        "alsoMatches": [],
+        "winner": "channelFile.prefix[channelFile:]"
+      },
+      {
+        "key": "charstatus_cancel:",
+        "declaredBy": [
+          "characterStatus"
+        ],
+        "alsoMatches": [],
+        "winner": "characterStatus.prefix[charstatus_cancel:]"
+      },
+      {
+        "key": "charstatus_confirm:",
+        "declaredBy": [
+          "characterStatus"
+        ],
+        "alsoMatches": [],
+        "winner": "characterStatus.prefix[charstatus_confirm:]"
+      },
+      {
+        "key": "confirm_remove_",
+        "declaredBy": [
+          "deletions"
+        ],
+        "alsoMatches": [],
+        "winner": "deletions.prefix[confirm_remove_]"
+      },
+      {
+        "key": "dl:",
+        "declaredBy": [
+          "directLine"
+        ],
+        "alsoMatches": [],
+        "winner": "directLine.prefix[dl:]"
+      },
+      {
+        "key": "editgame_checkbox_",
+        "declaredBy": [
+          "editGameCheckbox"
+        ],
+        "alsoMatches": [],
+        "winner": "editGameCheckbox.prefix[editgame_checkbox_]"
+      },
+      {
+        "key": "inv_next_",
+        "declaredBy": [
+          "inventory"
+        ],
+        "alsoMatches": [],
+        "winner": "inventory.prefix[inv_next_]"
+      },
+      {
+        "key": "inv_prev_",
+        "declaredBy": [
+          "inventory"
+        ],
+        "alsoMatches": [],
+        "winner": "inventory.prefix[inv_prev_]"
+      },
+      {
+        "key": "leaderboard_page:",
+        "declaredBy": [
+          "leaderboard"
+        ],
+        "alsoMatches": [],
+        "winner": "leaderboard.prefix[leaderboard_page:]"
+      },
+      {
+        "key": "list_games_next_",
+        "declaredBy": [
+          "listGames"
+        ],
+        "alsoMatches": [],
+        "winner": "listGames.prefix[list_games_next_]"
+      },
+      {
+        "key": "list_games_prev_",
+        "declaredBy": [
+          "listGames"
+        ],
+        "alsoMatches": [],
+        "winner": "listGames.prefix[list_games_prev_]"
+      },
+      {
+        "key": "marketbrowse_next_",
+        "declaredBy": [
+          "shopBrowse"
+        ],
+        "alsoMatches": [],
+        "winner": "shopBrowse.prefix[marketbrowse_next_]"
+      },
+      {
+        "key": "marketbrowse_prev_",
+        "declaredBy": [
+          "shopBrowse"
+        ],
+        "alsoMatches": [],
+        "winner": "shopBrowse.prefix[marketbrowse_prev_]"
+      },
+      {
+        "key": "questDash:",
+        "declaredBy": [
+          "questDashboard"
+        ],
+        "alsoMatches": [],
+        "winner": "questDashboard.prefix[questDash:]"
+      },
+      {
+        "key": "shopbrowse_next_",
+        "declaredBy": [
+          "shopBrowse"
+        ],
+        "alsoMatches": [],
+        "winner": "shopBrowse.prefix[shopbrowse_next_]"
+      },
+      {
+        "key": "shopbrowse_prev_",
+        "declaredBy": [
+          "shopBrowse"
+        ],
+        "alsoMatches": [],
+        "winner": "shopBrowse.prefix[shopbrowse_prev_]"
+      },
+      {
+        "key": "shopsearch_next_",
+        "declaredBy": [
+          "shopSearch"
+        ],
+        "alsoMatches": [],
+        "winner": "shopSearch.prefix[shopsearch_next_]"
+      },
+      {
+        "key": "shopsearch_prev_",
+        "declaredBy": [
+          "shopSearch"
+        ],
+        "alsoMatches": [],
+        "winner": "shopSearch.prefix[shopsearch_prev_]"
+      },
+      {
+        "key": "startitems_pick_",
+        "declaredBy": [
+          "starterItems"
+        ],
+        "alsoMatches": [],
+        "winner": "starterItems.prefix[startitems_pick_]"
+      },
+      {
+        "key": "tableAdmin:",
+        "declaredBy": [
+          "tableAdmin"
+        ],
+        "alsoMatches": [],
+        "winner": "tableAdmin.prefix[tableAdmin:]"
+      },
+      {
+        "key": "tableAdminReactivate:",
+        "declaredBy": [
+          "tableAdmin"
+        ],
+        "alsoMatches": [],
+        "winner": "tableAdmin.prefix[tableAdminReactivate:]"
+      },
+      {
+        "key": "ticket:",
+        "declaredBy": [
+          "ticket"
+        ],
+        "alsoMatches": [],
+        "winner": "ticket.prefix[ticket:]"
+      },
+      {
+        "key": "ticketCreate:",
+        "declaredBy": [
+          "ticket"
+        ],
+        "alsoMatches": [],
+        "winner": "ticket.prefix[ticketCreate:]"
+      },
+      {
+        "key": "verification:pending:",
+        "declaredBy": [
+          "verification"
+        ],
+        "alsoMatches": [],
+        "winner": "verification.prefix[verification:pending:]"
+      }
+    ],
+    "duplicates": [],
+    "overlaps": [],
+    "exactShadowedByPrefix": [],
+    "unknownIdHandled": false
+  },
+  "selects": {
+    "chain": [
+      {
+        "match": "prefix",
+        "value": "questDash:",
+        "target": "../buttons/questDashboard.handleDashboardUserSelect"
+      },
+      {
+        "match": "exact",
+        "value": "announce_edit_select",
+        "target": "../selects/announceEditSelect"
+      },
+      {
+        "match": "exact",
+        "value": "tlrRemoveSelect",
+        "target": "../buttons/theLongRest.handleRemoveSelect"
+      },
+      {
+        "match": "exact",
+        "value": "shopbuy_discount_select",
+        "target": "../selects/shopDiscountSelect"
+      },
+      {
+        "match": "exact",
+        "value": "starter_items_select",
+        "target": "../selects/starterItemsSelect"
+      },
+      {
+        "match": "exact",
+        "value": "leagueDashSwitchSelect",
+        "target": "../selects/leagueDashSwitchSelect"
+      },
+      {
+        "match": "prefix",
+        "value": "questDash:",
+        "target": "../buttons/questDashboard.handleDashboardSelect"
+      },
+      {
+        "match": "prefix",
+        "value": "tableAdminSeatSelect:",
+        "target": "../selects/tableAdminSeatSelect.handle"
+      }
+    ],
+    "shadowed": []
+  },
+  "modals": {
+    "chain": [
+      {
+        "match": "exact",
+        "value": "characterSubmission_1",
+        "target": "../modals/characterSubmission_1"
+      },
+      {
+        "match": "exact",
+        "value": "characterSubmission_2",
+        "target": "../modals/characterSubmission_2"
+      },
+      {
+        "match": "exact",
+        "value": "leagueCreate",
+        "target": "./leagueCreateModal"
+      },
+      {
+        "match": "prefix",
+        "value": "editgame_modal_",
+        "target": "../modals/editGameModal"
+      },
+      {
+        "match": "prefix",
+        "value": "announceedit_modal_",
+        "target": "../modals/announceEditModal"
+      },
+      {
+        "match": "prefix",
+        "value": "questDash:",
+        "target": "../buttons/questDashboard.handleDashboardModal"
+      },
+      {
+        "match": "prefix",
+        "value": "ticketCreateModal:",
+        "target": "../buttons/ticket.handleTicketModal"
+      },
+      {
+        "match": "prefix",
+        "value": "ticket:",
+        "target": "../buttons/ticket.handleTicketModal"
+      },
+      {
+        "match": "prefix",
+        "value": "leagueDashEditModal:",
+        "target": "../modals/leagueDashEdit"
+      },
+      {
+        "match": "exact",
+        "value": "tlrRemoveModal",
+        "target": "../buttons/theLongRest.handleRemoveModalSubmit"
+      },
+      {
+        "match": "prefix",
+        "value": "tableAdminAddPlayerModal:",
+        "target": "../modals/tableAdminAddPlayerModal"
+      },
+      {
+        "match": "prefix",
+        "value": "tableAdminNumberModal:",
+        "target": "../modals/tableAdminNumberModal"
+      },
+      {
+        "match": "prefix",
+        "value": "channelFile:",
+        "target": "../buttons/channelFile.handleModal"
+      },
+      {
+        "match": "exact",
+        "value": "verification:modal",
+        "target": "../buttons/verification.handleModalSubmit"
+      }
+    ],
+    "shadowed": []
+  },
+  "customIdProducers": {
+    "buttons/announcement.js": [
+      "announce_edit_select"
+    ],
+    "buttons/inventory.js": [
+      "inv_next_${…}",
+      "inv_prev_${…}"
+    ],
+    "buttons/leagueDashboard.js": [
+      "dynamic: f.id",
+      "leagueDashBalance",
+      "leagueDashDowntimes",
+      "leagueDashEdit",
+      "leagueDashEditModal:${…}",
+      "leagueDashInventory",
+      "leagueDashProfile",
+      "leagueDashQuests",
+      "leagueDashSetArt",
+      "leagueDashSwitch",
+      "leagueDashSwitchSelect"
+    ],
+    "buttons/listGames.js": [
+      "list_games_next_${…}",
+      "list_games_prev_${…}"
+    ],
+    "buttons/memorial.js": [
+      "characterSubmission_2",
+      "dynamic: f.id"
+    ],
+    "buttons/questDashboard/common.js": [
+      "dynamic: encodeId(questId, backAction, backExtra)",
+      "encodeId(*, 'backToDashboard')",
+      "encodeId(*, 'cancelQuestConfirm')",
+      "encodeId(*, 'cancelQuestReturn')",
+      "encodeId(*, 'completeCancel')",
+      "encodeId(*, 'completeConfirm')"
+    ],
+    "buttons/questDashboard/items.js": [
+      "encodeId(*, 'addItemAction')",
+      "encodeId(*, 'addItemCatalogueSelect')",
+      "encodeId(*, 'addItemManualRarity')",
+      "encodeId(*, 'addItemManualSubtype')",
+      "encodeId(*, 'addItemManualType')",
+      "encodeId(*, 'addItemModal')",
+      "encodeId(*, 'addItemPlayer')",
+      "encodeId(*, 'addItemRemoveSelect')",
+      "encodeId(*, 'addItemRetrySearch')",
+      "encodeId(*, 'addItemSearch')",
+      "encodeId(*, 'addItemSource')",
+      "itemName",
+      "itemNotes",
+      "itemValue",
+      "query"
+    ],
+    "buttons/questDashboard/party.js": [
+      "encodeId(*, 'partyAction')",
+      "encodeId(*, 'partyAddCancel')",
+      "encodeId(*, 'partyAddConfirm')",
+      "encodeId(*, 'partyAddUser')",
+      "encodeId(*, 'partyInfoPage')",
+      "encodeId(*, 'partyRemoveCancel')",
+      "encodeId(*, 'partyRemoveConfirm')",
+      "encodeId(*, 'partyRemoveSelect')"
+    ],
+    "buttons/questDashboard/rewards.js": [
+      "amt${…}",
+      "encodeId(*, 'addRewardBulk')",
+      "encodeId(*, 'addRewardBulkNext')",
+      "encodeId(*, 'addRewardType')"
+    ],
+    "buttons/shopBrowse.js": [
+      "${…}"
+    ],
+    "buttons/shopDiscount.js": [
+      "shopbuy_discount_select"
+    ],
+    "buttons/shopSearch.js": [
+      "shopsearch_next_${…}",
+      "shopsearch_prev_${…}"
+    ],
+    "buttons/starterItems.js": [
+      "starter_items_select",
+      "startitems_cancel",
+      "startitems_confirm",
+      "startitems_pick_${…}"
+    ],
+    "buttons/tableAdmin.js": [
+      "tableAdminNumberModal:${…}",
+      "value"
+    ],
+    "buttons/theLongRest.js": [
+      "characterSubmission_1",
+      "dynamic: id",
+      "messageId",
+      "tlrRemoveCancel",
+      "tlrRemoveModal",
+      "tlrRemoveProceed",
+      "tlrRemoveRequest",
+      "tlrRemoveSelect",
+      "tlrSubmit"
+    ],
+    "buttons/ticket.js": [
+      "ticket:<ticketId>:<action>",
+      "ticketCreate:<typeKey>"
+    ],
+    "buttons/verification.js": [
+      "answer",
+      "dynamic: MODAL_ID",
+      "dynamic: RETRY_ID"
+    ],
+    "commands/anon_msg.js": [
+      "anon_cancel_${…}",
+      "anon_confirm_${…}",
+      "anon_nokey_cancel",
+      "anon_nokey_confirm",
+      "anon_remove_cancel_${…}",
+      "anon_remove_confirm_${…}"
+    ],
+    "commands/archive.js": [
+      "archive_cancel",
+      "archive_confirm_${…}"
+    ],
+    "commands/channelFile.js": [
+      "channelFile:cancel",
+      "channelFile:confirm:${…}"
+    ],
+    "commands/create_campaign/preview.js": [
+      "create_campaign_cancel",
+      "create_campaign_confirm"
+    ],
+    "commands/edit_game.js": [
+      "editgame_checkbox_${…}",
+      "editgame_modal_${…}",
+      "value"
+    ],
+    "commands/league/actions/characterStatus.js": [
+      "charstatus_cancel:${…}",
+      "charstatus_confirm:${…}"
+    ],
+    "commands/league/actions/leaderboard.js": [
+      "leaderboard_page:${…}"
+    ],
+    "commands/leagueDowntime.js": [
+      "dtbuy_cancel",
+      "dtbuy_confirm"
+    ],
+    "commands/leagueShop/actions/shopBuy.js": [
+      "shopbuy_discount_no",
+      "shopbuy_discount_yes"
+    ],
+    "commands/leagueShop/actions/shopSell.js": [
+      "shopsell_confirm_no",
+      "shopsell_confirm_yes"
+    ],
+    "commands/list_games.js": [
+      "list_games_next_${…}",
+      "list_games_prev_${…}"
+    ],
+    "commands/ticket.js": [
+      "dynamic: ticketCreateCustomId(type.key)"
+    ],
+    "commands/verification.js": [
+      "dynamic: START_ID"
+    ],
+    "flow/directLineFlow.js": [
+      "encodeId(*, '${action}No')",
+      "encodeId(*, '${action}Yes')"
+    ],
+    "flow/ticketFlow.js": [
+      "encodeId(*, '${action}No')",
+      "encodeId(*, '${action}Yes')",
+      "encodeId(*, 'claim')",
+      "encodeId(*, 'close')",
+      "encodeId(*, 'file')",
+      "encodeId(*, 'resurrect')",
+      "encodeId(*, 'unclaim')"
+    ],
+    "interactions/questDashboardRender.js": [
+      "encodeId(*, 'addReward')",
+      "encodeId(*, 'cancelQuest')",
+      "encodeId(*, 'editParty')",
+      "encodeId(*, 'partyInfo')",
+      "encodeId(*, 'submit')",
+      "encodeId(*, 'toggleGroup')"
+    ],
+    "interactions/tableAdminDashboardRender.js": [
+      "encodeId(*, 'addPlayer')",
+      "encodeId(*, 'addSeat')",
+      "encodeId(*, 'alterCapacity')",
+      "encodeId(*, 'alterReserved')",
+      "encodeId(*, 'autoAssignWaitlist')",
+      "encodeId(*, 'editStatus')",
+      "encodeId(*, 'refresh')"
+    ],
+    "modals/characterSubmission_1.js": [
+      "continue_memorial_part2"
+    ],
+    "modals/leagueCreate.js": [
+      "background",
+      "characterName",
+      "classLevels",
+      "leagueCreate",
+      "scores",
+      "species"
+    ],
+    "selects/announceEditSelect.js": [
+      "announceedit_modal_${…}",
+      "value"
+    ],
+    "selects/leagueDashSwitchSelect.js": [
+      "charstatus_cancel:${…}",
+      "charstatus_confirm:${…}"
+    ],
+    "selects/tableAdminSeatSelect.js": [
+      "encodeId(*, 'setStatus')",
+      "playerName",
+      "tableAdminAddPlayerModal:${…}",
+      "tableAdminSeatSelect:${…}"
+    ],
+    "utils/announcementHelper.js": [
+      "announce_cancel",
+      "announce_confirm",
+      "announce_edit"
+    ],
+    "utils/channelFileReview.js": [
+      "confirmName",
+      "dynamic: customId(job.id, 'abort')",
+      "dynamic: customId(job.id, 'errors')",
+      "dynamic: customId(job.id, 'proceed')",
+      "dynamic: customId(job.id, 'proceedModal')",
+      "dynamic: customId(job.id, 'rerun')"
+    ],
+    "utils/memorialButtons.js": [
+      "memorial_mod_approve",
+      "memorial_mod_deny",
+      "memorial_preview_cancel",
+      "memorial_preview_confirm"
+    ],
+    "utils/tableAdminWatcher.js": [
+      "tableAdminReactivate:${…}"
+    ],
+    "utils/ticketModals.js": [
+      "dynamic: id",
+      "encodeId(*, 'closeFeedbackModal')",
+      "ticketCreateModal:${…}"
+    ],
+    "utils/tlrRemoveFlow.js": [
+      "cancel_remove_${…}",
+      "confirm_remove_${…}"
+    ],
+    "utils/verificationPending.js": [
+      "${…}"
+    ]
+  },
+  "permissionChecks": {
+    "buttons/channelFile.js": {
+      "isAdminChannel": {
+        "cmd": 2
+      }
+    },
+    "buttons/directLine.js": {
+      "isAdminChannel": {
+        "hr": 1
+      }
+    },
+    "commands/announce_game.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
+    },
+    "commands/anon_msg.js": {
+      "isAdminChannel": {
+        "botChannelAdmin": 1
+      }
+    },
+    "commands/archive.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
+    },
+    "commands/archiveConfig.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
+    },
+    "commands/channelFile.js": {
+      "isAdminChannel": {
+        "botAdmin": 1,
+        "cmd": 1
+      }
+    },
+    "commands/create_campaign/command.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
+    },
+    "commands/create_campaign/preflight.js": {
+      "roles.cache": 1,
+      "permissions.has": 1
+    },
+    "commands/direct_line.js": {
+      "isAdminChannel": {
+        "hr": 1
+      }
+    },
+    "commands/edit_game.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
+    },
+    "commands/get_players.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
+    },
+    "commands/leagueGrants/audit.js": {
+      "isAdminChannel": {
+        "league": 1
+      }
+    },
+    "commands/leagueGrants/items.js": {
+      "isAdminChannel": {
+        "league": 1
+      }
+    },
+    "commands/leagueGrants/pendingApprovals/approve.js": {
+      "isAdminChannel": {
+        "league": 1
+      }
+    },
+    "commands/leagueGrants/pendingApprovals/clear.js": {
+      "isAdminChannel": {
+        "league": 1
+      }
+    },
+    "commands/leagueGrants/pendingApprovals/dashboard.js": {
+      "roles.cache": 1
+    },
+    "commands/leagueGrants/pendingApprovals/pending.js": {
+      "isAdminChannel": {
+        "league": 1
+      }
+    },
+    "commands/leagueGrants/pendingApprovals/reject.js": {
+      "isAdminChannel": {
+        "league": 1
+      }
+    },
+    "commands/leagueGrants/repGoldMilestone.js": {
+      "isAdminChannel": {
+        "league": 1
+      }
+    },
+    "commands/leagueQuest.js": {
+      "roles.cache": 1
+    },
+    "commands/leagueShop/command.js": {
+      "isAdminChannel": {
+        "league": 2
+      }
+    },
+    "commands/list_games.js": {
+      "isAdminChannel": {
+        "bot (default)": 1
+      }
+    },
+    "commands/manipulate_table.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
+    },
+    "commands/rss.js": {
+      "isAdminChannel": {
+        "botChannelAdmin": 1
+      }
+    },
+    "commands/schedule_activation.js": {
+      "isAdminChannel": {
+        "botChannelAdmin": 1
+      }
+    },
+    "commands/the_long_rest.js": {
+      "isAdminChannel": {
+        "botAdmin": 2
+      }
+    },
+    "commands/ticket.js": {
+      "isAdminChannel": {
+        "botAdmin": 7
+      }
+    },
+    "commands/verification.js": {
+      "permissions.has": 2
+    },
+    "utils/ticketPermissions.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
+    },
+    "utils/verificationAdmin.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      },
+      "permissions.has": 1
+    },
+    "utils/verificationService.js": {
+      "roles.cache": 3,
+      "permissions.has": 1
+    },
+    "utils/verificationWatcher.js": {
+      "roles.cache": 2
+    }
+  },
+  "startupWiring": [
+    "./interactions/commandHandler",
+    "./interactions/buttonHandler",
+    "./interactions/modalHandler",
+    "./interactions/threadAlertLog",
+    "./flow/announcementFlow",
+    "./flow/editGameArtFlow",
+    "./flow/tlrSubmissionFlow",
+    "./interactions/selectHandler",
+    "./flow/rssFlow",
+    "./utils/cacheWatcher.init",
+    "./utils/cacheAlert.init",
+    "./utils/registrationDefaults.init",
+    "./utils/scheduler.init",
+    "./utils/restockScheduler.init",
+    "./utils/threadActivityReport.init",
+    "./utils/keepAlive.initListeners",
+    "./utils/trapChannel",
+    "./utils/deactivator.init",
+    "./utils/ticketDashboardWatcher.init",
+    "./utils/ticketCommands.init",
+    "./utils/verificationWatcher.init",
+    "./utils/memorialReindex.init",
+    "./utils/channelFileReview.init",
+    "./utils/mappingCheck.init"
+  ]
+}

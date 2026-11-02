@@ -1,0 +1,2482 @@
+{
+  "registration": "guild",
+  "note": "Class choices are read from 5etools-src at deploy time and are stubbed here.",
+  "commands": [
+    {
+      "description": "Replies with Pong!",
+      "name": "ping",
+      "options": [],
+      "type": 1
+    },
+    {
+      "description": "Toggle Keep Alive on this thread so it is never archived for inactivity",
+      "name": "keep_alive",
+      "options": [],
+      "type": 1
+    },
+    {
+      "description": "Create a campaign role, category, and text/voice channels",
+      "name": "create_campaign",
+      "options": [
+        {
+          "description": "Campaign name, e.g. Lost Mines of Phandelver",
+          "max_length": 92,
+          "name": "name",
+          "required": true,
+          "type": 3
+        },
+        {
+          "description": "The DM: gets the DM role and the campaign role",
+          "name": "dm",
+          "required": true,
+          "type": 6
+        },
+        {
+          "description": "Can spectators (Adventurer role) read the text chat?",
+          "name": "spectators_read_chat",
+          "required": true,
+          "type": 5
+        },
+        {
+          "description": "Can spectators send messages in the text chat? (only applies if they can read it)",
+          "name": "spectators_send_messages",
+          "required": true,
+          "type": 5
+        },
+        {
+          "description": "Can spectators join the voice/stage channel?",
+          "name": "spectators_join_voice",
+          "required": true,
+          "type": 5
+        },
+        {
+          "description": "Can spectators send messages in the voice/stage channel chat?",
+          "name": "spectators_send_voice_chat",
+          "required": true,
+          "type": 5
+        },
+        {
+          "description": "Use a Stage channel instead of a Voice channel? (default: No)",
+          "name": "use_stage",
+          "required": false,
+          "type": 5
+        },
+        {
+          "description": "Player 1: gets the campaign role",
+          "name": "player_1",
+          "required": false,
+          "type": 6
+        },
+        {
+          "description": "Player 2: gets the campaign role",
+          "name": "player_2",
+          "required": false,
+          "type": 6
+        },
+        {
+          "description": "Player 3: gets the campaign role",
+          "name": "player_3",
+          "required": false,
+          "type": 6
+        },
+        {
+          "description": "Player 4: gets the campaign role",
+          "name": "player_4",
+          "required": false,
+          "type": 6
+        },
+        {
+          "description": "Player 5: gets the campaign role",
+          "name": "player_5",
+          "required": false,
+          "type": 6
+        },
+        {
+          "description": "Player 6: gets the campaign role",
+          "name": "player_6",
+          "required": false,
+          "type": 6
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Manage character memorials",
+      "name": "the_long_rest",
+      "options": [
+        {
+          "description": "Post (or refresh) the The Long Rest button dashboard in this channel",
+          "name": "setup",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Rebuild the memorial index by scanning the output channel (run once after adding this feature)",
+          "name": "reindex",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Add a character memorial",
+          "name": "add",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Remove a character memorial",
+          "name": "remove",
+          "options": [
+            {
+              "description": "ID of the message to remove",
+              "name": "message_id",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Announce a game to the quest board",
+      "name": "announce_game",
+      "options": [
+        {
+          "autocomplete": true,
+          "description": "Select a game to announce",
+          "name": "game",
+          "required": true,
+          "type": 3
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Raise or close a support ticket, and manage the ticketing system",
+      "name": "ticket",
+      "options": [
+        {
+          "description": "Open a support ticket — fill in what you can, a form asks for the rest",
+          "name": "raise",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "What kind of ticket is this?",
+              "name": "type",
+              "required": true,
+              "type": 3
+            },
+            {
+              "description": "Reason for raising the ticket",
+              "max_length": 1000,
+              "name": "reason",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Your name (and game name if relevant)",
+              "max_length": 1000,
+              "name": "identification",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "What do you need? Any extra info?",
+              "max_length": 1000,
+              "name": "details",
+              "required": false,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Close the ticket you are in (run inside a ticket channel)",
+          "name": "close",
+          "options": [
+            {
+              "description": "Reason for closing — a form opens if you leave this blank",
+              "max_length": 1000,
+              "name": "reason",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Additional feedback (optional)",
+              "max_length": 1000,
+              "name": "feedback",
+              "required": false,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Post or refresh the ticket dashboard in this channel",
+          "name": "setup",
+          "options": [
+            {
+              "description": "Move the dashboard here instead of refreshing it in its current channel",
+              "name": "relocate",
+              "required": false,
+              "type": 5
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "View or set the ticket category / log channel",
+          "name": "config",
+          "options": [
+            {
+              "channel_types": [
+                4
+              ],
+              "description": "Category where normal ticket channels are created",
+              "name": "category",
+              "required": false,
+              "type": 7
+            },
+            {
+              "channel_types": [
+                4
+              ],
+              "description": "Category where HR ticket channels are created",
+              "name": "hr_category",
+              "required": false,
+              "type": 7
+            },
+            {
+              "channel_types": [
+                0,
+                5
+              ],
+              "description": "Channel where filed transcripts are posted as threads",
+              "name": "log_channel",
+              "required": false,
+              "type": 7
+            },
+            {
+              "channel_types": [
+                0,
+                5
+              ],
+              "description": "Channel where filed HR ticket transcripts are posted as threads",
+              "name": "hr_log_channel",
+              "required": false,
+              "type": 7
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Reset a ticket type's counter back to 000 (or all, if left blank)",
+          "name": "reset_counter",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Ticket type slug to reset (leave blank to reset all)",
+              "name": "type",
+              "required": false,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Manage ticket types shown on the dashboard",
+          "name": "type",
+          "options": [
+            {
+              "description": "Add a new ticket type",
+              "name": "add",
+              "options": [
+                {
+                  "description": "Shown on the dashboard button + embeds",
+                  "name": "label",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "description": "Internal id (defaults to a slug of the label)",
+                  "name": "key",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Used in channel names, e.g. hr-000-janedoe (defaults to key)",
+                  "name": "slug",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Emoji shown on the dashboard button",
+                  "name": "emoji",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Short tag used in the channel name (defaults to slug)",
+                  "name": "channel_tag",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Override title for the creation modal (defaults to label)",
+                  "name": "modal_title",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "normal",
+                      "value": "normal"
+                    },
+                    {
+                      "name": "hr",
+                      "value": "hr"
+                    }
+                  ],
+                  "description": "Which ticket category this type is created under",
+                  "name": "category_group",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Role referenced for this ticket type",
+                  "name": "viewer_role",
+                  "required": false,
+                  "type": 8
+                },
+                {
+                  "description": "Role pinged on ticket creation",
+                  "name": "ping_target_role",
+                  "required": false,
+                  "type": 8
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Edit an existing ticket type",
+              "name": "edit",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Ticket type to edit",
+                  "name": "key",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "description": "Shown on the dashboard button + embeds",
+                  "name": "label",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Used in channel names",
+                  "name": "slug",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Emoji shown on the dashboard button",
+                  "name": "emoji",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Short tag used in the channel name",
+                  "name": "channel_tag",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Override title for the creation modal",
+                  "name": "modal_title",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "normal",
+                      "value": "normal"
+                    },
+                    {
+                      "name": "hr",
+                      "value": "hr"
+                    }
+                  ],
+                  "description": "Which ticket category this type is created under",
+                  "name": "category_group",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Role referenced for this ticket type",
+                  "name": "viewer_role",
+                  "required": false,
+                  "type": 8
+                },
+                {
+                  "description": "Role pinged on ticket creation",
+                  "name": "ping_target_role",
+                  "required": false,
+                  "type": 8
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Remove a ticket type (existing tickets of this type are unaffected)",
+              "name": "remove",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Ticket type to remove",
+                  "name": "key",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "List all configured ticket types",
+              "name": "list",
+              "options": [],
+              "type": 1
+            }
+          ],
+          "type": 2
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "HR-only: open and manage a private direct line of communication with one or more members",
+      "name": "direct_line",
+      "options": [
+        {
+          "description": "Open a new direct line channel with one to four targets",
+          "name": "create",
+          "options": [
+            {
+              "description": "The primary person this direct line is with",
+              "name": "target",
+              "required": true,
+              "type": 6
+            },
+            {
+              "description": "Additional target (optional)",
+              "name": "target2",
+              "required": false,
+              "type": 6
+            },
+            {
+              "description": "Additional target (optional)",
+              "name": "target3",
+              "required": false,
+              "type": 6
+            },
+            {
+              "description": "Additional target (optional)",
+              "name": "target4",
+              "required": false,
+              "type": 6
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Run inside a direct line channel: add or remove people's access to it",
+          "name": "attach",
+          "options": [
+            {
+              "description": "Person to add or remove",
+              "name": "target",
+              "required": true,
+              "type": 6
+            },
+            {
+              "description": "Set true to remove the target(s) instead of adding them",
+              "name": "remove",
+              "required": true,
+              "type": 5
+            },
+            {
+              "description": "Additional target (optional)",
+              "name": "target2",
+              "required": false,
+              "type": 6
+            },
+            {
+              "description": "Additional target (optional)",
+              "name": "target3",
+              "required": false,
+              "type": 6
+            },
+            {
+              "description": "Additional target (optional)",
+              "name": "target4",
+              "required": false,
+              "type": 6
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Run inside a direct line channel: log the transcript to HR and delete the channel",
+          "name": "file",
+          "options": [],
+          "type": 1
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Browse upcoming games",
+      "name": "list_games",
+      "options": [
+        {
+          "description": "Show all announced games including full and closed ones",
+          "name": "browsing",
+          "required": false,
+          "type": 5
+        },
+        {
+          "description": "Limit the number of games shown",
+          "min_value": 1,
+          "name": "n",
+          "required": false,
+          "type": 4
+        },
+        {
+          "choices": [
+            {
+              "name": "Online",
+              "value": "Online"
+            },
+            {
+              "name": "In-Person",
+              "value": "In-Person"
+            },
+            {
+              "name": "Play-by-Post",
+              "value": "Play-By-Post"
+            }
+          ],
+          "description": "Filter games by format",
+          "name": "format_filter",
+          "required": false,
+          "type": 3
+        },
+        {
+          "choices": [
+            {
+              "name": "One-Shots",
+              "value": "One-Shot"
+            },
+            {
+              "name": "Mini-Adventures",
+              "value": "Mini-Adventure"
+            },
+            {
+              "name": "Campaigns",
+              "value": "Campaign"
+            },
+            {
+              "name": "Workshops",
+              "value": "Workshop"
+            }
+          ],
+          "description": "Filter games by type",
+          "name": "type_filter",
+          "required": false,
+          "type": 3
+        },
+        {
+          "description": "Show results publicly in the channel (default: only you can see)",
+          "name": "public",
+          "required": false,
+          "type": 5
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "List players signed up for a table",
+      "name": "get_players",
+      "options": [
+        {
+          "autocomplete": true,
+          "description": "Select a game/table",
+          "name": "game",
+          "required": true,
+          "type": 3
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Admin dashboard for managing seats on the Test game",
+      "name": "manipulate_table",
+      "options": [
+        {
+          "autocomplete": true,
+          "description": "Select a game/table (currently only \"Test\" is supported)",
+          "name": "game",
+          "required": false,
+          "type": 3
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Get detailed info about a game",
+      "name": "game_info",
+      "options": [
+        {
+          "autocomplete": true,
+          "description": "Search for game by name",
+          "name": "uid",
+          "required": true,
+          "type": 3
+        },
+        {
+          "description": "Show results public in channel (default: false)",
+          "name": "public",
+          "required": false,
+          "type": 5
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Manage RSS feeds",
+      "name": "rss",
+      "options": [
+        {
+          "description": "Add a new RSS feed",
+          "name": "add",
+          "options": [
+            {
+              "description": "The RSS feed URL",
+              "name": "url",
+              "required": true,
+              "type": 3
+            },
+            {
+              "description": "Display name for the feed",
+              "name": "name",
+              "required": true,
+              "type": 3
+            },
+            {
+              "description": "Channel to post to (defaults to #feeds)",
+              "name": "channel",
+              "required": false,
+              "type": 7
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Remove an RSS feed",
+          "name": "remove",
+          "options": [
+            {
+              "description": "Feed name or URL to remove",
+              "name": "query",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "List all RSS feeds",
+          "name": "list",
+          "options": [],
+          "type": 1
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Manage anonymous messages",
+      "name": "anon_msg",
+      "options": [
+        {
+          "description": "Send a new anonymous message",
+          "name": "add",
+          "options": [
+            {
+              "description": "Channel to post in",
+              "name": "channel",
+              "required": true,
+              "type": 7
+            },
+            {
+              "description": "Unique key to identify this message (required for edit)",
+              "max_length": 80,
+              "name": "key",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Message content (single line)",
+              "name": "content",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Provide content interactively in triple backticks (also lets you attach up to 10 files)",
+              "name": "multiline",
+              "required": false,
+              "type": 5
+            },
+            {
+              "description": "A file or image to post with the message (use multiline to attach several)",
+              "name": "attachment",
+              "required": false,
+              "type": 11
+            },
+            {
+              "description": "Let @users, @roles and @everyone in the message actually ping (default: off)",
+              "name": "mentions",
+              "required": false,
+              "type": 5
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Remove an anonymous message",
+          "name": "rmv",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Key of the message to remove",
+              "name": "key",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Edit an anonymous message",
+          "name": "edit",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Key of the message to edit",
+              "name": "key",
+              "required": true,
+              "type": 3
+            },
+            {
+              "description": "Let @users, @roles and @everyone in the new text actually ping (default: off)",
+              "name": "mentions",
+              "required": false,
+              "type": 5
+            }
+          ],
+          "type": 1
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Manage the game activation schedule",
+      "name": "schedule_activation",
+      "options": [
+        {
+          "description": "Add a game to the activation queue",
+          "name": "add",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Select a game to queue for activation",
+              "name": "game",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Remove a game from the activation queue",
+          "name": "remove",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Select a game to remove from the queue",
+              "name": "game",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "View the current activation queue",
+          "name": "view",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Set the daily reminder time (IST, 24hr)",
+          "name": "set-reminder-time",
+          "options": [
+            {
+              "description": "Time in HH:MM format e.g. 19:00",
+              "name": "time",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Set the activation time (IST, 24hr)",
+          "name": "set-activation-time",
+          "options": [
+            {
+              "description": "Time in HH:MM format e.g. 21:00",
+              "name": "time",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Enable or disable the daily reminder",
+          "name": "toggle-reminder",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Enable or disable auto-scheduling games on announcement",
+          "name": "toggle-auto",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Show current schedule settings and queue",
+          "name": "status",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Force the activation job to run now for every queued game",
+          "name": "run-now",
+          "options": [
+            {
+              "description": "Post the announcement (WhatsApp copy + quest board)? Default: yes",
+              "name": "announce",
+              "required": false,
+              "type": 5
+            }
+          ],
+          "type": 1
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Show Guildmaster commands, organized by section",
+      "name": "help",
+      "options": [
+        {
+          "choices": [
+            {
+              "name": "Help (about the help command)",
+              "value": "help"
+            },
+            {
+              "name": "Player",
+              "value": "player"
+            },
+            {
+              "name": "Admin",
+              "value": "admin"
+            },
+            {
+              "name": "League",
+              "value": "league"
+            },
+            {
+              "name": "League DM",
+              "value": "leaguedm"
+            },
+            {
+              "name": "League Admin",
+              "value": "leagueadmin"
+            }
+          ],
+          "description": "Which command group to see help for",
+          "name": "group",
+          "required": true,
+          "type": 3
+        },
+        {
+          "autocomplete": true,
+          "description": "Which section within that group",
+          "name": "family",
+          "required": true,
+          "type": 3
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Edit a field on a game in Notion",
+      "name": "edit_game",
+      "options": [
+        {
+          "autocomplete": true,
+          "description": "Select a game to edit",
+          "name": "game",
+          "required": true,
+          "type": 3
+        },
+        {
+          "autocomplete": true,
+          "description": "Select a field to edit",
+          "name": "field",
+          "required": true,
+          "type": 3
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Adventurer's Guild League Commands",
+      "name": "league",
+      "options": [
+        {
+          "description": "Register your character in the Adventurer's Guild League",
+          "name": "create",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "View your character profile",
+          "name": "profile",
+          "options": [
+            {
+              "description": "View another player's character profile",
+              "name": "user",
+              "required": false,
+              "type": 6
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Edit your character details",
+          "name": "edit",
+          "options": [
+            {
+              "description": "Update your character's name",
+              "name": "name",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Update your character's class (e.g. Bladesinger Wizard)",
+              "name": "class",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Update your character's species",
+              "name": "species",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Update your character's background",
+              "name": "background",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Update your character sheet link",
+              "name": "charsheet",
+              "required": false,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Set your character profile art",
+          "name": "setart",
+          "options": [
+            {
+              "description": "Your character art (no AI-generated images)",
+              "name": "image",
+              "required": true,
+              "type": 11
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "View your inventory",
+          "name": "inv",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "View details of a specific item in your inventory",
+          "name": "item",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Find an item by name (autocomplete)",
+              "name": "item",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "The item number from your inventory list, e.g. 3 (precise, for double-checking)",
+              "min_value": 1,
+              "name": "id",
+              "required": false,
+              "type": 4
+            },
+            {
+              "description": "Show this to everyone in the channel? (default: private)",
+              "name": "public",
+              "required": false,
+              "type": 5
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Manage your characters",
+          "name": "character",
+          "options": [
+            {
+              "description": "Change one of your characters' status",
+              "name": "status",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Which of your characters",
+                  "name": "character",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "Active",
+                      "value": "Active"
+                    },
+                    {
+                      "name": "Passive",
+                      "value": "Passive"
+                    },
+                    {
+                      "name": "Retired",
+                      "value": "Retired"
+                    }
+                  ],
+                  "description": "New status",
+                  "name": "new_status",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "Guild shop",
+          "name": "shop",
+          "options": [
+            {
+              "description": "Browse shop with filters",
+              "name": "browse",
+              "options": [
+                {
+                  "choices": [
+                    {
+                      "name": "Common",
+                      "value": "Common"
+                    },
+                    {
+                      "name": "Uncommon",
+                      "value": "Uncommon"
+                    },
+                    {
+                      "name": "Rare",
+                      "value": "Rare"
+                    },
+                    {
+                      "name": "Very Rare",
+                      "value": "Very Rare"
+                    },
+                    {
+                      "name": "Legendary",
+                      "value": "Legendary"
+                    }
+                  ],
+                  "description": "Filter by rarity",
+                  "name": "rarity",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "Price (Low to High)",
+                      "value": "price_asc"
+                    },
+                    {
+                      "name": "Price (High to Low)",
+                      "value": "price_desc"
+                    },
+                    {
+                      "name": "Name",
+                      "value": "name"
+                    }
+                  ],
+                  "description": "Sort by",
+                  "name": "sort",
+                  "required": false,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Buy an item from the shop",
+              "name": "buy",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Shop item ID",
+                  "name": "id",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Sell item(s) from your inventory to the shop for half value",
+              "name": "sell",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Pick a single item from your inventory",
+                  "name": "item",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "[Legacy] Positional #s for multiple items, e.g. 001,003 (may fail if inventory changed)",
+                  "name": "item_id",
+                  "required": false,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Search the full item catalogue by name",
+              "name": "search",
+              "options": [
+                {
+                  "description": "Item name to search for",
+                  "name": "name",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "View full details of an item by its code",
+              "name": "info",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Item code (from search/browse)",
+                  "name": "code",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "Player marketplace",
+          "name": "marketplace",
+          "options": [
+            {
+              "description": "Browse marketplace with filters",
+              "name": "browse",
+              "options": [
+                {
+                  "choices": [
+                    {
+                      "name": "Common",
+                      "value": "Common"
+                    },
+                    {
+                      "name": "Uncommon",
+                      "value": "Uncommon"
+                    },
+                    {
+                      "name": "Rare",
+                      "value": "Rare"
+                    },
+                    {
+                      "name": "Very Rare",
+                      "value": "Very Rare"
+                    },
+                    {
+                      "name": "Legendary",
+                      "value": "Legendary"
+                    }
+                  ],
+                  "description": "Filter by rarity",
+                  "name": "rarity",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "Price",
+                      "value": "Asking Price"
+                    },
+                    {
+                      "name": "Newest",
+                      "value": "Listed Date"
+                    }
+                  ],
+                  "description": "Sort by",
+                  "name": "sort",
+                  "required": false,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Buy a marketplace listing",
+              "name": "buy",
+              "options": [
+                {
+                  "description": "Listing ID",
+                  "name": "id",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "List an item on the marketplace",
+              "name": "list",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Pick an item from your inventory",
+                  "name": "item_id",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "description": "Asking price in gp",
+                  "min_value": 1,
+                  "name": "price",
+                  "required": true,
+                  "type": 4
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Remove your marketplace listing",
+              "name": "unlist",
+              "options": [
+                {
+                  "description": "Listing ID to remove",
+                  "name": "id",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "View a quest log",
+          "name": "log",
+          "options": [
+            {
+              "description": "Whose quest log to view (defaults to you)",
+              "name": "player",
+              "required": false,
+              "type": 6
+            },
+            {
+              "autocomplete": true,
+              "description": "Which character (defaults to their active character)",
+              "name": "character",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "View details and allies for a specific quest",
+              "name": "quest_id",
+              "required": false,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "View the character leaderboard",
+          "name": "leaderboard",
+          "options": [
+            {
+              "choices": [
+                {
+                  "name": "Level",
+                  "value": "level"
+                },
+                {
+                  "name": "Gold",
+                  "value": "gold"
+                },
+                {
+                  "name": "Reputation",
+                  "value": "reputation"
+                },
+                {
+                  "name": "Milestones",
+                  "value": "milestones"
+                }
+              ],
+              "description": "What to sort by (default: level)",
+              "name": "sort_by",
+              "required": false,
+              "type": 3
+            },
+            {
+              "choices": [
+                {
+                  "name": "Descending",
+                  "value": "descending"
+                },
+                {
+                  "name": "Ascending",
+                  "value": "ascending"
+                }
+              ],
+              "description": "Sort order (default: descending)",
+              "name": "order",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Filter by class (partial match)",
+              "name": "class",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Filter by species (partial match)",
+              "name": "species",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Filter by status (e.g. Active, Passive, Retired)",
+              "name": "status",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Show the result to everyone (default: only you)",
+              "name": "public",
+              "required": false,
+              "type": 5
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Get a personal button dashboard for your character (profile, quests, downtimes, etc.)",
+          "name": "dashboard",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Transfer gold to another player",
+          "name": "gold",
+          "options": [
+            {
+              "description": "The player to send gold to",
+              "name": "player",
+              "required": true,
+              "type": 6
+            },
+            {
+              "description": "Amount of gold to transfer",
+              "min_value": 1,
+              "name": "amount",
+              "required": true,
+              "type": 10
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Check your gold, reputation, and milestones",
+          "name": "balance",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "League quest information",
+          "name": "quest",
+          "options": [
+            {
+              "description": "List all league quests",
+              "name": "list",
+              "options": [],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "Downtime activities",
+          "name": "downtime",
+          "options": [
+            {
+              "description": "Begin a downtime activity",
+              "name": "start",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Activity to perform — start typing to search",
+                  "name": "activity",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "autocomplete": true,
+                  "description": "Rarity / spell level / tool / etc. — only needed if the activity above has options",
+                  "name": "tier",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "autocomplete": true,
+                  "description": "Spell to scribe (required for Scribe a Spell Scroll)",
+                  "name": "spell",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "autocomplete": true,
+                  "description": "Magic item to craft (required for Craft a Magic Item)",
+                  "name": "item",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "How many to craft (crafting activities only, default 1)",
+                  "min_value": 1,
+                  "name": "quantity",
+                  "required": false,
+                  "type": 4
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Invest days into an active downtime activity",
+              "name": "progress",
+              "options": [
+                {
+                  "description": "DTA ID",
+                  "name": "id",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "description": "Days to invest",
+                  "min_value": 1,
+                  "name": "days",
+                  "required": true,
+                  "type": 4
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "View your active downtime activities",
+              "name": "list",
+              "options": [],
+              "type": 1
+            },
+            {
+              "description": "Spend 1 reputation point for 10 more downtime days",
+              "name": "buy-days",
+              "options": [],
+              "type": 1
+            },
+            {
+              "description": "Browse all downtime activities, their tiers, costs, and approval requirements",
+              "name": "activities",
+              "options": [],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "Get your starting equipment from class and background",
+          "name": "starter-items",
+          "options": [
+            {
+              "choices": [
+                {
+                  "name": "class choices (from 5etools-src, not snapshotted)",
+                  "value": "stub"
+                }
+              ],
+              "description": "Your character's class",
+              "name": "class",
+              "required": true,
+              "type": 3
+            },
+            {
+              "autocomplete": true,
+              "description": "Your character's background",
+              "name": "background",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Remove items or gold from your own character",
+          "name": "void",
+          "options": [
+            {
+              "description": "Void an item from your inventory",
+              "name": "item",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Pick an item from your inventory",
+                  "name": "id",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Void gold from your balance",
+              "name": "gold",
+              "options": [
+                {
+                  "description": "Amount of gold to void",
+                  "min_value": 0.01,
+                  "name": "amount",
+                  "required": true,
+                  "type": 10
+                }
+              ],
+              "type": 1
+            }
+          ],
+          "type": 2
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "League admin commands",
+      "name": "leagueadmin",
+      "options": [
+        {
+          "description": "Grant reputation to a character",
+          "name": "rep",
+          "options": [
+            {
+              "description": "Target player",
+              "name": "user",
+              "required": true,
+              "type": 6
+            },
+            {
+              "description": "Amount (max 2)",
+              "name": "amount",
+              "required": true,
+              "type": 4
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Grant gold to a character",
+          "name": "gold",
+          "options": [
+            {
+              "description": "Target player",
+              "name": "user",
+              "required": true,
+              "type": 6
+            },
+            {
+              "description": "Amount in gp (admin can use negative)",
+              "name": "amount",
+              "required": true,
+              "type": 10
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Grant milestones to a character",
+          "name": "milestone",
+          "options": [
+            {
+              "description": "Target player",
+              "name": "user",
+              "required": true,
+              "type": 6
+            },
+            {
+              "description": "Number of milestones",
+              "name": "amount",
+              "required": true,
+              "type": 4
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "List all pending DM grant actions",
+          "name": "pending",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Approve a pending DM grant action",
+          "name": "approve",
+          "options": [
+            {
+              "description": "Action ID (comma separated - \"34, 756\")",
+              "name": "id",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Reject a pending DM grant action",
+          "name": "reject",
+          "options": [
+            {
+              "description": "Action ID (comma separated - \"34, 756\")",
+              "name": "id",
+              "required": true,
+              "type": 3
+            },
+            {
+              "description": "Reason (required for quest-report rejections)",
+              "name": "reason",
+              "required": false,
+              "type": 3
+            },
+            {
+              "description": "Line ID — reject only one line of a quest-report, leaving the rest pending (single id only)",
+              "name": "line",
+              "required": false,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "⚠️ Force-remove a stuck pending action WITHOUT approve/reject logic. Use only if it already applied.",
+          "name": "clear",
+          "options": [
+            {
+              "description": "Action ID (comma separated - \"34, 756\")",
+              "name": "id",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Item management",
+          "name": "item",
+          "options": [
+            {
+              "description": "Create a new inventory item",
+              "name": "create",
+              "options": [
+                {
+                  "description": "Item name",
+                  "name": "name",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "Armor",
+                      "value": "Armor"
+                    },
+                    {
+                      "name": "Shield",
+                      "value": "Shield"
+                    },
+                    {
+                      "name": "Weapon",
+                      "value": "Weapon"
+                    },
+                    {
+                      "name": "Melee Weapon",
+                      "value": "Melee Weapon"
+                    },
+                    {
+                      "name": "Ranged Weapon",
+                      "value": "Ranged Weapon"
+                    },
+                    {
+                      "name": "Ammunition",
+                      "value": "Ammunition"
+                    },
+                    {
+                      "name": "Tool",
+                      "value": "Tool"
+                    },
+                    {
+                      "name": "Gaming Set",
+                      "value": "Gaming Set"
+                    },
+                    {
+                      "name": "Instrument",
+                      "value": "Instrument"
+                    },
+                    {
+                      "name": "Adventuring Gear",
+                      "value": "Adventuring Gear"
+                    },
+                    {
+                      "name": "Gear",
+                      "value": "Gear"
+                    },
+                    {
+                      "name": "Potion",
+                      "value": "Potion"
+                    },
+                    {
+                      "name": "Scroll",
+                      "value": "Scroll"
+                    },
+                    {
+                      "name": "Rod",
+                      "value": "Rod"
+                    },
+                    {
+                      "name": "Ring",
+                      "value": "Ring"
+                    },
+                    {
+                      "name": "Wand",
+                      "value": "Wand"
+                    },
+                    {
+                      "name": "Staff",
+                      "value": "Staff"
+                    },
+                    {
+                      "name": "Wondrous Item",
+                      "value": "Wondrous Item"
+                    },
+                    {
+                      "name": "Treasure",
+                      "value": "Treasure"
+                    },
+                    {
+                      "name": "Trade Good",
+                      "value": "Trade Good"
+                    },
+                    {
+                      "name": "Vehicle",
+                      "value": "Vehicle"
+                    }
+                  ],
+                  "description": "Item type",
+                  "name": "type",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "Common",
+                      "value": "Common"
+                    },
+                    {
+                      "name": "Uncommon",
+                      "value": "Uncommon"
+                    },
+                    {
+                      "name": "Rare",
+                      "value": "Rare"
+                    },
+                    {
+                      "name": "Very Rare",
+                      "value": "Very Rare"
+                    },
+                    {
+                      "name": "Legendary",
+                      "value": "Legendary"
+                    }
+                  ],
+                  "description": "Rarity",
+                  "name": "rarity",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "Potion",
+                      "value": "Potion"
+                    },
+                    {
+                      "name": "Spell Scroll",
+                      "value": "Spell Scroll"
+                    },
+                    {
+                      "name": "Gear",
+                      "value": "Gear"
+                    },
+                    {
+                      "name": "Ammo",
+                      "value": "Ammo"
+                    },
+                    {
+                      "name": "Other",
+                      "value": "Other"
+                    }
+                  ],
+                  "description": "Subtype",
+                  "name": "subtype",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Assign to a player (optional for admin, required for DM)",
+                  "name": "player",
+                  "required": false,
+                  "type": 6
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "Quest Reward",
+                      "value": "Quest Reward"
+                    },
+                    {
+                      "name": "Shop Purchase",
+                      "value": "Shop Purchase"
+                    },
+                    {
+                      "name": "Event",
+                      "value": "Event"
+                    },
+                    {
+                      "name": "Admin Grant",
+                      "value": "Admin Grant"
+                    }
+                  ],
+                  "description": "How the item was obtained",
+                  "name": "source",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Item value in gp",
+                  "min_value": 0,
+                  "name": "value",
+                  "required": false,
+                  "type": 4
+                },
+                {
+                  "description": "Additional notes",
+                  "name": "notes",
+                  "required": false,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Import an item directly from the 5e catalogue",
+              "name": "import",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Catalogue item code (see /league shop search)",
+                  "name": "code",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "description": "Assign to a player (optional)",
+                  "name": "player",
+                  "required": false,
+                  "type": 6
+                },
+                {
+                  "description": "Override the catalogue price (gp)",
+                  "min_value": 0,
+                  "name": "value",
+                  "required": false,
+                  "type": 4
+                },
+                {
+                  "choices": [
+                    {
+                      "name": "Quest Reward",
+                      "value": "Quest Reward"
+                    },
+                    {
+                      "name": "Shop Purchase",
+                      "value": "Shop Purchase"
+                    },
+                    {
+                      "name": "Event",
+                      "value": "Event"
+                    },
+                    {
+                      "name": "Admin Grant",
+                      "value": "Admin Grant"
+                    }
+                  ],
+                  "description": "How the item was obtained",
+                  "name": "source",
+                  "required": false,
+                  "type": 3
+                },
+                {
+                  "description": "Override the catalogue description",
+                  "name": "notes",
+                  "required": false,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "Guild shop management",
+          "name": "shop",
+          "options": [
+            {
+              "description": "Add/update an item on the shop floor from the catalogue",
+              "name": "stock",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Catalogue item code",
+                  "name": "code",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "description": "Quantity to stock",
+                  "min_value": 0,
+                  "name": "quantity",
+                  "required": true,
+                  "type": 4
+                },
+                {
+                  "description": "Override price in gp (defaults to official SRD price)",
+                  "min_value": 0,
+                  "name": "price",
+                  "required": false,
+                  "type": 4
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Bulk-stock the whole catalogue (or one rarity) at rarity-default quantities",
+              "name": "stockall",
+              "options": [
+                {
+                  "choices": [
+                    {
+                      "name": "Common",
+                      "value": "Common"
+                    },
+                    {
+                      "name": "Uncommon",
+                      "value": "Uncommon"
+                    },
+                    {
+                      "name": "Rare",
+                      "value": "Rare"
+                    },
+                    {
+                      "name": "Very Rare",
+                      "value": "Very Rare"
+                    },
+                    {
+                      "name": "Legendary",
+                      "value": "Legendary"
+                    }
+                  ],
+                  "description": "Limit to one rarity",
+                  "name": "rarity",
+                  "required": false,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Remove an item from the shop floor",
+              "name": "unstock",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Shop item ID",
+                  "name": "code",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Manually trigger a restock for an item",
+              "name": "restock",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Shop item ID",
+                  "name": "code",
+                  "required": true,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "D&D item catalogue management",
+          "name": "catalogue",
+          "options": [
+            {
+              "description": "Refresh the item catalogue from Open5e (2024 SRD)",
+              "name": "sync",
+              "options": [],
+              "type": 1
+            },
+            {
+              "description": "Refresh the spell list used by downtime scroll scribing",
+              "name": "sync-spells",
+              "options": [],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "Data-integrity checks",
+          "name": "audit",
+          "options": [
+            {
+              "description": "Check for players with more than one Active character",
+              "name": "characters",
+              "options": [],
+              "type": 1
+            }
+          ],
+          "type": 2
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "League DM commands",
+      "name": "leaguedm",
+      "options": [
+        {
+          "description": "League quest management",
+          "name": "quest",
+          "options": [
+            {
+              "description": "Link an announced game to the league quest log",
+              "name": "link",
+              "options": [
+                {
+                  "autocomplete": true,
+                  "description": "Select a game to link",
+                  "name": "game",
+                  "required": true,
+                  "type": 3
+                },
+                {
+                  "description": "Additional notes",
+                  "name": "notes",
+                  "required": false,
+                  "type": 3
+                }
+              ],
+              "type": 1
+            }
+          ],
+          "type": 2
+        },
+        {
+          "description": "View and manage the live reward draft for a quest",
+          "name": "dashboard",
+          "options": [
+            {
+              "autocomplete": true,
+              "description": "Quest ID",
+              "name": "quest_id",
+              "required": true,
+              "type": 3
+            }
+          ],
+          "type": 1
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Archive a channel or category (locks it read-only and moves it into the configured archive category)",
+      "name": "archive",
+      "options": [
+        {
+          "channel_types": [
+            4,
+            0,
+            2,
+            13,
+            5,
+            15
+          ],
+          "description": "The channel or category to archive",
+          "name": "target",
+          "required": true,
+          "type": 7
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Set which category /archive moves archived channels into",
+      "name": "archive-config",
+      "options": [
+        {
+          "channel_types": [
+            4
+          ],
+          "description": "The category to use as the archive destination",
+          "name": "category",
+          "required": true,
+          "type": 7
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Copy a channel (and its threads) into a thread, then delete the original after review",
+      "name": "channel_file",
+      "options": [
+        {
+          "description": "File a channel into a thread, verify the copy, then delete the original once approved",
+          "name": "file",
+          "options": [
+            {
+              "channel_types": [
+                4,
+                0,
+                5,
+                2,
+                13,
+                15,
+                16,
+                11,
+                12,
+                10
+              ],
+              "description": "The channel or thread to file (and delete after review)",
+              "name": "target",
+              "required": true,
+              "type": 7
+            },
+            {
+              "channel_types": [
+                0
+              ],
+              "description": "The text channel the filed thread is created in",
+              "name": "location",
+              "required": true,
+              "type": 7
+            },
+            {
+              "description": "Make the filed main thread private (true) or public (false)",
+              "name": "private",
+              "required": true,
+              "type": 5
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Admin: manage channels that /channel_file can never file",
+          "name": "protect",
+          "options": [
+            {
+              "description": "Protect a channel from being filed",
+              "name": "add",
+              "options": [
+                {
+                  "channel_types": [
+                    4,
+                    0,
+                    5,
+                    2,
+                    13,
+                    15,
+                    16,
+                    11,
+                    12,
+                    10
+                  ],
+                  "description": "The channel to protect",
+                  "name": "channel",
+                  "required": true,
+                  "type": 7
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Remove a channel from the manual protect list",
+              "name": "remove",
+              "options": [
+                {
+                  "description": "The channel to unprotect",
+                  "name": "channel",
+                  "required": true,
+                  "type": 7
+                }
+              ],
+              "type": 1
+            },
+            {
+              "description": "Show the manually protected channels",
+              "name": "list",
+              "options": [],
+              "type": 1
+            }
+          ],
+          "type": 2
+        }
+      ],
+      "type": 1
+    },
+    {
+      "description": "Admin: manage member verification",
+      "name": "verification",
+      "options": [
+        {
+          "description": "Post (or repost) the verification dashboard",
+          "name": "setup",
+          "options": [
+            {
+              "channel_types": [
+                0,
+                5
+              ],
+              "description": "Dashboard channel (defaults to this channel)",
+              "name": "channel",
+              "required": false,
+              "type": 7
+            },
+            {
+              "description": "Adventurer role (defaults to ADVENTURER_ROLE_ID)",
+              "name": "role",
+              "required": false,
+              "type": 8
+            },
+            {
+              "channel_types": [
+                0,
+                5
+              ],
+              "description": "Verification log channel (defaults to BOT_LOG_CHANNEL_ID)",
+              "name": "log_channel",
+              "required": false,
+              "type": 7
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "View or change timers, attempts and the unverified-member cleanup",
+          "name": "settings",
+          "options": [
+            {
+              "description": "Minutes a question stays valid (1-30)",
+              "max_value": 30,
+              "min_value": 1,
+              "name": "question_time_limit",
+              "required": false,
+              "type": 4
+            },
+            {
+              "description": "Minutes locked out after using every attempt (1-1440)",
+              "max_value": 1440,
+              "min_value": 1,
+              "name": "lockout",
+              "required": false,
+              "type": 4
+            },
+            {
+              "description": "Attempts before a lockout (1-10)",
+              "max_value": 10,
+              "min_value": 1,
+              "name": "max_attempts",
+              "required": false,
+              "type": 4
+            },
+            {
+              "description": "Days an unverified member has before cleanup (1-90)",
+              "max_value": 90,
+              "min_value": 1,
+              "name": "deadline_days",
+              "required": false,
+              "type": 4
+            },
+            {
+              "description": "Days-left reminders, comma separated, e.g. 7,3,1",
+              "name": "reminder_days",
+              "required": false,
+              "type": 3
+            },
+            {
+              "choices": [
+                {
+                  "name": "Enabled (remind + kick)",
+                  "value": "enabled"
+                },
+                {
+                  "name": "Dry run (log only, no DMs, no kicks)",
+                  "value": "dryrun"
+                },
+                {
+                  "name": "Disabled (no checks at all)",
+                  "value": "disabled"
+                }
+              ],
+              "description": "Kick members who never verify",
+              "name": "cleanup_mode",
+              "required": false,
+              "type": 3
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Give a user the Adventurer role without the quiz (e.g. to verify a bot)",
+          "name": "force",
+          "options": [
+            {
+              "description": "Who to verify",
+              "name": "user",
+              "required": true,
+              "type": 6
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "List unverified members with their deadlines",
+          "name": "pending",
+          "options": [],
+          "type": 1
+        },
+        {
+          "description": "Give an unverified member extra days before cleanup",
+          "name": "extend",
+          "options": [
+            {
+              "description": "Member to extend",
+              "name": "user",
+              "required": true,
+              "type": 6
+            },
+            {
+              "description": "Extra days (1-60)",
+              "max_value": 60,
+              "min_value": 1,
+              "name": "days",
+              "required": true,
+              "type": 4
+            }
+          ],
+          "type": 1
+        },
+        {
+          "description": "Show verification config and counts",
+          "name": "status",
+          "options": [],
+          "type": 1
+        }
+      ],
+      "type": 1
+    }
+  ]
+}

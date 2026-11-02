@@ -1,0 +1,75 @@
+const path = require('path');
+const { spawnSync } = require('child_process');
+const { testEnv } = require('./env');
+const { root } = require('./repo');
+const scan = require('./scan');
+
+const sortKeys = (v) => Array.isArray(v) ? v.map(sortKeys)
+    : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sortKeys(v[k])]))
+    : v;
+const plain = (v) => JSON.parse(JSON.stringify(v));
+
+function buildCommandSnapshot() {
+    const result = spawnSync(process.execPath, [
+        '-r', path.join(root, 'tests/helpers/captureCommands.js'),
+        path.join(root, 'deploy-commands.js'),
+    ], { cwd: root, env: { ...process.env, ...testEnv }, encoding: 'utf8', timeout: 60000 });
+    const match = (result.stdout || '').match(/COMMANDS_JSON_START\n([\s\S]*?)\nCOMMANDS_JSON_END/);
+    if (!match) throw new Error('Could not capture the command payload from deploy-commands.js:\n' + (result.stderr || '').slice(0, 800));
+    const { route, body } = JSON.parse(match[1]);
+    return plain({
+        registration: /^\/applications\/[^/]+\/guilds\/[^/]+\/commands$/.test(route) ? 'guild' : 'other: ' + route,
+        note: 'Class choices are read from 5etools-src at deploy time and are stubbed here.',
+        commands: sortKeys(body),
+    });
+}
+
+function getButtonRoutes() {
+    const result = spawnSync(process.execPath, [path.join(__dirname, 'routesCli.js')], {
+        cwd: root, env: { ...process.env, ...testEnv }, encoding: 'utf8', timeout: 60000,
+    });
+    const match = (result.stdout || '').match(/ROUTES_JSON_START\n([\s\S]*?)\nROUTES_JSON_END/);
+    if (!match) throw new Error('Could not resolve button routes:\n' + (result.stderr || '').slice(0, 800));
+    return JSON.parse(match[1]);
+}
+
+function commandPaths(commands) {
+    const out = [];
+    for (const c of commands) {
+        const walk = (node, prefix) => {
+            const subs = (node.options || []).filter(o => o.type === 1 || o.type === 2);
+            if (!subs.length) { out.push(prefix); return; }
+            for (const s of subs) walk(s, `${prefix} ${s.name}`);
+        };
+        walk(c, c.name);
+    }
+    return out;
+}
+
+async function buildInventory() {
+    const { commands } = buildCommandSnapshot();
+    const names = commands.map(c => c.name);
+    const routes = scan.scanCommandRoutes();
+    const routed = routes.handlers.map(h => h.command);
+    const selects = scan.scanChain('interactions/selectHandler.js');
+    const modals = scan.scanChain('interactions/modalHandler.js');
+    return plain({
+        commands: {
+            registered: names,
+            paths: commandPaths(commands),
+            routed,
+            registeredWithoutHandler: names.filter(n => !routed.includes(n)),
+            handlerWithoutRegistration: routed.filter(n => !names.includes(n)),
+            handlers: routes.handlers,
+            autocomplete: { tokens: routes.autocompleteTokens, sets: routes.sets },
+        },
+        buttons: getButtonRoutes(),
+        selects: { chain: selects, shadowed: scan.shadowedInChain(selects) },
+        modals: { chain: modals, shadowed: scan.shadowedInChain(modals) },
+        customIdProducers: scan.scanCustomIdProducers(),
+        permissionChecks: scan.scanPermissionChecks(),
+        startupWiring: scan.scanStartupWiring(),
+    });
+}
+
+module.exports = { buildCommandSnapshot, buildInventory, getButtonRoutes, sortKeys, plain };
