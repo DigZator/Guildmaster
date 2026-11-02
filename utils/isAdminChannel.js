@@ -4,10 +4,6 @@ const ADMINS_ROLE_ID = process.env.ADMINS_ROLE_ID;
 const HR_ROLE_ID = process.env.HR_ROLE_ID;
 const CMD_ROLE_ID = process.env.CMD_ROLE_ID;
 
-if (!CMD_ROLE_ID) {
-    console.warn('[isAdminChannel] CMD_ROLE_ID is not set — the "cmd" check will deny everyone.');
-}
-
 const ADMIN_CONFIG = {
     bot: {
         mode: process.env.ADMIN_CHECK_MODE_BOT || 'either',

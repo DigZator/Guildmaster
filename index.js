@@ -14,6 +14,8 @@ process.on('error', (error) => {
     console.error('Process error:', error);
 });
 
+require('./config/roleVars').report();
+
 require('./interactions/commandHandler')(client);
 require('./interactions/buttonHandler')(client);
 require('./interactions/modalHandler')(client);
