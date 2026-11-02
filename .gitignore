@@ -3,6 +3,7 @@ token.txt
 url.txt
 .env
 scripts/*
+!scripts/art-thread.js
 
 data/*
 !data/channels.js

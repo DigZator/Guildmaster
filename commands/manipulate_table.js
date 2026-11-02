@@ -1,14 +1,3 @@
-// STATUS: NOT WIRED IN.
-// To activate later:
-//   1. Uncomment the SlashCommandBuilder block in deploy-commands.js
-//      (kept there as a commented-out block — see that file).
-//   2. In interactions/commandHandler.js, add:
-//        const manipulate_table = require('../commands/manipulate_table');
-//        ...and a dispatch branch: if (interaction.commandName === 'manipulate_table') return manipulate_table(interaction);
-//   3. In interactions/buttonHandler.js, add tableAdmin's prefix export
-//      (see buttons/tableAdmin.js header for the exact snippet).
-//   4. Re-run node deploy-commands.js to register the command with Discord.
-//
 // SCOPE LOCK: only operates on the "Test" game (see utils/tableAdminData.js).
 
 const { isAdminChannel } = require('../utils/isAdminChannel');

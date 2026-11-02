@@ -1,9 +1,3 @@
-// STATUS: NOT WIRED IN.
-// To activate later, in interactions/selectHandler.js add:
-//   if (interaction.customId.startsWith('tableAdminSeatSelect:')) {
-//       await require('../selects/tableAdminSeatSelect').handle(interaction);
-//   }
-
 const { StringSelectMenuBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { fetchGameSeats } = require('../utils/tableAdminData');
 const { encodeId } = require('../interactions/tableAdminDashboardId');

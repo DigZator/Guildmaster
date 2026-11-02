@@ -1,4 +1,4 @@
-// STATUS: NOT WIRED IN. Pure render layer for the /manipulate_table dashboard
+// Pure render layer for the /manipulate_table dashboard
 // wireframe we sketched: header (game + seat count), a table of players
 // sorted by registration timestamp, and an action row.
 //

@@ -1,8 +1,3 @@
-// STATUS: NOT WIRED IN.
-// To activate later, in interactions/modalHandler.js add:
-//   } else if (interaction.customId.startsWith('tableAdminAddPlayerModal:')) {
-//       await require('../modals/tableAdminAddPlayerModal')(interaction, client);
-
 const { addPlayerToSeat } = require('../utils/tableAdminData');
 const { renderDashboard } = require('../interactions/tableAdminDashboardRender');
 

@@ -1,4 +1,4 @@
-// STATUS: NOT WIRED IN. Mirrors interactions/questDashboardId.js exactly.
+// Mirrors interactions/questDashboardId.js exactly.
 // Used by buttons/tableAdmin.js to encode/decode customIds for the
 // /manipulate_table dashboard. Kept separate from questDashboardId.js so the
 // two dashboards' id spaces can never collide.

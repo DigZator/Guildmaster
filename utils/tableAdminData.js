@@ -1,9 +1,5 @@
 // tableAdminData.js
 //
-// STATUS: NOT WIRED IN. This module is not required by index.js, deploy-commands.js,
-// or commandHandler.js. It exists so we can build/test the /manipulate_table data
-// layer in isolation before any command or button touches it.
-//
 // SCOPE LOCK: every exported function only operates on the Notion game whose
 // Title === "Test". This is a deliberate, temporary guard while we build out
 // the new admin-dashboard commands against live data. Remove getTestGame()'s

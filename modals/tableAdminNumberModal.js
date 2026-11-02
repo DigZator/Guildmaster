@@ -1,8 +1,3 @@
-// STATUS: NOT WIRED IN.
-// To activate later, in interactions/modalHandler.js add:
-//   } else if (interaction.customId.startsWith('tableAdminNumberModal:')) {
-//       await require('../modals/tableAdminNumberModal')(interaction, client);
-
 const { setCapacity, setReserved } = require('../utils/tableAdminData');
 const { renderDashboard } = require('../interactions/tableAdminDashboardRender');
 

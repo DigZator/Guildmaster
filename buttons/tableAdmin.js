@@ -1,13 +1,3 @@
-// STATUS: NOT WIRED IN.
-// To activate later, in interactions/buttonHandler.js add:
-//   const tableAdmin = require('../buttons/tableAdmin');
-//   ...and merge into prefixHandlers: ...tableAdmin.prefix,
-//
-// Previously blocked on "Player" relation having no target DB and no Status
-// field on Seats — both resolved: Seats DB now has a "Seat Status" select
-// (Occupied/Waitlisted/Vacated), and a separate Players DB now exists
-// (PLAYERS_DATASOURCE_ID in .env). All three actions below are implemented.
-
 const { decodeId } = require('../interactions/tableAdminDashboardId');
 const { renderDashboard } = require('../interactions/tableAdminDashboardRender');
 const { getTestGame, addSeat, editSeatStatus, autoAssignWaitlist } = require('../utils/tableAdminData');
