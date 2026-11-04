@@ -37,9 +37,14 @@ test('commands: exactly the registered commands, each with a handler', () => {
     assert.deepEqual(keys(registry.commands), [...inventory.commands.registered].sort());
 });
 
-test('buttons: exactly the routes in the routing inventory (exact and prefix)', () => {
-    assert.deepEqual(keys(registry.tables.button.exact), inventory.buttons.exact.map(e => e.key).sort());
-    assert.deepEqual(prefixes(registry.tables.button), inventory.buttons.prefix.map(e => e.key).sort());
+// Written out by hand on purpose: this is the list the old button router handled, so retiring it cannot
+// silently add or drop a route.
+const BUTTON_EXACT = ['announce_cancel', 'announce_confirm', 'announce_edit', 'anon_nokey_cancel', 'anon_nokey_confirm', 'archive_cancel', 'continue_memorial_part2', 'create_campaign_cancel', 'create_campaign_confirm', 'dtbuy_cancel', 'dtbuy_confirm', 'leagueDashBalance', 'leagueDashDowntimes', 'leagueDashEdit', 'leagueDashInventory', 'leagueDashProfile', 'leagueDashQuests', 'leagueDashSetArt', 'leagueDashSwitch', 'memorial_mod_approve', 'memorial_mod_deny', 'memorial_preview_cancel', 'memorial_preview_confirm', 'shopbuy_discount_no', 'shopbuy_discount_yes', 'shopsell_confirm_no', 'shopsell_confirm_yes', 'startitems_cancel', 'startitems_confirm', 'tlrRemoveCancel', 'tlrRemoveProceed', 'tlrRemoveRequest', 'tlrSubmit', 'verification:retry', 'verification:start'];
+const BUTTON_PREFIX = ['anon_cancel_', 'anon_confirm_', 'anon_remove_cancel_', 'anon_remove_confirm_', 'archive_confirm_', 'cancel_remove_', 'channelFile:', 'charstatus_cancel:', 'charstatus_confirm:', 'config:', 'confirm_remove_', 'dl:', 'editgame_checkbox_', 'inv_next_', 'inv_prev_', 'leaderboard_page:', 'list_games_next_', 'list_games_prev_', 'marketbrowse_next_', 'marketbrowse_prev_', 'questDash:', 'shopbrowse_next_', 'shopbrowse_prev_', 'shopsearch_next_', 'shopsearch_prev_', 'startitems_pick_', 'tableAdmin:', 'tableAdminReactivate:', 'ticket:', 'ticketCreate:', 'verification:pending:'];
+
+test('buttons: exactly the routes the old button router handled (35 exact, 31 prefix)', () => {
+    assert.deepEqual(keys(registry.tables.button.exact), [...BUTTON_EXACT].sort());
+    assert.deepEqual(prefixes(registry.tables.button), [...BUTTON_PREFIX].sort());
 });
 
 // Written out by hand on purpose: this is the list the old modal router handled, so retiring it cannot

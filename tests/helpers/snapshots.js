@@ -4,6 +4,7 @@ const { testEnv } = require('./env');
 const { root } = require('./repo');
 const scan = require('./scan');
 const { routesOfKinds } = require('./registryRoutes');
+const { describeButtonRoutes } = require('./routes');
 
 const sortKeys = (v) => Array.isArray(v) ? v.map(sortKeys)
     : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sortKeys(v[k])]))
@@ -26,12 +27,7 @@ function buildCommandSnapshot() {
 }
 
 function getButtonRoutes() {
-    const result = spawnSync(process.execPath, [path.join(__dirname, 'routesCli.js')], {
-        cwd: root, env: { ...process.env, ...testEnv }, encoding: 'utf8', timeout: 60000,
-    });
-    const match = (result.stdout || '').match(/ROUTES_JSON_START\n([\s\S]*?)\nROUTES_JSON_END/);
-    if (!match) throw new Error('Could not resolve button routes:\n' + (result.stderr || '').slice(0, 800));
-    return JSON.parse(match[1]);
+    return describeButtonRoutes();
 }
 
 function commandPaths(commands) {

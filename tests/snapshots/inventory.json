@@ -328,237 +328,221 @@
     }
   },
   "buttons": {
-    "routerModules": [
-      "memorial",
-      "announcement",
-      "listGames",
-      "deletions",
-      "anonMessages",
-      "inventory",
-      "shopSearch",
-      "shopBrowse",
-      "shopDiscount",
-      "shopSell",
-      "downtimeBuyDays",
-      "starterItems",
-      "leaderboard",
-      "characterStatus",
-      "questDashboard",
-      "editGameCheckbox",
-      "ticket",
-      "directLine",
-      "theLongRest",
-      "leagueDashboard",
-      "archive",
-      "tableAdmin",
-      "createCampaign",
-      "verification",
+    "owners": [
       "channelFile",
-      "configButtons"
+      "config",
+      "directLine",
+      "feeds",
+      "games",
+      "league",
+      "misc",
+      "theLongRest",
+      "tickets",
+      "verification"
     ],
     "exact": [
       {
         "key": "announce_cancel",
         "declaredBy": [
-          "announcement"
+          "games"
         ],
-        "winner": "announcement.exact[announce_cancel]"
+        "winner": "games.exact[announce_cancel]"
       },
       {
         "key": "announce_confirm",
         "declaredBy": [
-          "announcement"
+          "games"
         ],
-        "winner": "announcement.exact[announce_confirm]"
+        "winner": "games.exact[announce_confirm]"
       },
       {
         "key": "announce_edit",
         "declaredBy": [
-          "announcement"
+          "games"
         ],
-        "winner": "announcement.exact[announce_edit]"
+        "winner": "games.exact[announce_edit]"
       },
       {
         "key": "anon_nokey_cancel",
         "declaredBy": [
-          "anonMessages"
+          "feeds"
         ],
-        "winner": "anonMessages.exact[anon_nokey_cancel]"
+        "winner": "feeds.exact[anon_nokey_cancel]"
       },
       {
         "key": "anon_nokey_confirm",
         "declaredBy": [
-          "anonMessages"
+          "feeds"
         ],
-        "winner": "anonMessages.exact[anon_nokey_confirm]"
+        "winner": "feeds.exact[anon_nokey_confirm]"
       },
       {
         "key": "archive_cancel",
         "declaredBy": [
-          "archive"
+          "games"
         ],
-        "winner": "archive.exact[archive_cancel]"
+        "winner": "games.exact[archive_cancel]"
       },
       {
         "key": "continue_memorial_part2",
         "declaredBy": [
-          "memorial"
+          "theLongRest"
         ],
-        "winner": "memorial.exact[continue_memorial_part2]"
+        "winner": "theLongRest.exact[continue_memorial_part2]"
       },
       {
         "key": "create_campaign_cancel",
         "declaredBy": [
-          "createCampaign"
+          "games"
         ],
-        "winner": "createCampaign.exact[create_campaign_cancel]"
+        "winner": "games.exact[create_campaign_cancel]"
       },
       {
         "key": "create_campaign_confirm",
         "declaredBy": [
-          "createCampaign"
+          "games"
         ],
-        "winner": "createCampaign.exact[create_campaign_confirm]"
+        "winner": "games.exact[create_campaign_confirm]"
       },
       {
         "key": "dtbuy_cancel",
         "declaredBy": [
-          "downtimeBuyDays"
+          "league"
         ],
-        "winner": "downtimeBuyDays.exact[dtbuy_cancel]"
+        "winner": "league.exact[dtbuy_cancel]"
       },
       {
         "key": "dtbuy_confirm",
         "declaredBy": [
-          "downtimeBuyDays"
+          "league"
         ],
-        "winner": "downtimeBuyDays.exact[dtbuy_confirm]"
+        "winner": "league.exact[dtbuy_confirm]"
       },
       {
         "key": "leagueDashBalance",
         "declaredBy": [
-          "leagueDashboard"
+          "league"
         ],
-        "winner": "leagueDashboard.exact[leagueDashBalance]"
+        "winner": "league.exact[leagueDashBalance]"
       },
       {
         "key": "leagueDashDowntimes",
         "declaredBy": [
-          "leagueDashboard"
+          "league"
         ],
-        "winner": "leagueDashboard.exact[leagueDashDowntimes]"
+        "winner": "league.exact[leagueDashDowntimes]"
       },
       {
         "key": "leagueDashEdit",
         "declaredBy": [
-          "leagueDashboard"
+          "league"
         ],
-        "winner": "leagueDashboard.exact[leagueDashEdit]"
+        "winner": "league.exact[leagueDashEdit]"
       },
       {
         "key": "leagueDashInventory",
         "declaredBy": [
-          "leagueDashboard"
+          "league"
         ],
-        "winner": "leagueDashboard.exact[leagueDashInventory]"
+        "winner": "league.exact[leagueDashInventory]"
       },
       {
         "key": "leagueDashProfile",
         "declaredBy": [
-          "leagueDashboard"
+          "league"
         ],
-        "winner": "leagueDashboard.exact[leagueDashProfile]"
+        "winner": "league.exact[leagueDashProfile]"
       },
       {
         "key": "leagueDashQuests",
         "declaredBy": [
-          "leagueDashboard"
+          "league"
         ],
-        "winner": "leagueDashboard.exact[leagueDashQuests]"
+        "winner": "league.exact[leagueDashQuests]"
       },
       {
         "key": "leagueDashSetArt",
         "declaredBy": [
-          "leagueDashboard"
+          "league"
         ],
-        "winner": "leagueDashboard.exact[leagueDashSetArt]"
+        "winner": "league.exact[leagueDashSetArt]"
       },
       {
         "key": "leagueDashSwitch",
         "declaredBy": [
-          "leagueDashboard"
+          "league"
         ],
-        "winner": "leagueDashboard.exact[leagueDashSwitch]"
+        "winner": "league.exact[leagueDashSwitch]"
       },
       {
         "key": "memorial_mod_approve",
         "declaredBy": [
-          "memorial"
+          "theLongRest"
         ],
-        "winner": "memorial.exact[memorial_mod_approve]"
+        "winner": "theLongRest.exact[memorial_mod_approve]"
       },
       {
         "key": "memorial_mod_deny",
         "declaredBy": [
-          "memorial"
+          "theLongRest"
         ],
-        "winner": "memorial.exact[memorial_mod_deny]"
+        "winner": "theLongRest.exact[memorial_mod_deny]"
       },
       {
         "key": "memorial_preview_cancel",
         "declaredBy": [
-          "memorial"
+          "theLongRest"
         ],
-        "winner": "memorial.exact[memorial_preview_cancel]"
+        "winner": "theLongRest.exact[memorial_preview_cancel]"
       },
       {
         "key": "memorial_preview_confirm",
         "declaredBy": [
-          "memorial"
+          "theLongRest"
         ],
-        "winner": "memorial.exact[memorial_preview_confirm]"
+        "winner": "theLongRest.exact[memorial_preview_confirm]"
       },
       {
         "key": "shopbuy_discount_no",
         "declaredBy": [
-          "shopDiscount"
+          "league"
         ],
-        "winner": "shopDiscount.exact[shopbuy_discount_no]"
+        "winner": "league.exact[shopbuy_discount_no]"
       },
       {
         "key": "shopbuy_discount_yes",
         "declaredBy": [
-          "shopDiscount"
+          "league"
         ],
-        "winner": "shopDiscount.exact[shopbuy_discount_yes]"
+        "winner": "league.exact[shopbuy_discount_yes]"
       },
       {
         "key": "shopsell_confirm_no",
         "declaredBy": [
-          "shopSell"
+          "league"
         ],
-        "winner": "shopSell.exact[shopsell_confirm_no]"
+        "winner": "league.exact[shopsell_confirm_no]"
       },
       {
         "key": "shopsell_confirm_yes",
         "declaredBy": [
-          "shopSell"
+          "league"
         ],
-        "winner": "shopSell.exact[shopsell_confirm_yes]"
+        "winner": "league.exact[shopsell_confirm_yes]"
       },
       {
         "key": "startitems_cancel",
         "declaredBy": [
-          "starterItems"
+          "league"
         ],
-        "winner": "starterItems.exact[startitems_cancel]"
+        "winner": "league.exact[startitems_cancel]"
       },
       {
         "key": "startitems_confirm",
         "declaredBy": [
-          "starterItems"
+          "league"
         ],
-        "winner": "starterItems.exact[startitems_confirm]"
+        "winner": "league.exact[startitems_confirm]"
       },
       {
         "key": "tlrRemoveCancel",
@@ -607,50 +591,50 @@
       {
         "key": "anon_cancel_",
         "declaredBy": [
-          "anonMessages"
+          "feeds"
         ],
         "alsoMatches": [],
-        "winner": "anonMessages.prefix[anon_cancel_]"
+        "winner": "feeds.prefix[anon_cancel_]"
       },
       {
         "key": "anon_confirm_",
         "declaredBy": [
-          "anonMessages"
+          "feeds"
         ],
         "alsoMatches": [],
-        "winner": "anonMessages.prefix[anon_confirm_]"
+        "winner": "feeds.prefix[anon_confirm_]"
       },
       {
         "key": "anon_remove_cancel_",
         "declaredBy": [
-          "anonMessages"
+          "feeds"
         ],
         "alsoMatches": [],
-        "winner": "anonMessages.prefix[anon_remove_cancel_]"
+        "winner": "feeds.prefix[anon_remove_cancel_]"
       },
       {
         "key": "anon_remove_confirm_",
         "declaredBy": [
-          "anonMessages"
+          "feeds"
         ],
         "alsoMatches": [],
-        "winner": "anonMessages.prefix[anon_remove_confirm_]"
+        "winner": "feeds.prefix[anon_remove_confirm_]"
       },
       {
         "key": "archive_confirm_",
         "declaredBy": [
-          "archive"
+          "games"
         ],
         "alsoMatches": [],
-        "winner": "archive.prefix[archive_confirm_]"
+        "winner": "games.prefix[archive_confirm_]"
       },
       {
         "key": "cancel_remove_",
         "declaredBy": [
-          "deletions"
+          "misc"
         ],
         "alsoMatches": [],
-        "winner": "deletions.prefix[cancel_remove_]"
+        "winner": "misc.prefix[cancel_remove_]"
       },
       {
         "key": "channelFile:",
@@ -663,34 +647,34 @@
       {
         "key": "charstatus_cancel:",
         "declaredBy": [
-          "characterStatus"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "characterStatus.prefix[charstatus_cancel:]"
+        "winner": "league.prefix[charstatus_cancel:]"
       },
       {
         "key": "charstatus_confirm:",
         "declaredBy": [
-          "characterStatus"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "characterStatus.prefix[charstatus_confirm:]"
+        "winner": "league.prefix[charstatus_confirm:]"
       },
       {
         "key": "config:",
         "declaredBy": [
-          "configButtons"
+          "config"
         ],
         "alsoMatches": [],
-        "winner": "configButtons.prefix[config:]"
+        "winner": "config.prefix[config:]"
       },
       {
         "key": "confirm_remove_",
         "declaredBy": [
-          "deletions"
+          "misc"
         ],
         "alsoMatches": [],
-        "winner": "deletions.prefix[confirm_remove_]"
+        "winner": "misc.prefix[confirm_remove_]"
       },
       {
         "key": "dl:",
@@ -703,146 +687,146 @@
       {
         "key": "editgame_checkbox_",
         "declaredBy": [
-          "editGameCheckbox"
+          "games"
         ],
         "alsoMatches": [],
-        "winner": "editGameCheckbox.prefix[editgame_checkbox_]"
+        "winner": "games.prefix[editgame_checkbox_]"
       },
       {
         "key": "inv_next_",
         "declaredBy": [
-          "inventory"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "inventory.prefix[inv_next_]"
+        "winner": "league.prefix[inv_next_]"
       },
       {
         "key": "inv_prev_",
         "declaredBy": [
-          "inventory"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "inventory.prefix[inv_prev_]"
+        "winner": "league.prefix[inv_prev_]"
       },
       {
         "key": "leaderboard_page:",
         "declaredBy": [
-          "leaderboard"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "leaderboard.prefix[leaderboard_page:]"
+        "winner": "league.prefix[leaderboard_page:]"
       },
       {
         "key": "list_games_next_",
         "declaredBy": [
-          "listGames"
+          "games"
         ],
         "alsoMatches": [],
-        "winner": "listGames.prefix[list_games_next_]"
+        "winner": "games.prefix[list_games_next_]"
       },
       {
         "key": "list_games_prev_",
         "declaredBy": [
-          "listGames"
+          "games"
         ],
         "alsoMatches": [],
-        "winner": "listGames.prefix[list_games_prev_]"
+        "winner": "games.prefix[list_games_prev_]"
       },
       {
         "key": "marketbrowse_next_",
         "declaredBy": [
-          "shopBrowse"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "shopBrowse.prefix[marketbrowse_next_]"
+        "winner": "league.prefix[marketbrowse_next_]"
       },
       {
         "key": "marketbrowse_prev_",
         "declaredBy": [
-          "shopBrowse"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "shopBrowse.prefix[marketbrowse_prev_]"
+        "winner": "league.prefix[marketbrowse_prev_]"
       },
       {
         "key": "questDash:",
         "declaredBy": [
-          "questDashboard"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "questDashboard.prefix[questDash:]"
+        "winner": "league.prefix[questDash:]"
       },
       {
         "key": "shopbrowse_next_",
         "declaredBy": [
-          "shopBrowse"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "shopBrowse.prefix[shopbrowse_next_]"
+        "winner": "league.prefix[shopbrowse_next_]"
       },
       {
         "key": "shopbrowse_prev_",
         "declaredBy": [
-          "shopBrowse"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "shopBrowse.prefix[shopbrowse_prev_]"
+        "winner": "league.prefix[shopbrowse_prev_]"
       },
       {
         "key": "shopsearch_next_",
         "declaredBy": [
-          "shopSearch"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "shopSearch.prefix[shopsearch_next_]"
+        "winner": "league.prefix[shopsearch_next_]"
       },
       {
         "key": "shopsearch_prev_",
         "declaredBy": [
-          "shopSearch"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "shopSearch.prefix[shopsearch_prev_]"
+        "winner": "league.prefix[shopsearch_prev_]"
       },
       {
         "key": "startitems_pick_",
         "declaredBy": [
-          "starterItems"
+          "league"
         ],
         "alsoMatches": [],
-        "winner": "starterItems.prefix[startitems_pick_]"
+        "winner": "league.prefix[startitems_pick_]"
       },
       {
         "key": "tableAdmin:",
         "declaredBy": [
-          "tableAdmin"
+          "games"
         ],
         "alsoMatches": [],
-        "winner": "tableAdmin.prefix[tableAdmin:]"
+        "winner": "games.prefix[tableAdmin:]"
       },
       {
         "key": "tableAdminReactivate:",
         "declaredBy": [
-          "tableAdmin"
+          "games"
         ],
         "alsoMatches": [],
-        "winner": "tableAdmin.prefix[tableAdminReactivate:]"
+        "winner": "games.prefix[tableAdminReactivate:]"
       },
       {
         "key": "ticket:",
         "declaredBy": [
-          "ticket"
+          "tickets"
         ],
         "alsoMatches": [],
-        "winner": "ticket.prefix[ticket:]"
+        "winner": "tickets.prefix[ticket:]"
       },
       {
         "key": "ticketCreate:",
         "declaredBy": [
-          "ticket"
+          "tickets"
         ],
         "alsoMatches": [],
-        "winner": "ticket.prefix[ticketCreate:]"
+        "winner": "tickets.prefix[ticketCreate:]"
       },
       {
         "key": "verification:pending:",
@@ -1427,7 +1411,6 @@
   },
   "startupWiring": [
     "./interactions/commandHandler",
-    "./interactions/buttonHandler",
     "./interactions/threadAlertLog",
     "./flow/announcementFlow",
     "./flow/editGameArtFlow",
