@@ -1,0 +1,2947 @@
+{
+  "personas": [
+    "nobody",
+    "admin role",
+    "control channel only"
+  ],
+  "entries": [
+    {
+      "route": "ping  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "keep_alive  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: name]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: dm]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: spectators_read_chat]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: spectators_send_messages]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: spectators_join_voice]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: spectators_send_voice_chat]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: use_stage]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: player_1]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: player_2]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: player_3]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: player_4]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: player_5]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: player_6]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "create_campaign  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest setup  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest reindex  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest add  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest remove  [focused: message_id]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "the_long_rest remove  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "announce_game  [focused: game]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "announce_game  [focused: zz-not-an-option]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket raise  [focused: type]",
+      "results": {
+        "(no handler) | 🎫 Label One=k-one": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket raise  [focused: reason]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket raise  [focused: identification]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket raise  [focused: details]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket raise  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket close  [focused: reason]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket close  [focused: feedback]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket close  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket setup  [focused: relocate]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket setup  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket config  [focused: category]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket config  [focused: hr_category]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket config  [focused: log_channel]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket config  [focused: hr_log_channel]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket config  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket reset_counter  [focused: type]",
+      "results": {
+        "(no handler) | Label One (s-one)=s-one": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket reset_counter  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: label]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: key]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: slug]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: emoji]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: channel_tag]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: modal_title]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: category_group]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: viewer_role]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: ping_target_role]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type add  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: key]",
+      "results": {
+        "(no handler) | Label One (k-one)=k-one": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: label]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: slug]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: emoji]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: channel_tag]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: modal_title]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: category_group]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: viewer_role]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: ping_target_role]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type edit  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type remove  [focused: key]",
+      "results": {
+        "(no handler) | Label One (k-one)=k-one": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type remove  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "ticket type list  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line create  [focused: target]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line create  [focused: target2]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line create  [focused: target3]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line create  [focused: target4]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line create  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line attach  [focused: target]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line attach  [focused: remove]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line attach  [focused: target2]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line attach  [focused: target3]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line attach  [focused: target4]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line attach  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "direct_line file  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "list_games  [focused: browsing]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "list_games  [focused: n]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "list_games  [focused: format_filter]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "list_games  [focused: type_filter]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "list_games  [focused: public]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "list_games  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "get_players  [focused: game]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "get_players  [focused: zz-not-an-option]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "manipulate_table  [focused: game]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "manipulate_table  [focused: zz-not-an-option]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "game_info  [focused: uid]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "game_info  [focused: public]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "game_info  [focused: zz-not-an-option]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "rss add  [focused: url]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "rss add  [focused: name]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "rss add  [focused: channel]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "rss add  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "rss remove  [focused: query]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "rss remove  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "rss list  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg add  [focused: channel]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg add  [focused: key]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg add  [focused: content]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg add  [focused: multiline]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg add  [focused: attachment]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg add  [focused: mentions]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg add  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg rmv  [focused: key]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg rmv  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg edit  [focused: key]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg edit  [focused: mentions]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "anon_msg edit  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | alpha-key=alpha-key,beta-key=beta-key": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation add  [focused: game]",
+      "results": {
+        "(no handler) | Open Game (1 Jan)=u-open": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation add  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | Open Game (1 Jan)=u-open": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation remove  [focused: game]",
+      "results": {
+        "(no handler) | Queued Game=u-queued": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation remove  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | Queued Game=u-queued": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation view  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation set-reminder-time  [focused: time]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation set-reminder-time  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation set-activation-time  [focused: time]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation set-activation-time  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation toggle-reminder  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation toggle-auto  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation status  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation run-now  [focused: announce]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "schedule_activation run-now  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "help  [focused: group]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "help  [focused: family]",
+      "results": {
+        "(no handler) | Pick a group first=none": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "help  [focused: family, group=help]",
+      "results": {
+        "(no handler) | About Help=about": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "help  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "edit_game  [focused: game]",
+      "results": {
+        "gameAutocomplete | <gameAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "edit_game  [focused: field]",
+      "results": {
+        "(no handler) | Title=Title,Description=Description,DM Name=DM Name,Location=Location,+21": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "edit_game  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league create  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league profile  [focused: user]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league profile  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league edit  [focused: name]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league edit  [focused: class]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league edit  [focused: species]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league edit  [focused: background]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league edit  [focused: charsheet]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league edit  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league setart  [focused: image]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league setart  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league inv  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league item  [focused: item]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league item  [focused: id]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league item  [focused: public]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league item  [focused: zz-not-an-option]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league character status  [focused: character]",
+      "results": {
+        "characterOwnAutocomplete | <characterOwnAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league character status  [focused: new_status]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league character status  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop browse  [focused: rarity]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop browse  [focused: sort]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop browse  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop buy  [focused: id]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop buy  [focused: zz-not-an-option]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop sell  [focused: item]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop sell  [focused: item_id]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop sell  [focused: zz-not-an-option]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop search  [focused: name]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop search  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop info  [focused: code]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league shop info  [focused: zz-not-an-option]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace browse  [focused: rarity]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace browse  [focused: sort]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace browse  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace buy  [focused: id]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace buy  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace list  [focused: item_id]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace list  [focused: price]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace list  [focused: zz-not-an-option]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace unlist  [focused: id]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league marketplace unlist  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league log  [focused: player]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league log  [focused: character]",
+      "results": {
+        "characterLogAutocomplete | <characterLogAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league log  [focused: quest_id]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league log  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league leaderboard  [focused: sort_by]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league leaderboard  [focused: order]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league leaderboard  [focused: class]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league leaderboard  [focused: species]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league leaderboard  [focused: status]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league leaderboard  [focused: public]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league leaderboard  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league dashboard  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league gold  [focused: player]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league gold  [focused: amount]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league gold  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league balance  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league quest list  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime start  [focused: activity]",
+      "results": {
+        "downtimeActivityAutocomplete | <downtimeActivityAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime start  [focused: tier]",
+      "results": {
+        "downtimeTierAutocomplete | <downtimeTierAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime start  [focused: spell]",
+      "results": {
+        "spellAutocomplete | <spellAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime start  [focused: item]",
+      "results": {
+        "magicItemAutocomplete | <magicItemAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime start  [focused: quantity]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime start  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime progress  [focused: id]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime progress  [focused: days]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime progress  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime list  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime buy-days  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league downtime activities  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league starter-items  [focused: class]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league starter-items  [focused: background]",
+      "results": {
+        "backgroundAutocomplete | <backgroundAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league starter-items  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league void item  [focused: id]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league void item  [focused: zz-not-an-option]",
+      "results": {
+        "getItemAutocompleteChoices | <getItemAutocompleteChoices>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league void gold  [focused: amount]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "league void gold  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin rep  [focused: user]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin rep  [focused: amount]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin rep  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin gold  [focused: user]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin gold  [focused: amount]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin gold  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin milestone  [focused: user]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin milestone  [focused: amount]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin milestone  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin pending  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin approve  [focused: id]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin approve  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin reject  [focused: id]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin reject  [focused: reason]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin reject  [focused: line]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin reject  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin clear  [focused: id]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin clear  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: name]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: type]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: rarity]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: subtype]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: player]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: source]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: value]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: notes]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item create  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item import  [focused: code]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item import  [focused: player]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item import  [focused: value]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item import  [focused: source]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item import  [focused: notes]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin item import  [focused: zz-not-an-option]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop stock  [focused: code]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop stock  [focused: quantity]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop stock  [focused: price]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop stock  [focused: zz-not-an-option]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop stockall  [focused: rarity]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop stockall  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop unstock  [focused: code]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop unstock  [focused: zz-not-an-option]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop restock  [focused: code]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin shop restock  [focused: zz-not-an-option]",
+      "results": {
+        "catalogueAutocomplete | <catalogueAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin catalogue sync  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin catalogue sync-spells  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leagueadmin audit characters  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leaguedm quest link  [focused: game]",
+      "results": {
+        "questLinkAutocomplete | <questLinkAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leaguedm quest link  [focused: notes]",
+      "results": {
+        "questLinkAutocomplete | <questLinkAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leaguedm quest link  [focused: zz-not-an-option]",
+      "results": {
+        "questLinkAutocomplete | <questLinkAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leaguedm dashboard  [focused: quest_id]",
+      "results": {
+        "dashboardQuestAutocomplete | <dashboardQuestAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "leaguedm dashboard  [focused: zz-not-an-option]",
+      "results": {
+        "dashboardQuestAutocomplete | <dashboardQuestAutocomplete>=x": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "archive  [focused: target]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "archive  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "archive-config  [focused: category]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "archive-config  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "config status  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | (empty list)": [
+          "nobody",
+          "control channel only"
+        ],
+        "(no handler) | Bot log (BOT_LOG_CHANNEL_ID)=BOT_LOG_CHANNEL_ID,Trap channel (TRAP_CHANNEL_ID)=TRAP_CHANNEL_ID,Incident reports (INCIDENT_REPORT_CHANNEL_ID)=INCIDENT_REPORT_CHANNEL_ID,Quest board (QUEST_BOARD_CHANNEL_ID)=QUEST_BOARD_CHANNEL_ID,+7": [
+          "admin role"
+        ]
+      }
+    },
+    {
+      "route": "config set  [focused: key]",
+      "results": {
+        "(no handler) | (empty list)": [
+          "nobody",
+          "control channel only"
+        ],
+        "(no handler) | Bot log (BOT_LOG_CHANNEL_ID)=BOT_LOG_CHANNEL_ID,Trap channel (TRAP_CHANNEL_ID)=TRAP_CHANNEL_ID,Incident reports (INCIDENT_REPORT_CHANNEL_ID)=INCIDENT_REPORT_CHANNEL_ID,Quest board (QUEST_BOARD_CHANNEL_ID)=QUEST_BOARD_CHANNEL_ID,+7": [
+          "admin role"
+        ]
+      }
+    },
+    {
+      "route": "config set  [focused: channel]",
+      "results": {
+        "(no handler) | (empty list)": [
+          "nobody",
+          "control channel only"
+        ],
+        "(no handler) | Bot log (BOT_LOG_CHANNEL_ID)=BOT_LOG_CHANNEL_ID,Trap channel (TRAP_CHANNEL_ID)=TRAP_CHANNEL_ID,Incident reports (INCIDENT_REPORT_CHANNEL_ID)=INCIDENT_REPORT_CHANNEL_ID,Quest board (QUEST_BOARD_CHANNEL_ID)=QUEST_BOARD_CHANNEL_ID,+7": [
+          "admin role"
+        ]
+      }
+    },
+    {
+      "route": "config set  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | (empty list)": [
+          "nobody",
+          "control channel only"
+        ],
+        "(no handler) | Bot log (BOT_LOG_CHANNEL_ID)=BOT_LOG_CHANNEL_ID,Trap channel (TRAP_CHANNEL_ID)=TRAP_CHANNEL_ID,Incident reports (INCIDENT_REPORT_CHANNEL_ID)=INCIDENT_REPORT_CHANNEL_ID,Quest board (QUEST_BOARD_CHANNEL_ID)=QUEST_BOARD_CHANNEL_ID,+7": [
+          "admin role"
+        ]
+      }
+    },
+    {
+      "route": "config clear  [focused: key]",
+      "results": {
+        "(no handler) | (empty list)": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "config clear  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | (empty list)": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file file  [focused: target]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file file  [focused: location]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file file  [focused: private]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file file  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file protect add  [focused: channel]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file protect add  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file protect remove  [focused: channel]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file protect remove  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "channel_file protect list  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification setup  [focused: channel]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification setup  [focused: role]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification setup  [focused: log_channel]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification setup  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification settings  [focused: question_time_limit]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification settings  [focused: lockout]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification settings  [focused: max_attempts]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification settings  [focused: deadline_days]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification settings  [focused: reminder_days]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification settings  [focused: cleanup_mode]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification settings  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification force  [focused: user]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification force  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification pending  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification extend  [focused: user]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification extend  [focused: days]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification extend  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    },
+    {
+      "route": "verification status  [focused: zz-not-an-option]",
+      "results": {
+        "(no handler) | no response": [
+          "nobody",
+          "admin role",
+          "control channel only"
+        ]
+      }
+    }
+  ]
+}

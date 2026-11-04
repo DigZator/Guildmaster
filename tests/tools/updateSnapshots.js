@@ -2,7 +2,7 @@
 require('../helpers/env');
 const fs = require('fs');
 const path = require('path');
-const { buildCommandSnapshot, buildInventory, buildRoutePermissions } = require('../helpers/snapshots');
+const { buildCommandSnapshot, buildInventory, buildRoutePermissions, buildAutocompleteSnapshot } = require('../helpers/snapshots');
 
 (async () => {
     const dir = path.join(__dirname, '..', 'snapshots');
@@ -11,6 +11,7 @@ const { buildCommandSnapshot, buildInventory, buildRoutePermissions } = require(
     write('commands.json', buildCommandSnapshot());
     write('inventory.json', await buildInventory());
     write('routePermissions.json', buildRoutePermissions());
+    write('autocomplete.json', buildAutocompleteSnapshot());
     console.log('Snapshots written to tests/snapshots/. Review `git diff tests/snapshots` before committing.');
     process.exit(0);
 })().catch(err => { console.error(err); process.exit(1); });

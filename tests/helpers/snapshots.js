@@ -104,4 +104,14 @@ async function buildInventory() {
     });
 }
 
-module.exports = { buildCommandSnapshot, buildInventory, buildRoutePermissions, getButtonRoutes, sortKeys, plain };
+// Fires an autocomplete for every command, subcommand and option through the real routers, offline.
+function buildAutocompleteSnapshot() {
+    const child = spawnSync(process.execPath, [path.join(__dirname, 'autocompleteCli.js')], { encoding: 'utf8', timeout: 180000, killSignal: 'SIGKILL', maxBuffer: 64 * 1024 * 1024 });
+    const text = child.stdout || '';
+    const start = text.indexOf('AUTOCOMPLETE_JSON_START');
+    if (start < 0) throw new Error('autocomplete harness failed:\n' + (child.stderr || '').slice(0, 800));
+    return JSON.parse(text.slice(start + 23, text.indexOf('AUTOCOMPLETE_JSON_END')));
+}
+
+module.exports = {
+    buildAutocompleteSnapshot, buildCommandSnapshot, buildInventory, buildRoutePermissions, getButtonRoutes, sortKeys, plain };
