@@ -3232,24 +3232,6 @@
   ],
   "selects": [
     {
-      "route": "questDash:zz (user select)",
-      "results": {
-        "no-isAdminChannel-call | ❌ This dashboard control isn't wired up yet.": [
-          "nobody",
-          "admins-role",
-          "hr-role",
-          "cmd-role",
-          "clerk+clankers",
-          "dm-role",
-          "player-roles",
-          "discord-administrator",
-          "nobody@ctrl-channel",
-          "nobody@league-channel",
-          "admins-role@ctrl-channel"
-        ]
-      }
-    },
-    {
       "route": "announce_edit_select",
       "results": {
         "no-isAdminChannel-call | ❌ Session expired.": [
@@ -3268,7 +3250,7 @@
       }
     },
     {
-      "route": "tlrRemoveSelect",
+      "route": "leagueDashSwitchSelect",
       "results": {
         "no-isAdminChannel-call | (deferUpdate)": [
           "nobody",
@@ -3322,7 +3304,7 @@
       }
     },
     {
-      "route": "leagueDashSwitchSelect",
+      "route": "tlrRemoveSelect",
       "results": {
         "no-isAdminChannel-call | (deferUpdate)": [
           "nobody",
@@ -3361,6 +3343,24 @@
       "route": "tableAdminSeatSelect:zz",
       "results": {
         "no-isAdminChannel-call | (no reply)": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "player-roles",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "questDash:zz (user select)",
+      "results": {
+        "no-isAdminChannel-call | ❌ This dashboard control isn't wired up yet.": [
           "nobody",
           "admins-role",
           "hr-role",

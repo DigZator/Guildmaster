@@ -859,49 +859,56 @@
     "unknownIdHandled": false
   },
   "selects": {
-    "chain": [
+    "routes": [
       {
-        "match": "prefix",
-        "value": "questDash:",
-        "target": "../buttons/questDashboard.handleDashboardUserSelect"
-      },
-      {
+        "kind": "select",
         "match": "exact",
         "value": "announce_edit_select",
-        "target": "../selects/announceEditSelect"
+        "owner": "games"
       },
       {
-        "match": "exact",
-        "value": "tlrRemoveSelect",
-        "target": "../buttons/theLongRest.handleRemoveSelect"
-      },
-      {
-        "match": "exact",
-        "value": "shopbuy_discount_select",
-        "target": "../selects/shopDiscountSelect"
-      },
-      {
-        "match": "exact",
-        "value": "starter_items_select",
-        "target": "../selects/starterItemsSelect"
-      },
-      {
+        "kind": "select",
         "match": "exact",
         "value": "leagueDashSwitchSelect",
-        "target": "../selects/leagueDashSwitchSelect"
+        "owner": "league"
       },
       {
+        "kind": "select",
+        "match": "exact",
+        "value": "shopbuy_discount_select",
+        "owner": "league"
+      },
+      {
+        "kind": "select",
+        "match": "exact",
+        "value": "starter_items_select",
+        "owner": "league"
+      },
+      {
+        "kind": "select",
+        "match": "exact",
+        "value": "tlrRemoveSelect",
+        "owner": "theLongRest"
+      },
+      {
+        "kind": "select",
         "match": "prefix",
         "value": "questDash:",
-        "target": "../buttons/questDashboard.handleDashboardSelect"
+        "owner": "league"
       },
       {
+        "kind": "select",
         "match": "prefix",
         "value": "tableAdminSeatSelect:",
-        "target": "../selects/tableAdminSeatSelect.handle"
+        "owner": "games"
+      },
+      {
+        "kind": "userSelect",
+        "match": "prefix",
+        "value": "questDash:",
+        "owner": "league"
       }
-    ],
-    "shadowed": []
+    ]
   },
   "modals": {
     "chain": [
@@ -1413,7 +1420,7 @@
     "./flow/announcementFlow",
     "./flow/editGameArtFlow",
     "./flow/tlrSubmissionFlow",
-    "./interactions/selectHandler",
+    "./core/boot",
     "./flow/rssFlow",
     "./utils/cacheWatcher.init",
     "./utils/cacheAlert.init",

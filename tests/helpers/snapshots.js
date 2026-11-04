@@ -3,6 +3,7 @@ const { spawnSync } = require('child_process');
 const { testEnv } = require('./env');
 const { root } = require('./repo');
 const scan = require('./scan');
+const { routesOfKinds } = require('./registryRoutes');
 
 const sortKeys = (v) => Array.isArray(v) ? v.map(sortKeys)
     : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, sortKeys(v[k])]))
@@ -66,12 +67,12 @@ const chainIds = (chain) => chain.map(e => ({ id: e.match === 'prefix' ? e.value
 function buildRoutePermissions() {
     const { commands } = buildCommandSnapshot();
     const buttons = getButtonRoutes();
-    const selects = scan.scanChain('interactions/selectHandler.js');
+    const selects = routesOfKinds(['select', 'userSelect']);
     const modals = scan.scanChain('interactions/modalHandler.js');
     const input = {
         commands: commandRouteList(commands),
         buttons: [...buttons.exact.map(r => r.key), ...buttons.prefix.map(r => r.key + 'zz')],
-        selects: chainIds(selects).map(e => ({ id: e.id, user: /UserSelect/.test(e.target) })),
+        selects: selects.map(e => ({ id: e.match === 'prefix' ? e.value + 'zz' : e.value, user: e.kind === 'userSelect' })),
         modals: chainIds(modals).map(e => e.id),
     };
     const result = spawnSync(process.execPath, [path.join(__dirname, 'routePermsCli.js')], {
@@ -87,7 +88,7 @@ async function buildInventory() {
     const names = commands.map(c => c.name);
     const routes = scan.scanCommandRoutes();
     const routed = routes.handlers.map(h => h.command);
-    const selects = scan.scanChain('interactions/selectHandler.js');
+    const selects = routesOfKinds(['select', 'userSelect']);
     const modals = scan.scanChain('interactions/modalHandler.js');
     return plain({
         commands: {
@@ -100,7 +101,7 @@ async function buildInventory() {
             autocomplete: { tokens: routes.autocompleteTokens, sets: routes.sets },
         },
         buttons: getButtonRoutes(),
-        selects: { chain: selects, shadowed: scan.shadowedInChain(selects) },
+        selects: { routes: selects },   // read from the manifests: the old router's source no longer exists
         modals: { chain: modals, shadowed: scan.shadowedInChain(modals) },
         customIdProducers: scan.scanCustomIdProducers(),
         permissionChecks: scan.scanPermissionChecks(),

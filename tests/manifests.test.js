@@ -5,18 +5,14 @@
 require('./helpers/env');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('path');
-const { spawnSync } = require('child_process');
 const { inspect, findCustomIdRoute } = require('../core/registry');
 const { POLICIES } = require('../shared/auth');
+const { loadRegistryData } = require('./helpers/registryRoutes');
 const inventory = require('./snapshots/inventory.json');
 const routePerms = require('./snapshots/routePermissions.json');
 
 // Loaded in a child process with the network blocked (loading the handlers starts background work).
-const child = spawnSync(process.execPath, [path.join(__dirname, 'helpers', 'manifestsCli.js')], { encoding: 'utf8', timeout: 120000, killSignal: 'SIGKILL', maxBuffer: 32 * 1024 * 1024 });
-const text = child.stdout || '';
-const json = text.slice(text.indexOf('MANIFESTS_JSON_START') + 20, text.indexOf('MANIFESTS_JSON_END'));
-const loaded = JSON.parse(json);
+const loaded = loadRegistryData();
 const { problems } = loaded;
 const registry = loaded.registry && {
     commands: new Map(loaded.registry.commands.map(c => [c.name, c])),
@@ -53,12 +49,13 @@ test('modals: exactly the routes in the routing inventory', () => {
     assert.deepEqual(prefixes(registry.tables.modal), uniqSorted(inv(inventory.modals.chain, 'prefix')));
 });
 
-test('select menus: exactly the routes in the routing inventory (string and user selects together)', () => {
-    const exact = [...keys(registry.tables.select.exact), ...keys(registry.tables.userSelect.exact)];
-    const prefix = [...prefixes(registry.tables.select), ...prefixes(registry.tables.userSelect)];
-    assert.deepEqual(uniqSorted(exact), uniqSorted(inv(inventory.selects.chain, 'exact')));
-    assert.deepEqual(uniqSorted(prefix), uniqSorted(inv(inventory.selects.chain, 'prefix')));
-    assert.equal(registry.tables.userSelect.prefix.length, 1);
+// Written out by hand on purpose: this is the list the old select router handled, so retiring that router
+// cannot silently add or drop a route.
+test('select menus: exactly the routes the old select router handled (string and user selects)', () => {
+    assert.deepEqual(keys(registry.tables.select.exact), ['announce_edit_select', 'leagueDashSwitchSelect', 'shopbuy_discount_select', 'starter_items_select', 'tlrRemoveSelect']);
+    assert.deepEqual(prefixes(registry.tables.select), ['questDash:', 'tableAdminSeatSelect:']);
+    assert.deepEqual(keys(registry.tables.userSelect.exact), []);
+    assert.deepEqual(prefixes(registry.tables.userSelect), ['questDash:']);
 });
 
 test('every route is declared open and nothing is enforced yet (enforcement moves into the router in step 4)', () => {

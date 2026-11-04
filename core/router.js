@@ -69,7 +69,12 @@ function kindOf(interaction) {
     return null;
 }
 
-function createRouter(registry, { can = auth.can } = {}) {
+// `only` lists the kinds this router handles ('command' also covers autocomplete). While the old routers are
+// being retired one kind at a time, the others keep handling their own; omit it to handle everything.
+function createRouter(registry, { can = auth.can, only = null } = {}) {
+    const enabled = only ? new Set(only) : null;
+    const handles = (kindName) => !enabled || enabled.has(kindName);
+
     async function deny(interaction, kindName, spec) {
         await respondTo(interaction, spec.denied ?? DEFAULT_DENIED, { followUpWhenAnswered: kinds[kindName].followUpWhenAnswered });
     }
@@ -133,9 +138,9 @@ function createRouter(registry, { can = auth.can } = {}) {
     }
 
     async function handle(interaction, client) {
-        if (interaction.isAutocomplete?.()) return handleAutocomplete(interaction, client);
+        if (interaction.isAutocomplete?.()) return handles('command') ? handleAutocomplete(interaction, client) : undefined;
         const kindName = kindOf(interaction);
-        if (!kindName) return;
+        if (!kindName || !handles(kindName)) return;
         if (kindName === 'command') return handleCommand(interaction, client);
         return handleCustomId(interaction, client, kindName);
     }

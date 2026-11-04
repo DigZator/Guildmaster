@@ -24,7 +24,7 @@ require('./interactions/threadAlertLog')(client);
 require('./flow/announcementFlow')(client);
 require('./flow/editGameArtFlow')(client);
 require('./flow/tlrSubmissionFlow')(client);
-require('./interactions/selectHandler')(client);
+require('./core/boot')(client);
 require('./flow/rssFlow')(client);
 require('./utils/cacheWatcher').init(client);
 require('./utils/cacheAlert').init(client);

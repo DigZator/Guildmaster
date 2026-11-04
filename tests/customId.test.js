@@ -5,6 +5,7 @@ const path = require('path');
 const { root } = require('./helpers/repo');
 const { scanChain } = require('./helpers/scan');
 const { getButtonRoutes } = require('./helpers/snapshots');
+const { routesOfKinds } = require('./helpers/registryRoutes');
 
 const encoders = [
     ['directLineId', 'dl'],
@@ -43,7 +44,7 @@ for (const enc of encoders) {
 
 test('every encoder prefix is handled by at least one router', () => {
     const { prefix } = getButtonRoutes();
-    const chains = [...scanChain('interactions/selectHandler.js'), ...scanChain('interactions/modalHandler.js')];
+    const chains = [...routesOfKinds(['select', 'userSelect']), ...scanChain('interactions/modalHandler.js')];
     for (const enc of encoders) {
         const sample = `${enc.prefix}:A-1:go`;
         const inButtons = prefix.some(p => sample.startsWith(p.key));

@@ -265,3 +265,28 @@ test('install() registers exactly one interactionCreate listener', () => {
     make({}).install({ on: (name, fn) => listeners.push([name, fn]) });
     assert.deepEqual(listeners.map(([n]) => n), ['interactionCreate']);
 });
+
+// ── migrating one kind at a time ─────────────────────────────────────────────
+test('only: a router limited to some kinds ignores every other kind (including autocomplete)', async () => {
+    const hit = [];
+    const r = createRouter(createRegistry([base({
+        buttons: { exact: { b: route('open', () => hit.push('button')) } },
+        selects: { exact: { s: route('open', () => hit.push('select')) } },
+        userSelects: { exact: { u: route('open', () => hit.push('userSelect')) } },
+        commands: [{ name: 'c', policy: 'open', handler: () => hit.push('command'), autocomplete: [{ policy: 'open', handle: () => hit.push('autocomplete') }] }],
+    })]), { only: ['select', 'userSelect'] });
+    await r.handle(fake({ customId: 'b' }));
+    await r.handle(fake({ kind: 'command', commandName: 'c' }));
+    await r.handle(fake({ kind: 'autocomplete', commandName: 'c' }));
+    await r.handle(fake({ kind: 'select', customId: 's' }));
+    await r.handle(fake({ kind: 'userSelect', customId: 'u' }));
+    assert.deepEqual(hit, ['select', 'userSelect']);
+});
+
+test('only: "command" also turns on autocomplete', async () => {
+    const hit = [];
+    const r = createRouter(createRegistry([base({ commands: [{ name: 'c', policy: 'open', handler: () => hit.push('command'), autocomplete: [{ policy: 'open', handle: () => hit.push('autocomplete') }] }] })]), { only: ['command'] });
+    await r.handle(fake({ kind: 'command', commandName: 'c' }));
+    await r.handle(fake({ kind: 'autocomplete', commandName: 'c' }));
+    assert.deepEqual(hit, ['command', 'autocomplete']);
+});
