@@ -3432,9 +3432,9 @@
       }
     },
     {
-      "route": "editgame_modal_zz",
+      "route": "tlrRemoveModal",
       "results": {
-        "no-isAdminChannel-call | ❌ Session expired. Run `/edit_game` again.": [
+        "no-isAdminChannel-call | ❌ Invalid message ID format.": [
           "nobody",
           "admins-role",
           "hr-role",
@@ -3446,6 +3446,26 @@
           "nobody@ctrl-channel",
           "nobody@league-channel",
           "admins-role@ctrl-channel"
+        ]
+      }
+    },
+    {
+      "route": "verification:modal",
+      "results": {
+        "no-isAdminChannel-call | ⌛ That question expired (this doesn't count against you). Press **Start Verifica": [
+          "nobody",
+          "admins-role",
+          "hr-role",
+          "cmd-role",
+          "clerk+clankers",
+          "dm-role",
+          "discord-administrator",
+          "nobody@ctrl-channel",
+          "nobody@league-channel",
+          "admins-role@ctrl-channel"
+        ],
+        "no-isAdminChannel-call | ✅ You're already verified. Nothing more to do!": [
+          "player-roles"
         ]
       }
     },
@@ -3468,13 +3488,12 @@
       }
     },
     {
-      "route": "questDash:zz",
+      "route": "channelFile:zz",
       "results": {
-        "no-isAdminChannel-call | ❌ This dashboard control isn't wired up yet.": [
+        "cmd=false | ❌ You do not have permission to use this.": [
           "nobody",
           "admins-role",
           "hr-role",
-          "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
@@ -3482,31 +3501,16 @@
           "nobody@ctrl-channel",
           "nobody@league-channel",
           "admins-role@ctrl-channel"
+        ],
+        "cmd=true | ❌ Unknown form.": [
+          "cmd-role"
         ]
       }
     },
     {
-      "route": "ticketCreateModal:zz",
+      "route": "editgame_modal_zz",
       "results": {
-        "no-isAdminChannel-call | (deferReply)": [
-          "nobody",
-          "admins-role",
-          "hr-role",
-          "cmd-role",
-          "clerk+clankers",
-          "dm-role",
-          "player-roles",
-          "discord-administrator",
-          "nobody@ctrl-channel",
-          "nobody@league-channel",
-          "admins-role@ctrl-channel"
-        ]
-      }
-    },
-    {
-      "route": "ticket:zz",
-      "results": {
-        "no-isAdminChannel-call | ❌ This form isn't wired up yet.": [
+        "no-isAdminChannel-call | ❌ Session expired. Run `/edit_game` again.": [
           "nobody",
           "admins-role",
           "hr-role",
@@ -3540,9 +3544,9 @@
       }
     },
     {
-      "route": "tlrRemoveModal",
+      "route": "questDash:zz",
       "results": {
-        "no-isAdminChannel-call | ❌ Invalid message ID format.": [
+        "no-isAdminChannel-call | ❌ This dashboard control isn't wired up yet.": [
           "nobody",
           "admins-role",
           "hr-role",
@@ -3594,12 +3598,13 @@
       }
     },
     {
-      "route": "channelFile:zz",
+      "route": "ticket:zz",
       "results": {
-        "cmd=false | ❌ You do not have permission to use this.": [
+        "no-isAdminChannel-call | ❌ This form isn't wired up yet.": [
           "nobody",
           "admins-role",
           "hr-role",
+          "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
@@ -3607,29 +3612,24 @@
           "nobody@ctrl-channel",
           "nobody@league-channel",
           "admins-role@ctrl-channel"
-        ],
-        "cmd=true | ❌ Unknown form.": [
-          "cmd-role"
         ]
       }
     },
     {
-      "route": "verification:modal",
+      "route": "ticketCreateModal:zz",
       "results": {
-        "no-isAdminChannel-call | ⌛ That question expired (this doesn't count against you). Press **Start Verifica": [
+        "no-isAdminChannel-call | (deferReply)": [
           "nobody",
           "admins-role",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
           "dm-role",
+          "player-roles",
           "discord-administrator",
           "nobody@ctrl-channel",
           "nobody@league-channel",
           "admins-role@ctrl-channel"
-        ],
-        "no-isAdminChannel-call | ✅ You're already verified. Nothing more to do!": [
-          "player-roles"
         ]
       }
     }

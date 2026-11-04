@@ -22,8 +22,6 @@ const policyForLegacy = Object.fromEntries(Object.values(POLICIES).filter(p => p
 
 const keys = (map) => [...map.keys()].sort();
 const prefixes = (table) => table.prefix.map(p => p.id).sort();
-const inv = (list, match) => list.filter(e => e.match === match).map(e => e.value);
-const uniqSorted = (a) => [...new Set(a)].sort();
 
 test('all manifests load and form a valid registry', () => {
     assert.deepEqual(problems, []);
@@ -44,9 +42,11 @@ test('buttons: exactly the routes in the routing inventory (exact and prefix)', 
     assert.deepEqual(prefixes(registry.tables.button), inventory.buttons.prefix.map(e => e.key).sort());
 });
 
-test('modals: exactly the routes in the routing inventory', () => {
-    assert.deepEqual(keys(registry.tables.modal.exact), uniqSorted(inv(inventory.modals.chain, 'exact')));
-    assert.deepEqual(prefixes(registry.tables.modal), uniqSorted(inv(inventory.modals.chain, 'prefix')));
+// Written out by hand on purpose: this is the list the old modal router handled, so retiring it cannot
+// silently add or drop a route.
+test('modals: exactly the routes the old modal router handled', () => {
+    assert.deepEqual(keys(registry.tables.modal.exact), ['characterSubmission_1', 'characterSubmission_2', 'leagueCreate', 'tlrRemoveModal', 'verification:modal']);
+    assert.deepEqual(prefixes(registry.tables.modal), ['announceedit_modal_', 'channelFile:', 'editgame_modal_', 'leagueDashEditModal:', 'questDash:', 'tableAdminAddPlayerModal:', 'tableAdminNumberModal:', 'ticket:', 'ticketCreateModal:']);
 });
 
 // Written out by hand on purpose: this is the list the old select router handled, so retiring that router

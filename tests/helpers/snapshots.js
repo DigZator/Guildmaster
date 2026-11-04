@@ -61,19 +61,18 @@ function commandRouteList(commands) {
     return out;
 }
 
-const chainIds = (chain) => chain.map(e => ({ id: e.match === 'prefix' ? e.value + 'zz' : e.value, target: e.target }));
 
 // Who gets what on every route today: drives the real routers with fake interactions (see routePermsCli.js).
 function buildRoutePermissions() {
     const { commands } = buildCommandSnapshot();
     const buttons = getButtonRoutes();
     const selects = routesOfKinds(['select', 'userSelect']);
-    const modals = scan.scanChain('interactions/modalHandler.js');
+    const modals = routesOfKinds(['modal']);
     const input = {
         commands: commandRouteList(commands),
         buttons: [...buttons.exact.map(r => r.key), ...buttons.prefix.map(r => r.key + 'zz')],
         selects: selects.map(e => ({ id: e.match === 'prefix' ? e.value + 'zz' : e.value, user: e.kind === 'userSelect' })),
-        modals: chainIds(modals).map(e => e.id),
+        modals: modals.map(e => (e.match === 'prefix' ? e.value + 'zz' : e.value)),
     };
     const result = spawnSync(process.execPath, [path.join(__dirname, 'routePermsCli.js')], {
         cwd: root, env: { PATH: process.env.PATH, HOME: process.env.HOME, TZ: 'UTC', ...testEnv }, input: JSON.stringify(input), encoding: 'utf8', timeout: 180000, killSignal: 'SIGKILL',
@@ -89,7 +88,7 @@ async function buildInventory() {
     const routes = scan.scanCommandRoutes();
     const routed = routes.handlers.map(h => h.command);
     const selects = routesOfKinds(['select', 'userSelect']);
-    const modals = scan.scanChain('interactions/modalHandler.js');
+    const modals = routesOfKinds(['modal']);
     return plain({
         commands: {
             registered: names,
@@ -102,7 +101,7 @@ async function buildInventory() {
         },
         buttons: getButtonRoutes(),
         selects: { routes: selects },   // read from the manifests: the old router's source no longer exists
-        modals: { chain: modals, shadowed: scan.shadowedInChain(modals) },
+        modals: { routes: modals },   // read from the manifests: the old router's source no longer exists
         customIdProducers: scan.scanCustomIdProducers(),
         permissionChecks: scan.scanPermissionChecks(),
         startupWiring: scan.scanStartupWiring(),

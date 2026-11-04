@@ -911,79 +911,92 @@
     ]
   },
   "modals": {
-    "chain": [
+    "routes": [
       {
+        "kind": "modal",
         "match": "exact",
         "value": "characterSubmission_1",
-        "target": "../modals/characterSubmission_1"
+        "owner": "theLongRest"
       },
       {
+        "kind": "modal",
         "match": "exact",
         "value": "characterSubmission_2",
-        "target": "../modals/characterSubmission_2"
+        "owner": "theLongRest"
       },
       {
+        "kind": "modal",
         "match": "exact",
         "value": "leagueCreate",
-        "target": "./leagueCreateModal"
+        "owner": "league"
       },
       {
-        "match": "prefix",
-        "value": "editgame_modal_",
-        "target": "../modals/editGameModal"
-      },
-      {
-        "match": "prefix",
-        "value": "announceedit_modal_",
-        "target": "../modals/announceEditModal"
-      },
-      {
-        "match": "prefix",
-        "value": "questDash:",
-        "target": "../buttons/questDashboard.handleDashboardModal"
-      },
-      {
-        "match": "prefix",
-        "value": "ticketCreateModal:",
-        "target": "../buttons/ticket.handleTicketModal"
-      },
-      {
-        "match": "prefix",
-        "value": "ticket:",
-        "target": "../buttons/ticket.handleTicketModal"
-      },
-      {
-        "match": "prefix",
-        "value": "leagueDashEditModal:",
-        "target": "../modals/leagueDashEdit"
-      },
-      {
+        "kind": "modal",
         "match": "exact",
         "value": "tlrRemoveModal",
-        "target": "../buttons/theLongRest.handleRemoveModalSubmit"
+        "owner": "theLongRest"
       },
       {
-        "match": "prefix",
-        "value": "tableAdminAddPlayerModal:",
-        "target": "../modals/tableAdminAddPlayerModal"
-      },
-      {
-        "match": "prefix",
-        "value": "tableAdminNumberModal:",
-        "target": "../modals/tableAdminNumberModal"
-      },
-      {
-        "match": "prefix",
-        "value": "channelFile:",
-        "target": "../buttons/channelFile.handleModal"
-      },
-      {
+        "kind": "modal",
         "match": "exact",
         "value": "verification:modal",
-        "target": "../buttons/verification.handleModalSubmit"
+        "owner": "verification"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "announceedit_modal_",
+        "owner": "games"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "channelFile:",
+        "owner": "channelFile"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "editgame_modal_",
+        "owner": "games"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "leagueDashEditModal:",
+        "owner": "league"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "questDash:",
+        "owner": "league"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "tableAdminAddPlayerModal:",
+        "owner": "games"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "tableAdminNumberModal:",
+        "owner": "games"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "ticket:",
+        "owner": "tickets"
+      },
+      {
+        "kind": "modal",
+        "match": "prefix",
+        "value": "ticketCreateModal:",
+        "owner": "tickets"
       }
-    ],
-    "shadowed": []
+    ]
   },
   "customIdProducers": {
     "buttons/announcement.js": [
@@ -1415,7 +1428,6 @@
   "startupWiring": [
     "./interactions/commandHandler",
     "./interactions/buttonHandler",
-    "./interactions/modalHandler",
     "./interactions/threadAlertLog",
     "./flow/announcementFlow",
     "./flow/editGameArtFlow",

@@ -1,6 +1,6 @@
 {
   "note": "Known tsc --checkJs findings (file | code | message -> count). Fix them to shrink this file; never grow it by hand.",
-  "total": 189,
+  "total": 186,
   "findings": {
     "buttons/announcement.js | TS2353 | Object literal may only specify known properties, and 'message' does not exist in type '{ context?: {}; scope?: string; }'.": 3,
     "buttons/archive.js | TS2305 | Module '\"../commands/archive\"' has no exported member 'MAX_CHANNELS_PER_CATEGORY'.": 1,
@@ -61,7 +61,6 @@
     "interactions/commandHandler.js | TS2362 | The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 1,
     "interactions/commandHandler.js | TS2363 | The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 1,
     "interactions/commandHandler.js | TS2554 | Expected 0-1 arguments, but got 2.": 8,
-    "interactions/modalHandler.js | TS2554 | Expected 0-1 arguments, but got 2.": 3,
     "interactions/questDashboardRender.js | TS2339 | Property 'properties' does not exist on type 'PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 2,
     "modals/leagueCreate.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<...>, ActionRowBuilder<...>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "selects/announceEditSelect.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,

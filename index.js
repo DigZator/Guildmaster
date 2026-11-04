@@ -19,7 +19,6 @@ require('./config/roleVars').report();
 
 require('./interactions/commandHandler')(client);
 require('./interactions/buttonHandler')(client);
-require('./interactions/modalHandler')(client);
 require('./interactions/threadAlertLog')(client);
 require('./flow/announcementFlow')(client);
 require('./flow/editGameArtFlow')(client);
