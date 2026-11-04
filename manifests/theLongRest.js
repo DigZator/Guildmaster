@@ -10,8 +10,8 @@ module.exports = {
     commands: [{
         name: 'the_long_rest', policy: 'open', handler: the_long_rest,
         subcommands: {
-            setup: { policy: 'open', gate: 'admin' },
-            reindex: { policy: 'open', gate: 'admin' },
+            setup: { policy: 'admin', denied: '❌ You don\'t have permission to run this.' },
+            reindex: { policy: 'admin', denied: '❌ You don\'t have permission to run this.' },
             remove: { policy: 'open', gate: 'own: author, or tlr_mod for any memorial' },
         },
     }],

@@ -1,4 +1,3 @@
-const { isAdminChannel } = require('../../utils/isAdminChannel');
 const { pendingPreviews, PREVIEW_TTL_MS } = require('./state');
 const { clip, describeError } = require('./helpers');
 const { readOptions, preflight } = require('./preflight');
@@ -7,10 +6,6 @@ const { runCampaign } = require('./run');
 
 // ── Entry point ─────────────────────────────────────────────────────────────
 module.exports = async (interaction) => {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-        return;
-    }
     if (!interaction.guild) {
         await interaction.reply({ content: '❌ This command can only be used in a server.', flags: 64 });
         return;

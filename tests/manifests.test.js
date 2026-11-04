@@ -63,13 +63,51 @@ test('select menus: exactly the routes the old select router handled (string and
     assert.deepEqual(prefixes(registry.tables.userSelect), ['questDash:']);
 });
 
-test('every route is declared open and nothing is enforced yet (enforcement moves into the router in step 4)', () => {
-    const all = [
-        ...registry.commands.values(),
-        ...Object.values(registry.tables).flatMap(t => [...t.exact.values(), ...t.prefix]),
-    ];
-    assert.equal(all.length, 24 + 66 + 14 + 8);   // commands + buttons + modals + selects
-    for (const spec of all) assert.equal(spec.policy, 'open', spec.owner);
+// The routes the router enforces today. Written out by hand on purpose: lifting a check out of a handler into
+// the router is a deliberate step, so it must show up here (Phase 3, step 4 moves routes onto this list).
+const DENIED_TEXT = '❌ You don\'t have permission to run this.';
+const ENFORCED_COMMANDS = {
+    create_campaign: 'admin', announce_game: 'admin', edit_game: 'admin', get_players: 'admin',
+    manipulate_table: 'admin', archive: 'admin', 'archive-config': 'admin',
+};
+const ENFORCED_SUBCOMMANDS = {
+    'the_long_rest setup': 'admin', 'the_long_rest reindex': 'admin',
+    'ticket setup': 'admin', 'ticket config': 'admin', 'ticket reset_counter': 'admin',
+    'ticket type add': 'admin', 'ticket type edit': 'admin', 'ticket type remove': 'admin', 'ticket type list': 'admin',
+};
+const OWN_DENIED = new Set(['the_long_rest', 'ticket']);
+
+test('the routes the router enforces are exactly the pinned list; everything else is still open', () => {
+    const commands = {}, subcommands = {};
+    for (const cmd of registry.commands.values()) {
+        if (cmd.policy !== 'open') commands[cmd.name] = cmd.policy;
+        for (const [key, spec] of Object.entries(cmd.subcommands)) {
+            if (spec.policy !== 'open') subcommands[`${cmd.name} ${key}`] = spec.policy;
+        }
+    }
+    assert.deepEqual(commands, ENFORCED_COMMANDS);
+    assert.deepEqual(subcommands, ENFORCED_SUBCOMMANDS);
+    for (const t of Object.values(registry.tables)) {
+        for (const spec of [...t.exact.values(), ...t.prefix]) assert.equal(spec.policy, 'open', spec.owner);
+    }
+});
+
+test('an enforced route no longer records a gate (the check is in the router now, not in the handler)', () => {
+    for (const cmd of registry.commands.values()) {
+        if (cmd.policy !== 'open') assert.equal(cmd.gate, undefined, cmd.name);
+        for (const [key, spec] of Object.entries(cmd.subcommands)) {
+            if (spec.policy !== 'open') assert.equal(spec.gate, undefined, `${cmd.name} ${key}`);
+        }
+    }
+});
+
+test('the refusal text of each enforced route is the one its handler used to give', () => {
+    for (const name of Object.keys(ENFORCED_COMMANDS)) assert.equal(registry.commands.get(name).denied, undefined, `${name} uses the router default`);
+    for (const key of Object.keys(ENFORCED_SUBCOMMANDS)) {
+        const [name, ...rest] = key.split(' ');
+        assert.ok(OWN_DENIED.has(name));
+        assert.equal(registry.commands.get(name).subcommands[rest.join(' ')].denied, DENIED_TEXT, key);
+    }
 });
 
 // What the snapshot saw for a route: the isAdminChannel type(s) it reached, or null if none was reached.
@@ -89,7 +127,8 @@ function commandGate(route) {
     const cmd = registry.commands.get(name);
     assert.ok(cmd, `no manifest for command ${name}`);
     const override = rest.length ? cmd.subcommands?.[rest.join(' ')] : undefined;
-    return (override ?? cmd).gate;
+    const spec = override ?? cmd;
+    return spec.policy !== 'open' ? spec.policy : spec.gate;
 }
 
 // Routes whose check the harness cannot reach with synthetic input (the handler returns early on the fake id).
@@ -100,9 +139,15 @@ const BLIND_SPOTS = {
     'dl:zz': { gate: 'hr', file: 'buttons/directLine.js', type: 'hr' },
 };
 
+// Commands whose real check is wider than the isAdminChannel call the snapshot can see. /verification also lets
+// in the Discord Administrator permission (utils/verificationAdmin.js), so it must NOT be written as a plain admin gate.
+const COMBINED_GATES = ['verification '];
+
 function assertGate(label, expected, gate) {
     const blind = BLIND_SPOTS[label];
-    if (!expected && blind) assert.equal(gate, blind.gate, `${label}: documented blind spot`);
+    if (expected && COMBINED_GATES.some(prefix => label.startsWith(prefix))) {
+        assert.ok(typeof gate === 'string' && gate.startsWith('own:') && /Discord Administrator/.test(gate), `${label}: the real check is wider than "${expected}"`);
+    } else if (!expected && blind) assert.equal(gate, blind.gate, `${label}: documented blind spot`);
     else if (expected) assert.equal(gate, expected, `${label}: the snapshot shows "${expected}"`);
     else assert.ok(gate === undefined || gate.startsWith('own:'), `${label}: the snapshot shows no named check, but the manifest says "${gate}"`);
 }

@@ -1,5 +1,4 @@
 const { EmbedBuilder, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
 const { getArchiveCategoryId } = require('../config/archiveConfig');
 
@@ -28,10 +27,6 @@ async function postLog(guild, { actor, targetName, targetType, channelCount }) {
 }
 
 module.exports = async (interaction) => {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-        return;
-    }
 
     const ARCHIVE_CATEGORY_ID = getArchiveCategoryId();
 

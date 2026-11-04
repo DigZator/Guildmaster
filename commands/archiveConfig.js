@@ -1,12 +1,7 @@
 const { ChannelType, EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { setArchiveCategoryId, getArchiveCategoryId } = require('../config/archiveConfig');
 
 module.exports = async (interaction) => {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-        return;
-    }
 
     const category = interaction.options.getChannel('category', true);
 

@@ -6,7 +6,8 @@ const ownVerify = { gate: 'own: roles and Discord permissions (utils/verificatio
 
 module.exports = {
     name: 'verification',
-    commands: [{ name: 'verification', policy: 'open', gate: 'admin', handler: verification }],
+    // NOT a plain admin gate: utils/verificationAdmin.js also lets in anyone with the Discord Administrator permission.
+    commands: [{ name: 'verification', policy: 'open', gate: 'own: Admins role OR Discord Administrator permission (utils/verificationAdmin.js)', handler: verification }],
     buttons: {
         exact: routes('open', verificationButtons.exact, ownVerify),
         prefix: {

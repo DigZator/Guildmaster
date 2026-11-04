@@ -1,5 +1,4 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getCachedGames } = require('../utils/cache');
 const gameFields = require('../data/gameFields.json');
 const { fetchPage, stringifyPropertyValue } = require('../utils/notion');
@@ -8,10 +7,6 @@ const editGameSession = require('../utils/editGameSession');
 const MAX_MODAL_VALUE_LENGTH = 4000;
 
 module.exports = async (interaction) => {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-        return;
-    }
 
     const gameUID = interaction.options.getString('game');
     const fieldName = interaction.options.getString('field');

@@ -1,13 +1,8 @@
 const { fetchGameByUID } = require('../utils/notion');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { buildAnnouncementEmbed, buildWhatsApp, sendChunkedText, getPreviewButtons, getPreviewWarnings, setSessionTimeout } = require('../utils/announcementHelper');
 const { sessions } = require('../utils/sessionStore');
 
 module.exports = async (interaction, client) => {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-        return;
-    }
     const uid = interaction.options.getString('game');
     if (!uid) {
         await interaction.reply({ content: '❌ Please select a game from the dropdown.', flags: 64 });

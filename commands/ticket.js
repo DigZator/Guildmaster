@@ -1,5 +1,4 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const {
     loadTicketTypes,
     addTicketType,
@@ -55,10 +54,6 @@ async function refreshDashboard(guild) {
 }
 
 async function handleSetup(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
-    }
-
     const relocate = interaction.options.getBoolean('relocate') || false;
     const existing = getConfig();
 
@@ -86,10 +81,6 @@ async function handleSetup(interaction) {
 }
 
 async function handleConfig(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
-    }
-
     const category = interaction.options.getChannel('category');
     const hrCategory = interaction.options.getChannel('hr_category');
     const logChannel = interaction.options.getChannel('log_channel');
@@ -114,10 +105,6 @@ async function handleConfig(interaction) {
 }
 
 async function handleResetCounter(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
-    }
-
     const slug = interaction.options.getString('type');
     if (slug) {
         await ticketStore.resetCounter(slug);
@@ -136,10 +123,6 @@ function formatTypeLine(type) {
 }
 
 async function handleTypeList(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
-    }
-
     const types = loadTicketTypes();
     if (!types.length) {
         return interaction.reply({ content: 'No ticket types configured.', flags: 64 });
@@ -149,10 +132,6 @@ async function handleTypeList(interaction) {
 }
 
 async function handleTypeAdd(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
-    }
-
     const label = interaction.options.getString('label', true);
     const result = addTicketType({
         key: interaction.options.getString('key') || label,
@@ -178,10 +157,6 @@ async function handleTypeAdd(interaction) {
 }
 
 async function handleTypeEdit(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
-    }
-
     const key = interaction.options.getString('key', true);
     const patch = {};
     const label = interaction.options.getString('label');
@@ -219,10 +194,6 @@ async function handleTypeEdit(interaction) {
 }
 
 async function handleTypeRemove(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        return interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: 64 });
-    }
-
     const key = interaction.options.getString('key', true);
     const result = removeTicketType(key);
     if (!result.ok) {

@@ -31,14 +31,14 @@ console.log = () => {}; console.warn = () => {};   // keep stdout clean for the 
 const { inspect } = require('../../core/registry');
 const { problems, registry } = inspect(require('../../manifests'));
 
-const plain = (spec) => ({ id: spec.id, owner: spec.owner, policy: spec.policy, gate: spec.gate, falseMeansUnhandled: spec.falseMeansUnhandled, hasHandler: typeof spec.handler === 'function' });
+const plain = (spec) => ({ id: spec.id, owner: spec.owner, policy: spec.policy, gate: spec.gate, denied: spec.denied, falseMeansUnhandled: spec.falseMeansUnhandled, hasHandler: typeof spec.handler === 'function' });
 const out = { problems, registry: null };
 if (registry) {
     out.registry = {
         commands: [...registry.commands.entries()].map(([name, cmd]) => ({
-            name, owner: cmd.owner, policy: cmd.policy, gate: cmd.gate, hasHandler: typeof cmd.handler === 'function',
+            name, owner: cmd.owner, policy: cmd.policy, gate: cmd.gate, denied: cmd.denied, hasHandler: typeof cmd.handler === 'function',
             autocomplete: (cmd.autocomplete || []).map(a => ({ name: a.name, policy: a.policy, gate: a.gate, hasHandle: typeof a.handle === 'function' })),
-            subcommands: Object.fromEntries(Object.entries(cmd.subcommands || {}).map(([k, s]) => [k, { policy: s.policy, gate: s.gate }])),
+            subcommands: Object.fromEntries(Object.entries(cmd.subcommands || {}).map(([k, s]) => [k, { policy: s.policy, gate: s.gate, denied: s.denied }])),
         })),
         tables: Object.fromEntries(Object.entries(registry.tables).map(([kind, t]) => [kind, {
             exact: [...t.exact.entries()].map(([id, spec]) => plain({ ...spec, id })),

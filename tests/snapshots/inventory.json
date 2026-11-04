@@ -1131,35 +1131,15 @@
         "hr": 1
       }
     },
-    "commands/announce_game.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
-      }
-    },
     "commands/anon_msg.js": {
       "isAdminChannel": {
         "botChannelAdmin": 1
-      }
-    },
-    "commands/archive.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
-      }
-    },
-    "commands/archiveConfig.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
       }
     },
     "commands/channelFile.js": {
       "isAdminChannel": {
         "botAdmin": 1,
         "cmd": 1
-      }
-    },
-    "commands/create_campaign/command.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
       }
     },
     "commands/create_campaign/preflight.js": {
@@ -1169,16 +1149,6 @@
     "commands/direct_line.js": {
       "isAdminChannel": {
         "hr": 1
-      }
-    },
-    "commands/edit_game.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
-      }
-    },
-    "commands/get_players.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
       }
     },
     "commands/leagueGrants/audit.js": {
@@ -1232,11 +1202,6 @@
         "bot (default)": 1
       }
     },
-    "commands/manipulate_table.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
-      }
-    },
     "commands/rss.js": {
       "isAdminChannel": {
         "botChannelAdmin": 1
@@ -1245,16 +1210,6 @@
     "commands/schedule_activation.js": {
       "isAdminChannel": {
         "botChannelAdmin": 1
-      }
-    },
-    "commands/the_long_rest.js": {
-      "isAdminChannel": {
-        "botAdmin": 2
-      }
-    },
-    "commands/ticket.js": {
-      "isAdminChannel": {
-        "botAdmin": 7
       }
     },
     "commands/verification.js": {

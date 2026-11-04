@@ -1,14 +1,9 @@
 // SCOPE LOCK: only operates on the "Test" game (see utils/tableAdminData.js).
 
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getTestGame } = require('../utils/tableAdminData');
 const { renderDashboard } = require('../interactions/tableAdminDashboardRender');
 
 module.exports = async (interaction) => {
-	if (!isAdminChannel(interaction, 'botAdmin')) {
-		await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-		return;
-	}
 
 	const gameUID = interaction.options.getString('game');
 

@@ -138,6 +138,17 @@ const wrapped = (interaction, type = 'bot') => {
 };
 require.cache[iacPath].exports = { ...realIac, isAdminChannel: wrapped, ...('isAdmin' in realIac ? { isAdmin: wrapped } : {}) };
 
+// Once a check moves from a handler into the router it is made by shared/auth instead. Record those calls under
+// the old type's name so a lifted check shows up in the snapshot exactly as it did before.
+const auth = require(path.join(root, 'shared/auth'));
+const realCan = auth.can;
+auth.can = (policyName, interaction, env) => {
+    const result = realCan(policyName, interaction, env);
+    const legacy = auth.POLICIES[policyName] && auth.POLICIES[policyName].legacy;
+    if (legacy && gateLog) gateLog.push(`${legacy}=${result}`);
+    return result;
+};
+
 // Load every module up front (with the guards above in place) so that lazy requires inside handlers
 // are already cached: a slow first require must not look like a hung route.
 for (const file of FILES_TO_PRELOAD) { try { require(path.join(root, file)); } catch { /* the smoke test reports load failures */ } }

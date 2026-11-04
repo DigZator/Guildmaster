@@ -44,9 +44,10 @@ module.exports = {
     commands: [{
         name: 'ticket', policy: 'open', handler: ticket,
         autocomplete: [{ name: 'type / key', policy: 'open', handle: ticketAutocomplete }],
+        // Admin subcommands are enforced by the router, with the refusal each handler used to give.
         subcommands: Object.fromEntries([
             'setup', 'config', 'reset_counter', 'type add', 'type edit', 'type remove', 'type list',
-        ].map(key => [key, { policy: 'open', gate: 'admin' }])),
+        ].map(key => [key, { policy: 'admin', denied: '❌ You don\'t have permission to run this.' }])),
     }],
     buttons: { prefix: routes('open', ticketButtons.prefix, rules) },
     modals: {

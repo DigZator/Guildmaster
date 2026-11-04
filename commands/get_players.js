@@ -1,14 +1,7 @@
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getCachedGames } = require('../utils/cache');
 const { formatPlayerList } = require('../utils/fillout');
 
 module.exports = async (interaction) => {
-    // --- Admin-only gate ---------------------------------------------------
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
-        return;
-    }
-    // ------------------------------------------------------------------------
 
     const gameUID = interaction.options.getString('game');
 

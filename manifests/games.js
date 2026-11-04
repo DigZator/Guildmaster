@@ -37,7 +37,8 @@ async function editGameAutocomplete(interaction) {
     }
 }
 
-const admin = (name, handler, autocomplete) => ({ name, policy: 'open', gate: 'admin', handler, ...(autocomplete && { autocomplete }) });
+// Enforced by the router; the refusal is the router's default text, which is what each handler used to say.
+const admin = (name, handler, autocomplete) => ({ name, policy: 'admin', handler, ...(autocomplete && { autocomplete }) });
 
 module.exports = {
     name: 'games',
