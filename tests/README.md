@@ -14,6 +14,7 @@ Offline safety net. Nothing here connects to Discord or Notion, and nothing writ
 | `customId` | the four ID encoders and that each prefix is routed |
 | `permissions` | who passes each `isAdminChannel` check today |
 | `auth` | `shared/auth` answers exactly like `isAdminChannel` and `isTlrMod` for every role/channel combination (the old helpers stay until Phase 3), unknown policies throw, `validate()` catches bad config |
+| `router` | `core/registry.js` + `core/router.js` (built, not wired yet): manifests are validated at load (policy on every route, no duplicates or overlapping prefixes), routes are found and their policy enforced, and each kind (command, button, modal, select) keeps the exact unmatched/error/expired behavior of its old router |
 | `routePermissions` | every command, subcommand, button, select and modal driven through the real routers by eleven fake members; records which `isAdminChannel` check each route reaches and what each member gets back (offline; `data/` is verified untouched) |
 | `channelMap` | the `data/channelMap.json` store behind `/config`: loading into the environment, what may be stored, and the load-order guard |
 | `configCommand` | `/config status`, `set`, `clear` and the trap-channel confirm button, with fake interactions (admin role only, nothing saved on a failed check, audit trail) |
