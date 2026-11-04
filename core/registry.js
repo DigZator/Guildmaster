@@ -5,7 +5,17 @@ const { getPolicy } = require('../shared/auth');
 
 const ROUTE_KINDS = Object.freeze({ buttons: 'button', modals: 'modal', selects: 'select', userSelects: 'userSelect' });
 
+// `gate` documents where the permission check lives TODAY when it is still inside the handler:
+// either a policy name, or 'own: <what>' for checks that are not a named policy. It is never enforced.
+function checkGate(where, spec, problems) {
+    if (spec.gate === undefined) return;
+    if (typeof spec.gate !== 'string') { problems.push(`${where}: gate must be a string`); return; }
+    if (spec.gate.startsWith('own:')) return;
+    try { getPolicy(spec.gate); } catch { problems.push(`${where}: unknown gate "${spec.gate}"`); }
+}
+
 function checkRoute(where, spec, problems) {
+    if (spec) checkGate(where, spec, problems);
     if (!spec || typeof spec.handler !== 'function') { problems.push(`${where}: no handler function`); return; }
     if (typeof spec.policy !== 'string') { problems.push(`${where}: no policy (write 'open' if it really is open to everyone)`); return; }
     try { getPolicy(spec.policy); } catch { problems.push(`${where}: unknown policy "${spec.policy}"`); }
@@ -49,6 +59,7 @@ function addCommand(commands, owner, cmd, problems) {
     checkRoute(where, cmd, problems);
     if (commands.has(cmd.name)) { problems.push(`${where}: already registered by ${commands.get(cmd.name).owner}`); return; }
     for (const [key, spec] of Object.entries(cmd.subcommands || {})) {
+        if (spec) checkGate(`${where} subcommand "${key}"`, spec, problems);
         if (!spec || typeof spec.policy !== 'string') problems.push(`${where} subcommand "${key}": no policy`);
         else { try { getPolicy(spec.policy); } catch { problems.push(`${where} subcommand "${key}": unknown policy "${spec.policy}"`); } }
     }
