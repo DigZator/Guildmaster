@@ -195,9 +195,12 @@ function makeInteraction(kind, spec, persona, rec) {
     return interaction;
 }
 
+// Discord timestamps (<t:1793626200:t>) depend on today's date; keep them out of snapshot keys.
+const stable = (text) => text.replace(/<t:\d+(?::[a-zA-Z])?>/g, '<t:TIME>');
+
 function summarize(payload) {
-    if (typeof payload === 'string') return payload.slice(0, 80);
-    if (payload && typeof payload.content === 'string' && payload.content) return payload.content.replace(/\s+/g, ' ').slice(0, 80);
+    if (typeof payload === 'string') return stable(payload).slice(0, 80);
+    if (payload && typeof payload.content === 'string' && payload.content) return stable(payload.content.replace(/\s+/g, ' ')).slice(0, 80);
     if (payload && (payload.embeds || payload.components || payload.files)) return '(embed/components)';
     return '(reply)';
 }

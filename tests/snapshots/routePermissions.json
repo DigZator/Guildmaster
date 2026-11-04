@@ -654,7 +654,7 @@
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botChannelAdmin=true | **Activation Queue Status** Reminder: <t:1793626200:t> — ✅ Enabled Activation: <": [
+        "botChannelAdmin=true | **Activation Queue Status** Reminder: <t:TIME> — ✅ Enabled Activation: <t:TIME> ": [
           "admins-role@ctrl-channel"
         ]
       }
@@ -754,7 +754,7 @@
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botChannelAdmin=true | **Activation Queue Status** Reminder: <t:1793626200:t> — ✅ Enabled Activation: <": [
+        "botChannelAdmin=true | **Activation Queue Status** Reminder: <t:TIME> — ✅ Enabled Activation: <t:TIME> ": [
           "admins-role@ctrl-channel"
         ]
       }
