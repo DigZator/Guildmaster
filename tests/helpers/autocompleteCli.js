@@ -55,8 +55,7 @@ req('config/ticketTypes').loadTicketTypes = () => [{ key: 'k-one', slug: 's-one'
 // ── the routers under test ───────────────────────────────────────────────────
 const listeners = [];
 const client = { on: (ev, fn) => { if (ev === 'interactionCreate') listeners.push(fn); }, user: { id: testEnv.CLIENT_ID } };
-for (const r of ['commandHandler']) require(path.join(root, 'interactions', r))(client);
-require(path.join(root, 'core', 'boot'))(client);
+require(path.join(root, 'core', 'boot'))(client);   // the router, exactly as index.js starts it
 
 // ── what to fire ─────────────────────────────────────────────────────────────
 const definitions = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'snapshots', 'commands.json'), 'utf8')).commands;

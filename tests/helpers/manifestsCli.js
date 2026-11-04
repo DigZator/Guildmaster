@@ -37,6 +37,7 @@ if (registry) {
     out.registry = {
         commands: [...registry.commands.entries()].map(([name, cmd]) => ({
             name, owner: cmd.owner, policy: cmd.policy, gate: cmd.gate, hasHandler: typeof cmd.handler === 'function',
+            autocomplete: (cmd.autocomplete || []).map(a => ({ name: a.name, policy: a.policy, gate: a.gate, hasHandle: typeof a.handle === 'function' })),
             subcommands: Object.fromEntries(Object.entries(cmd.subcommands || {}).map(([k, s]) => [k, { policy: s.policy, gate: s.gate }])),
         })),
         tables: Object.fromEntries(Object.entries(registry.tables).map(([kind, t]) => [kind, {

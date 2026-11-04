@@ -208,8 +208,7 @@ function summarize(payload) {
 // ---- drive the real routers --------------------------------------------------------------
 const listeners = [];
 const client = withProps({ on: (ev, fn) => { if (ev === 'interactionCreate') listeners.push(fn); }, user: { id: E.CLIENT_ID } });
-for (const r of ['commandHandler']) require(path.join(root, 'interactions', r))(client);
-require(path.join(root, 'core', 'boot'))(client);   // the new router, for every kind already moved over
+require(path.join(root, 'core', 'boot'))(client);   // the router, exactly as index.js starts it
 
 const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 const quiet = { log: console.log, warn: console.warn, error: console.error, info: console.info };

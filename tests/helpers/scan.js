@@ -17,22 +17,6 @@ function balanced(src, openIndex) {
     return src.slice(openIndex + 1);
 }
 
-function scanCommandRoutes() {
-    const src = read('interactions/commandHandler.js');
-    const split = src.indexOf('isChatInputCommand()');
-    const autocomplete = src.slice(0, split);
-    const chat = src.slice(split);
-    const handlers = [...chat.matchAll(/if \(command === '([^']+)'\)\s*await (\w+)\(/g)]
-        .map(m => ({ command: m[1], handler: m[2] }));
-    const autocompleteTokens = [...autocomplete.matchAll(/(commandName|sub|group|focused\.name)\s*===\s*'([^']+)'/g)]
-        .map(m => `${m[1]}=${m[2]}`);
-    const sets = {};
-    for (const m of autocomplete.matchAll(/const (\w+) = new Set\(\[([^\]]*)\]\)/g)) {
-        sets[m[1]] = [...m[2].matchAll(/'([^']+)'/g)].map(x => x[1]);
-    }
-    return { handlers, autocompleteTokens, sets };
-}
-
 function scanChain(rel) {
     const src = read(rel);
     const out = [];
@@ -151,6 +135,6 @@ function scanRelativeRequires(file) {
 }
 
 module.exports = {
-    scanCommandRoutes, scanChain, shadowedInChain, scanCustomIdProducers,
+    scanChain, shadowedInChain, scanCustomIdProducers,
     scanPermissionChecks, scanStartupWiring, scanRelativeRequires, stripComments,
 };

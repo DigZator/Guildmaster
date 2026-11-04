@@ -3,7 +3,7 @@ const { spawnSync } = require('child_process');
 const { testEnv } = require('./env');
 const { root } = require('./repo');
 const scan = require('./scan');
-const { routesOfKinds } = require('./registryRoutes');
+const { routesOfKinds, commandsOfRegistry } = require('./registryRoutes');
 const { describeButtonRoutes } = require('./routes');
 
 const sortKeys = (v) => Array.isArray(v) ? v.map(sortKeys)
@@ -81,8 +81,8 @@ function buildRoutePermissions() {
 async function buildInventory() {
     const { commands } = buildCommandSnapshot();
     const names = commands.map(c => c.name);
-    const routes = scan.scanCommandRoutes();
-    const routed = routes.handlers.map(h => h.command);
+    const registered = commandsOfRegistry();   // read from the manifests: the old router's source no longer exists
+    const routed = registered.map(c => c.name);
     const selects = routesOfKinds(['select', 'userSelect']);
     const modals = routesOfKinds(['modal']);
     return plain({
@@ -92,8 +92,7 @@ async function buildInventory() {
             routed,
             registeredWithoutHandler: names.filter(n => !routed.includes(n)),
             handlerWithoutRegistration: routed.filter(n => !names.includes(n)),
-            handlers: routes.handlers,
-            autocomplete: { tokens: routes.autocompleteTokens, sets: routes.sets },
+            autocomplete: Object.fromEntries(registered.filter(c => c.autocomplete.length).map(c => [c.name, c.autocomplete])),
         },
         buttons: getButtonRoutes(),
         selects: { routes: selects },   // read from the manifests: the old router's source no longer exists

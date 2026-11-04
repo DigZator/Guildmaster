@@ -38,6 +38,9 @@ disclosure only: the commands themselves still refuse non-admins.
 - Add a test that drives every autocomplete as a non-admin and expects an empty list.
 
 **Until then** every autocomplete entry in the manifests is declared `open`, which is today's behavior.
+`tests/autocomplete.test.js` pins that behavior, including that a member with no roles is offered game titles,
+the activation queue and anonymous keys. When the fix lands, change the policies in the manifests and update
+those "documents current behavior" tests and `tests/snapshots/autocomplete.json` in the same commit.
 
 ## 2. Smaller items noted along the way
 - Unify the "no permission" wording per route (kept as-is during the refactor so users see no change).

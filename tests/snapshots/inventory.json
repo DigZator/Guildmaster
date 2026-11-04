@@ -133,198 +133,73 @@
       "verification status"
     ],
     "routed": [
-      "ping",
-      "keep_alive",
-      "create_campaign",
-      "the_long_rest",
       "announce_game",
-      "list_games",
-      "game_info",
-      "rss",
       "anon_msg",
-      "schedule_activation",
-      "help",
+      "archive",
+      "archive-config",
+      "channel_file",
+      "config",
+      "create_campaign",
+      "direct_line",
       "edit_game",
+      "game_info",
+      "get_players",
+      "help",
+      "keep_alive",
       "league",
       "leagueadmin",
       "leaguedm",
-      "get_players",
+      "list_games",
       "manipulate_table",
+      "ping",
+      "rss",
+      "schedule_activation",
+      "the_long_rest",
       "ticket",
-      "direct_line",
-      "archive",
-      "archive-config",
-      "config",
-      "channel_file",
       "verification"
     ],
     "registeredWithoutHandler": [],
     "handlerWithoutRegistration": [],
-    "handlers": [
-      {
-        "command": "ping",
-        "handler": "ping"
-      },
-      {
-        "command": "keep_alive",
-        "handler": "keep_alive"
-      },
-      {
-        "command": "create_campaign",
-        "handler": "create_campaign"
-      },
-      {
-        "command": "the_long_rest",
-        "handler": "the_long_rest"
-      },
-      {
-        "command": "announce_game",
-        "handler": "announce_game"
-      },
-      {
-        "command": "list_games",
-        "handler": "list_games"
-      },
-      {
-        "command": "game_info",
-        "handler": "game_info"
-      },
-      {
-        "command": "rss",
-        "handler": "rss"
-      },
-      {
-        "command": "anon_msg",
-        "handler": "anon_msg"
-      },
-      {
-        "command": "schedule_activation",
-        "handler": "schedule_activation"
-      },
-      {
-        "command": "help",
-        "handler": "help"
-      },
-      {
-        "command": "edit_game",
-        "handler": "edit_game"
-      },
-      {
-        "command": "league",
-        "handler": "league"
-      },
-      {
-        "command": "leagueadmin",
-        "handler": "leagueAdmin"
-      },
-      {
-        "command": "leaguedm",
-        "handler": "leagueDM"
-      },
-      {
-        "command": "get_players",
-        "handler": "get_players"
-      },
-      {
-        "command": "manipulate_table",
-        "handler": "manipulate_table"
-      },
-      {
-        "command": "ticket",
-        "handler": "ticket"
-      },
-      {
-        "command": "direct_line",
-        "handler": "direct_line"
-      },
-      {
-        "command": "archive",
-        "handler": "archive"
-      },
-      {
-        "command": "archive-config",
-        "handler": "archiveConfig"
-      },
-      {
-        "command": "config",
-        "handler": "config"
-      },
-      {
-        "command": "channel_file",
-        "handler": "channelFile"
-      },
-      {
-        "command": "verification",
-        "handler": "verification"
-      }
-    ],
     "autocomplete": {
-      "tokens": [
-        "commandName=config",
-        "commandName=game_info",
-        "commandName=announce_game",
-        "commandName=get_players",
-        "commandName=manipulate_table",
-        "commandName=anon_msg",
-        "commandName=schedule_activation",
-        "sub=add",
-        "sub=remove",
-        "commandName=edit_game",
-        "focused.name=game",
-        "focused.name=field",
-        "commandName=ticket",
-        "sub=raise",
-        "focused.name=type",
-        "sub=reset_counter",
-        "focused.name=type",
-        "group=type",
-        "sub=edit",
-        "sub=remove",
-        "focused.name=key",
-        "commandName=help",
-        "focused.name=family",
-        "commandName=league",
-        "commandName=leagueadmin",
-        "commandName=leaguedm",
-        "commandName=league",
-        "sub=starter-items",
-        "focused.name=background",
-        "commandName=leaguedm",
-        "group=quest",
-        "sub=link",
-        "commandName=leaguedm",
-        "sub=dashboard",
-        "commandName=league",
-        "group=downtime",
-        "sub=start",
-        "focused.name=activity",
-        "focused.name=tier",
-        "focused.name=spell",
-        "focused.name=item",
-        "commandName=league",
-        "sub=log",
-        "focused.name=character",
-        "commandName=league",
-        "group=character",
-        "sub=status",
-        "focused.name=character"
+      "announce_game": [
+        "games"
       ],
-      "sets": {
-        "CODE_AUTOCOMPLETE_TARGETS": [
-          "league:shop:info",
-          "league:shop:buy",
-          "leagueadmin:shop:stock",
-          "leagueadmin:shop:unstock",
-          "leagueadmin:shop:restock",
-          "leagueadmin:item:import"
-        ],
-        "ITEM_AUTOCOMPLETE_TARGETS": [
-          "league:void:item",
-          "league:marketplace:list",
-          "league:shop:sell",
-          "league:item"
-        ]
-      }
+      "anon_msg": [
+        "keys"
+      ],
+      "config": [
+        "key"
+      ],
+      "edit_game": [
+        "game / field"
+      ],
+      "game_info": [
+        "games"
+      ],
+      "get_players": [
+        "games"
+      ],
+      "help": [
+        "family"
+      ],
+      "league": [
+        "league / leagueadmin / leaguedm"
+      ],
+      "leagueadmin": [
+        "league / leagueadmin / leaguedm"
+      ],
+      "leaguedm": [
+        "league / leagueadmin / leaguedm"
+      ],
+      "manipulate_table": [
+        "games"
+      ],
+      "schedule_activation": [
+        "add / remove"
+      ],
+      "ticket": [
+        "type / key"
+      ]
     }
   },
   "buttons": {
@@ -1410,7 +1285,6 @@
     }
   },
   "startupWiring": [
-    "./interactions/commandHandler",
     "./interactions/threadAlertLog",
     "./flow/announcementFlow",
     "./flow/editGameArtFlow",

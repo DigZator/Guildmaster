@@ -13,19 +13,42 @@ const editGameCheckbox = require('../buttons/editGameCheckbox');
 const archiveButtons = require('../buttons/archive');
 const tableAdmin = require('../buttons/tableAdmin');
 const createCampaign = require('../buttons/createCampaign');
+const { gameAutocomplete } = require('../utils/gameAutoComplete');
+const gameFields = require('../data/gameFields.json');
 
-const admin = (name, handler) => ({ name, policy: 'open', gate: 'admin', handler });
+// Autocomplete is not permission-checked today (see POST_REFACTOR.md, issue 1), so every entry is 'open'.
+const gamePicker = [{ name: 'games', policy: 'open', handle: gameAutocomplete }];
+
+async function editGameAutocomplete(interaction) {
+    const focused = interaction.options.getFocused(true);
+
+    if (focused.name === 'game') {
+        await gameAutocomplete(interaction);
+        return;
+    }
+
+    if (focused.name === 'field') {
+        const query = focused.value.toLowerCase();
+        const choices = Object.keys(gameFields)
+            .filter(f => f.toLowerCase().includes(query))
+            .slice(0, 25)
+            .map(f => ({ name: f, value: f }));
+        await interaction.respond(choices);
+    }
+}
+
+const admin = (name, handler, autocomplete) => ({ name, policy: 'open', gate: 'admin', handler, ...(autocomplete && { autocomplete }) });
 
 module.exports = {
     name: 'games',
     commands: [
         admin('create_campaign', create_campaign),
-        admin('announce_game', announce_game),
+        admin('announce_game', announce_game, gamePicker),
         // No refusal: the handler shows unreleased games to the bot_legacy view only.
         { name: 'list_games', policy: 'open', gate: 'bot_legacy', handler: list_games },
-        admin('edit_game', edit_game),
-        admin('get_players', get_players),
-        admin('manipulate_table', manipulate_table),
+        admin('edit_game', edit_game, [{ name: 'game / field', policy: 'open', handle: editGameAutocomplete }]),
+        admin('get_players', get_players, gamePicker),
+        admin('manipulate_table', manipulate_table, gamePicker),
         admin('archive', archive),
         admin('archive-config', archiveConfig),
     ],

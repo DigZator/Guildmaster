@@ -26,4 +26,10 @@ function routesOfKinds(kinds) {
     return out;
 }
 
-module.exports = { loadRegistryData, routesOfKinds };
+// Commands as { name, owner, autocomplete: [entry names] }, sorted by name.
+function commandsOfRegistry() {
+    const { registry } = loadRegistryData();
+    return registry.commands.map(c => ({ name: c.name, owner: c.owner, autocomplete: c.autocomplete.map(a => a.name) })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+module.exports = { loadRegistryData, routesOfKinds, commandsOfRegistry };

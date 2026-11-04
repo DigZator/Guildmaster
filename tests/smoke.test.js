@@ -6,7 +6,7 @@ const { spawnSync } = require('child_process');
 const { testEnv } = require('./helpers/env');
 const { root } = require('./helpers/repo');
 const { buildCommandSnapshot, getButtonRoutes } = require('./helpers/snapshots');
-const { scanCommandRoutes } = require('./helpers/scan');
+const { commandsOfRegistry } = require('./helpers/registryRoutes');
 
 test('every module loads; every relative require resolves; every imported name is exported', () => {
     const result = spawnSync(process.execPath, [path.join(__dirname, 'helpers', 'loadAll.js')], {
@@ -23,7 +23,7 @@ test('every module loads; every relative require resolves; every imported name i
 
 test('every registered command has a handler branch, and every branch has a registered command', () => {
     const registered = buildCommandSnapshot().commands.map(c => c.name);
-    const routed = scanCommandRoutes().handlers.map(h => h.command);
+    const routed = commandsOfRegistry().map(c => c.name);
     assert.deepEqual(registered.filter(n => !routed.includes(n)), [], 'registered but not routed');
     assert.deepEqual(routed.filter(n => !registered.includes(n)), [], 'routed but not registered');
 });

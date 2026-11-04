@@ -65,6 +65,7 @@ function addCommand(commands, owner, cmd, problems) {
     }
     (cmd.autocomplete || []).forEach((entry, i) => {
         const at = `${where} autocomplete #${i + 1}`;
+        checkGate(at, entry, problems);
         if (typeof entry.handle !== 'function') problems.push(`${at}: no handle function`);
         if (typeof entry.policy !== 'string') problems.push(`${at}: no policy`);
         else { try { getPolicy(entry.policy); } catch { problems.push(`${at}: unknown policy "${entry.policy}"`); } }
