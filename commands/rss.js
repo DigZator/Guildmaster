@@ -1,16 +1,11 @@
 const { EmbedBuilder } = require('discord.js');
 const { getFeeds, addFeed, removeFeed } = require('../utils/rssStore');
 const Parser = require('rss-parser');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { FEEDS_CHANNEL_ID } = require('../data/channels');
 
 const parser = new Parser();
 
 module.exports = async (interaction, client) => {
-    if (!isAdminChannel(interaction, 'botChannelAdmin')) {
-        return interaction.reply({ content: '❌ This command can only be used by admins in the admin channel.', flags: 64 });
-    }
-
     const sub = interaction.options.getSubcommand();
 
     if (sub === 'add') {

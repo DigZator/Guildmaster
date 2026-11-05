@@ -1131,11 +1131,6 @@
         "hr": 1
       }
     },
-    "commands/anon_msg.js": {
-      "isAdminChannel": {
-        "botChannelAdmin": 1
-      }
-    },
     "commands/channelFile.js": {
       "isAdminChannel": {
         "botAdmin": 1,
@@ -1200,16 +1195,6 @@
     "commands/list_games.js": {
       "isAdminChannel": {
         "bot (default)": 1
-      }
-    },
-    "commands/rss.js": {
-      "isAdminChannel": {
-        "botChannelAdmin": 1
-      }
-    },
-    "commands/schedule_activation.js": {
-      "isAdminChannel": {
-        "botChannelAdmin": 1
       }
     },
     "commands/verification.js": {

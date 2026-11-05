@@ -1,5 +1,4 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { removeMessage, getMessage } = require('../utils/anonStore');
 const {
     MAX_FILES,
@@ -28,10 +27,6 @@ const ADD_PROMPT =
     `You may also attach up to ${MAX_FILES} files (images, etc.).\n\nYou have 5 minutes.`;
 
 module.exports = async (interaction, client) => {
-    if (!isAdminChannel(interaction, 'botChannelAdmin')) {
-        return interaction.reply({ content: '❌ This command can only be used by admins in the admin channel.', flags: 64 });
-    }
-
     const sub = interaction.options.getSubcommand();
 
     if (sub === 'add') {

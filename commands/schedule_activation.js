@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const { getCachedGames } = require('../utils/cache');
 const {
     getQueue,
@@ -42,11 +41,6 @@ function buildQueueSummary(data) {
 }
 
 module.exports = async (interaction, client) => {
-    if (!isAdminChannel(interaction, 'botChannelAdmin')) {
-        await interaction.reply({ content: '❌ This command can only be used by admins in the mod channel.', flags: 64 });
-        return;
-    }
-
     const sub = interaction.options.getSubcommand();
 
     if (sub === 'add') {

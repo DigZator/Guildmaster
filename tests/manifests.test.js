@@ -69,6 +69,13 @@ const DENIED_TEXT = '❌ You don\'t have permission to run this.';
 const ENFORCED_COMMANDS = {
     create_campaign: 'admin', announce_game: 'admin', edit_game: 'admin', get_players: 'admin',
     manipulate_table: 'admin', archive: 'admin', 'archive-config': 'admin',
+    rss: 'admin_ctrl', anon_msg: 'admin_ctrl', schedule_activation: 'admin_ctrl',
+};
+// Commands whose refusal is not the router's default: the exact text their handler used to give.
+const COMMAND_DENIED = {
+    rss: '❌ This command can only be used by admins in the admin channel.',
+    anon_msg: '❌ This command can only be used by admins in the admin channel.',
+    schedule_activation: '❌ This command can only be used by admins in the mod channel.',
 };
 const ENFORCED_SUBCOMMANDS = {
     'the_long_rest setup': 'admin', 'the_long_rest reindex': 'admin',
@@ -102,7 +109,7 @@ test('an enforced route no longer records a gate (the check is in the router now
 });
 
 test('the refusal text of each enforced route is the one its handler used to give', () => {
-    for (const name of Object.keys(ENFORCED_COMMANDS)) assert.equal(registry.commands.get(name).denied, undefined, `${name} uses the router default`);
+    for (const name of Object.keys(ENFORCED_COMMANDS)) assert.equal(registry.commands.get(name).denied, COMMAND_DENIED[name], `${name} refusal text`);
     for (const key of Object.keys(ENFORCED_SUBCOMMANDS)) {
         const [name, ...rest] = key.split(' ');
         assert.ok(OWN_DENIED.has(name));

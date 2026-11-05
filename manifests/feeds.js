@@ -41,14 +41,17 @@ async function scheduleActivationAutocomplete(interaction) {
     }
 }
 
-const adminCtrl = (name, handler, autocomplete) => ({ name, policy: 'open', gate: 'admin_ctrl', handler, autocomplete });
+// Enforced by the router: the admin role AND the control channel. Each command keeps the refusal it used to give.
+const adminCtrl = (name, denied, handler, autocomplete) => ({ name, policy: 'admin_ctrl', denied, handler, autocomplete });
+const ADMIN_CHANNEL_ONLY = '❌ This command can only be used by admins in the admin channel.';
+const MOD_CHANNEL_ONLY = '❌ This command can only be used by admins in the mod channel.';
 
 module.exports = {
     name: 'feeds',
     commands: [
-        adminCtrl('rss', rss),
-        adminCtrl('anon_msg', anon_msg, [{ name: 'keys', policy: 'open', handle: anonKeyAutocomplete }]),
-        adminCtrl('schedule_activation', schedule_activation, [{ name: 'add / remove', policy: 'open', handle: scheduleActivationAutocomplete }]),
+        adminCtrl('rss', ADMIN_CHANNEL_ONLY, rss),
+        adminCtrl('anon_msg', ADMIN_CHANNEL_ONLY, anon_msg, [{ name: 'keys', policy: 'open', handle: anonKeyAutocomplete }]),
+        adminCtrl('schedule_activation', MOD_CHANNEL_ONLY, schedule_activation, [{ name: 'add / remove', policy: 'open', handle: scheduleActivationAutocomplete }]),
     ],
     buttons: {
         exact: routes('open', anonMessages.exact),
