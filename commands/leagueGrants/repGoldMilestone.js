@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../../utils/isAdminChannel');
 const { adjustCharacterNumber } = require('../../utils/leagueNotion');
 const { applyMilestones } = require('../../utils/milestones');
 const { formatCurrency } = require('../../utils/currency');
@@ -8,10 +7,6 @@ const { REP_MAX, resolveTarget } = require('./shared');
 
 async function runAdminGrant(interaction, config) {
     const { label, getAmount, validateAmount, mutate, buildEmbed, buildReply } = config;
-
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
 
     const amount = getAmount(interaction);
     if (validateAmount) {

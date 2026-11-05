@@ -1,12 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../../utils/isAdminChannel');
 const { findCharacterStatusIssues } = require('../../utils/leagueNotion');
 
 async function handleAdminAuditCharacters(interaction) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
-
     await interaction.deferReply({ flags: 64 });
 
     let result;

@@ -1,4 +1,3 @@
-const { isAdminChannel } = require('../../utils/isAdminChannel');
 const { handleShopBrowse, handleShopSearch, handleShopInfo } = require('./actions/shopBrowse');
 const { handleShopBuy } = require('./actions/shopBuy');
 const { handleShopSell } = require('./actions/shopSell');
@@ -27,10 +26,6 @@ async function leagueShop(interaction) {
 }
 
 async function leagueAdminShop(interaction) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
-
     const sub = interaction.options.getSubcommand();
     switch (sub) {
         case 'stock':   	return handleAdminShopStock(interaction);
@@ -41,10 +36,6 @@ async function leagueAdminShop(interaction) {
 }
 
 async function leagueAdminCatalogue(interaction) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
-
     const sub = interaction.options.getSubcommand();
     switch (sub) {
         case 'sync':        return handleAdminCatalogueSync(interaction);

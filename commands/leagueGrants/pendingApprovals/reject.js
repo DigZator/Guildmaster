@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../../../utils/isAdminChannel');
 const { setDowntimeStatus } = require('../../../utils/leagueNotion');
 const { getById, removeById, updateById } = require('../../../utils/pendingActions');
 const { rejectReportLine } = require('../../../utils/questReportAppliers');
@@ -8,10 +7,6 @@ const { sendAdminLog } = require('../../../utils/adminLog');
 
 // ─── /leagueadmin reject ──────────────────────────────────────────────────────────────────
 async function handleReject(interaction) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
-
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
     const reason = interaction.options.getString('reason');
     const lineId = interaction.options.getString('line');

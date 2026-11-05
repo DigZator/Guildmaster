@@ -1146,51 +1146,11 @@
         "hr": 1
       }
     },
-    "commands/leagueGrants/audit.js": {
-      "isAdminChannel": {
-        "league": 1
-      }
-    },
-    "commands/leagueGrants/items.js": {
-      "isAdminChannel": {
-        "league": 1
-      }
-    },
-    "commands/leagueGrants/pendingApprovals/approve.js": {
-      "isAdminChannel": {
-        "league": 1
-      }
-    },
-    "commands/leagueGrants/pendingApprovals/clear.js": {
-      "isAdminChannel": {
-        "league": 1
-      }
-    },
     "commands/leagueGrants/pendingApprovals/dashboard.js": {
       "roles.cache": 1
     },
-    "commands/leagueGrants/pendingApprovals/pending.js": {
-      "isAdminChannel": {
-        "league": 1
-      }
-    },
-    "commands/leagueGrants/pendingApprovals/reject.js": {
-      "isAdminChannel": {
-        "league": 1
-      }
-    },
-    "commands/leagueGrants/repGoldMilestone.js": {
-      "isAdminChannel": {
-        "league": 1
-      }
-    },
     "commands/leagueQuest.js": {
       "roles.cache": 1
-    },
-    "commands/leagueShop/command.js": {
-      "isAdminChannel": {
-        "league": 2
-      }
     },
     "commands/list_games.js": {
       "isAdminChannel": {

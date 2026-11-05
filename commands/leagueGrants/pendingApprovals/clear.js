@@ -1,14 +1,9 @@
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../../../utils/isAdminChannel');
 const { getById, removeById } = require('../../../utils/pendingActions');
 const { sendAdminLog } = require('../../../utils/adminLog');
 
 // ─── /leagueadmin clear ────────────────────────────────────────────────────────
 async function handleClear(interaction) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
-
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
     await interaction.deferReply({ flags: 64 });
 

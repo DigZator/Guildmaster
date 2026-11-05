@@ -70,12 +70,14 @@ const ENFORCED_COMMANDS = {
     create_campaign: 'admin', announce_game: 'admin', edit_game: 'admin', get_players: 'admin',
     manipulate_table: 'admin', archive: 'admin', 'archive-config': 'admin',
     rss: 'admin_ctrl', anon_msg: 'admin_ctrl', schedule_activation: 'admin_ctrl',
+    leagueadmin: 'league_legacy',
 };
 // Commands whose refusal is not the router's default: the exact text their handler used to give.
 const COMMAND_DENIED = {
     rss: '❌ This command can only be used by admins in the admin channel.',
     anon_msg: '❌ This command can only be used by admins in the admin channel.',
     schedule_activation: '❌ This command can only be used by admins in the mod channel.',
+    leagueadmin: '❌ You must be an admin or use this in the league admin channel.',
 };
 const ENFORCED_SUBCOMMANDS = {
     'the_long_rest setup': 'admin', 'the_long_rest reindex': 'admin',

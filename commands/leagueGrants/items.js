@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../../utils/isAdminChannel');
 const { getActiveCharacter, createInventoryItem } = require('../../utils/leagueNotion');
 const { getCatalogueItemByCode, defaultPriceFor } = require('../../utils/5etoolsCatalogue');
 const { sendAdminLog } = require('../../utils/adminLog');
@@ -27,10 +26,6 @@ async function resolveItemAssignment(interaction, label) {
 
 async function runAdminItemGrant(interaction, config) {
     const { label, replyVerb, embedTitle, resolveItem, successMessage } = config;
-
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
 
     await interaction.deferReply({ flags: 64 });
 

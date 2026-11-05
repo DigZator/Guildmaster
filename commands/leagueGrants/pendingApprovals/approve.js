@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../../../utils/isAdminChannel');
 const {
     getActiveCharacter,
     adjustCharacterNumber,
@@ -19,10 +18,6 @@ const { sendAdminLog } = require('../../../utils/adminLog');
 
 // ─── /leagueadmin approve ─────────────────────────────────────────────────────
 async function handleApprove(interaction, client) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
-
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
     await interaction.deferReply({ flags: 64 });
 

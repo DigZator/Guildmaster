@@ -115,6 +115,7 @@ async function leagueAutocomplete(interaction) {
     }
 }
 
+const LEAGUE_ADMIN_DENIED = '❌ You must be an admin or use this in the league admin channel.';
 const leagueAutocompleteEntries = [{ name: 'league / leagueadmin / leaguedm', policy: 'open', handle: leagueAutocomplete }];
 
 module.exports = {
@@ -122,8 +123,9 @@ module.exports = {
     commands: [
         // Player commands: no role check today (several check for an active character inside the handler).
         { name: 'league', policy: 'open', handler: league, autocomplete: leagueAutocompleteEntries },
-        // Everything under /leagueadmin: admin role OR the league-admin / control channel.
-        { name: 'leagueadmin', policy: 'open', gate: 'league_legacy', handler: leagueAdmin, autocomplete: leagueAutocompleteEntries },
+        // Everything under /leagueadmin, enforced by the router: admin role OR the league-admin / control channel
+        // (the old quirk, kept on purpose). Every subcommand used to check this at the top of its handler.
+        { name: 'leagueadmin', policy: 'league_legacy', denied: LEAGUE_ADMIN_DENIED, handler: leagueAdmin, autocomplete: leagueAutocompleteEntries },
         { name: 'leaguedm', policy: 'open', gate: 'own: DM role', handler: leagueDM, autocomplete: leagueAutocompleteEntries },
     ],
     buttons: {

@@ -1,13 +1,8 @@
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../../../utils/isAdminChannel');
 const { getAll } = require('../../../utils/pendingActions');
 
 // ─── /leagueadmin pending ─────────────────────────────────────────────────────
 async function handlePending(interaction) {
-    if (!isAdminChannel(interaction, 'league')) {
-        return interaction.reply({ content: '❌ You must be an admin or use this in the league admin channel.', flags: 64 });
-    }
-
     await interaction.deferReply({ flags: 64 });
 
     const actions = getAll().filter(a => a.status === 'pending' || a.status === 'partially_failed');
