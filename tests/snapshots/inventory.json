@@ -1116,11 +1116,6 @@
     ]
   },
   "permissionChecks": {
-    "buttons/channelFile.js": {
-      "isAdminChannel": {
-        "cmd": 2
-      }
-    },
     "buttons/config.js": {
       "isAdminChannel": {
         "botAdmin": 1
@@ -1129,12 +1124,6 @@
     "buttons/directLine.js": {
       "isAdminChannel": {
         "hr": 1
-      }
-    },
-    "commands/channelFile.js": {
-      "isAdminChannel": {
-        "botAdmin": 1,
-        "cmd": 1
       }
     },
     "commands/create_campaign/preflight.js": {

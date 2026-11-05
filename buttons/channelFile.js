@@ -1,10 +1,7 @@
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const jobsStore = require('../utils/channelFileJobs');
 const review = require('../utils/channelFileReview');
 const { runGuards } = require('../utils/channelFileGuards');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
-
-const DENY = { content: '❌ You do not have permission to use this.', flags: 64 };
 
 // ─── Confirm (from the command's confirmation message) ──────────────────────
 async function handleConfirm(interaction, client, [, , targetId, locationId, visibility]) {
@@ -46,11 +43,6 @@ async function handleConfirm(interaction, client, [, , targetId, locationId, vis
 
 // ─── Review message buttons ─────────────────────────────────────────────────
 async function handleButton(interaction, client) {
-    if (!isAdminChannel(interaction, 'cmd')) {
-        await interaction.reply(DENY);
-        return;
-    }
-
     const parts = interaction.customId.split(':');
 
     if (parts[1] === 'cancel') {
@@ -87,10 +79,6 @@ async function handleButton(interaction, client) {
 
 // ─── Proceed modal ──────────────────────────────────────────────────────────
 async function handleModal(interaction, client) {
-    if (!isAdminChannel(interaction, 'cmd')) {
-        await interaction.reply(DENY);
-        return;
-    }
     const [, jobId, action] = interaction.customId.split(':');
     if (action !== 'proceedModal') {
         await interaction.reply({ content: '❌ Unknown form.', flags: 64 });

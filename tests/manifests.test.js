@@ -70,7 +70,7 @@ const ENFORCED_COMMANDS = {
     create_campaign: 'admin', announce_game: 'admin', edit_game: 'admin', get_players: 'admin',
     manipulate_table: 'admin', archive: 'admin', 'archive-config': 'admin',
     rss: 'admin_ctrl', anon_msg: 'admin_ctrl', schedule_activation: 'admin_ctrl',
-    leagueadmin: 'league_legacy', direct_line: 'hr',
+    leagueadmin: 'league_legacy', direct_line: 'hr', channel_file: 'admin',
 };
 // Commands whose refusal is not the router's default: the exact text their handler used to give.
 const COMMAND_DENIED = {
@@ -79,12 +79,17 @@ const COMMAND_DENIED = {
     schedule_activation: '❌ This command can only be used by admins in the mod channel.',
     leagueadmin: '❌ You must be an admin or use this in the league admin channel.',
     direct_line: '❌ Only HR can use this command.',
+    // channel_file keeps the router's default text (undefined), like the game commands.
 };
 const ENFORCED_SUBCOMMANDS = {
     'the_long_rest setup': 'admin', 'the_long_rest reindex': 'admin',
     'ticket setup': 'admin', 'ticket config': 'admin', 'ticket reset_counter': 'admin',
     'ticket type add': 'admin', 'ticket type edit': 'admin', 'ticket type remove': 'admin', 'ticket type list': 'admin',
+    'channel_file file': 'cmd',   // the rest of /channel_file (protect add/remove/list) is the command's own 'admin'
 };
+// Button and modal routes the router enforces, and the refusal each one gives.
+const CHANNEL_FILE_TEXT = '❌ You do not have permission to use this.';
+const ENFORCED_ROUTES = { button: { 'channelFile:': 'cmd' }, modal: { 'channelFile:': 'cmd' } };
 const OWN_DENIED = new Set(['the_long_rest', 'ticket']);
 
 test('the routes the router enforces are exactly the pinned list; everything else is still open', () => {
@@ -97,8 +102,10 @@ test('the routes the router enforces are exactly the pinned list; everything els
     }
     assert.deepEqual(commands, ENFORCED_COMMANDS);
     assert.deepEqual(subcommands, ENFORCED_SUBCOMMANDS);
-    for (const t of Object.values(registry.tables)) {
-        for (const spec of [...t.exact.values(), ...t.prefix]) assert.equal(spec.policy, 'open', spec.owner);
+    for (const [kind, t] of Object.entries(registry.tables)) {
+        for (const [id, spec] of [...t.exact.entries(), ...t.prefix.map(p => [p.id, p])]) {
+            assert.equal(spec.policy, ENFORCED_ROUTES[kind]?.[id] ?? 'open', `${kind} ${id} (${spec.owner})`);
+        }
     }
 });
 
@@ -109,14 +116,23 @@ test('an enforced route no longer records a gate (the check is in the router now
             if (spec.policy !== 'open') assert.equal(spec.gate, undefined, `${cmd.name} ${key}`);
         }
     }
+    for (const [kind, t] of Object.entries(registry.tables)) {
+        for (const spec of [...t.exact.values(), ...t.prefix]) {
+            if (spec.policy !== 'open') assert.equal(spec.gate, undefined, `${kind} ${spec.id ?? ''} (${spec.owner})`);
+        }
+    }
 });
 
 test('the refusal text of each enforced route is the one its handler used to give', () => {
     for (const name of Object.keys(ENFORCED_COMMANDS)) assert.equal(registry.commands.get(name).denied, COMMAND_DENIED[name], `${name} refusal text`);
     for (const key of Object.keys(ENFORCED_SUBCOMMANDS)) {
         const [name, ...rest] = key.split(' ');
-        assert.ok(OWN_DENIED.has(name));
-        assert.equal(registry.commands.get(name).subcommands[rest.join(' ')].denied, DENIED_TEXT, key);
+        // /channel_file file has no text of its own: it refuses with the router's default, like its old handler.
+        assert.ok(OWN_DENIED.has(name) || name === 'channel_file');
+        assert.equal(registry.commands.get(name).subcommands[rest.join(' ')].denied, name === 'channel_file' ? undefined : DENIED_TEXT, key);
+    }
+    for (const [kind, ids] of Object.entries(ENFORCED_ROUTES)) {
+        for (const id of Object.keys(ids)) assert.equal(findCustomIdRoute(registry, kind, id).denied, CHANNEL_FILE_TEXT, `${kind} ${id}`);
     }
 });
 
@@ -170,7 +186,7 @@ test('buttons: each manifest gate matches the snapshot', () => {
     for (const entry of routePerms.buttons) {
         const spec = findCustomIdRoute(registry, 'button', entry.route);
         assert.ok(spec, `no manifest route for button ${entry.route}`);
-        assertGate(entry.route, reachedPolicy(entry), spec.gate);
+        assertGate(entry.route, reachedPolicy(entry), spec.policy !== 'open' ? spec.policy : spec.gate);
     }
 });
 
@@ -181,7 +197,7 @@ test('modals and selects: each is routed, and no named check was reached by the 
             const id = entry.route.replace(/ \(user select\)$/, '');
             const spec = findCustomIdRoute(registry, user ? 'userSelect' : kind, id);
             assert.ok(spec, `no manifest route for ${kind} ${entry.route}`);
-            assertGate(entry.route, reachedPolicy(entry), spec.gate);
+            assertGate(entry.route, reachedPolicy(entry), spec.policy !== 'open' ? spec.policy : spec.gate);
         }
     }
 });
@@ -197,8 +213,7 @@ test('every source file that still calls isAdminChannel belongs to a route that 
     // them, so check the manifests directly.
     assert.equal(findCustomIdRoute(registry, 'button', 'config:x').gate, 'admin');
     assert.equal(findCustomIdRoute(registry, 'button', 'dl:x').gate, 'hr');
-    assert.equal(findCustomIdRoute(registry, 'button', 'channelFile:x').gate, 'cmd');
-    assert.equal(findCustomIdRoute(registry, 'modal', 'channelFile:x').gate, 'cmd');
+    // The channelFile: button and modal moved into the router (policy 'cmd'), so they no longer record a gate.
 });
 
 test('the ticket modal handler returning false still means "unhandled"', () => {

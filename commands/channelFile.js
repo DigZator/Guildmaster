@@ -1,5 +1,4 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const {
     listProtected, addProtected, removeProtected,
     getAlwaysProtectedIds, runGuards,
@@ -8,15 +7,8 @@ const jobsStore = require('../utils/channelFileJobs');
 const { typeLabel } = require('../utils/channelFiler');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
 
-const DENY = { content: '❌ You do not have permission to use this command.', flags: 64 };
-
 // ─── protect ────────────────────────────────────────────────────────────────
 async function handleProtect(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) {
-        await interaction.reply(DENY);
-        return;
-    }
-
     const sub = interaction.options.getSubcommand();
 
     if (sub === 'list') {
@@ -65,11 +57,6 @@ async function handleProtect(interaction) {
 
 // ─── file ───────────────────────────────────────────────────────────────────
 async function handleFile(interaction, client) {
-    if (!isAdminChannel(interaction, 'cmd')) {
-        await interaction.reply(DENY);
-        return;
-    }
-
     await interaction.deferReply({ flags: 64 });
 
     const target = await client.channels.fetch(interaction.options.getChannel('target', true).id);
