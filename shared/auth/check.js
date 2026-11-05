@@ -1,6 +1,7 @@
 const { POLICIES, COMBINE_MODES } = require('./policies');
 const { CHANNEL_ENV, channelIdsFor, currentChannelIds } = require('./channels');
 const { ROLE_VARS } = require('../../config/roleVars');
+const { PermissionFlagsBits } = require('discord.js');
 
 function knownPolicies() {
     return Object.keys(POLICIES);
@@ -31,6 +32,13 @@ function hasRole(interaction, policy, env) {
     return interaction?.member?.roles?.cache?.some(role => roleIds.includes(role.id)) ?? false;
 }
 
+// Discord's own permissions (e.g. Administrator), as the interaction reports them for the caller in this channel.
+function hasPermission(interaction, policy) {
+    const perms = interaction?.memberPermissions;
+    if (!perms || typeof perms.has !== 'function') return false;
+    return policy.permissions.some(name => perms.has(name));
+}
+
 function inChannel(interaction, policy, env) {
     const channels = channelIdsFor(policy.where, env);
     return currentChannelIds(interaction).some(id => channels.includes(id));
@@ -39,6 +47,7 @@ function inChannel(interaction, policy, env) {
 // Does this interaction pass the named policy?
 function can(policyName, interaction, env = process.env) {
     const policy = getPolicy(policyName);
+    if (policy.permissions.length > 0 && hasPermission(interaction, policy)) return true;
     switch (effectiveCombine(policy, env)) {
         case 'open':
             return true;
@@ -65,6 +74,9 @@ function validate(policies = POLICIES, env = process.env) {
         }
         for (const key of policy.where) {
             if (!CHANNEL_ENV[key]) problems.push(`policy "${policy.name}" uses unknown channel key "${key}"`);
+        }
+        for (const name of policy.permissions ?? []) {
+            if (!(name in PermissionFlagsBits)) problems.push(`policy "${policy.name}" uses unknown Discord permission "${name}"`);
         }
         if (policy.combine !== 'open' && !COMBINE_MODES.includes(policy.combine)) {
             problems.push(`policy "${policy.name}" has unknown combine mode "${policy.combine}"`);

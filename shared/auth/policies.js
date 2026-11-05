@@ -32,12 +32,17 @@ const definitions = {
     hr: { who: ['HR_ROLE_ID'], where: [], combine: 'role', legacy: 'hr' },
     cmd: { who: ['CMD_ROLE_ID'], where: [], combine: 'role', legacy: 'cmd' },
 
+    // The Admins role, or anyone Discord itself lets administer the server (the Administrator permission).
+    // This is what /verification has always allowed (utils/verificationAdmin.js). `permissions` is the only
+    // policy field that grants access whatever `combine` says, so it is declared on exactly the policies that mean it.
+    admin_or_discord_admin: { who: ['ADMINS_ROLE_ID'], where: [], combine: 'role', permissions: ['Administrator'] },
+
     // The Long Rest moderators: Admins or Clerk of Mortal Affairs (config/tlrRoles.js isTlrMod).
     tlr_mod: { who: ['ADMINS_ROLE_ID', 'CLERK_OF_MORTAL_AFFAIRS_ROLE_ID'], where: [], combine: 'role' },
 };
 
 const POLICIES = Object.freeze(Object.fromEntries(
-    Object.entries(definitions).map(([name, def]) => [name, Object.freeze({ legacy: null, modeEnv: null, name, ...def, who: Object.freeze([...def.who]), where: Object.freeze([...def.where]) })]),
+    Object.entries(definitions).map(([name, def]) => [name, Object.freeze({ legacy: null, modeEnv: null, name, ...def, who: Object.freeze([...def.who]), where: Object.freeze([...def.where]), permissions: Object.freeze([...(def.permissions ?? [])]) })]),
 ));
 
 module.exports = { POLICIES, COMBINE_MODES };

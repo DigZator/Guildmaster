@@ -8,6 +8,7 @@ const assert = require('node:assert/strict');
 const { testEnv } = require('./helpers/env');
 const { isAdminChannel, ADMIN_CONFIG } = require('../utils/isAdminChannel');
 const { isTlrMod } = require('../config/tlrRoles');
+const { isVerificationAdmin } = require('../utils/verificationAdmin');
 const auth = require('../shared/auth');
 const { ROLE_VARS } = require('../config/roleVars');
 
@@ -71,6 +72,46 @@ test('the ADMIN_CHECK_MODE_* overrides behave like the old modes, including the 
     }
 });
 
+// Discord permissions as an interaction reports them: memberPermissions.has(name).
+const permissionSets = {
+    'no permissions': undefined,
+    'Administrator': { has: (name) => name === 'Administrator' },
+    'other permissions only': { has: (name) => name === 'ManageMessages' },
+};
+
+test('policy "admin_or_discord_admin" answers exactly like isVerificationAdmin for every role, place and Discord permission', () => {
+    for (const { label, interaction } of everyone()) {
+        for (const [permLabel, memberPermissions] of Object.entries(permissionSets)) {
+            const i = { ...interaction, memberPermissions };
+            assert.equal(auth.can('admin_or_discord_admin', i), isVerificationAdmin(i), `${label} / ${permLabel}`);
+        }
+    }
+});
+
+test('"admin_or_discord_admin": the Admins role passes, Administrator alone passes, neither fails, and HR/CMD do not pass', () => {
+    const asRole = (roles, memberPermissions) => ({ member: { roles: { cache: roles.map(id => ({ id })) } }, channel: { id: ELSEWHERE }, memberPermissions });
+    assert.equal(auth.can('admin_or_discord_admin', asRole([ROLE.admin])), true);
+    assert.equal(auth.can('admin_or_discord_admin', asRole([], { has: () => true })), true);
+    assert.equal(auth.can('admin_or_discord_admin', asRole([ROLE.hr, ROLE.cmd], { has: () => false })), false);
+    assert.equal(auth.can('admin_or_discord_admin', asRole([])), false);
+    assert.equal(auth.can('admin_or_discord_admin', {}), false);
+});
+
+test('the Discord Administrator permission never loosens a policy that does not declare it', () => {
+    const admin = { member: { roles: { cache: [] } }, channel: { id: CTRL }, memberPermissions: { has: () => true } };
+    for (const policy of Object.values(auth.POLICIES)) {
+        if (policy.permissions.length > 0 || policy.combine === 'open') continue;
+        assert.equal(auth.can(policy.name, admin), auth.can(policy.name, { ...admin, memberPermissions: undefined }), policy.name);
+    }
+});
+
+test('validate() reports a Discord permission name that does not exist', () => {
+    const bad = { a: { name: 'a', who: [], where: [], combine: 'role', permissions: ['Administator'] } };
+    const problems = auth.validate(bad, {});
+    assert.equal(problems.length, 1, problems.join('\n'));
+    assert.match(problems[0], /Administator/);
+});
+
 test('policy "tlr_mod" answers exactly like isTlrMod', () => {
     for (const { label, interaction } of everyone()) {
         assert.equal(auth.can('tlr_mod', interaction), isTlrMod(interaction.member), label);
@@ -124,4 +165,5 @@ test('every role a policy uses is registered in config/roleVars.js', () => {
 test('policies are frozen so nothing can loosen one at runtime', () => {
     assert.throws(() => { 'use strict'; auth.POLICIES.admin.combine = 'open'; }, TypeError);
     assert.throws(() => { 'use strict'; auth.POLICIES.admin.who.push('HR_ROLE_ID'); }, TypeError);
+    assert.throws(() => { 'use strict'; auth.POLICIES.admin_or_discord_admin.permissions.push('ManageMessages'); }, TypeError);
 });
