@@ -1900,19 +1900,19 @@
     {
       "route": "verification setup",
       "results": {
-        "botAdmin=false | (deferReply)": [
+        "admin_or_discord_admin=false | ❌ You don't have permission to run this.": [
           "nobody",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
-          "discord-administrator",
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botAdmin=true | (deferReply)": [
+        "admin_or_discord_admin=true | (deferReply)": [
           "admins-role",
+          "discord-administrator",
           "admins-role@ctrl-channel"
         ]
       }
@@ -1920,19 +1920,19 @@
     {
       "route": "verification settings",
       "results": {
-        "botAdmin=false | (deferReply)": [
+        "admin_or_discord_admin=false | ❌ You don't have permission to run this.": [
           "nobody",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
-          "discord-administrator",
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botAdmin=true | (deferReply)": [
+        "admin_or_discord_admin=true | (deferReply)": [
           "admins-role",
+          "discord-administrator",
           "admins-role@ctrl-channel"
         ]
       }
@@ -1940,19 +1940,19 @@
     {
       "route": "verification force",
       "results": {
-        "botAdmin=false | (deferReply)": [
+        "admin_or_discord_admin=false | ❌ You don't have permission to run this.": [
           "nobody",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
-          "discord-administrator",
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botAdmin=true | (deferReply)": [
+        "admin_or_discord_admin=true | (deferReply)": [
           "admins-role",
+          "discord-administrator",
           "admins-role@ctrl-channel"
         ]
       }
@@ -1960,19 +1960,19 @@
     {
       "route": "verification pending",
       "results": {
-        "botAdmin=false | (embed/components)": [
+        "admin_or_discord_admin=false | ❌ You don't have permission to run this.": [
           "nobody",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
-          "discord-administrator",
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botAdmin=true | (embed/components)": [
+        "admin_or_discord_admin=true | (embed/components)": [
           "admins-role",
+          "discord-administrator",
           "admins-role@ctrl-channel"
         ]
       }
@@ -1980,19 +1980,19 @@
     {
       "route": "verification extend",
       "results": {
-        "botAdmin=false | (deferReply)": [
+        "admin_or_discord_admin=false | ❌ You don't have permission to run this.": [
           "nobody",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
-          "discord-administrator",
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botAdmin=true | (deferReply)": [
+        "admin_or_discord_admin=true | (deferReply)": [
           "admins-role",
+          "discord-administrator",
           "admins-role@ctrl-channel"
         ]
       }
@@ -2000,19 +2000,19 @@
     {
       "route": "verification status",
       "results": {
-        "botAdmin=false | (embed/components)": [
+        "admin_or_discord_admin=false | ❌ You don't have permission to run this.": [
           "nobody",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
-          "discord-administrator",
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botAdmin=true | (embed/components)": [
+        "admin_or_discord_admin=true | (embed/components)": [
           "admins-role",
+          "discord-administrator",
           "admins-role@ctrl-channel"
         ]
       }
@@ -3212,19 +3212,19 @@
     {
       "route": "verification:pending:zz",
       "results": {
-        "botAdmin=false | (embed/components)": [
+        "admin_or_discord_admin=false | ❌ You don't have permission to do that.": [
           "nobody",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
           "dm-role",
           "player-roles",
-          "discord-administrator",
           "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "botAdmin=true | (embed/components)": [
+        "admin_or_discord_admin=true | (embed/components)": [
           "admins-role",
+          "discord-administrator",
           "admins-role@ctrl-channel"
         ]
       }

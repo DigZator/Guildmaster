@@ -6,13 +6,15 @@ const ownVerify = { gate: 'own: roles and Discord permissions (utils/verificatio
 
 module.exports = {
     name: 'verification',
-    // NOT a plain admin gate: utils/verificationAdmin.js also lets in anyone with the Discord Administrator permission.
-    commands: [{ name: 'verification', policy: 'open', gate: 'own: Admins role OR Discord Administrator permission (utils/verificationAdmin.js)', handler: verification }],
+    // Enforced by the router with the Admins role OR the Discord Administrator permission (not a plain admin gate:
+    // anyone Discord lets administer the server has always passed). The refusal text is the command's own.
+    commands: [{ name: 'verification', policy: 'admin_or_discord_admin', denied: '❌ You don\'t have permission to run this.', handler: verification }],
     buttons: {
         exact: routes('open', verificationButtons.exact, ownVerify),
         prefix: {
             ...routes('open', verificationButtons.prefix, ownVerify),
-            'verification:pending:': route('open', verificationButtons.prefix['verification:pending:'], { gate: 'admin' }),
+            // The pager of /verification pending: same rule as the command, its own refusal text.
+            'verification:pending:': route('admin_or_discord_admin', verificationButtons.prefix['verification:pending:'], { denied: '❌ You don\'t have permission to do that.' }),
         },
     },
     modals: { exact: { 'verification:modal': route('open', (i, c) => require('../buttons/verification').handleModalSubmit(i, c), ownVerify) } },

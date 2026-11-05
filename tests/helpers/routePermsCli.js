@@ -139,13 +139,15 @@ const wrapped = (interaction, type = 'bot') => {
 require.cache[iacPath].exports = { ...realIac, isAdminChannel: wrapped, ...('isAdmin' in realIac ? { isAdmin: wrapped } : {}) };
 
 // Once a check moves from a handler into the router it is made by shared/auth instead. Record those calls under
-// the old type's name so a lifted check shows up in the snapshot exactly as it did before.
+// the old type's name so a lifted check shows up in the snapshot exactly as it did before. A policy that never
+// had an old type (admin_or_discord_admin) is recorded under its own name.
 const auth = require(path.join(root, 'shared/auth'));
 const realCan = auth.can;
 auth.can = (policyName, interaction, env) => {
     const result = realCan(policyName, interaction, env);
-    const legacy = auth.POLICIES[policyName] && auth.POLICIES[policyName].legacy;
-    if (legacy && gateLog) gateLog.push(`${legacy}=${result}`);
+    const policy = auth.POLICIES[policyName];
+    const recordedAs = policy && (policy.legacy ?? (policy.combine !== 'open' ? policy.name : null));
+    if (recordedAs && gateLog) gateLog.push(`${recordedAs}=${result}`);
     return result;
 };
 
@@ -184,6 +186,9 @@ function makeInteraction(kind, spec, persona, rec) {
     const base = {
         id: '500000000000000001', applicationId: E.CLIENT_ID, type: 2, locale: 'en-US',
         user, member, guild, guildId: E.GUILD_ID, channel, channelId: persona.channel,
+        // What Discord reports for the caller in this channel. Without it the catch-all proxy below answers with a
+        // truthy stub, so every persona would count as having the Administrator permission.
+        memberPermissions: { has: () => Boolean(persona.discordAdmin) },
         customId: spec.customId, commandName: spec.command, options, values: [],
         fields: { getTextInputValue: () => '', getField: () => ({ value: '' }), fields: new Map() },
         message: stub(), component: stub(), replied: false, deferred: false,

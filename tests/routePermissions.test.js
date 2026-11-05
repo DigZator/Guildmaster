@@ -58,11 +58,27 @@ test('route permissions: nobody and Discord Administrator alone never pass an is
     const offenders = [];
     for (const route of allRoutes(fresh)) {
         for (const [result, who] of gateResults(route)) {
-            if (!/=true/.test(result)) continue;
+            if (!/=true/.test(result) || /^admin_or_discord_admin=/.test(result)) continue;   // that policy admits Discord Administrator on purpose, see the next test
             for (const persona of ['nobody', 'discord-administrator']) if (who.includes(persona)) offenders.push(`${route.route}: ${persona} -> ${result}`);
         }
     }
     assert.deepEqual(offenders, []);
+});
+
+test('route permissions: admin_or_discord_admin (/verification) admits the Admins role and Discord Administrator, and nobody else', () => {
+    const seen = new Set();
+    for (const route of allRoutes(fresh)) {
+        for (const [result, who] of gateResults(route)) {
+            if (!/^admin_or_discord_admin=/.test(result)) continue;
+            seen.add(route.route);
+            const passed = /=true/.test(result);
+            for (const persona of who) {
+                const shouldPass = ['admins-role', 'admins-role@ctrl-channel', 'discord-administrator'].includes(persona);
+                assert.equal(passed, shouldPass, `${route.route}: ${persona}`);
+            }
+        }
+    }
+    assert.ok(seen.size >= 7, `only ${seen.size} routes reached the policy (6 subcommands and the pager button expected)`);
 });
 
 test('route permissions: documents current behavior: the league-admin channel alone passes league checks', () => {

@@ -18,7 +18,9 @@ const registry = loaded.registry && {
     commands: new Map(loaded.registry.commands.map(c => [c.name, c])),
     tables: Object.fromEntries(Object.entries(loaded.registry.tables).map(([kind, t]) => [kind, { exact: new Map(t.exact.map(s => [s.id, s])), prefix: t.prefix }])),
 };
+// What the snapshot records for a check: the old isAdminChannel type, or (for a policy that never had one) its own name.
 const policyForLegacy = Object.fromEntries(Object.values(POLICIES).filter(p => p.legacy).map(p => [p.legacy, p.name]));
+policyForLegacy.admin_or_discord_admin = 'admin_or_discord_admin';
 
 const keys = (map) => [...map.keys()].sort();
 const prefixes = (table) => table.prefix.map(p => p.id).sort();
@@ -71,7 +73,7 @@ const ENFORCED_COMMANDS = {
     manipulate_table: 'admin', archive: 'admin', 'archive-config': 'admin',
     rss: 'admin_ctrl', anon_msg: 'admin_ctrl', schedule_activation: 'admin_ctrl',
     leagueadmin: 'league_legacy', direct_line: 'hr', channel_file: 'admin',
-    config: 'admin',
+    config: 'admin', verification: 'admin_or_discord_admin',
 };
 // Commands whose refusal is not the router's default: the exact text their handler used to give.
 const COMMAND_DENIED = {
@@ -80,6 +82,7 @@ const COMMAND_DENIED = {
     schedule_activation: '❌ This command can only be used by admins in the mod channel.',
     leagueadmin: '❌ You must be an admin or use this in the league admin channel.',
     direct_line: '❌ Only HR can use this command.',
+    verification: '❌ You don\'t have permission to run this.',
     // channel_file keeps the router's default text (undefined), like the game commands.
 };
 const ENFORCED_SUBCOMMANDS = {
@@ -90,7 +93,11 @@ const ENFORCED_SUBCOMMANDS = {
 };
 // Button and modal routes the router enforces, and the refusal each one gives.
 const CHANNEL_FILE_TEXT = '❌ You do not have permission to use this.';
-const ENFORCED_ROUTES = { button: { 'channelFile:': 'cmd' }, modal: { 'channelFile:': 'cmd' } };
+const PAGER_TEXT = '❌ You don\'t have permission to do that.';
+const ENFORCED_ROUTES = {
+    button: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT], 'verification:pending:': ['admin_or_discord_admin', PAGER_TEXT] },
+    modal: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT] },
+};
 const OWN_DENIED = new Set(['the_long_rest', 'ticket']);
 
 test('the routes the router enforces are exactly the pinned list; everything else is still open', () => {
@@ -105,7 +112,7 @@ test('the routes the router enforces are exactly the pinned list; everything els
     assert.deepEqual(subcommands, ENFORCED_SUBCOMMANDS);
     for (const [kind, t] of Object.entries(registry.tables)) {
         for (const [id, spec] of [...t.exact.entries(), ...t.prefix.map(p => [p.id, p])]) {
-            assert.equal(spec.policy, ENFORCED_ROUTES[kind]?.[id] ?? 'open', `${kind} ${id} (${spec.owner})`);
+            assert.equal(spec.policy, ENFORCED_ROUTES[kind]?.[id]?.[0] ?? 'open', `${kind} ${id} (${spec.owner})`);
         }
     }
 });
@@ -133,7 +140,7 @@ test('the refusal text of each enforced route is the one its handler used to giv
         assert.equal(registry.commands.get(name).subcommands[rest.join(' ')].denied, name === 'channel_file' ? undefined : DENIED_TEXT, key);
     }
     for (const [kind, ids] of Object.entries(ENFORCED_ROUTES)) {
-        for (const id of Object.keys(ids)) assert.equal(findCustomIdRoute(registry, kind, id).denied, CHANNEL_FILE_TEXT, `${kind} ${id}`);
+        for (const [id, [, text]] of Object.entries(ids)) assert.equal(findCustomIdRoute(registry, kind, id).denied, text, `${kind} ${id}`);
     }
 });
 
@@ -166,15 +173,9 @@ const BLIND_SPOTS = {
     'dl:zz': { gate: 'hr', file: 'buttons/directLine.js', type: 'hr' },
 };
 
-// Commands whose real check is wider than the isAdminChannel call the snapshot can see. /verification also lets
-// in the Discord Administrator permission (utils/verificationAdmin.js), so it must NOT be written as a plain admin gate.
-const COMBINED_GATES = ['verification '];
-
 function assertGate(label, expected, gate) {
     const blind = BLIND_SPOTS[label];
-    if (expected && COMBINED_GATES.some(prefix => label.startsWith(prefix))) {
-        assert.ok(typeof gate === 'string' && gate.startsWith('own:') && /Discord Administrator/.test(gate), `${label}: the real check is wider than "${expected}"`);
-    } else if (!expected && blind) assert.equal(gate, blind.gate, `${label}: documented blind spot`);
+    if (!expected && blind) assert.equal(gate, blind.gate, `${label}: documented blind spot`);
     else if (expected) assert.equal(gate, expected, `${label}: the snapshot shows "${expected}"`);
     else assert.ok(gate === undefined || gate.startsWith('own:'), `${label}: the snapshot shows no named check, but the manifest says "${gate}"`);
 }

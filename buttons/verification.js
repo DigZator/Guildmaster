@@ -8,7 +8,6 @@ const service = require('../utils/verificationService');
 const { getConfig } = require('../config/verificationConfig');
 const { generateProblem, parseAnswer } = require('../utils/verificationProblems');
 const { tryAcquire, release } = require('../utils/interactionLock');
-const { isVerificationAdmin } = require('../utils/verificationAdmin');
 const { buildPendingPage, PAGER_PREFIX } = require('../utils/verificationPending');
 const { reportError } = require('../utils/errorReporter');
 
@@ -201,9 +200,6 @@ async function handleModalSubmit(interaction, client) {
 
 // ─── /verification pending pager ────────────────────────────────────────────
 async function handlePendingPage(interaction) {
-    if (!isVerificationAdmin(interaction)) {
-        return interaction.reply({ content: '❌ You don\'t have permission to do that.', flags: EPHEMERAL });
-    }
     const page = parseInt(interaction.customId.slice(PAGER_PREFIX.length), 10);
     await interaction.update(buildPendingPage(Number.isNaN(page) ? 0 : page));
 }

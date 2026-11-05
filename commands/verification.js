@@ -3,12 +3,10 @@ const store = require('../utils/verificationStore');
 const log = require('../utils/verificationLog');
 const service = require('../utils/verificationService');
 const { getConfig, setConfig, BOUNDS } = require('../config/verificationConfig');
-const { isVerificationAdmin } = require('../utils/verificationAdmin');
 const { buildPendingPage } = require('../utils/verificationPending');
 const { START_ID } = require('../buttons/verification');
 
 const EPHEMERAL = 64;
-const deny = interaction => interaction.reply({ content: '❌ You don\'t have permission to run this.', flags: EPHEMERAL });
 
 function buildDashboardEmbed(cfg = getConfig()) {
     return new EmbedBuilder()
@@ -272,8 +270,6 @@ async function handleStatus(interaction) {
 
 // ─── router ─────────────────────────────────────────────────────────────────
 module.exports = async function verification(interaction, client) {
-    if (!isVerificationAdmin(interaction)) return deny(interaction);
-
     switch (interaction.options.getSubcommand()) {
         case 'setup': return handleSetup(interaction);
         case 'settings': return handleSettings(interaction);
