@@ -8,8 +8,8 @@ module.exports = {
     commands: [{
         // Enforced by the router (Admins role), with the router's default refusal text.
         name: 'config', policy: 'admin', handler: config,
-        // The handler itself answers with an empty list unless the caller is an admin.
-        autocomplete: [{ name: 'key', policy: 'open', gate: 'admin', handle: (i) => configCommand.autocomplete(i) }],
+        // Enforced by the router: anyone who is not an admin is offered an empty list.
+        autocomplete: [{ name: 'key', policy: 'admin', handle: (i) => configCommand.autocomplete(i) }],
     }],
     buttons: { prefix: routes('open', configButtons.prefix, { gate: 'admin' }) },
 };

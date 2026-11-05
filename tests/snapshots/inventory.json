@@ -1144,11 +1144,6 @@
     "commands/verification.js": {
       "permissions.has": 2
     },
-    "utils/configCommand.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
-      }
-    },
     "utils/ticketPermissions.js": {
       "isAdminChannel": {
         "botAdmin": 1

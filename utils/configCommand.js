@@ -3,7 +3,6 @@
 // commands/config.js is the thin entry point; buttons/config.js handles the confirm / cancel buttons.
 const crypto = require('crypto');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { isAdminChannel } = require('./isAdminChannel');
 const { MAPPINGS } = require('../config/mappings');
 const { checkMappings, severity, chunkLines } = require('./mappingCheck');
 const channelMap = require('./channelMap');
@@ -164,8 +163,8 @@ async function handleStatus(interaction, client) {
     return interaction.editReply({ embeds: [embed] });
 }
 
+// Who is offered keys is enforced by the router (manifests/config.js: others get an empty list).
 async function autocomplete(interaction) {
-    if (!isAdminChannel(interaction, 'botAdmin')) return interaction.respond([]);
     const focused = String(interaction.options.getFocused() ?? '').toLowerCase();
     let entries = channelMap.settableMappings();
     if (interaction.options.getSubcommand() === 'clear') {

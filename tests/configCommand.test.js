@@ -39,14 +39,14 @@ function fakeClient(channels = {}) {
     };
 }
 
-function fakeInteraction({ sub, key = null, channel = null, roles = [ADMIN], userId = 'U1', customId, focused = '', where = ELSEWHERE } = {}) {
+function fakeInteraction({ sub, key = null, channel = null, roles = [ADMIN], userId = 'U1', customId, focused = '', where = ELSEWHERE, autocomplete = false } = {}) {
     const calls = { reply: [], editReply: [], update: [], deferReply: 0, respond: [] };
     return {
         calls,
         guild: { id: GUILD },
         commandName: 'config',
-        isChatInputCommand: () => true,
-        isAutocomplete: () => false,
+        isChatInputCommand: () => !autocomplete,
+        isAutocomplete: () => autocomplete,
         user: { id: userId },
         member: { roles: { cache: roles.map(id => ({ id })) } },
         channelId: where,
@@ -107,8 +107,8 @@ test('standing in the control or league-admin channel is not enough: the admin r
             await viaRouter(i, client);
             assert.match(text(i.calls.reply[0]), /do not have permission/, `${sub} in ${where}`);
         }
-        const ac = fakeInteraction({ sub: 'set', roles: [], where });
-        await config.autocomplete(ac);
+        const ac = fakeInteraction({ sub: 'set', roles: [], where, autocomplete: true });
+        await viaRouter(ac, client);
         assert.deepEqual(ac.calls.respond[0], []);
     }
     assert.deepEqual(store.peek(), { channels: {} });
@@ -268,23 +268,23 @@ test('status lists all 18 mappings, shows health and marks changes waiting for a
 });
 
 test('autocomplete: admins see settable keys only, filtered by what they type; others see nothing', async () => {
-    const admin = fakeInteraction({ sub: 'set' });
-    await config.autocomplete(admin);
+    const admin = fakeInteraction({ sub: 'set', autocomplete: true });
+    await viaRouter(admin, fakeClient());
     const all = admin.calls.respond[0];
     assert.equal(all.length, 11);
     assert.ok(!all.some(c => /GUILDMASTER_CTRL|LEAGUE_ADMIN|TICKET|ARCHIVE_CATEGORY/.test(c.value)));
     assert.ok(all.every(c => c.name.length <= 100));
 
-    const filtered = fakeInteraction({ sub: 'set', focused: 'feed' });
-    await config.autocomplete(filtered);
+    const filtered = fakeInteraction({ sub: 'set', focused: 'feed', autocomplete: true });
+    await viaRouter(filtered, fakeClient());
     assert.deepEqual(filtered.calls.respond[0].map(c => c.value), ['FEEDS_CHANNEL_ID']);
 
     channelMap.setMapping(LOG, ID(7), 'U1', { store });
-    const clear = fakeInteraction({ sub: 'clear' });
-    await config.autocomplete(clear);
+    const clear = fakeInteraction({ sub: 'clear', autocomplete: true });
+    await viaRouter(clear, fakeClient());
     assert.deepEqual(clear.calls.respond[0].map(c => c.value), [LOG], 'clear only offers saved overrides');
 
-    const nobody = fakeInteraction({ sub: 'set', roles: [] });
-    await config.autocomplete(nobody);
+    const nobody = fakeInteraction({ sub: 'set', roles: [], autocomplete: true });
+    await viaRouter(nobody, fakeClient());
     assert.deepEqual(nobody.calls.respond[0], []);
 });
