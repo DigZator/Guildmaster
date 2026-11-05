@@ -1146,7 +1146,7 @@
     },
     "utils/configCommand.js": {
       "isAdminChannel": {
-        "botAdmin": 2
+        "botAdmin": 1
       }
     },
     "utils/ticketPermissions.js": {

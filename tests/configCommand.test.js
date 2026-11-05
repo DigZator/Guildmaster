@@ -9,6 +9,13 @@ const channelMap = require('../utils/channelMap');
 const config = require('../utils/configCommand');
 const configEntry = require('../commands/config');
 const configButtons = require('../buttons/config');
+const { createRegistry } = require('../core/registry');
+const { createRouter } = require('../core/router');
+const configManifest = require('../manifests/config');
+
+// The refusal for /config now comes from the router, not from the handler, so refusal tests go through it.
+const router = createRouter(createRegistry([configManifest]));
+const viaRouter = (interaction, client) => router.handle(interaction, client);
 
 const ADMIN = testEnv.ADMINS_ROLE_ID;
 const ELSEWHERE = '300000000000000999';
@@ -36,6 +43,10 @@ function fakeInteraction({ sub, key = null, channel = null, roles = [ADMIN], use
     const calls = { reply: [], editReply: [], update: [], deferReply: 0, respond: [] };
     return {
         calls,
+        guild: { id: GUILD },
+        commandName: 'config',
+        isChatInputCommand: () => true,
+        isAutocomplete: () => false,
         user: { id: userId },
         member: { roles: { cache: roles.map(id => ({ id })) } },
         channelId: where,
@@ -43,6 +54,7 @@ function fakeInteraction({ sub, key = null, channel = null, roles = [ADMIN], use
         customId,
         options: {
             getSubcommand: () => sub,
+            getSubcommandGroup: () => null,
             getString: (name) => (name === 'key' ? key : null),
             getChannel: () => channel,
             getFocused: () => focused,
@@ -72,7 +84,7 @@ test('only the admin role may use any subcommand (nobody, HR and CMD are refused
     for (const roles of [[], [testEnv.HR_ROLE_ID], [testEnv.CMD_ROLE_ID]]) {
         for (const sub of ['status', 'set', 'clear']) {
             const i = fakeInteraction({ sub, roles, key: LOG, channel: { id: ID(1) } });
-            await configEntry(i, client);
+            await viaRouter(i, client);
             assert.match(text(i.calls.reply[0]), /do not have permission/, `${sub} as ${roles}`);
             assert.equal(i.calls.deferReply, 0);
         }
@@ -80,12 +92,19 @@ test('only the admin role may use any subcommand (nobody, HR and CMD are refused
     assert.deepEqual(store.peek(), { channels: {} });
 });
 
+test('through the router, the admin role reaches the handler and the refusal never appears', async () => {
+    const i = fakeInteraction({ sub: 'status' });
+    await viaRouter(i, fakeClient());
+    assert.doesNotMatch(text(lastReply(i)), /do not have permission/);
+    assert.ok(i.calls.deferReply + i.calls.editReply.length + i.calls.reply.length > 0, 'the handler answered');
+});
+
 test('standing in the control or league-admin channel is not enough: the admin role is required', async () => {
     const client = fakeClient({ [ID(1)]: {} });
     for (const where of [testEnv.GUILDMASTER_CTRL_CHANNEL_ID, testEnv.LEAGUE_ADMIN_CHANNEL_ID]) {
         for (const sub of ['status', 'set', 'clear']) {
             const i = fakeInteraction({ sub, roles: [], where, key: LOG, channel: { id: ID(1) } });
-            await configEntry(i, client);
+            await viaRouter(i, client);
             assert.match(text(i.calls.reply[0]), /do not have permission/, `${sub} in ${where}`);
         }
         const ac = fakeInteraction({ sub: 'set', roles: [], where });

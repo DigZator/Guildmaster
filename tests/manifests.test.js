@@ -71,6 +71,7 @@ const ENFORCED_COMMANDS = {
     manipulate_table: 'admin', archive: 'admin', 'archive-config': 'admin',
     rss: 'admin_ctrl', anon_msg: 'admin_ctrl', schedule_activation: 'admin_ctrl',
     leagueadmin: 'league_legacy', direct_line: 'hr', channel_file: 'admin',
+    config: 'admin',
 };
 // Commands whose refusal is not the router's default: the exact text their handler used to give.
 const COMMAND_DENIED = {

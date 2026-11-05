@@ -8,7 +8,6 @@ const { MAPPINGS } = require('../config/mappings');
 const { checkMappings, severity, chunkLines } = require('./mappingCheck');
 const channelMap = require('./channelMap');
 
-const DENY = { content: '❌ You do not have permission to use this command.', flags: 64 };
 const CONFIRM_TTL_MS = 2 * 60 * 1000;
 const RESTART_NOTE = 'This takes effect after the bot restarts.';
 
@@ -180,8 +179,8 @@ async function autocomplete(interaction) {
     return interaction.respond(choices);
 }
 
+// Who may run /config is enforced by the router (manifests/config.js: the Admins role).
 async function execute(interaction, client) {
-    if (!isAdminChannel(interaction, 'botAdmin')) return interaction.reply(DENY);
     const sub = interaction.options.getSubcommand();
     if (sub === 'status') return handleStatus(interaction, client);
     if (sub === 'set') return handleSet(interaction, client);

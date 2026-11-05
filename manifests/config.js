@@ -6,7 +6,8 @@ const configCommand = require('../utils/configCommand');
 module.exports = {
     name: 'config',
     commands: [{
-        name: 'config', policy: 'open', gate: 'admin', handler: config,
+        // Enforced by the router (Admins role), with the router's default refusal text.
+        name: 'config', policy: 'admin', handler: config,
         // The handler itself answers with an empty list unless the caller is an admin.
         autocomplete: [{ name: 'key', policy: 'open', gate: 'admin', handle: (i) => configCommand.autocomplete(i) }],
     }],
