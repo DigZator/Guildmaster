@@ -1,10 +1,5 @@
-const { isAdminChannel } = require('../utils/isAdminChannel');
 const directLineStore = require('../utils/directLineStore');
 const directLineFlow = require('../flow/directLineFlow');
-
-function denyMessage() {
-    return { content: '❌ Only HR can use this command.', flags: 64 };
-}
 
 function collectTargets(interaction) {
     const users = ['target', 'target2', 'target3', 'target4']
@@ -69,10 +64,6 @@ async function handleFile(interaction) {
 }
 
 module.exports = async function direct_line(interaction) {
-    if (!isAdminChannel(interaction, 'hr')) {
-        return interaction.reply(denyMessage());
-    }
-
     const sub = interaction.options.getSubcommand();
 
     if (sub === 'create') return handleCreate(interaction);

@@ -1141,11 +1141,6 @@
       "roles.cache": 1,
       "permissions.has": 1
     },
-    "commands/direct_line.js": {
-      "isAdminChannel": {
-        "hr": 1
-      }
-    },
     "commands/leagueGrants/pendingApprovals/dashboard.js": {
       "roles.cache": 1
     },
