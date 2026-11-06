@@ -2,12 +2,12 @@ const {
     EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle,
     ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder,
 } = require('discord.js');
-const jobsStore = require('./channelFileJobs');
-const filer = require('./channelFiler');
-const { getProtectionReason } = require('./channelFileGuards');
-const { reportError } = require('./errorReporter');
-const { formatStamp } = require('./ticketTranscript');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
+const jobsStore = require('./jobs');
+const filer = require('./filer');
+const { getProtectionReason } = require('./guards');
+const { reportError } = require('../../utils/errorReporter');
+const { formatStamp } = require('../../utils/ticketTranscript');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 
 const { PHASES } = jobsStore;
 

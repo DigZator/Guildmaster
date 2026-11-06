@@ -1,4 +1,4 @@
-const jobsStore = require('../channelFileJobs');
+const jobsStore = require('../jobs');
 const { abortedName } = require('./destination');
 const { unfreezeTarget } = require('./freeze');
 

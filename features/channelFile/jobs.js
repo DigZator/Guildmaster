@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { randomUUID } = require('crypto');
 
-const JOBS_DIR = process.env.CHANNEL_FILE_JOBS_DIR || path.join(__dirname, '../data/channelFileJobs');
+const JOBS_DIR = process.env.CHANNEL_FILE_JOBS_DIR || path.join(__dirname, '../../data/channelFileJobs');
 const SCHEMA_VERSION = 1;
 
 const PHASES = {

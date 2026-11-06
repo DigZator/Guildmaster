@@ -964,10 +964,6 @@
       "dynamic: MODAL_ID",
       "dynamic: RETRY_ID"
     ],
-    "commands/channelFile.js": [
-      "channelFile:cancel",
-      "channelFile:confirm:${…}"
-    ],
     "commands/create_campaign/preview.js": [
       "create_campaign_cancel",
       "create_campaign_confirm"
@@ -1006,6 +1002,18 @@
     "features/archive/command.js": [
       "archive_cancel",
       "archive_confirm_${…}"
+    ],
+    "features/channelFile/command.js": [
+      "channelFile:cancel",
+      "channelFile:confirm:${…}"
+    ],
+    "features/channelFile/review.js": [
+      "confirmName",
+      "dynamic: customId(job.id, 'abort')",
+      "dynamic: customId(job.id, 'errors')",
+      "dynamic: customId(job.id, 'proceed')",
+      "dynamic: customId(job.id, 'proceedModal')",
+      "dynamic: customId(job.id, 'rerun')"
     ],
     "features/directLine/flow.js": [
       "encodeId(*, '${action}No')",
@@ -1086,14 +1094,6 @@
       "announce_cancel",
       "announce_confirm",
       "announce_edit"
-    ],
-    "utils/channelFileReview.js": [
-      "confirmName",
-      "dynamic: customId(job.id, 'abort')",
-      "dynamic: customId(job.id, 'errors')",
-      "dynamic: customId(job.id, 'proceed')",
-      "dynamic: customId(job.id, 'proceedModal')",
-      "dynamic: customId(job.id, 'rerun')"
     ],
     "utils/configCommand.js": [
       "config:cancel:${…}",
@@ -1179,7 +1179,7 @@
     "./features/tickets/mentions.init",
     "./utils/verificationWatcher.init",
     "./utils/memorialReindex.init",
-    "./utils/channelFileReview.init",
+    "./features/channelFile/review.init",
     "./utils/mappingCheck.init"
   ]
 }

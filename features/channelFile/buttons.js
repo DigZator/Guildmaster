@@ -1,7 +1,7 @@
-const jobsStore = require('../utils/channelFileJobs');
-const review = require('../utils/channelFileReview');
-const { runGuards } = require('../utils/channelFileGuards');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
+const jobsStore = require('./jobs');
+const review = require('./review');
+const { runGuards } = require('./guards');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 
 // ─── Confirm (from the command's confirmation message) ──────────────────────
 async function handleConfirm(interaction, client, [, , targetId, locationId, visibility]) {

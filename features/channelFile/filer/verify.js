@@ -1,5 +1,5 @@
 const { PermissionFlagsBits } = require('discord.js');
-const { THREAD_TYPES } = require('../channelFileGuards');
+const { THREAD_TYPES } = require('../guards');
 const { sha, fileKey, filesOf, messageLink, withRetry } = require('./helpers');
 const { createSnagList } = require('./progress');
 const { listThreads, scanIds } = require('./scan');

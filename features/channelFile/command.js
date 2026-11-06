@@ -2,10 +2,10 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('
 const {
     listProtected, addProtected, removeProtected,
     getAlwaysProtectedIds, runGuards,
-} = require('../utils/channelFileGuards');
-const jobsStore = require('../utils/channelFileJobs');
-const { typeLabel } = require('../utils/channelFiler');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
+} = require('./guards');
+const jobsStore = require('./jobs');
+const { typeLabel } = require('./filer');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 
 // ─── protect ────────────────────────────────────────────────────────────────
 async function handleProtect(interaction) {

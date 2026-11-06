@@ -1,8 +1,8 @@
 const { ChannelType, AttachmentBuilder } = require('discord.js');
-const archive = require('../archiveChannel');
-const jobsStore = require('../channelFileJobs');
-const { THREAD_TYPES } = require('../channelFileGuards');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
+const archive = require('../../../utils/archiveChannel');
+const jobsStore = require('../jobs');
+const { THREAD_TYPES } = require('../guards');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
 
 // ─── Freeze / unfreeze ──────────────────────────────────────────────────────
 async function freezeTarget(client, job, target) {

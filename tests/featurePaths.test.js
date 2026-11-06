@@ -66,3 +66,35 @@ test('tickets: the store still uses data/tickets.json and data/ticketCounters.js
     }
     assert.deepEqual(seen.sort(), [path.join(root, 'data', 'ticketCounters.json'), path.join(root, 'data', 'tickets.json')].sort());
 });
+
+// channel file: both locations can be overridden by an environment variable (the dev scripts in test/ do), so the
+// default and the override are both pinned.
+function freshChannelFile(env, load) {
+    const keys = ['CHANNEL_FILE_JOBS_DIR', 'CHANNEL_FILE_PROTECTED_PATH'];
+    const saved = Object.fromEntries(keys.map(k => [k, process.env[k]]));
+    for (const k of keys) delete process.env[k];
+    Object.assign(process.env, env);
+    for (const m of ['jobs', 'guards']) delete require.cache[require.resolve(`../features/channelFile/${m}`)];
+    try { return load(); } finally {
+        for (const k of keys) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }
+        for (const m of ['jobs', 'guards']) delete require.cache[require.resolve(`../features/channelFile/${m}`)];
+    }
+}
+
+test('channel file: jobs still live in data/channelFileJobs, and CHANNEL_FILE_JOBS_DIR still overrides it', () => {
+    assert.equal(freshChannelFile({}, () => require('../features/channelFile/jobs').JOBS_DIR), path.join(root, 'data', 'channelFileJobs'));
+    assert.equal(freshChannelFile({ CHANNEL_FILE_JOBS_DIR: '/tmp/somewhere-else' }, () => require('../features/channelFile/jobs').JOBS_DIR), '/tmp/somewhere-else');
+});
+
+test('channel file: the protect list is still data/channelFileProtected.json, and CHANNEL_FILE_PROTECTED_PATH still overrides it', () => {
+    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const real = require(jsonStorePath);
+    const seenWith = (env) => {
+        const seen = [];
+        require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
+        try { freshChannelFile(env, () => require('../features/channelFile/guards')); } finally { require.cache[jsonStorePath].exports = real; }
+        return seen;
+    };
+    assert.deepEqual(seenWith({}), [path.join(root, 'data', 'channelFileProtected.json')]);
+    assert.deepEqual(seenWith({ CHANNEL_FILE_PROTECTED_PATH: '/tmp/protected-elsewhere.json' }), ['/tmp/protected-elsewhere.json']);
+});

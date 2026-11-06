@@ -1,9 +1,9 @@
 const path = require('path');
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const { createJsonStore } = require('./jsonStore');
-const channelIds = require('../data/channels');
-const channelFileJobs = require('./channelFileJobs');
-const { freeDiskBytes, MIN_FREE_DISK_BYTES } = require('./ticketTranscript');
+const { createJsonStore } = require('../../utils/jsonStore');
+const channelIds = require('../../data/channels');
+const channelFileJobs = require('./jobs');
+const { freeDiskBytes, MIN_FREE_DISK_BYTES } = require('../../utils/ticketTranscript');
 
 const THREAD_TYPES = [ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread];
 
@@ -19,7 +19,7 @@ const SUPPORTED_TARGET_TYPES = [
 
 const MAX_LEAK_NAMES = 5;
 
-const protectedStore = createJsonStore(process.env.CHANNEL_FILE_PROTECTED_PATH || path.join(__dirname, '../data/channelFileProtected.json'), []);
+const protectedStore = createJsonStore(process.env.CHANNEL_FILE_PROTECTED_PATH || path.join(__dirname, '../../data/channelFileProtected.json'), []);
 
 // ─── Manual protect list (starts empty; admins add channels) ───────────────
 function listProtected() {

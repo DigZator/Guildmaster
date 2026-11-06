@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { ChannelType } = require('discord.js');
-const { THREAD_TYPES } = require('../channelFileGuards');
+const { THREAD_TYPES } = require('../guards');
 const { NO_MESSAGES_TYPES } = require('./constants');
 const { sha, byId, fileKey, filesOf, withRetry } = require('./helpers');
 

@@ -1,6 +1,6 @@
 const { route, routes } = require('../core/manifest');
-const channelFile = require('../commands/channelFile');
-const channelFileButtons = require('../buttons/channelFile');
+const channelFile = require('../features/channelFile/command');
+const channelFileButtons = require('../features/channelFile/buttons');
 
 const NOT_ALLOWED = '❌ You do not have permission to use this.';
 
@@ -13,5 +13,5 @@ module.exports = {
         subcommands: { file: { policy: 'cmd' } },
     }],
     buttons: { prefix: routes('cmd', channelFileButtons.prefix, { denied: NOT_ALLOWED }) },
-    modals: { prefix: { 'channelFile:': route('cmd', (i, c) => require('../buttons/channelFile').handleModal(i, c), { denied: NOT_ALLOWED }) } },
+    modals: { prefix: { 'channelFile:': route('cmd', (i, c) => require('../features/channelFile/buttons').handleModal(i, c), { denied: NOT_ALLOWED }) } },
 };

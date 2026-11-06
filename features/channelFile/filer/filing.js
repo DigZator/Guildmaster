@@ -1,6 +1,6 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const engine = require('../ticketTranscript');
-const { THREAD_TYPES } = require('../channelFileGuards');
+const engine = require('../../../utils/ticketTranscript');
+const { THREAD_TYPES } = require('../guards');
 const { DOWNLOAD_TIMEOUT_MS, BATCH_SIZE, ALLOWED_MENTIONS } = require('./constants');
 const { messageLink } = require('./helpers');
 const { takenThreadNames, createDestinationThread } = require('./destination');

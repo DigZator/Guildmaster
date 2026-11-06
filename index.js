@@ -36,7 +36,7 @@ require('./features/tickets/dashboardWatcher').init(client);
 require('./features/tickets/mentions').init(client);
 require('./utils/verificationWatcher').init(client);
 require('./utils/memorialReindex').init(client);
-require('./utils/channelFileReview').init(client);
+require('./features/channelFile/review').init(client);
 require('./utils/mappingCheck').init(client);
 
 const token = process.env.DISCORD_TOKEN;
