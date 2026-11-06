@@ -2148,9 +2148,8 @@
     {
       "route": "create_campaign_cancel",
       "results": {
-        "no-isAdminChannel-call | (deferUpdate)": [
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
           "nobody",
-          "admins-role",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
@@ -2158,7 +2157,10 @@
           "player-roles",
           "discord-administrator",
           "nobody@ctrl-channel",
-          "nobody@league-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferUpdate)": [
+          "admins-role",
           "admins-role@ctrl-channel"
         ]
       }
@@ -2166,9 +2168,8 @@
     {
       "route": "create_campaign_confirm",
       "results": {
-        "no-isAdminChannel-call | (deferUpdate)": [
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
           "nobody",
-          "admins-role",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
@@ -2176,7 +2177,10 @@
           "player-roles",
           "discord-administrator",
           "nobody@ctrl-channel",
-          "nobody@league-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | (deferUpdate)": [
+          "admins-role",
           "admins-role@ctrl-channel"
         ]
       }
