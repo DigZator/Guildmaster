@@ -95,8 +95,10 @@ const ENFORCED_SUBCOMMANDS = {
 const CHANNEL_FILE_TEXT = '❌ You do not have permission to use this.';
 const PAGER_TEXT = '❌ You don\'t have permission to do that.';
 const ENFORCED_ROUTES = {
-    button: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT], 'verification:pending:': ['admin_or_discord_admin', PAGER_TEXT], 'archive_confirm_': ['admin', undefined] },
-    modal: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT] },
+    button: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT], 'verification:pending:': ['admin_or_discord_admin', PAGER_TEXT], 'archive_confirm_': ['admin', undefined],
+        'tableAdmin:': ['admin', undefined], 'tableAdminReactivate:': ['admin', undefined] },
+    modal: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT], 'tableAdminAddPlayerModal:': ['admin', undefined], 'tableAdminNumberModal:': ['admin', undefined] },
+    select: { 'tableAdminSeatSelect:': ['admin', undefined] },
 };
 const OWN_DENIED = new Set(['the_long_rest', 'ticket']);
 

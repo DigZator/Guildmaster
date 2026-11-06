@@ -66,19 +66,19 @@ module.exports = {
             ...routes('open', listGames.prefix),
             ...routes('open', editGameCheckbox.prefix),
             ...routes('admin', archiveButtons.prefix),   // archive_confirm_*: Admins only (a deliberate change, plan item 15)
-            ...routes('open', tableAdmin.prefix),
+            ...routes('admin', tableAdmin.prefix),   // the table-admin dashboard and the Reopen/Leave closed prompt
         },
     },
     modals: {
         prefix: {
             'editgame_modal_': route('open', (i, c) => require('../modals/editGameModal')(i, c)),
             'announceedit_modal_': route('open', (i, c) => require('../modals/announceEditModal')(i, c)),
-            'tableAdminAddPlayerModal:': route('open', (i) => require('../modals/tableAdminAddPlayerModal')(i)),
-            'tableAdminNumberModal:': route('open', (i) => require('../modals/tableAdminNumberModal')(i)),
+            'tableAdminAddPlayerModal:': route('admin', (i) => require('../modals/tableAdminAddPlayerModal')(i)),
+            'tableAdminNumberModal:': route('admin', (i) => require('../modals/tableAdminNumberModal')(i)),
         },
     },
     selects: {
         exact: { announce_edit_select: route('open', (i, c) => require('../selects/announceEditSelect')(i, c)) },
-        prefix: { 'tableAdminSeatSelect:': route('open', (i) => require('../selects/tableAdminSeatSelect').handle(i)) },
+        prefix: { 'tableAdminSeatSelect:': route('admin', (i) => require('../selects/tableAdminSeatSelect').handle(i)) },
     },
 };
