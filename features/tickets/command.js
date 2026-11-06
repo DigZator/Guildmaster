@@ -4,14 +4,14 @@ const {
     addTicketType,
     updateTicketType,
     removeTicketType,
-} = require('../config/ticketTypes');
-const { getConfig, setConfig } = require('../config/ticketGuildConfig');
-const { ticketCreateCustomId } = require('../buttons/ticket');
-const ticketStore = require('../utils/ticketStore');
-const ticketFlow = require('../flow/ticketFlow');
-const { getTicketType } = require('../config/ticketTypes');
-const { isTicketStaff, isTicketRaiser, denyMessage } = require('../utils/ticketPermissions');
-const { buildCreateModal } = require('../utils/ticketModals');
+} = require('../../config/ticketTypes');
+const { getConfig, setConfig } = require('../../config/ticketGuildConfig');
+const { ticketCreateCustomId } = require('./buttons');
+const ticketStore = require('./store');
+const ticketFlow = require('./flow');
+const { getTicketType } = require('../../config/ticketTypes');
+const { isTicketStaff, isTicketRaiser, denyMessage } = require('./permissions');
+const { buildCreateModal } = require('./modals');
 
 const CLOSE_MODAL_WHEN_FEEDBACK_MISSING = false;
 

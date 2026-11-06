@@ -52,3 +52,17 @@ test('direct line: the store still uses data/directLines.json', () => {
     }
     assert.deepEqual(seen, [path.join(root, 'data', 'directLines.json')]);
 });
+
+test('tickets: the store still uses data/tickets.json and data/ticketCounters.json', () => {
+    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const real = require(jsonStorePath);
+    const seen = [];
+    require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
+    try {
+        delete require.cache[require.resolve('../features/tickets/store')];
+        require('../features/tickets/store');
+    } finally {
+        require.cache[jsonStorePath].exports = real;
+    }
+    assert.deepEqual(seen.sort(), [path.join(root, 'data', 'ticketCounters.json'), path.join(root, 'data', 'tickets.json')].sort());
+});

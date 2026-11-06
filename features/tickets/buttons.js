@@ -1,9 +1,9 @@
-const { getTicketType } = require('../config/ticketTypes');
-const { isTicketStaff, isTicketRaiser, isTicketCloser, fileDenyMessage, denyMessage } = require('../utils/ticketPermissions');
-const { buildCreateModal } = require('../utils/ticketModals');
-const ticketStore = require('../utils/ticketStore');
-const ticketFlow = require('../flow/ticketFlow');
-const { decodeId } = require('../interactions/ticketId');
+const { getTicketType } = require('../../config/ticketTypes');
+const { isTicketStaff, isTicketRaiser, isTicketCloser, fileDenyMessage, denyMessage } = require('./permissions');
+const { buildCreateModal } = require('./modals');
+const ticketStore = require('./store');
+const ticketFlow = require('./flow');
+const { decodeId } = require('../../interactions/ticketId');
 
 const STAFF_ONLY_ACTIONS = new Set(['claim', 'unclaim', 'resurrect', 'resurrectYes', 'resurrectNo', 'file', 'fileYes', 'fileNo']);
 const RAISER_OR_STAFF_ACTIONS = new Set(['close', 'closeYes', 'closeNo']);

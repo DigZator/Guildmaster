@@ -4,15 +4,15 @@ const {
     ChannelType, MessageType,
 } = require('discord.js');
 
-const { getTicketType } = require('../config/ticketTypes');
-const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../config/ticketGuildConfig');
-const ticketStore = require('../utils/ticketStore');
-const { buildTranscript, sendTranscript, formatStamp } = require('../utils/ticketTranscript');
-const { reportError } = require('../utils/errorReporter');
-const { encodeId } = require('../interactions/ticketId');
-const { buildCloseModal } = require('../utils/ticketModals');
-const { mention } = require('../utils/ticketCommands');
-const { isTicketCloser, fileDenyMessage } = require('../utils/ticketPermissions');
+const { getTicketType } = require('../../config/ticketTypes');
+const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../../config/ticketGuildConfig');
+const ticketStore = require('./store');
+const { buildTranscript, sendTranscript, formatStamp } = require('../../utils/ticketTranscript');
+const { reportError } = require('../../utils/errorReporter');
+const { encodeId } = require('../../interactions/ticketId');
+const { buildCloseModal } = require('./modals');
+const { mention } = require('./mentions');
+const { isTicketCloser, fileDenyMessage } = require('./permissions');
 
 const creating = new Set();
 

@@ -958,10 +958,6 @@
       "tlrRemoveSelect",
       "tlrSubmit"
     ],
-    "buttons/ticket.js": [
-      "ticket:<ticketId>:<action>",
-      "ticketCreate:<typeKey>"
-    ],
     "buttons/verification.js": [
       "answer",
       "dynamic: MODAL_ID",
@@ -1007,9 +1003,6 @@
       "list_games_next_${…}",
       "list_games_prev_${…}"
     ],
-    "commands/ticket.js": [
-      "dynamic: ticketCreateCustomId(type.key)"
-    ],
     "commands/verification.js": [
       "dynamic: START_ID"
     ],
@@ -1025,7 +1018,14 @@
       "anon_remove_cancel_${…}",
       "anon_remove_confirm_${…}"
     ],
-    "flow/ticketFlow.js": [
+    "features/tickets/buttons.js": [
+      "ticket:<ticketId>:<action>",
+      "ticketCreate:<typeKey>"
+    ],
+    "features/tickets/command.js": [
+      "dynamic: ticketCreateCustomId(type.key)"
+    ],
+    "features/tickets/flow.js": [
       "encodeId(*, '${action}No')",
       "encodeId(*, '${action}Yes')",
       "encodeId(*, 'claim')",
@@ -1033,6 +1033,11 @@
       "encodeId(*, 'file')",
       "encodeId(*, 'resurrect')",
       "encodeId(*, 'unclaim')"
+    ],
+    "features/tickets/modals.js": [
+      "dynamic: id",
+      "encodeId(*, 'closeFeedbackModal')",
+      "ticketCreateModal:${…}"
     ],
     "interactions/questDashboardRender.js": [
       "encodeId(*, 'addReward')",
@@ -1102,11 +1107,6 @@
     "utils/tableAdminWatcher.js": [
       "tableAdminReactivate:${…}"
     ],
-    "utils/ticketModals.js": [
-      "dynamic: id",
-      "encodeId(*, 'closeFeedbackModal')",
-      "ticketCreateModal:${…}"
-    ],
     "utils/tlrRemoveFlow.js": [
       "cancel_remove_${…}",
       "confirm_remove_${…}"
@@ -1139,7 +1139,7 @@
         "hr": 1
       }
     },
-    "utils/ticketPermissions.js": {
+    "features/tickets/permissions.js": {
       "isAdminChannel": {
         "botAdmin": 1
       }
@@ -1174,8 +1174,8 @@
     "./utils/keepAlive.initListeners",
     "./utils/trapChannel",
     "./utils/deactivator.init",
-    "./utils/ticketDashboardWatcher.init",
-    "./utils/ticketCommands.init",
+    "./features/tickets/dashboardWatcher.init",
+    "./features/tickets/mentions.init",
     "./utils/verificationWatcher.init",
     "./utils/memorialReindex.init",
     "./utils/channelFileReview.init",

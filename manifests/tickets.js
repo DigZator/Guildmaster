@@ -1,6 +1,6 @@
 const { route, routes } = require('../core/manifest');
-const ticket = require('../commands/ticket');
-const ticketButtons = require('../buttons/ticket');
+const ticket = require('../features/tickets/command');
+const ticketButtons = require('../features/tickets/buttons');
 const { loadTicketTypes } = require('../config/ticketTypes');
 
 async function ticketAutocomplete(interaction) {
@@ -52,8 +52,8 @@ module.exports = {
     buttons: { prefix: routes('open', ticketButtons.prefix, rules) },
     modals: {
         prefix: {
-            'ticketCreateModal:': route('open', (i) => require('../buttons/ticket').handleTicketModal(i), { ...rules, falseMeansUnhandled: true }),
-            'ticket:': route('open', (i) => require('../buttons/ticket').handleTicketModal(i), { ...rules, falseMeansUnhandled: true }),
+            'ticketCreateModal:': route('open', (i) => require('../features/tickets/buttons').handleTicketModal(i), { ...rules, falseMeansUnhandled: true }),
+            'ticket:': route('open', (i) => require('../features/tickets/buttons').handleTicketModal(i), { ...rules, falseMeansUnhandled: true }),
         },
     },
 };

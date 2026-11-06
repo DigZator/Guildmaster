@@ -1,5 +1,5 @@
-const { getConfig, setConfig } = require('../config/ticketGuildConfig');
-const ticketStore = require('./ticketStore');
+const { getConfig, setConfig } = require('../../config/ticketGuildConfig');
+const ticketStore = require('./store');
 
 function init(client) {
     client.once('clientReady', async () => {

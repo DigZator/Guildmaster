@@ -102,7 +102,7 @@ Multi-step, message-driven (not just component-driven) flows live in `flow/` and
 - **`announcementFlow.js`** — manual game-announcement wizard.
 - **`tlrSubmissionFlow.js`** — "The Long Rest" (character memorial) submission wizard.
 - **`features/messaging/rss/flow.js`** — guided RSS feed setup.
-- **`ticketFlow.js`** — ticket creation/lifecycle conversational steps.
+- **`features/tickets/flow.js`** — ticket creation/lifecycle conversational steps.
 
 ---
 
@@ -221,7 +221,7 @@ Initialized in `index.js` at boot, these run independently of any single interac
 | `utils/keepAlive.js` | Keep Alive refresh job, permission checks, safety-net listeners |
 | `utils/trapChannel.js` | Monitors a designated "trap" channel (likely anti-spam/honeypot) |
 | `utils/deactivator.js` | Handles scheduled deactivation logic |
-| `utils/ticketDashboardWatcher.js` | Keeps the ticket dashboard message in sync |
+| `features/tickets/dashboardWatcher.js` | Keeps the ticket dashboard message in sync |
 
 All scheduling that involves wall-clock time (`scheduler.js`) is computed in **Asia/Kolkata (IST)**, regardless of host server timezone.
 
@@ -234,7 +234,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 
 | File / Store module | Contents |
 |---|---|
-| `ticketStore.js` → `tickets.json`, `ticketCounters.json` | Open/closed tickets and per-type numbering |
+| `features/tickets/store.js` → `tickets.json`, `ticketCounters.json` | Open/closed tickets and per-type numbering |
 | `ticketTypes.json` (via `config/ticketTypes.js`) | Runtime-editable ticket type definitions |
 | `ticketGuildConfig.json` | Per-guild ticket category/log-channel config |
 | `features/messaging/rss/store.js` → `rssFeeds.json` | Configured RSS feeds |
@@ -274,7 +274,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 
 ## 8. Key Subsystems in Detail
 
-### 8.1 Ticketing (`/ticket`, `commands/ticket.js`, `config/ticketTypes.js`, `utils/ticketStore.js`, `utils/ticketTranscript.js`)
+### 8.1 Ticketing (`/ticket`, `features/tickets/`, `config/ticketTypes.js`, `utils/ticketTranscript.js`)
 - Config-driven: ticket **types** (label, emoji, channel slug/tag, category group, roles) are stored in `data/ticketTypes.json` and editable at runtime via `/ticket type add|edit|remove|list` — no redeploy needed for new ticket categories.
 - Two category groups: `normal` and `hr`, each with its own creation category and transcript log channel.
 - Opening a ticket creates a private channel named from the type's slug/tag plus a counter (e.g. `#hr-000-janedoe`); counters are per-type and resettable via `/ticket reset_counter`.
