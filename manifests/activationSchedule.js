@@ -1,20 +1,6 @@
-const { routes } = require('../core/manifest');
-const rss = require('../features/messaging/rss/command');
-const anon_msg = require('../features/messaging/anon/command');
 const schedule_activation = require('../commands/schedule_activation');
-const anonMessages = require('../features/messaging/anon/buttons');
-const { getKeys } = require('../features/messaging/anon/store');
 const { getCachedGames } = require('../utils/cache');
 const { getQueue } = require('../utils/activationQueue');
-
-async function anonKeyAutocomplete(interaction) {
-    const focused = interaction.options.getFocused().toLowerCase();
-    const choices = getKeys()
-        .filter(k => k.toLowerCase().includes(focused))
-        .slice(0, 25)
-        .map(k => ({ name: k, value: k }));
-    await interaction.respond(choices);
-}
 
 async function scheduleActivationAutocomplete(interaction) {
     const sub = interaction.options.getSubcommand();
@@ -41,20 +27,13 @@ async function scheduleActivationAutocomplete(interaction) {
     }
 }
 
-// Enforced by the router: the admin role AND the control channel. Each command keeps the refusal it used to give.
+// Enforced by the router: the admin role AND the control channel, with this command's own refusal text.
 const adminCtrl = (name, denied, handler, autocomplete) => ({ name, policy: 'admin_ctrl', denied, handler, autocomplete });
-const ADMIN_CHANNEL_ONLY = '❌ This command can only be used by admins in the admin channel.';
 const MOD_CHANNEL_ONLY = '❌ This command can only be used by admins in the mod channel.';
 
 module.exports = {
-    name: 'feeds',
+    name: 'activation-schedule',
     commands: [
-        adminCtrl('rss', ADMIN_CHANNEL_ONLY, rss),
-        adminCtrl('anon_msg', ADMIN_CHANNEL_ONLY, anon_msg, [{ name: 'keys', policy: 'open', handle: anonKeyAutocomplete }]),
         adminCtrl('schedule_activation', MOD_CHANNEL_ONLY, schedule_activation, [{ name: 'add / remove', policy: 'open', handle: scheduleActivationAutocomplete }]),
     ],
-    buttons: {
-        exact: routes('open', anonMessages.exact),
-        prefix: routes('open', anonMessages.prefix),
-    },
 };

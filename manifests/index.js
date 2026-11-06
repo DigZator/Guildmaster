@@ -3,7 +3,8 @@
 module.exports = [
     require('./misc'),
     require('./games'),
-    require('./feeds'),
+    require('../features/messaging').manifest,
+    require('./activationSchedule'),
     require('./theLongRest'),
     require('./tickets'),
     require('./directLine'),

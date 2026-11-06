@@ -207,9 +207,9 @@
       "channelFile",
       "config",
       "directLine",
-      "feeds",
       "games",
       "league",
+      "messaging",
       "misc",
       "theLongRest",
       "tickets",
@@ -240,16 +240,16 @@
       {
         "key": "anon_nokey_cancel",
         "declaredBy": [
-          "feeds"
+          "messaging"
         ],
-        "winner": "feeds.exact[anon_nokey_cancel]"
+        "winner": "messaging.exact[anon_nokey_cancel]"
       },
       {
         "key": "anon_nokey_confirm",
         "declaredBy": [
-          "feeds"
+          "messaging"
         ],
-        "winner": "feeds.exact[anon_nokey_confirm]"
+        "winner": "messaging.exact[anon_nokey_confirm]"
       },
       {
         "key": "archive_cancel",
@@ -466,34 +466,34 @@
       {
         "key": "anon_cancel_",
         "declaredBy": [
-          "feeds"
+          "messaging"
         ],
         "alsoMatches": [],
-        "winner": "feeds.prefix[anon_cancel_]"
+        "winner": "messaging.prefix[anon_cancel_]"
       },
       {
         "key": "anon_confirm_",
         "declaredBy": [
-          "feeds"
+          "messaging"
         ],
         "alsoMatches": [],
-        "winner": "feeds.prefix[anon_confirm_]"
+        "winner": "messaging.prefix[anon_confirm_]"
       },
       {
         "key": "anon_remove_cancel_",
         "declaredBy": [
-          "feeds"
+          "messaging"
         ],
         "alsoMatches": [],
-        "winner": "feeds.prefix[anon_remove_cancel_]"
+        "winner": "messaging.prefix[anon_remove_cancel_]"
       },
       {
         "key": "anon_remove_confirm_",
         "declaredBy": [
-          "feeds"
+          "messaging"
         ],
         "alsoMatches": [],
-        "winner": "feeds.prefix[anon_remove_confirm_]"
+        "winner": "messaging.prefix[anon_remove_confirm_]"
       },
       {
         "key": "archive_confirm_",

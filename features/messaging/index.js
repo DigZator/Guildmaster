@@ -4,4 +4,7 @@
 module.exports = {
     definitions: require('./definitions').definitions,
     help: require('./help'),
+    // The routes (policy, handler, refusal text) of /rss, /anon_msg and the anon buttons. Loaded on first use, because
+    // it loads the handlers and the other two exports above must stay light.
+    get manifest() { return require('./manifest'); },
 };
