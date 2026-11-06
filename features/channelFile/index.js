@@ -4,4 +4,7 @@
 module.exports = {
     definitions: require('./definitions').definitions,
     help: require('./help'),
+    // The routes (policy, handler, refusal text) of /channel_file, its review buttons and the Proceed form. Loaded on
+    // first use, because it loads the handlers and the exports above must stay light.
+    get manifest() { return require('./manifest'); },
 };

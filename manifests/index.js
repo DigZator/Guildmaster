@@ -9,7 +9,7 @@ module.exports = [
     require('./theLongRest'),
     require('../features/tickets').manifest,
     require('../features/directLine').manifest,
-    require('./channelFile'),
+    require('../features/channelFile').manifest,
     require('./verification'),
     require('./config'),
     require('./league'),
