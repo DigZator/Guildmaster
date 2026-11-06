@@ -967,14 +967,6 @@
       "dynamic: MODAL_ID",
       "dynamic: RETRY_ID"
     ],
-    "commands/anon_msg.js": [
-      "anon_cancel_${…}",
-      "anon_confirm_${…}",
-      "anon_nokey_cancel",
-      "anon_nokey_confirm",
-      "anon_remove_cancel_${…}",
-      "anon_remove_confirm_${…}"
-    ],
     "commands/archive.js": [
       "archive_cancel",
       "archive_confirm_${…}"
@@ -1020,6 +1012,14 @@
     ],
     "commands/verification.js": [
       "dynamic: START_ID"
+    ],
+    "features/messaging/anon/command.js": [
+      "anon_cancel_${…}",
+      "anon_confirm_${…}",
+      "anon_nokey_cancel",
+      "anon_nokey_confirm",
+      "anon_remove_cancel_${…}",
+      "anon_remove_confirm_${…}"
     ],
     "flow/directLineFlow.js": [
       "encodeId(*, '${action}No')",
@@ -1164,7 +1164,7 @@
     "./flow/editGameArtFlow",
     "./flow/tlrSubmissionFlow",
     "./core/boot",
-    "./flow/rssFlow",
+    "./features/messaging/rss/flow",
     "./utils/cacheWatcher.init",
     "./utils/cacheAlert.init",
     "./utils/registrationDefaults.init",

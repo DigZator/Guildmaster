@@ -44,7 +44,7 @@ recordHandler(req('commands/league'), 'characterOwnAutocomplete');
 recordHandler(req('utils/catalogueAutoComplete'), 'catalogueAutocomplete');
 recordChoices(req('utils/inventoryHelper'), 'getItemAutocompleteChoices');
 // data the inline branches read, with distinctive values
-req('utils/anonStore').getKeys = () => ['alpha-key', 'beta-key'];
+req('features/messaging/anon/store').getKeys = () => ['alpha-key', 'beta-key'];
 req('utils/cache').getCachedGames = async () => [
     { title: 'Open Game', uid: 'u-open', date: '1 Jan', activate: false, createdTime: '2026-01-02' },
     { title: 'Live Game', uid: 'u-live', date: '2 Jan', activate: true, createdTime: '2026-01-01' },

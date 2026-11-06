@@ -1,10 +1,10 @@
 const fs   = require('fs');
 const path = require('path');
 const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
-const { downloadAttachment } = require('./downloadAttachment');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
+const { downloadAttachment } = require('../../../utils/downloadAttachment');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
 
-const TEMP_DIR       = path.join(__dirname, '../temp');
+const TEMP_DIR       = path.join(__dirname, '../../../temp');
 const MAX_FILES      = 10;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const MAX_CONTENT    = 2000;

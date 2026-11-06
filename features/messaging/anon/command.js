@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { removeMessage, getMessage } = require('../utils/anonStore');
+const { removeMessage, getMessage } = require('./store');
 const {
     MAX_FILES,
     MAX_KEY_LENGTH,
@@ -16,7 +16,7 @@ const {
     isMissingOnDiscord,
     logAnonAction,
     auditWarning,
-} = require('../utils/anonHelper');
+} = require('./helper');
 
 const TIMEOUT_MS = 5 * 60 * 1000;
 

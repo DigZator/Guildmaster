@@ -1,4 +1,4 @@
-const { addMessage, removeMessage, getMessage } = require('../utils/anonStore');
+const { addMessage, removeMessage, getMessage } = require('./store');
 const {
     MAX_FILES,
     deleteFiles,
@@ -11,7 +11,7 @@ const {
     isMissingOnDiscord,
     logAnonAction,
     auditWarning,
-} = require('../utils/anonHelper');
+} = require('./helper');
 
 const CLEAR_PREVIEW = { embeds: [], components: [], files: [], attachments: [] };
 const SESSION_GONE = '❌ This session has expired or was already handled.';

@@ -1,9 +1,9 @@
 const { routes } = require('../core/manifest');
-const rss = require('../commands/rss');
-const anon_msg = require('../commands/anon_msg');
+const rss = require('../features/messaging/rss/command');
+const anon_msg = require('../features/messaging/anon/command');
 const schedule_activation = require('../commands/schedule_activation');
-const anonMessages = require('../buttons/anonMessages');
-const { getKeys } = require('../utils/anonStore');
+const anonMessages = require('../features/messaging/anon/buttons');
+const { getKeys } = require('../features/messaging/anon/store');
 const { getCachedGames } = require('../utils/cache');
 const { getQueue } = require('../utils/activationQueue');
 

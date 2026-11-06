@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
-const { getFeeds, addFeed, removeFeed } = require('../utils/rssStore');
+const { getFeeds, addFeed, removeFeed } = require('./store');
 const Parser = require('rss-parser');
-const { FEEDS_CHANNEL_ID } = require('../data/channels');
+const { FEEDS_CHANNEL_ID } = require('../../../data/channels');
 
 const parser = new Parser();
 

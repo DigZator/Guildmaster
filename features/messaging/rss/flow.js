@@ -1,4 +1,4 @@
-const { pollAllFeeds } = require('../utils/rssFetcher');
+const { pollAllFeeds } = require('./fetcher');
 
 const INTERVAL_MS = 1 * 60 * 60 * 1000; // 1 hour
 

@@ -1,6 +1,6 @@
 const Parser = require('rss-parser');
 const { EmbedBuilder } = require('discord.js');
-const { getFeeds, updateFeed } = require('./rssStore');
+const { getFeeds, updateFeed } = require('./store');
 
 const parser = new Parser();
 

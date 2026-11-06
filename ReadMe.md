@@ -101,7 +101,7 @@ All raw Discord interaction events are centralized in `interactions/`, each file
 Multi-step, message-driven (not just component-driven) flows live in `flow/` and are also registered directly on `client` in `index.js`:
 - **`announcementFlow.js`** — manual game-announcement wizard.
 - **`tlrSubmissionFlow.js`** — "The Long Rest" (character memorial) submission wizard.
-- **`rssFlow.js`** — guided RSS feed setup.
+- **`features/messaging/rss/flow.js`** — guided RSS feed setup.
 - **`ticketFlow.js`** — ticket creation/lifecycle conversational steps.
 
 ---
@@ -237,8 +237,8 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `ticketStore.js` → `tickets.json`, `ticketCounters.json` | Open/closed tickets and per-type numbering |
 | `ticketTypes.json` (via `config/ticketTypes.js`) | Runtime-editable ticket type definitions |
 | `ticketGuildConfig.json` | Per-guild ticket category/log-channel config |
-| `rssStore.js` → `rssFeeds.json` | Configured RSS feeds |
-| `anonStore.js` → `anonMessages.json` | Anonymous messages by key |
+| `features/messaging/rss/store.js` → `rssFeeds.json` | Configured RSS feeds |
+| `features/messaging/anon/store.js` → `anonMessages.json` | Anonymous messages by key |
 | `activationQueue.js` → `activationQueue.json` | Game activation queue + schedule settings |
 | `shopFloor.js` → `shopFloor.json` | Current shop stock, prices, restock timers |
 | `5etoolsCatalogue.js` → `catalogue.json` | Cached 5e item catalogue, sourced from 5etools-src |
@@ -293,14 +293,14 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - **Void:** `/league void item|gold` lets a player voluntarily remove their own item or gold — useful for correcting mistakes without admin intervention.
 - **Two-page locking** (`withTwoPageLocks`) guards operations that must atomically update two Notion pages (e.g. a gold transfer between two characters) — failures mid-transaction are reported with a specific failure `stage` for manual recovery, and rolled back where possible.
 
-### 8.4 RSS Feeds (`/rss`, `utils/rssFetcher.js`, `utils/rssStore.js`, `flow/rssFlow.js`)
+### 8.4 RSS Feeds (`/rss`, `features/messaging/rss/`: `command.js`, `fetcher.js`, `store.js`, `flow.js`)
 - Feeds are polled and new items posted automatically to a configured channel (defaults to `FEEDS_CHANNEL_ID`).
-- `rssFlow.js` provides a guided setup conversation as an alternative to filling out all `/rss add` options directly.
+- `features/messaging/rss/flow.js` provides a guided setup conversation as an alternative to filling out all `/rss add` options directly.
 
-### 8.5 Anonymous Messaging (`/anon_msg`, `utils/anonStore.js`, `utils/anonHelper.js`)
+### 8.5 Anonymous Messaging (`/anon_msg`, `features/messaging/anon/`: `command.js`, `buttons.js`, `store.js`, `helper.js`)
 - Each message is stored under a unique `key`, enabling later `edit`/`rmv` without needing the original message content.
 - Supports both single-line (`content` option) and multi-line (`multiline` flag → paste-in-backticks flow) input.
-- Attachments: one file via the `attachment` option, or up to 10 via the multiline reply. Files are downloaded to `temp/` under generic names, previewed, posted, then deleted (also on cancel, timeout, or after 10 minutes; stale `temp/anon_*` files are swept on each `/anon_msg add`). Shared logic lives in `utils/anonHelper.js`. `edit` changes text only and leaves attachments untouched.
+- Attachments: one file via the `attachment` option, or up to 10 via the multiline reply. Files are downloaded to `temp/` under generic names, previewed, posted, then deleted (also on cancel, timeout, or after 10 minutes; stale `temp/anon_*` files are swept on each `/anon_msg add`). Shared logic lives in `features/messaging/anon/helper.js`. `edit` changes text only and leaves attachments untouched.
 
 ### 8.6 Archiving (`/archive`, `/archive-config`, `utils/archiveChannel.js`, `config/archiveConfig.js`)
 - Moves a channel or category into a configured "archive" category and locks it read-only.
