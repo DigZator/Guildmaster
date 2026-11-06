@@ -204,6 +204,7 @@
   },
   "buttons": {
     "owners": [
+      "archive",
       "channelFile",
       "config",
       "directLine",
@@ -254,9 +255,9 @@
       {
         "key": "archive_cancel",
         "declaredBy": [
-          "games"
+          "archive"
         ],
-        "winner": "games.exact[archive_cancel]"
+        "winner": "archive.exact[archive_cancel]"
       },
       {
         "key": "continue_memorial_part2",
@@ -498,10 +499,10 @@
       {
         "key": "archive_confirm_",
         "declaredBy": [
-          "games"
+          "archive"
         ],
         "alsoMatches": [],
-        "winner": "games.prefix[archive_confirm_]"
+        "winner": "archive.prefix[archive_confirm_]"
       },
       {
         "key": "cancel_remove_",

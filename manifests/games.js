@@ -5,12 +5,9 @@ const list_games = require('../commands/list_games');
 const edit_game = require('../commands/edit_game');
 const get_players = require('../commands/get_players');
 const manipulate_table = require('../commands/manipulate_table');
-const archive = require('../features/archive/command');
-const archiveConfig = require('../features/archive/configCommand');
 const announcement = require('../buttons/announcement');
 const listGames = require('../buttons/listGames');
 const editGameCheckbox = require('../buttons/editGameCheckbox');
-const archiveButtons = require('../features/archive/buttons');
 const tableAdmin = require('../buttons/tableAdmin');
 const createCampaign = require('../buttons/createCampaign');
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
@@ -51,22 +48,18 @@ module.exports = {
         admin('edit_game', edit_game, [{ name: 'game / field', policy: 'open', handle: editGameAutocomplete }]),
         admin('get_players', get_players, gamePicker),
         admin('manipulate_table', manipulate_table, gamePicker),
-        admin('archive', archive),
-        admin('archive-config', archiveConfig),
     ],
     buttons: {
-        // The admin-flow buttons below (archive confirm, table admin, create campaign) are Admins-only, enforced by the
+        // The admin-flow buttons below (table admin, create campaign) are Admins-only, enforced by the
         // router (plan item 15). The rest check nothing themselves; their messages are ephemeral replies to admin-gated
         // commands (see POST_REFACTOR.md).
         exact: {
             ...routes('open', announcement.exact),
-            ...routes('open', archiveButtons.exact),
             ...routes('admin', createCampaign.exact),   // the create-campaign Confirm and Cancel buttons
         },
         prefix: {
             ...routes('open', listGames.prefix),
             ...routes('open', editGameCheckbox.prefix),
-            ...routes('admin', archiveButtons.prefix),   // archive_confirm_*: Admins only (a deliberate change, plan item 15)
             ...routes('admin', tableAdmin.prefix),   // the table-admin dashboard and the Reopen/Leave closed prompt
         },
     },

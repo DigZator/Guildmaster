@@ -3,6 +3,7 @@
 module.exports = [
     require('./misc'),
     require('./games'),
+    require('../features/archive').manifest,
     require('../features/messaging').manifest,
     require('./activationSchedule'),
     require('./theLongRest'),

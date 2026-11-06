@@ -4,4 +4,7 @@
 module.exports = {
     definitions: require('./definitions').definitions,
     help: require('./help'),
+    // The routes (policy, handler) of /archive, /archive-config and the archive buttons. Loaded on first use, because it
+    // loads the handlers and the exports above must stay light.
+    get manifest() { return require('./manifest'); },
 };
