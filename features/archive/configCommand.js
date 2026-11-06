@@ -1,5 +1,5 @@
 const { ChannelType, EmbedBuilder } = require('discord.js');
-const { setArchiveCategoryId, getArchiveCategoryId } = require('../config/archiveConfig');
+const { setArchiveCategoryId, getArchiveCategoryId } = require('../../config/archiveConfig');
 
 module.exports = async (interaction) => {
 

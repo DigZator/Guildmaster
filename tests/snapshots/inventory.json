@@ -963,10 +963,6 @@
       "dynamic: MODAL_ID",
       "dynamic: RETRY_ID"
     ],
-    "commands/archive.js": [
-      "archive_cancel",
-      "archive_confirm_${…}"
-    ],
     "commands/channelFile.js": [
       "channelFile:cancel",
       "channelFile:confirm:${…}"
@@ -1005,6 +1001,10 @@
     ],
     "commands/verification.js": [
       "dynamic: START_ID"
+    ],
+    "features/archive/command.js": [
+      "archive_cancel",
+      "archive_confirm_${…}"
     ],
     "features/directLine/flow.js": [
       "encodeId(*, '${action}No')",

@@ -1,6 +1,6 @@
 const { EmbedBuilder, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
-const { getArchiveCategoryId } = require('../config/archiveConfig');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
+const { getArchiveCategoryId } = require('../../config/archiveConfig');
 
 const MAX_CHANNELS_PER_CATEGORY = 50;
 
