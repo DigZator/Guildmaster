@@ -11,6 +11,16 @@ const sortKeys = (v) => Array.isArray(v) ? v.map(sortKeys)
     : v;
 const plain = (v) => JSON.parse(JSON.stringify(v));
 
+// The /help text, and the order of its groups and families (the order is what /help autocomplete offers, so it is
+// recorded explicitly: a plain object comparison would not notice a reordering).
+function buildHelpSnapshot() {
+    const helpData = require(path.join(root, 'helpData'));
+    return {
+        order: Object.fromEntries(Object.entries(helpData).map(([group, families]) => [group, Object.keys(families)])),
+        data: plain(helpData),
+    };
+}
+
 function buildCommandSnapshot() {
     const result = spawnSync(process.execPath, [
         '-r', path.join(root, 'tests/helpers/captureCommands.js'),
@@ -113,4 +123,4 @@ function buildAutocompleteSnapshot() {
 }
 
 module.exports = {
-    buildAutocompleteSnapshot, buildCommandSnapshot, buildInventory, buildRoutePermissions, getButtonRoutes, sortKeys, plain };
+    buildAutocompleteSnapshot, buildCommandSnapshot, buildHelpSnapshot, buildInventory, buildRoutePermissions, getButtonRoutes, sortKeys, plain };

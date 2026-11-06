@@ -10,7 +10,7 @@ Offline safety net. Nothing here connects to Discord or Notion, and nothing writ
 | Test | Guards |
 |---|---|
 | `smoke` | every module loads, every relative `require` resolves, every imported name is exported, every command has a handler, button routes resolve |
-| `contract` | the exact command payload sent to Discord, plus the routing/permission inventory |
+| `contract` | the exact command payload sent to Discord, the `/help` text and the order of its groups and families, plus the routing/permission inventory |
 | `customId` | the four ID encoders and that each prefix is routed |
 | `permissions` | who passes each `isAdminChannel` check today |
 | `auth` | `shared/auth` answers exactly like `isAdminChannel` and `isTlrMod` for every role/channel combination (the old helpers stay until Phase 3), unknown policies throw, `validate()` catches bad config |

@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
-const { buildCommandSnapshot, buildInventory, plain } = require('./helpers/snapshots');
+const { buildCommandSnapshot, buildHelpSnapshot, buildInventory, plain } = require('./helpers/snapshots');
 const { differences } = require('./helpers/diff');
 
 const stored = (name) => JSON.parse(fs.readFileSync(path.join(__dirname, 'snapshots', name), 'utf8'));
@@ -17,6 +17,14 @@ function expectSame(expected, actual, what) {
 
 test('command definitions match the committed snapshot', () => {
     expectSame(stored('commands.json'), buildCommandSnapshot(), 'Registered command payload');
+});
+
+test('the /help text and the order of its groups and families match the committed snapshot', () => {
+    const actual = buildHelpSnapshot();
+    const expected = stored('help.json');
+    expectSame(expected, actual, '/help data');
+    assert.deepEqual(actual.order, expected.order, '/help groups and families changed order (this is the order /help autocomplete offers)');
+    assert.deepEqual(Object.keys(actual.data), Object.keys(expected.data), '/help groups changed order');
 });
 
 test('routing and permission inventory matches the committed snapshot', async () => {
