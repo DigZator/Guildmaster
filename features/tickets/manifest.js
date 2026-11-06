@@ -1,7 +1,7 @@
-const { route, routes } = require('../core/manifest');
-const ticket = require('../features/tickets/command');
-const ticketButtons = require('../features/tickets/buttons');
-const { loadTicketTypes } = require('../config/ticketTypes');
+const { route, routes } = require('../../core/manifest');
+const ticket = require('./command');
+const ticketButtons = require('./buttons');
+const { loadTicketTypes } = require('../../config/ticketTypes');
 
 async function ticketAutocomplete(interaction) {
     const group = interaction.options.getSubcommandGroup(false);
@@ -37,7 +37,7 @@ async function ticketAutocomplete(interaction) {
     }
 }
 
-const rules = { gate: 'own: ticket staff / raiser / closer rules (utils/ticketPermissions.js)' };
+const rules = { gate: 'own: ticket staff / raiser / closer rules (features/tickets/permissions.js)' };
 
 module.exports = {
     name: 'tickets',
@@ -52,8 +52,8 @@ module.exports = {
     buttons: { prefix: routes('open', ticketButtons.prefix, rules) },
     modals: {
         prefix: {
-            'ticketCreateModal:': route('open', (i) => require('../features/tickets/buttons').handleTicketModal(i), { ...rules, falseMeansUnhandled: true }),
-            'ticket:': route('open', (i) => require('../features/tickets/buttons').handleTicketModal(i), { ...rules, falseMeansUnhandled: true }),
+            'ticketCreateModal:': route('open', (i) => require('./buttons').handleTicketModal(i), { ...rules, falseMeansUnhandled: true }),
+            'ticket:': route('open', (i) => require('./buttons').handleTicketModal(i), { ...rules, falseMeansUnhandled: true }),
         },
     },
 };
