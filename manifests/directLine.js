@@ -1,6 +1,6 @@
 const { routes } = require('../core/manifest');
-const direct_line = require('../commands/direct_line');
-const directLine = require('../buttons/directLine');
+const direct_line = require('../features/directLine/command');
+const directLine = require('../features/directLine/buttons');
 
 module.exports = {
     name: 'directLine',

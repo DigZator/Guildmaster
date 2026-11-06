@@ -7,12 +7,12 @@ const {
     OverwriteType,
     PermissionsBitField,
 } = require('discord.js');
-const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../config/ticketGuildConfig');
-const { HR_ROLE_ID } = require('../utils/isAdminChannel');
-const directLineStore = require('../utils/directLineStore');
-const { buildTranscript, sendTranscript, formatStamp } = require('../utils/ticketTranscript');
-const { reportError } = require('../utils/errorReporter');
-const { encodeId } = require('../interactions/directLineId');
+const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../../config/ticketGuildConfig');
+const { HR_ROLE_ID } = require('../../utils/isAdminChannel');
+const directLineStore = require('./store');
+const { buildTranscript, sendTranscript, formatStamp } = require('../../utils/ticketTranscript');
+const { reportError } = require('../../utils/errorReporter');
+const { encodeId } = require('../../interactions/directLineId');
 
 const CHANNEL_PREFIX = 'dc-';
 

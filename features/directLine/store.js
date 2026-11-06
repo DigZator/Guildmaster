@@ -1,8 +1,8 @@
 const path = require('path');
 const crypto = require('crypto');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../../utils/jsonStore');
 
-const dlStore = createJsonStore(path.join(__dirname, '../data/directLines.json'), []);
+const dlStore = createJsonStore(path.join(__dirname, '../../data/directLines.json'), []);
 
 const locks = new Map();
 

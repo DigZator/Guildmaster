@@ -1,7 +1,7 @@
-const { isAdminChannel } = require('../utils/isAdminChannel');
-const directLineStore = require('../utils/directLineStore');
-const directLineFlow = require('../flow/directLineFlow');
-const { decodeId } = require('../interactions/directLineId');
+const { isAdminChannel } = require('../../utils/isAdminChannel');
+const directLineStore = require('./store');
+const directLineFlow = require('./flow');
+const { decodeId } = require('../../interactions/directLineId');
 
 function denyMessage() {
     return { content: '❌ Only HR can do that.', flags: 64 };

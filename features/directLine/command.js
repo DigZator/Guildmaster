@@ -1,5 +1,5 @@
-const directLineStore = require('../utils/directLineStore');
-const directLineFlow = require('../flow/directLineFlow');
+const directLineStore = require('./store');
+const directLineFlow = require('./flow');
 
 function collectTargets(interaction) {
     const users = ['target', 'target2', 'target3', 'target4']

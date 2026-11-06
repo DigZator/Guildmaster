@@ -38,3 +38,17 @@ test('messaging: anonymous-message attachments are still swept from temp/ in the
     }
     assert.deepEqual(asked, [path.join(root, 'temp')]);
 });
+
+test('direct line: the store still uses data/directLines.json', () => {
+    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const real = require(jsonStorePath);
+    const seen = [];
+    require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
+    try {
+        delete require.cache[require.resolve('../features/directLine/store')];
+        require('../features/directLine/store');
+    } finally {
+        require.cache[jsonStorePath].exports = real;
+    }
+    assert.deepEqual(seen, [path.join(root, 'data', 'directLines.json')]);
+});

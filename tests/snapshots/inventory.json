@@ -1013,6 +1013,10 @@
     "commands/verification.js": [
       "dynamic: START_ID"
     ],
+    "features/directLine/flow.js": [
+      "encodeId(*, '${action}No')",
+      "encodeId(*, '${action}Yes')"
+    ],
     "features/messaging/anon/command.js": [
       "anon_cancel_${…}",
       "anon_confirm_${…}",
@@ -1020,10 +1024,6 @@
       "anon_nokey_confirm",
       "anon_remove_cancel_${…}",
       "anon_remove_confirm_${…}"
-    ],
-    "flow/directLineFlow.js": [
-      "encodeId(*, '${action}No')",
-      "encodeId(*, '${action}Yes')"
     ],
     "flow/ticketFlow.js": [
       "encodeId(*, '${action}No')",
@@ -1121,11 +1121,6 @@
         "botAdmin": 1
       }
     },
-    "buttons/directLine.js": {
-      "isAdminChannel": {
-        "hr": 1
-      }
-    },
     "commands/create_campaign/preflight.js": {
       "roles.cache": 1,
       "permissions.has": 1
@@ -1138,6 +1133,11 @@
     },
     "commands/verification.js": {
       "permissions.has": 2
+    },
+    "features/directLine/buttons.js": {
+      "isAdminChannel": {
+        "hr": 1
+      }
     },
     "utils/ticketPermissions.js": {
       "isAdminChannel": {
