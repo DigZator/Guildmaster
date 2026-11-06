@@ -404,7 +404,7 @@
     {
       "route": "list_games",
       "results": {
-        "bot=false | (deferReply)": [
+        "botAdmin=false | (deferReply)": [
           "nobody",
           "hr-role",
           "cmd-role",
@@ -412,11 +412,11 @@
           "dm-role",
           "player-roles",
           "discord-administrator",
+          "nobody@ctrl-channel",
           "nobody@league-channel"
         ],
-        "bot=true | (deferReply)": [
+        "botAdmin=true | (deferReply)": [
           "admins-role",
-          "nobody@ctrl-channel",
           "admins-role@ctrl-channel"
         ]
       }

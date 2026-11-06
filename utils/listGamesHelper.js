@@ -1,4 +1,37 @@
 const { EmbedBuilder } = require('discord.js');
+const { can } = require('../shared/auth');
+
+// Who sees the games that are not released yet (and the [HIDDEN] marker): the Admins role only. Being in the
+// control channel is not enough (a deliberate change, plan item 10; it used to be the Admins role OR that channel).
+function canSeeUnreleased(interaction) {
+    return can('admin', interaction);
+}
+
+function applyFilters(games, { formatFilter, typeFilter, browsing, isAdmin }) {
+    let filtered = [...games];
+
+    if (!isAdmin) {
+        filtered = filtered.filter(g => g.show);
+    }
+
+    if (!browsing) {
+        filtered = filtered.filter(g => g.activate);
+        filtered = filtered.filter(g => g.openSeats > 0);
+    }
+
+    if (formatFilter) {
+        filtered = filtered.filter(g => g.format === formatFilter);
+    }
+
+    if (typeFilter) {
+        filtered = filtered.filter(g => g.type === typeFilter);
+    }
+
+    filtered.sort((a, b) => b.createdTime - a.createdTime);
+
+    return filtered;
+}
+
 
 function formatGameLine(game, isAdmin) {
     const hidden = isAdmin && !game.show ? '[HIDDEN] ' : '';
@@ -31,4 +64,4 @@ function buildEmbed(games, page, isAdmin) {
     };
 }
 
-module.exports = { buildEmbed };
+module.exports = { buildEmbed, applyFilters, canSeeUnreleased };

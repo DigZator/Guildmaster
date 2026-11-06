@@ -45,8 +45,9 @@ module.exports = {
     commands: [
         admin('create_campaign', create_campaign),
         admin('announce_game', announce_game, gamePicker),
-        // No refusal: the handler shows unreleased games to the bot_legacy view only.
-        { name: 'list_games', policy: 'open', gate: 'bot_legacy', handler: list_games },
+        // Open to everyone. There is no refusal: the handler (utils/listGamesHelper.js canSeeUnreleased) shows the
+        // unreleased games to the Admins role only, a view and not an access check.
+        { name: 'list_games', policy: 'open', gate: 'admin', handler: list_games },
         admin('edit_game', edit_game, [{ name: 'game / field', policy: 'open', handle: editGameAutocomplete }]),
         admin('get_players', get_players, gamePicker),
         admin('manipulate_table', manipulate_table, gamePicker),

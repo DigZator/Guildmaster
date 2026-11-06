@@ -1,32 +1,6 @@
 const { getCachedGames } = require('../utils/cache');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { buildEmbed } = require('../utils/listGamesHelper');
-const { isAdminChannel } = require('../utils/isAdminChannel');
-
-function applyFilters(games, { formatFilter, typeFilter, browsing, isAdmin }) {
-    let filtered = [...games];
-
-    if (!isAdmin) {
-        filtered = filtered.filter(g => g.show);
-    }
-
-    if (!browsing) {
-        filtered = filtered.filter(g => g.activate);
-        filtered = filtered.filter(g => g.openSeats > 0);
-    }
-
-    if (formatFilter) {
-        filtered = filtered.filter(g => g.format === formatFilter);
-    }
-
-    if (typeFilter) {
-        filtered = filtered.filter(g => g.type === typeFilter);
-    }
-
-    filtered.sort((a, b) => b.createdTime - a.createdTime);
-
-    return filtered;
-}
+const { buildEmbed, applyFilters, canSeeUnreleased } = require('../utils/listGamesHelper');
 
 module.exports = async (interaction, client) => {
     const formatFilter = interaction.options.getString('format_filter');
@@ -34,7 +8,7 @@ module.exports = async (interaction, client) => {
     const browsing = interaction.options.getBoolean('browsing') ?? false;
     const n = interaction.options.getInteger('n');
     const isPublic = interaction.options.getBoolean('public') ?? true;
-    const isAdmin = isAdminChannel(interaction);
+    const isAdmin = canSeeUnreleased(interaction);
 
     await interaction.deferReply({ flags: isPublic ? 0 : 64 });
 

@@ -1136,11 +1136,6 @@
     "commands/leagueQuest.js": {
       "roles.cache": 1
     },
-    "commands/list_games.js": {
-      "isAdminChannel": {
-        "bot (default)": 1
-      }
-    },
     "commands/verification.js": {
       "permissions.has": 2
     },
