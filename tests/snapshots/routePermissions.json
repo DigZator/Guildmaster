@@ -2740,9 +2740,8 @@
     {
       "route": "archive_confirm_zz",
       "results": {
-        "no-isAdminChannel-call | ⏳ Archiving…": [
+        "botAdmin=false | ❌ You do not have permission to use this command.": [
           "nobody",
-          "admins-role",
           "hr-role",
           "cmd-role",
           "clerk+clankers",
@@ -2750,7 +2749,10 @@
           "player-roles",
           "discord-administrator",
           "nobody@ctrl-channel",
-          "nobody@league-channel",
+          "nobody@league-channel"
+        ],
+        "botAdmin=true | ⏳ Archiving…": [
+          "admins-role",
           "admins-role@ctrl-channel"
         ]
       }

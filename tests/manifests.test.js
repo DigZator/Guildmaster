@@ -95,7 +95,7 @@ const ENFORCED_SUBCOMMANDS = {
 const CHANNEL_FILE_TEXT = '❌ You do not have permission to use this.';
 const PAGER_TEXT = '❌ You don\'t have permission to do that.';
 const ENFORCED_ROUTES = {
-    button: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT], 'verification:pending:': ['admin_or_discord_admin', PAGER_TEXT] },
+    button: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT], 'verification:pending:': ['admin_or_discord_admin', PAGER_TEXT], 'archive_confirm_': ['admin', undefined] },
     modal: { 'channelFile:': ['cmd', CHANNEL_FILE_TEXT] },
 };
 const OWN_DENIED = new Set(['the_long_rest', 'ticket']);

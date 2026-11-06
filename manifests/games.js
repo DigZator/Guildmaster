@@ -54,8 +54,9 @@ module.exports = {
         admin('archive-config', archiveConfig),
     ],
     buttons: {
-        // These buttons check nothing themselves today; the messages that carry them are ephemeral replies
-        // to admin-gated commands (see POST_REFACTOR.md).
+        // Most of these buttons check nothing themselves; the messages that carry them are ephemeral replies
+        // to admin-gated commands (see POST_REFACTOR.md). Plan item 15 is adding the Admins check to them
+        // one group at a time; the groups declared 'admin' below are the ones done so far.
         exact: {
             ...routes('open', announcement.exact),
             ...routes('open', archiveButtons.exact),
@@ -64,7 +65,7 @@ module.exports = {
         prefix: {
             ...routes('open', listGames.prefix),
             ...routes('open', editGameCheckbox.prefix),
-            ...routes('open', archiveButtons.prefix),
+            ...routes('admin', archiveButtons.prefix),   // archive_confirm_*: Admins only (a deliberate change, plan item 15)
             ...routes('open', tableAdmin.prefix),
         },
     },
