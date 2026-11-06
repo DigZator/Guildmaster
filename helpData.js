@@ -148,20 +148,8 @@ module.exports = {
     ...require('./features/messaging').help.admin,
     // tickets: help text of the tickets feature
     ...require('./features/tickets').help.admin,
-    archive: {
-      label: 'Archiving',
-      description: 'Lock and move channels/categories out of active use. Requires the Admin role.',
-      commands: [
-        {
-          name: '/archive <target>',
-          description: 'Lock a channel or category read-only and move it into the configured archive category. Works on text, voice, stage, announcement, and forum channels, as well as whole categories.',
-        },
-        {
-          name: '/archive-config <category>',
-          description: 'Set which category `/archive` moves archived channels into. Run this once before using `/archive`.',
-        },
-      ],
-    },
+    // archive: help text of the archive feature
+    ...require('./features/archive').help.admin,
     config: {
       label: 'Channel Configuration',
       description: 'Change where the bot sends things (logs, quest board, feeds and so on) without editing `.env`. Requires the Admin role. Changes are saved and take effect the next time the bot restarts. The control and league-admin channels, roles and secrets stay in `.env`.',
