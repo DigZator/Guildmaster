@@ -10,7 +10,7 @@ module.exports = [
     require('../features/tickets').manifest,
     require('../features/directLine').manifest,
     require('../features/channelFile').manifest,
-    require('./verification'),
+    require('../features/verification').manifest,
     require('./config'),
     require('./league'),
 ];
