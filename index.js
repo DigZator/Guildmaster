@@ -34,7 +34,7 @@ require('./utils/trapChannel')(client);
 require('./utils/deactivator').init(client);
 require('./features/tickets/dashboardWatcher').init(client);
 require('./features/tickets/mentions').init(client);
-require('./utils/verificationWatcher').init(client);
+require('./features/verification/watcher').init(client);
 require('./utils/memorialReindex').init(client);
 require('./features/channelFile/review').init(client);
 require('./utils/mappingCheck').init(client);

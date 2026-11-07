@@ -1,7 +1,7 @@
 const path = require('path');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../../utils/jsonStore');
 
-const store = createJsonStore(path.join(__dirname, '../data/verification.json'), { users: {} });
+const store = createJsonStore(path.join(__dirname, '../../data/verification.json'), { users: {} });
 
 function load() {
     const data = store.load();

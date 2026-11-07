@@ -98,3 +98,19 @@ test('channel file: the protect list is still data/channelFileProtected.json, an
     assert.deepEqual(seenWith({}), [path.join(root, 'data', 'channelFileProtected.json')]);
     assert.deepEqual(seenWith({ CHANNEL_FILE_PROTECTED_PATH: '/tmp/protected-elsewhere.json' }), ['/tmp/protected-elsewhere.json']);
 });
+
+test('verification: the settings and the member store still use data/verificationConfig.json and data/verification.json', () => {
+    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const real = require(jsonStorePath);
+    const seen = [];
+    require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
+    try {
+        for (const mod of ['../features/verification/config', '../features/verification/store']) {
+            delete require.cache[require.resolve(mod)];
+            require(mod);
+        }
+    } finally {
+        require.cache[jsonStorePath].exports = real;
+    }
+    assert.deepEqual(seen.sort(), [path.join(root, 'data', 'verification.json'), path.join(root, 'data', 'verificationConfig.json')].sort());
+});

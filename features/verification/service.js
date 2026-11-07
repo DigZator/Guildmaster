@@ -1,8 +1,8 @@
 const { PermissionFlagsBits } = require('discord.js');
-const store = require('./verificationStore');
-const log = require('./verificationLog');
-const { getConfig } = require('../config/verificationConfig');
-const { reportError } = require('./errorReporter');
+const store = require('./store');
+const log = require('./log');
+const { getConfig } = require('./config');
+const { reportError } = require('../../utils/errorReporter');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

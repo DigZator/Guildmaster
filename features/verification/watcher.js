@@ -1,8 +1,8 @@
-const store = require('./verificationStore');
-const log = require('./verificationLog');
-const service = require('./verificationService');
-const { getConfig, setConfig } = require('../config/verificationConfig');
-const { reportError } = require('./errorReporter');
+const store = require('./store');
+const log = require('./log');
+const service = require('./service');
+const { getConfig, setConfig } = require('./config');
+const { reportError } = require('../../utils/errorReporter');
 
 const TICK_MS = 60 * 1000;
 let busy = false;

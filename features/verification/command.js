@@ -1,10 +1,10 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
-const store = require('../utils/verificationStore');
-const log = require('../utils/verificationLog');
-const service = require('../utils/verificationService');
-const { getConfig, setConfig, BOUNDS } = require('../config/verificationConfig');
-const { buildPendingPage } = require('../utils/verificationPending');
-const { START_ID } = require('../buttons/verification');
+const store = require('./store');
+const log = require('./log');
+const service = require('./service');
+const { getConfig, setConfig, BOUNDS } = require('./config');
+const { buildPendingPage } = require('./pending');
+const { START_ID } = require('./buttons');
 
 const EPHEMERAL = 64;
 

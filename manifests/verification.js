@@ -1,6 +1,6 @@
 const { route, routes } = require('../core/manifest');
-const verification = require('../commands/verification');
-const verificationButtons = require('../buttons/verification');
+const verification = require('../features/verification/command');
+const verificationButtons = require('../features/verification/buttons');
 
 const ownVerify = { gate: 'own: roles and Discord permissions (utils/verificationService.js)' };
 
@@ -17,5 +17,5 @@ module.exports = {
             'verification:pending:': route('admin_or_discord_admin', verificationButtons.prefix['verification:pending:'], { denied: '❌ You don\'t have permission to do that.' }),
         },
     },
-    modals: { exact: { 'verification:modal': route('open', (i, c) => require('../buttons/verification').handleModalSubmit(i, c), ownVerify) } },
+    modals: { exact: { 'verification:modal': route('open', (i, c) => require('../features/verification/buttons').handleModalSubmit(i, c), ownVerify) } },
 };

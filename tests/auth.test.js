@@ -8,7 +8,7 @@ const assert = require('node:assert/strict');
 const { testEnv } = require('./helpers/env');
 const { isAdminChannel, ADMIN_CONFIG } = require('../utils/isAdminChannel');
 const { isTlrMod } = require('../config/tlrRoles');
-const { isVerificationAdmin } = require('../utils/verificationAdmin');
+const { isVerificationAdmin } = require('../features/verification/admin');
 const auth = require('../shared/auth');
 const { ROLE_VARS } = require('../config/roleVars');
 

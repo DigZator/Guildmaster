@@ -2,14 +2,14 @@ const {
     ModalBuilder, TextInputBuilder, TextInputStyle, LabelBuilder, TextDisplayBuilder,
     ActionRowBuilder, ButtonBuilder, ButtonStyle,
 } = require('discord.js');
-const store = require('../utils/verificationStore');
-const log = require('../utils/verificationLog');
-const service = require('../utils/verificationService');
-const { getConfig } = require('../config/verificationConfig');
-const { generateProblem, parseAnswer } = require('../utils/verificationProblems');
-const { tryAcquire, release } = require('../utils/interactionLock');
-const { buildPendingPage, PAGER_PREFIX } = require('../utils/verificationPending');
-const { reportError } = require('../utils/errorReporter');
+const store = require('./store');
+const log = require('./log');
+const service = require('./service');
+const { getConfig } = require('./config');
+const { generateProblem, parseAnswer } = require('./problems');
+const { tryAcquire, release } = require('../../utils/interactionLock');
+const { buildPendingPage, PAGER_PREFIX } = require('./pending');
+const { reportError } = require('../../utils/errorReporter');
 
 const START_ID = 'verification:start';
 const RETRY_ID = 'verification:retry';

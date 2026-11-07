@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const store = require('./verificationStore');
-const { getConfig } = require('../config/verificationConfig');
-const { deadlineOf } = require('./verificationService');
+const store = require('./store');
+const { getConfig } = require('./config');
+const { deadlineOf } = require('./service');
 
 const PAGE_SIZE = 15;
 const PAGER_PREFIX = 'verification:pending:';

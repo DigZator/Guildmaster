@@ -959,11 +959,6 @@
       "tlrRemoveSelect",
       "tlrSubmit"
     ],
-    "buttons/verification.js": [
-      "answer",
-      "dynamic: MODAL_ID",
-      "dynamic: RETRY_ID"
-    ],
     "commands/create_campaign/preview.js": [
       "create_campaign_cancel",
       "create_campaign_confirm"
@@ -995,9 +990,6 @@
     "commands/list_games.js": [
       "list_games_next_${…}",
       "list_games_prev_${…}"
-    ],
-    "commands/verification.js": [
-      "dynamic: START_ID"
     ],
     "features/archive/command.js": [
       "archive_cancel",
@@ -1047,6 +1039,17 @@
       "dynamic: id",
       "encodeId(*, 'closeFeedbackModal')",
       "ticketCreateModal:${…}"
+    ],
+    "features/verification/buttons.js": [
+      "answer",
+      "dynamic: MODAL_ID",
+      "dynamic: RETRY_ID"
+    ],
+    "features/verification/command.js": [
+      "dynamic: START_ID"
+    ],
+    "features/verification/pending.js": [
+      "${…}"
     ],
     "interactions/questDashboardRender.js": [
       "encodeId(*, 'addReward')",
@@ -1111,9 +1114,6 @@
     "utils/tlrRemoveFlow.js": [
       "cancel_remove_${…}",
       "confirm_remove_${…}"
-    ],
-    "utils/verificationPending.js": [
-      "${…}"
     ]
   },
   "permissionChecks": {
@@ -1132,9 +1132,6 @@
     "commands/leagueQuest.js": {
       "roles.cache": 1
     },
-    "commands/verification.js": {
-      "permissions.has": 2
-    },
     "features/directLine/buttons.js": {
       "isAdminChannel": {
         "hr": 1
@@ -1145,17 +1142,20 @@
         "botAdmin": 1
       }
     },
-    "utils/verificationAdmin.js": {
+    "features/verification/admin.js": {
       "isAdminChannel": {
         "botAdmin": 1
       },
       "permissions.has": 1
     },
-    "utils/verificationService.js": {
+    "features/verification/command.js": {
+      "permissions.has": 2
+    },
+    "features/verification/service.js": {
       "roles.cache": 3,
       "permissions.has": 1
     },
-    "utils/verificationWatcher.js": {
+    "features/verification/watcher.js": {
       "roles.cache": 2
     }
   },
@@ -1177,7 +1177,7 @@
     "./utils/deactivator.init",
     "./features/tickets/dashboardWatcher.init",
     "./features/tickets/mentions.init",
-    "./utils/verificationWatcher.init",
+    "./features/verification/watcher.init",
     "./utils/memorialReindex.init",
     "./features/channelFile/review.init",
     "./utils/mappingCheck.init"

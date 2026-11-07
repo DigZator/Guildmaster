@@ -1,4 +1,4 @@
-const { isAdminChannel } = require('./isAdminChannel');
+const { isAdminChannel } = require('../../utils/isAdminChannel');
 
 function isVerificationAdmin(interaction) {
     return isAdminChannel(interaction, 'botAdmin')

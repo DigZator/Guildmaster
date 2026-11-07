@@ -1,5 +1,5 @@
 const path = require('path');
-const { createJsonStore } = require('../utils/jsonStore');
+const { createJsonStore } = require('../../utils/jsonStore');
 
 const DEFAULTS = {
     dashboardChannelId: null,
@@ -23,7 +23,7 @@ const BOUNDS = {
     deadlineDays: [1, 90],
 };
 
-const configStore = createJsonStore(path.join(__dirname, '../data/verificationConfig.json'), DEFAULTS);
+const configStore = createJsonStore(path.join(__dirname, '../../data/verificationConfig.json'), DEFAULTS);
 
 function getConfig() {
     const stored = configStore.load();

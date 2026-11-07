@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getConfig } = require('../config/verificationConfig');
+const { getConfig } = require('./config');
 
 const COLORS = {
     pass: 0x57f287,
