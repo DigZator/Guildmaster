@@ -6,7 +6,7 @@ module.exports = [
     require('../features/archive').manifest,
     require('../features/messaging').manifest,
     require('./activationSchedule'),
-    require('./theLongRest'),
+    require('../features/theLongRest').manifest,
     require('../features/tickets').manifest,
     require('../features/directLine').manifest,
     require('../features/channelFile').manifest,

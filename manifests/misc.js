@@ -1,9 +1,7 @@
-const { routes } = require('../core/manifest');
 const ping = require('../commands/ping');
 const keep_alive = require('../commands/keep_alive');
 const help = require('../commands/help');
 const game_info = require('../commands/game_info');
-const deletions = require('../features/theLongRest/confirmDelete');
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
 const helpData = require('../helpData');
 
@@ -34,8 +32,4 @@ module.exports = {
         { name: 'help', policy: 'open', handler: help, autocomplete: [{ name: 'family', policy: 'open', handle: helpAutocomplete }] },
         { name: 'game_info', policy: 'open', handler: game_info, autocomplete: [{ name: 'games', policy: 'open', handle: gameAutocomplete }] },
     ],
-    buttons: {
-        // confirm_remove_ / cancel_remove_: the handler checks the person who started the removal.
-        prefix: routes('open', deletions.prefix, { gate: 'own: the person who started the removal' }),
-    },
 };

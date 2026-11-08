@@ -211,7 +211,6 @@
       "games",
       "league",
       "messaging",
-      "misc",
       "theLongRest",
       "tickets",
       "verification"
@@ -507,10 +506,10 @@
       {
         "key": "cancel_remove_",
         "declaredBy": [
-          "misc"
+          "theLongRest"
         ],
         "alsoMatches": [],
-        "winner": "misc.prefix[cancel_remove_]"
+        "winner": "theLongRest.prefix[cancel_remove_]"
       },
       {
         "key": "channelFile:",
@@ -547,10 +546,10 @@
       {
         "key": "confirm_remove_",
         "declaredBy": [
-          "misc"
+          "theLongRest"
         ],
         "alsoMatches": [],
-        "winner": "misc.prefix[confirm_remove_]"
+        "winner": "theLongRest.prefix[confirm_remove_]"
       },
       {
         "key": "dl:",

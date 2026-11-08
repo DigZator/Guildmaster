@@ -1,7 +1,8 @@
-const { route, routes } = require('../core/manifest');
-const the_long_rest = require('../features/theLongRest/command');
-const memorial = require('../features/theLongRest/memorial');
-const theLongRest = require('../features/theLongRest/buttons');
+const { route, routes } = require('../../core/manifest');
+const the_long_rest = require('./command');
+const memorial = require('./memorial');
+const theLongRest = require('./buttons');
+const deletions = require('./confirmDelete');
 
 const ownTlr = { gate: 'own: tlr_mod' };
 
@@ -25,15 +26,18 @@ module.exports = {
             tlrRemoveRequest: route('open', theLongRest.exact.tlrRemoveRequest, { gate: 'own: author, or tlr_mod' }),
             tlrRemoveProceed: route('open', theLongRest.exact.tlrRemoveProceed, ownTlr),
         },
+        // confirm_remove_ / cancel_remove_ (confirming or cancelling the removal of a memorial; it used to be listed under
+        // misc): the handler checks the person who started the removal.
+        prefix: routes('open', deletions.prefix, { gate: 'own: the person who started the removal' }),
     },
     modals: {
         exact: {
-            characterSubmission_1: route('open', (i, c) => require('../features/theLongRest/modals/characterSubmission_1')(i, c)),
-            characterSubmission_2: route('open', (i, c) => require('../features/theLongRest/modals/characterSubmission_2')(i, c)),
-            tlrRemoveModal: route('open', (i) => require('../features/theLongRest/buttons').handleRemoveModalSubmit(i), { gate: 'own: author, or tlr_mod' }),
+            characterSubmission_1: route('open', (i, c) => require('./modals/characterSubmission_1')(i, c)),
+            characterSubmission_2: route('open', (i, c) => require('./modals/characterSubmission_2')(i, c)),
+            tlrRemoveModal: route('open', (i) => require('./buttons').handleRemoveModalSubmit(i), { gate: 'own: author, or tlr_mod' }),
         },
     },
     selects: {
-        exact: { tlrRemoveSelect: route('open', (i) => require('../features/theLongRest/buttons').handleRemoveSelect(i), { gate: 'own: author, or tlr_mod' }) },
+        exact: { tlrRemoveSelect: route('open', (i) => require('./buttons').handleRemoveSelect(i), { gate: 'own: author, or tlr_mod' }) },
     },
 };
