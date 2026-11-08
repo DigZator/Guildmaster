@@ -8,10 +8,10 @@ const {
     TextInputBuilder,
     TextInputStyle,
 } = require('discord.js');
-const { buildRemoveConfirmation } = require('../utils/tlrRemoveFlow');
-const memorialIndex = require('../utils/memorialIndex');
-const { isTlrMod } = require('../config/tlrRoles');
-const { MEMORIAL_LIMITS } = require('../utils/memorialEmbed');
+const { buildRemoveConfirmation } = require('./removeFlow');
+const memorialIndex = require('./memorialIndex');
+const { isTlrMod } = require('./roles');
+const { MEMORIAL_LIMITS } = require('./memorialEmbed');
 
 const MAX_SELECT_OPTIONS = 25; // Discord's limit for a select menu
 

@@ -3,7 +3,7 @@ const ping = require('../commands/ping');
 const keep_alive = require('../commands/keep_alive');
 const help = require('../commands/help');
 const game_info = require('../commands/game_info');
-const deletions = require('../buttons/confirmDelete');
+const deletions = require('../features/theLongRest/confirmDelete');
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
 const helpData = require('../helpData');
 

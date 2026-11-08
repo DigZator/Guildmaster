@@ -1,8 +1,8 @@
-const { TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID, THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
-const { getConfig, setConfig } = require('../config/tlrDashboardConfig');
-const { buildDashboardEmbed, buildDashboardRow, buildSubmissionModal } = require('../buttons/theLongRest');
-const { buildRemoveConfirmation } = require('../utils/tlrRemoveFlow');
-const { reindexChannel } = require('../utils/memorialReindex');
+const { TLR_SUBMISSION_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID, THE_LONG_REST_CHANNEL_ID } = require('../../data/channels');
+const { getConfig, setConfig } = require('./dashboardConfig');
+const { buildDashboardEmbed, buildDashboardRow, buildSubmissionModal } = require('./buttons');
+const { buildRemoveConfirmation } = require('./removeFlow');
+const { reindexChannel } = require('./memorialReindex');
 
 async function handleReindex(interaction) {
     const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);

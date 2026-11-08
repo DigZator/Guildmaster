@@ -1,6 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
-const { isTlrMod } = require('../config/tlrRoles');
+const { THE_LONG_REST_CHANNEL_ID } = require('../../data/channels');
+const { isTlrMod } = require('./roles');
 const memorialIndex = require('./memorialIndex');
 
 async function buildRemoveConfirmation(interaction, messageId) {

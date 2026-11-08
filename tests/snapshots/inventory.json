@@ -883,10 +883,6 @@
       "list_games_next_${…}",
       "list_games_prev_${…}"
     ],
-    "buttons/memorial.js": [
-      "characterSubmission_2",
-      "dynamic: f.id"
-    ],
     "buttons/questDashboard/common.js": [
       "dynamic: encodeId(questId, backAction, backExtra)",
       "encodeId(*, 'backToDashboard')",
@@ -948,17 +944,6 @@
       "tableAdminNumberModal:${…}",
       "value"
     ],
-    "buttons/theLongRest.js": [
-      "characterSubmission_1",
-      "dynamic: id",
-      "messageId",
-      "tlrRemoveCancel",
-      "tlrRemoveModal",
-      "tlrRemoveProceed",
-      "tlrRemoveRequest",
-      "tlrRemoveSelect",
-      "tlrSubmit"
-    ],
     "commands/create_campaign/preview.js": [
       "create_campaign_cancel",
       "create_campaign_confirm"
@@ -1019,6 +1004,34 @@
       "anon_remove_cancel_${…}",
       "anon_remove_confirm_${…}"
     ],
+    "features/theLongRest/buttons.js": [
+      "characterSubmission_1",
+      "dynamic: id",
+      "messageId",
+      "tlrRemoveCancel",
+      "tlrRemoveModal",
+      "tlrRemoveProceed",
+      "tlrRemoveRequest",
+      "tlrRemoveSelect",
+      "tlrSubmit"
+    ],
+    "features/theLongRest/memorial.js": [
+      "characterSubmission_2",
+      "dynamic: f.id"
+    ],
+    "features/theLongRest/memorialButtons.js": [
+      "memorial_mod_approve",
+      "memorial_mod_deny",
+      "memorial_preview_cancel",
+      "memorial_preview_confirm"
+    ],
+    "features/theLongRest/modals/characterSubmission_1.js": [
+      "continue_memorial_part2"
+    ],
+    "features/theLongRest/removeFlow.js": [
+      "cancel_remove_${…}",
+      "confirm_remove_${…}"
+    ],
     "features/tickets/buttons.js": [
       "ticket:<ticketId>:<action>",
       "ticketCreate:<typeKey>"
@@ -1068,9 +1081,6 @@
       "encodeId(*, 'editStatus')",
       "encodeId(*, 'refresh')"
     ],
-    "modals/characterSubmission_1.js": [
-      "continue_memorial_part2"
-    ],
     "modals/leagueCreate.js": [
       "background",
       "characterName",
@@ -1102,18 +1112,8 @@
       "config:cancel:${…}",
       "config:confirm:${…}"
     ],
-    "utils/memorialButtons.js": [
-      "memorial_mod_approve",
-      "memorial_mod_deny",
-      "memorial_preview_cancel",
-      "memorial_preview_confirm"
-    ],
     "utils/tableAdminWatcher.js": [
       "tableAdminReactivate:${…}"
-    ],
-    "utils/tlrRemoveFlow.js": [
-      "cancel_remove_${…}",
-      "confirm_remove_${…}"
     ]
   },
   "permissionChecks": {
@@ -1163,7 +1163,7 @@
     "./interactions/threadAlertLog",
     "./flow/announcementFlow",
     "./flow/editGameArtFlow",
-    "./flow/tlrSubmissionFlow",
+    "./features/theLongRest/submissionFlow",
     "./core/boot",
     "./features/messaging/rss/flow",
     "./utils/cacheWatcher.init",
@@ -1178,7 +1178,7 @@
     "./features/tickets/dashboardWatcher.init",
     "./features/tickets/mentions.init",
     "./features/verification/watcher.init",
-    "./utils/memorialReindex.init",
+    "./features/theLongRest/memorialReindex.init",
     "./features/channelFile/review.init",
     "./utils/mappingCheck.init"
   ]

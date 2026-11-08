@@ -1,5 +1,5 @@
-const { TLR_SUBMISSION_CHANNEL_ID } = require('../data/channels');
-const { isTlrMod } = require('../config/tlrRoles');
+const { TLR_SUBMISSION_CHANNEL_ID } = require('../../data/channels');
+const { isTlrMod } = require('./roles');
 
 module.exports = (client) => {
     client.on('messageCreate', async (message) => {

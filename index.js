@@ -20,7 +20,7 @@ require('./config/roleVars').report();
 require('./interactions/threadAlertLog')(client);
 require('./flow/announcementFlow')(client);
 require('./flow/editGameArtFlow')(client);
-require('./flow/tlrSubmissionFlow')(client);
+require('./features/theLongRest/submissionFlow')(client);
 require('./core/boot')(client);
 require('./features/messaging/rss/flow')(client);
 require('./utils/cacheWatcher').init(client);
@@ -35,7 +35,7 @@ require('./utils/deactivator').init(client);
 require('./features/tickets/dashboardWatcher').init(client);
 require('./features/tickets/mentions').init(client);
 require('./features/verification/watcher').init(client);
-require('./utils/memorialReindex').init(client);
+require('./features/theLongRest/memorialReindex').init(client);
 require('./features/channelFile/review').init(client);
 require('./utils/mappingCheck').init(client);
 

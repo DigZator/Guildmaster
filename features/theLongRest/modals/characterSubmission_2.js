@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
-const memorialDrafts = require('../utils/memorialDrafts');
-const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
-const { buildPreviewButtons } = require('../utils/memorialButtons');
+const memorialDrafts = require('../memorialDrafts');
+const { THE_LONG_REST_CHANNEL_ID } = require('../../../data/channels');
+const { buildPreviewButtons } = require('../memorialButtons');
 const {
     FIELD_VALUE_MAX,
     TITLE_MAX,
@@ -10,7 +10,7 @@ const {
     safe,
     longTextFields,
     embedSize,
-} = require('../utils/memorialEmbed');
+} = require('../memorialEmbed');
 
 async function validateImageURL(url) {
     const controller = new AbortController();

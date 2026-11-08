@@ -1,6 +1,6 @@
-const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
-const memorialIndex = require('../utils/memorialIndex');
-const { isTlrMod } = require('../config/tlrRoles');
+const { THE_LONG_REST_CHANNEL_ID } = require('../../data/channels');
+const memorialIndex = require('./memorialIndex');
+const { isTlrMod } = require('./roles');
 
 module.exports = {
 

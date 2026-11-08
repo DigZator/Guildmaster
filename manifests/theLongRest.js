@@ -1,7 +1,7 @@
 const { route, routes } = require('../core/manifest');
-const the_long_rest = require('../commands/the_long_rest');
-const memorial = require('../buttons/memorial');
-const theLongRest = require('../buttons/theLongRest');
+const the_long_rest = require('../features/theLongRest/command');
+const memorial = require('../features/theLongRest/memorial');
+const theLongRest = require('../features/theLongRest/buttons');
 
 const ownTlr = { gate: 'own: tlr_mod' };
 
@@ -28,12 +28,12 @@ module.exports = {
     },
     modals: {
         exact: {
-            characterSubmission_1: route('open', (i, c) => require('../modals/characterSubmission_1')(i, c)),
-            characterSubmission_2: route('open', (i, c) => require('../modals/characterSubmission_2')(i, c)),
-            tlrRemoveModal: route('open', (i) => require('../buttons/theLongRest').handleRemoveModalSubmit(i), { gate: 'own: author, or tlr_mod' }),
+            characterSubmission_1: route('open', (i, c) => require('../features/theLongRest/modals/characterSubmission_1')(i, c)),
+            characterSubmission_2: route('open', (i, c) => require('../features/theLongRest/modals/characterSubmission_2')(i, c)),
+            tlrRemoveModal: route('open', (i) => require('../features/theLongRest/buttons').handleRemoveModalSubmit(i), { gate: 'own: author, or tlr_mod' }),
         },
     },
     selects: {
-        exact: { tlrRemoveSelect: route('open', (i) => require('../buttons/theLongRest').handleRemoveSelect(i), { gate: 'own: author, or tlr_mod' }) },
+        exact: { tlrRemoveSelect: route('open', (i) => require('../features/theLongRest/buttons').handleRemoveSelect(i), { gate: 'own: author, or tlr_mod' }) },
     },
 };

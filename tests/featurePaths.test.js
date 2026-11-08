@@ -114,3 +114,19 @@ test('verification: the settings and the member store still use data/verificatio
     }
     assert.deepEqual(seen.sort(), [path.join(root, 'data', 'verification.json'), path.join(root, 'data', 'verificationConfig.json')].sort());
 });
+
+test('the long rest: the dashboard settings and the memorial index still use data/tlrDashboardConfig.json and data/memorialIndex.json', () => {
+    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const real = require(jsonStorePath);
+    const seen = [];
+    require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
+    try {
+        for (const mod of ['../features/theLongRest/dashboardConfig', '../features/theLongRest/memorialIndex']) {
+            delete require.cache[require.resolve(mod)];
+            require(mod);
+        }
+    } finally {
+        require.cache[jsonStorePath].exports = real;
+    }
+    assert.deepEqual(seen.sort(), [path.join(root, 'data', 'memorialIndex.json'), path.join(root, 'data', 'tlrDashboardConfig.json')].sort());
+});

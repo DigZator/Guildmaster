@@ -1,12 +1,12 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
-const memorialDrafts = require('../utils/memorialDrafts');
-const memorialIndex = require('../utils/memorialIndex');
-const { reportError } = require('../utils/errorReporter');
-const { THE_LONG_REST_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID } = require('../data/channels');
-const { TLR_MOD_PING_ROLE_ID } = require('../config/tlrRoles');
-const { tryAcquire, release } = require('../utils/interactionLock');
-const { buildPreviewButtons, buildModButtons } = require('../utils/memorialButtons');
-const { MEMORIAL_LIMITS } = require('../utils/memorialEmbed');
+const memorialDrafts = require('./memorialDrafts');
+const memorialIndex = require('./memorialIndex');
+const { reportError } = require('../../utils/errorReporter');
+const { THE_LONG_REST_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID } = require('../../data/channels');
+const { TLR_MOD_PING_ROLE_ID } = require('./roles');
+const { tryAcquire, release } = require('../../utils/interactionLock');
+const { buildPreviewButtons, buildModButtons } = require('./memorialButtons');
+const { MEMORIAL_LIMITS } = require('./memorialEmbed');
 
 const HOLD_MS = 5 * 60 * 1000;
 

@@ -100,7 +100,7 @@ All raw Discord interaction events are centralized in `interactions/`, each file
 
 Multi-step, message-driven (not just component-driven) flows live in `flow/` and are also registered directly on `client` in `index.js`:
 - **`announcementFlow.js`** — manual game-announcement wizard.
-- **`tlrSubmissionFlow.js`** — "The Long Rest" (character memorial) submission wizard.
+- **`features/theLongRest/submissionFlow.js`** — "The Long Rest" (character memorial) submission wizard.
 - **`features/messaging/rss/flow.js`** — guided RSS feed setup.
 - **`features/tickets/flow.js`** — ticket creation/lifecycle conversational steps.
 
@@ -247,7 +247,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `channelMap.js` → `channelMap.json` | Channel mappings set with `/config` (they override `.env`; applied when the bot starts) |
 | `pendingActions.js` → `pendingActions.json` | Generic pending-approval queue (rep/gold/milestone/item grants) |
 | `questDrafts.js` / `questReportDrafts` → `questRewardDrafts.json` | In-progress quest reward dashboards |
-| `memorialIndex.js` → `memorialIndex.json` | The Long Rest memorial index |
+| `features/theLongRest/memorialIndex.js` → `memorialIndex.json` | The Long Rest memorial index |
 | `priceOverrides.json` | Manual price overrides for catalogue items |
 | `archiveConfig.js` → `archiveConfig.json` | Destination category for `/archive` |
 | `threadReport.json` | Thread-activity report state |
@@ -306,7 +306,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - Moves a channel or category into a configured "archive" category and locks it read-only.
 - Supports text, voice, stage, announcement, forum, and category channel types.
 
-### 8.7 The Long Rest — Memorials (`the_long_rest`, `flow/tlrSubmissionFlow.js`, `utils/memorialIndex.js`, `utils/memorialDrafts.js`)
+### 8.7 The Long Rest — Memorials (`the_long_rest`, `features/theLongRest/`: `command.js`, `submissionFlow.js`, `memorialIndex.js`, `memorialDrafts.js`)
 - A dedicated system for posting character "memorials" (retirement/death write-ups) to a channel, with a searchable index that can be rebuilt via `/the_long_rest reindex` by rescanning the output channel.
 
 ### 8.8 Autocomplete

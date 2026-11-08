@@ -1,5 +1,5 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const memorialDrafts = require('../utils/memorialDrafts');
+const memorialDrafts = require('../memorialDrafts');
 
 module.exports = async (interaction, client) => {
     if (!interaction.isModalSubmit()) return;

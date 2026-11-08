@@ -1,5 +1,5 @@
 const memorialIndex = require('./memorialIndex');
-const { THE_LONG_REST_CHANNEL_ID } = require('../data/channels');
+const { THE_LONG_REST_CHANNEL_ID } = require('../../data/channels');
 
 const PAGE_SIZE = 100;
 const MAX_PAGES = 50;

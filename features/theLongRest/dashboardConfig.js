@@ -1,7 +1,7 @@
 const path = require('path');
-const { createJsonStore } = require('../utils/jsonStore');
+const { createJsonStore } = require('../../utils/jsonStore');
 
-const configStore = createJsonStore(path.join(__dirname, '../data/tlrDashboardConfig.json'), {
+const configStore = createJsonStore(path.join(__dirname, '../../data/tlrDashboardConfig.json'), {
     dashboardChannelId: null,
     dashboardMessageId: null,
 });

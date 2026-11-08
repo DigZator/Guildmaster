@@ -1,7 +1,7 @@
 const path = require('path');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../../utils/jsonStore');
 
-const store = createJsonStore(path.join(__dirname, '../data/memorialIndex.json'), {
+const store = createJsonStore(path.join(__dirname, '../../data/memorialIndex.json'), {
     entries: [], // { messageId, authorId, characterName, postedAt }
 });
 
