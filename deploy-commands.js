@@ -61,27 +61,8 @@ const commands = [
 		.addUserOption(option => option.setName('player_5').setDescription('Player 5: gets the campaign role'))
 		.addUserOption(option => option.setName('player_6').setDescription('Player 6: gets the campaign role')),
 
-	//the_long_rest
-	new SlashCommandBuilder()
-		.setName('the_long_rest')
-		.setDescription('Manage character memorials')
-		//setup
-		.addSubcommand(sub => sub
-			.setName('setup')
-			.setDescription('Post (or refresh) the The Long Rest button dashboard in this channel'))
-		.addSubcommand(sub => sub
-			.setName('reindex')
-			.setDescription('Rebuild the memorial index by scanning the output channel (run once after adding this feature)'))
-		.addSubcommand(subcommand => subcommand
-			.setName('add')
-			.setDescription('Add a character memorial'))
-		.addSubcommand(subcommand => subcommand
-			.setName('remove')
-			.setDescription('Remove a character memorial')
-			.addStringOption(opt => opt
-				.setName('message_id')
-				.setDescription('ID of the message to remove')
-				.setRequired(true))),
+	//the_long_rest: defined by the long-rest feature
+	...require('./features/theLongRest').definitions,
 
 	//announce_game
 	new SlashCommandBuilder()
