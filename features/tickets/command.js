@@ -4,12 +4,12 @@ const {
     addTicketType,
     updateTicketType,
     removeTicketType,
-} = require('../../config/ticketTypes');
+} = require('./ticketTypes');
 const { getConfig, setConfig } = require('../../config/ticketGuildConfig');
 const { ticketCreateCustomId } = require('./buttons');
 const ticketStore = require('./store');
 const ticketFlow = require('./flow');
-const { getTicketType } = require('../../config/ticketTypes');
+const { getTicketType } = require('./ticketTypes');
 const { isTicketStaff, isTicketRaiser, denyMessage } = require('./permissions');
 const { buildCreateModal } = require('./modals');
 

@@ -144,3 +144,23 @@ test('general: the keep-alive store still uses data/keepAliveThreads.json', () =
     }
     assert.deepEqual(seen, [path.join(root, 'data', 'keepAliveThreads.json')]);
 });
+
+// Which json file a module's store is built on, by absolute location.
+function storePathsOf(modulePath) {
+    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const real = require(jsonStorePath);
+    const seen = [];
+    require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
+    try {
+        delete require.cache[require.resolve(modulePath)];
+        require(modulePath);
+    } finally {
+        require.cache[jsonStorePath].exports = real;
+    }
+    return seen;
+}
+
+test('tickets: the ticket types still live in data/ticketTypes.json', () => {
+    assert.deepEqual(storePathsOf('../features/tickets/ticketTypes'), [path.join(root, 'data', 'ticketTypes.json')]);
+});
+

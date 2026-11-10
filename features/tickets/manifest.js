@@ -1,7 +1,7 @@
 const { route, routes } = require('../../core/manifest');
 const ticket = require('./command');
 const ticketButtons = require('./buttons');
-const { loadTicketTypes } = require('../../config/ticketTypes');
+const { loadTicketTypes } = require('./ticketTypes');
 
 async function ticketAutocomplete(interaction) {
     const group = interaction.options.getSubcommandGroup(false);

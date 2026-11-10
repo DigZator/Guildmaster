@@ -50,7 +50,7 @@ req('utils/cache').getCachedGames = async () => [
     { title: 'Live Game', uid: 'u-live', date: '2 Jan', activate: true, createdTime: '2026-01-01' },
 ];
 req('utils/activationQueue').getQueue = () => ({ queue: [{ title: 'Queued Game', uid: 'u-queued' }] });
-req('config/ticketTypes').loadTicketTypes = () => [{ key: 'k-one', slug: 's-one', label: 'Label One', buttonEmoji: '🎫' }];
+req('features/tickets/ticketTypes').loadTicketTypes = () => [{ key: 'k-one', slug: 's-one', label: 'Label One', buttonEmoji: '🎫' }];
 
 // ── the routers under test ───────────────────────────────────────────────────
 const listeners = [];

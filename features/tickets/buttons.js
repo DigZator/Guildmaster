@@ -1,4 +1,4 @@
-const { getTicketType } = require('../../config/ticketTypes');
+const { getTicketType } = require('./ticketTypes');
 const { isTicketStaff, isTicketRaiser, isTicketCloser, fileDenyMessage, denyMessage } = require('./permissions');
 const { buildCreateModal } = require('./modals');
 const ticketStore = require('./store');

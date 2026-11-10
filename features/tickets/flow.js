@@ -4,7 +4,7 @@ const {
     ChannelType, MessageType,
 } = require('discord.js');
 
-const { getTicketType } = require('../../config/ticketTypes');
+const { getTicketType } = require('./ticketTypes');
 const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../../config/ticketGuildConfig');
 const ticketStore = require('./store');
 const { buildTranscript, sendTranscript, formatStamp } = require('../../utils/ticketTranscript');

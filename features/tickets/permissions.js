@@ -1,4 +1,4 @@
-const { getTicketType } = require('../../config/ticketTypes');
+const { getTicketType } = require('./ticketTypes');
 const { isAdminChannel } = require('../../utils/isAdminChannel');
 
 function isTicketStaff(interaction, ticket) {

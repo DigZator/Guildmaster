@@ -235,7 +235,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | File / Store module | Contents |
 |---|---|
 | `features/tickets/store.js` → `tickets.json`, `ticketCounters.json` | Open/closed tickets and per-type numbering |
-| `ticketTypes.json` (via `config/ticketTypes.js`) | Runtime-editable ticket type definitions |
+| `ticketTypes.json` (via `features/tickets/ticketTypes.js`) | Runtime-editable ticket type definitions |
 | `ticketGuildConfig.json` | Per-guild ticket category/log-channel config |
 | `features/messaging/rss/store.js` → `rssFeeds.json` | Configured RSS feeds |
 | `features/messaging/anon/store.js` → `anonMessages.json` | Anonymous messages by key |
@@ -274,7 +274,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 
 ## 8. Key Subsystems in Detail
 
-### 8.1 Ticketing (`/ticket`, `features/tickets/`, `config/ticketTypes.js`, `utils/ticketTranscript.js`)
+### 8.1 Ticketing (`/ticket`, `features/tickets/`, `utils/ticketTranscript.js`)
 - Config-driven: ticket **types** (label, emoji, channel slug/tag, category group, roles) are stored in `data/ticketTypes.json` and editable at runtime via `/ticket type add|edit|remove|list` — no redeploy needed for new ticket categories.
 - Two category groups: `normal` and `hr`, each with its own creation category and transcript log channel.
 - Opening a ticket creates a private channel named from the type's slug/tag plus a counter (e.g. `#hr-000-janedoe`); counters are per-type and resettable via `/ticket reset_counter`.

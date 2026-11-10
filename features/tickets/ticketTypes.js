@@ -15,7 +15,7 @@
 //   categoryGroup - which ticket category this type's channels are created under ('normal' | 'hr').
 
 const path = require('path');
-const { createJsonStore } = require('../utils/jsonStore');
+const { createJsonStore } = require('../../utils/jsonStore');
 
 const DEFAULT_TICKET_TYPES = [
     {
@@ -60,7 +60,7 @@ const DEFAULT_TICKET_TYPES = [
     },
 ];
 
-const typesStore = createJsonStore(path.join(__dirname, '../data/ticketTypes.json'), DEFAULT_TICKET_TYPES);
+const typesStore = createJsonStore(path.join(__dirname, '../../data/ticketTypes.json'), DEFAULT_TICKET_TYPES);
 
 const EDITABLE_FIELDS = ['label', 'modalTitle', 'buttonEmoji', 'slug', 'channelTag', 'viewerRoleId', 'pingTargetId', 'categoryGroup'];
 const VALID_CATEGORY_GROUPS = ['normal', 'hr'];

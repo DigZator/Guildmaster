@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ChannelType } = require('discord.js');
-const { VALID_CATEGORY_GROUPS } = require('../../config/ticketTypes');
+const { VALID_CATEGORY_GROUPS } = require('./ticketTypes');
 
 const CATEGORY_GROUP_CHOICES = VALID_CATEGORY_GROUPS.map(g => ({ name: g, value: g }));
 
