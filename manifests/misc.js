@@ -1,6 +1,6 @@
-const ping = require('../commands/ping');
-const keep_alive = require('../commands/keep_alive');
-const help = require('../commands/help');
+const ping = require('../features/general/ping');
+const keep_alive = require('../features/general/keepAlive/command');
+const help = require('../features/general/help');
 const game_info = require('../commands/game_info');
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
 const helpData = require('../helpData');

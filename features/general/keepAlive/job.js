@@ -1,6 +1,6 @@
 const { PermissionFlagsBits, Routes } = require('discord.js');
-const keepAliveStore = require('./keepAliveStore');
-const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
+const keepAliveStore = require('./store');
+const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../../../data/channels');
 
 const KEEP_ALIVE_DURATION = 10080;
 const FLIP_DURATION = 4320;

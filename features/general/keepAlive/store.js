@@ -1,7 +1,7 @@
 const path = require('path');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../../../utils/jsonStore');
 
-const store = createJsonStore(path.join(__dirname, '../data/keepAliveThreads.json'), []);
+const store = createJsonStore(path.join(__dirname, '../../../data/keepAliveThreads.json'), []);
 
 function getAll() {
     return store.load();

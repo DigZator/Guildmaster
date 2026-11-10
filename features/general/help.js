@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const helpData = require('../helpData');
+const helpData = require('../../helpData');
 
 const GROUP_TITLES = {
     help: '📖  Help',

@@ -1,8 +1,8 @@
 const path = require('path');
 const { createJsonStore } = require('./jsonStore');
 const { BOT_LOG_CHANNEL_ID } = require('../data/channels');
-const keepAliveStore = require('./keepAliveStore');
-const { runKeepAliveRefresh, realLastActivity } = require('./keepAlive');
+const keepAliveStore = require('../features/general/keepAlive/store');
+const { runKeepAliveRefresh, realLastActivity } = require('../features/general/keepAlive/job');
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;

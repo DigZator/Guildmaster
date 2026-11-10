@@ -1171,7 +1171,7 @@
     "./utils/scheduler.init",
     "./utils/restockScheduler.init",
     "./utils/threadActivityReport.init",
-    "./utils/keepAlive.initListeners",
+    "./features/general/keepAlive/job.initListeners",
     "./utils/trapChannel",
     "./utils/deactivator.init",
     "./features/tickets/dashboardWatcher.init",

@@ -29,7 +29,7 @@ require('./utils/registrationDefaults').init(client);
 require('./utils/scheduler').init(client);
 require('./utils/restockScheduler').init(client);
 require('./utils/threadActivityReport').init(client);
-require('./utils/keepAlive').initListeners(client);
+require('./features/general/keepAlive/job').initListeners(client);
 require('./utils/trapChannel')(client);
 require('./utils/deactivator').init(client);
 require('./features/tickets/dashboardWatcher').init(client);

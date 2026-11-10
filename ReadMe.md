@@ -218,7 +218,7 @@ Initialized in `index.js` at boot, these run independently of any single interac
 | `utils/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
 | `utils/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`utils/shopFloor.js`, `utils/5etoolsCatalogue.js`); also runs once ~30s after startup |
 | `utils/threadActivityReport.js` | Periodic thread-activity reporting; also triggers the Keep Alive refresh every 3 days |
-| `utils/keepAlive.js` | Keep Alive refresh job, permission checks, safety-net listeners |
+| `features/general/keepAlive/job.js` | Keep Alive refresh job, permission checks, safety-net listeners |
 | `utils/trapChannel.js` | Monitors a designated "trap" channel (likely anti-spam/honeypot) |
 | `utils/deactivator.js` | Handles scheduled deactivation logic |
 | `features/tickets/dashboardWatcher.js` | Keeps the ticket dashboard message in sync |
@@ -251,7 +251,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `priceOverrides.json` | Manual price overrides for catalogue items |
 | `archiveConfig.js` → `archiveConfig.json` | Destination category for `/archive` |
 | `threadReport.json` | Thread-activity report state |
-| `keepAliveStore.js` → `keepAliveThreads.json` | Threads registered with `/keep_alive` |
+| `features/general/keepAlive/store.js` → `keepAliveThreads.json` | Threads registered with `/keep_alive` |
 | `gameFields.json` | Field metadata for `/edit_game` autocomplete |
 | `registrationDefaults.js` | Default registration link |
 | `channels.js` | Central export of channel-ID env vars for reuse across modules |

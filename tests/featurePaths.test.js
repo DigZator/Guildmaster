@@ -130,3 +130,17 @@ test('the long rest: the dashboard settings and the memorial index still use dat
     }
     assert.deepEqual(seen.sort(), [path.join(root, 'data', 'memorialIndex.json'), path.join(root, 'data', 'tlrDashboardConfig.json')].sort());
 });
+
+test('general: the keep-alive store still uses data/keepAliveThreads.json', () => {
+    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const real = require(jsonStorePath);
+    const seen = [];
+    require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
+    try {
+        delete require.cache[require.resolve('../features/general/keepAlive/store')];
+        require('../features/general/keepAlive/store');
+    } finally {
+        require.cache[jsonStorePath].exports = real;
+    }
+    assert.deepEqual(seen, [path.join(root, 'data', 'keepAliveThreads.json')]);
+});

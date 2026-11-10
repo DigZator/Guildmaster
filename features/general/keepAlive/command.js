@@ -1,5 +1,5 @@
-const keepAliveStore = require('../utils/keepAliveStore');
-const { KEEP_ALIVE_DURATION, missingPermissions, sendToCtrl } = require('../utils/keepAlive');
+const keepAliveStore = require('./store');
+const { KEEP_ALIVE_DURATION, missingPermissions, sendToCtrl } = require('./job');
 
 const EPHEMERAL = 64;
 
