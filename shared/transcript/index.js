@@ -2,14 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const { randomUUID } = require('crypto');
 const { AttachmentBuilder } = require('discord.js');
-const { downloadAttachment: downloadToFile } = require('./downloadAttachment');
+const { downloadAttachment: downloadToFile } = require('../../utils/downloadAttachment');
 
 const DISCORD_CHUNK_LIMIT = 2000;
 const CHUNK_SIZE = DISCORD_CHUNK_LIMIT - 10;
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 const GROUP_GAP_MS = 5 * 60 * 1000;
 
-const TEMP_ROOT = path.join(__dirname, '../temp');
+const TEMP_ROOT = path.join(__dirname, '../../temp');
 const FILES_PER_MESSAGE = 10;
 const DOWNLOAD_TIMEOUT_MS = 20 * 1000;
 const DOWNLOAD_ATTEMPTS = 3;

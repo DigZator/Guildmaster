@@ -172,3 +172,20 @@ test('shared archive: the archive category setting still lives in data/archiveCo
     assert.deepEqual(storePathsOf('../shared/archive/config'), [path.join(root, 'data', 'archiveConfig.json')]);
 });
 
+test('shared transcript: a large attachment batch is still staged under temp/transcript-* in the project root', async () => {
+    const modulePath = require.resolve('../shared/transcript');
+    delete require.cache[modulePath];
+    const { postAttachmentGroups } = require(modulePath);
+    const staged = [];
+    const big = { name: 'big.bin', url: 'https://example.invalid/big.bin', size: 40 * 1024 * 1024 };
+    await postAttachmentGroups({ guild: {}, send: async () => ({}) }, [{ label: 'g', files: [big] }], {
+        header: false,
+        retryBaseMs: 1,
+        download: async (url, dest) => { staged.push(dest); throw new Error('stop here'); },
+    });
+    assert.ok(staged.length >= 1);
+    const workDir = path.dirname(staged[0]);
+    assert.equal(path.dirname(workDir), path.join(root, 'temp'));
+    assert.match(path.basename(workDir), /^transcript-[0-9a-f-]{36}$/);
+});
+

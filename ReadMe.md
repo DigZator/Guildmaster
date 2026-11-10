@@ -274,11 +274,11 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 
 ## 8. Key Subsystems in Detail
 
-### 8.1 Ticketing (`/ticket`, `features/tickets/`, `utils/ticketTranscript.js`)
+### 8.1 Ticketing (`/ticket`, `features/tickets/`, `shared/transcript/`)
 - Config-driven: ticket **types** (label, emoji, channel slug/tag, category group, roles) are stored in `data/ticketTypes.json` and editable at runtime via `/ticket type add|edit|remove|list` — no redeploy needed for new ticket categories.
 - Two category groups: `normal` and `hr`, each with its own creation category and transcript log channel.
 - Opening a ticket creates a private channel named from the type's slug/tag plus a counter (e.g. `#hr-000-janedoe`); counters are per-type and resettable via `/ticket reset_counter`.
-- On close, `ticketTranscript.js` generates and posts a transcript thread to the configured log channel. This module is the shared transcript engine: direct lines and `/channel_file` use it too. Attachments are reposted without a file-count cap, held in RAM per batch (no disk writes) and only staged through `temp/` when a single batch exceeds 32 MB.
+- On close, `shared/transcript/` generates and posts a transcript thread to the configured log channel. This module is the shared transcript engine: direct lines and `/channel_file` use it too. Attachments are reposted without a file-count cap, held in RAM per batch (no disk writes) and only staged through `temp/` when a single batch exceeds 32 MB.
 
 ### 8.2 Game Announcements & Activation (`announce_game`, `edit_game`, `schedule_activation`, `utils/scheduler.js`, `utils/cache.js`)
 - Games are cached in memory (`cache.js`, refreshed on login and by `cacheWatcher.js`) for fast autocomplete across many commands (`get_players`, `game_info`, `edit_game`, `announce_game`, `schedule_activation`).
@@ -326,7 +326,7 @@ Centralized helper for reporting unexpected errors to an incident/debugging chan
 - **Never auto-deletes:** the delete code path must pass `assertDeletable` (phase, verified flag, approver, snapshot and an intact job file). Protection is re-checked at Proceed. Any failure before review triggers a hard revert (unfreeze, restore exact permissions, filed threads renamed `aborted · …`).
 - **Protection:** the manual list (`data/channelFileProtected.json`, managed with `/channel_file protect add|remove|list`) **starts empty** and is the only thing that protects a channel, apart from two things that are always protected because the filing cannot work without them: the control channel (`GUILDMASTER_CTRL_CHANNEL_ID`, and threads inside it) and the destination channel of the current filing. Admins should add whatever else they care about (ticket, direct line, RSS and dashboard channels, Keep Alive threads, …). Discord's own special channels (rules, community updates, safety alerts, system, AFK) only produce a warning, since Discord may refuse to delete them. Manual protection is not inherited by threads.
 - **Raspberry Pi / SD card:** messages are rendered one batch at a time and only IDs are kept; attachment batches live in RAM; job state is written only at phase changes, the message inventory once per filing (`<id>.manifest.json`). A restart during filing reverts the job (re-run the command); a restart during review (or during *Re-run checks*) changes nothing.
-- Shared engine: `utils/ticketTranscript.js` (also used by tickets and direct lines). Tests: `node test/channelFileFoundation.js`, `node test/channelFileFlow.test.js`.
+- Shared engine: `shared/transcript/` (also used by tickets and direct lines). Tests: `node test/channelFileFoundation.js`, `node test/channelFileFlow.test.js`.
 
 ---
 

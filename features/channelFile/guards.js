@@ -3,7 +3,7 @@ const { ChannelType, PermissionFlagsBits } = require('discord.js');
 const { createJsonStore } = require('../../utils/jsonStore');
 const channelIds = require('../../data/channels');
 const channelFileJobs = require('./jobs');
-const { freeDiskBytes, MIN_FREE_DISK_BYTES } = require('../../utils/ticketTranscript');
+const { freeDiskBytes, MIN_FREE_DISK_BYTES } = require('../../shared/transcript');
 
 const THREAD_TYPES = [ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread];
 

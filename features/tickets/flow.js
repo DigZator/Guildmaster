@@ -7,7 +7,7 @@ const {
 const { getTicketType } = require('./ticketTypes');
 const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../../shared/ticketConfig/guildConfig');
 const ticketStore = require('./store');
-const { buildTranscript, sendTranscript, formatStamp } = require('../../utils/ticketTranscript');
+const { buildTranscript, sendTranscript, formatStamp } = require('../../shared/transcript');
 const { reportError } = require('../../utils/errorReporter');
 const { encodeId } = require('./ticketId');
 const { buildCloseModal } = require('./modals');

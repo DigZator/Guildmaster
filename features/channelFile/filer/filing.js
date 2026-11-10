@@ -1,5 +1,5 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const engine = require('../../../utils/ticketTranscript');
+const engine = require('../../../shared/transcript');
 const { THREAD_TYPES } = require('../guards');
 const { DOWNLOAD_TIMEOUT_MS, BATCH_SIZE, ALLOWED_MENTIONS } = require('./constants');
 const { messageLink } = require('./helpers');
