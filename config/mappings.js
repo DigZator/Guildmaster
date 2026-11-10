@@ -10,7 +10,7 @@ const MAKE_CHANNELS = ['ViewChannel', 'ManageChannels'];
 const envFix = (key) => `Set \`${key}\` in .env, then restart the bot.`;
 const gateFix = (key) => `Permission gate: set \`${key}\` in .env, then restart the bot.`;
 
-const ticket = (field) => () => require('./ticketGuildConfig').getConfig()[field] || null;
+const ticket = (field) => () => require('../shared/ticketConfig/guildConfig').getConfig()[field] || null;
 
 const definitions = [
     { key: 'BOT_LOG_CHANNEL_ID', label: 'Bot log', tier: 'core', types: TEXT, needs: SEND, usedBy: 'logs, alerts and trap channel reports' },

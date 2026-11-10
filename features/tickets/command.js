@@ -5,7 +5,7 @@ const {
     updateTicketType,
     removeTicketType,
 } = require('./ticketTypes');
-const { getConfig, setConfig } = require('../../config/ticketGuildConfig');
+const { getConfig, setConfig } = require('../../shared/ticketConfig/guildConfig');
 const { ticketCreateCustomId } = require('./buttons');
 const ticketStore = require('./store');
 const ticketFlow = require('./flow');

@@ -7,7 +7,7 @@ const {
     OverwriteType,
     PermissionsBitField,
 } = require('discord.js');
-const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../../config/ticketGuildConfig');
+const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../../shared/ticketConfig/guildConfig');
 const { HR_ROLE_ID } = require('../../utils/isAdminChannel');
 const directLineStore = require('./store');
 const { buildTranscript, sendTranscript, formatStamp } = require('../../utils/ticketTranscript');

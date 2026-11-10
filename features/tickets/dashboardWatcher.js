@@ -1,4 +1,4 @@
-const { getConfig, setConfig } = require('../../config/ticketGuildConfig');
+const { getConfig, setConfig } = require('../../shared/ticketConfig/guildConfig');
 const ticketStore = require('./store');
 
 function init(client) {

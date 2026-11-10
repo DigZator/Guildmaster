@@ -164,3 +164,7 @@ test('tickets: the ticket types still live in data/ticketTypes.json', () => {
     assert.deepEqual(storePathsOf('../features/tickets/ticketTypes'), [path.join(root, 'data', 'ticketTypes.json')]);
 });
 
+test('shared ticket config: the per-guild ticket settings still live in data/ticketGuildConfig.json', () => {
+    assert.deepEqual(storePathsOf('../shared/ticketConfig/guildConfig'), [path.join(root, 'data', 'ticketGuildConfig.json')]);
+});
+
