@@ -168,3 +168,7 @@ test('shared ticket config: the per-guild ticket settings still live in data/tic
     assert.deepEqual(storePathsOf('../shared/ticketConfig/guildConfig'), [path.join(root, 'data', 'ticketGuildConfig.json')]);
 });
 
+test('shared archive: the archive category setting still lives in data/archiveConfig.json', () => {
+    assert.deepEqual(storePathsOf('../shared/archive/config'), [path.join(root, 'data', 'archiveConfig.json')]);
+});
+

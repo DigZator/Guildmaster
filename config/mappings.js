@@ -26,7 +26,7 @@ const definitions = [
     { key: 'FEEDS_CHANNEL_ID', label: 'RSS feeds', tier: 'feature', types: TEXT, needs: SEND, usedBy: '/rss feeds' },
     { key: 'LEAGUE_PROFILES_FORUM_ID', label: 'League profiles forum', tier: 'feature', types: FORUM, needs: SEND, usedBy: 'character profile threads' },
     { key: 'LEAGUE_ART_ARCHIVE_THREAD_ID', label: 'Character art archive thread', tier: 'feature', types: THREAD, needs: ['ViewChannel', 'SendMessagesInThreads'], usedBy: 'character art storage' },
-    { key: 'ARCHIVE_CATEGORY_ID', label: 'Archive category', tier: 'feature', types: CATEGORY, needs: MAKE_CHANNELS, usedBy: '/archive', managed: true, fix: 'Run `/archive-config`.', read: () => require('./archiveConfig').getArchiveCategoryId() },
+    { key: 'ARCHIVE_CATEGORY_ID', label: 'Archive category', tier: 'feature', types: CATEGORY, needs: MAKE_CHANNELS, usedBy: '/archive', managed: true, fix: 'Run `/archive-config`.', read: () => require('../shared/archive/config').getArchiveCategoryId() },
     { key: 'TICKET_CATEGORY_ID', label: 'Ticket category', tier: 'feature', types: CATEGORY, needs: MAKE_CHANNELS, usedBy: 'tickets', managed: true, fix: 'Run `/ticket config`.', read: ticket('categoryId') },
     { key: 'HR_TICKET_CATEGORY_ID', label: 'HR ticket category', tier: 'feature', types: CATEGORY, needs: MAKE_CHANNELS, usedBy: 'HR tickets', managed: true, fix: 'Run `/ticket config`.', read: ticket('hrCategoryId') },
     { key: 'TICKET_LOG_CHANNEL_ID', label: 'Ticket log', tier: 'feature', types: TEXT, needs: SEND, usedBy: 'ticket logs', managed: true, fix: 'Run `/ticket config`.', read: ticket('logChannelId') },

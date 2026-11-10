@@ -249,7 +249,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `questDrafts.js` / `questReportDrafts` → `questRewardDrafts.json` | In-progress quest reward dashboards |
 | `features/theLongRest/memorialIndex.js` → `memorialIndex.json` | The Long Rest memorial index |
 | `priceOverrides.json` | Manual price overrides for catalogue items |
-| `archiveConfig.js` → `archiveConfig.json` | Destination category for `/archive` |
+| `shared/archive/config.js` → `archiveConfig.json` | Destination category for `/archive` |
 | `threadReport.json` | Thread-activity report state |
 | `features/general/keepAlive/store.js` → `keepAliveThreads.json` | Threads registered with `/keep_alive` |
 | `gameFields.json` | Field metadata for `/edit_game` autocomplete |
@@ -302,7 +302,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - Supports both single-line (`content` option) and multi-line (`multiline` flag → paste-in-backticks flow) input.
 - Attachments: one file via the `attachment` option, or up to 10 via the multiline reply. Files are downloaded to `temp/` under generic names, previewed, posted, then deleted (also on cancel, timeout, or after 10 minutes; stale `temp/anon_*` files are swept on each `/anon_msg add`). Shared logic lives in `features/messaging/anon/helper.js`. `edit` changes text only and leaves attachments untouched.
 
-### 8.6 Archiving (`/archive`, `/archive-config`, `utils/archiveChannel.js`, `config/archiveConfig.js`)
+### 8.6 Archiving (`/archive`, `/archive-config`, `shared/archive/channel.js`, `shared/archive/config.js`)
 - Moves a channel or category into a configured "archive" category and locks it read-only.
 - Supports text, voice, stage, announcement, forum, and category channel types.
 

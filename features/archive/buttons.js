@@ -1,6 +1,6 @@
 const { ChannelType } = require('discord.js');
-const { getArchiveCategoryId } = require('../../config/archiveConfig');
-const { archiveSingleChannel, archiveCategoryChannels } = require('../../utils/archiveChannel');
+const { getArchiveCategoryId } = require('../../shared/archive/config');
+const { archiveSingleChannel, archiveCategoryChannels } = require('../../shared/archive/channel');
 const { postLog, MAX_CHANNELS_PER_CATEGORY } = require('./command');
 
 module.exports = {

@@ -1,5 +1,5 @@
 const { ChannelType, AttachmentBuilder } = require('discord.js');
-const archive = require('../../../utils/archiveChannel');
+const archive = require('../../../shared/archive/channel');
 const jobsStore = require('../jobs');
 const { THREAD_TYPES } = require('../guards');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
