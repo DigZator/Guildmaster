@@ -1,7 +1,7 @@
 const { routes } = require('../core/manifest');
-const config = require('../commands/config');
-const configButtons = require('../buttons/config');
-const configCommand = require('../utils/configCommand');
+const config = require('../features/config/command');
+const configButtons = require('../features/config/buttons');
+const configCommand = require('../features/config/configCommand');
 
 module.exports = {
     name: 'config',

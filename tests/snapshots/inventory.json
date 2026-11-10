@@ -991,6 +991,10 @@
       "dynamic: customId(job.id, 'proceedModal')",
       "dynamic: customId(job.id, 'rerun')"
     ],
+    "features/config/configCommand.js": [
+      "config:cancel:${…}",
+      "config:confirm:${…}"
+    ],
     "features/directLine/flow.js": [
       "encodeId(*, '${action}No')",
       "encodeId(*, '${action}Yes')"
@@ -1107,20 +1111,11 @@
       "announce_confirm",
       "announce_edit"
     ],
-    "utils/configCommand.js": [
-      "config:cancel:${…}",
-      "config:confirm:${…}"
-    ],
     "utils/tableAdminWatcher.js": [
       "tableAdminReactivate:${…}"
     ]
   },
   "permissionChecks": {
-    "buttons/config.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
-      }
-    },
     "commands/create_campaign/preflight.js": {
       "roles.cache": 1,
       "permissions.has": 1
@@ -1130,6 +1125,11 @@
     },
     "commands/leagueQuest.js": {
       "roles.cache": 1
+    },
+    "features/config/buttons.js": {
+      "isAdminChannel": {
+        "botAdmin": 1
+      }
     },
     "features/directLine/buttons.js": {
       "isAdminChannel": {

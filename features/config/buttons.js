@@ -1,7 +1,7 @@
 // Confirm / cancel buttons for risky /config changes (currently the trap channel).
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../utils/isAdminChannel');
-const config = require('../utils/configCommand');
+const { isAdminChannel } = require('../../utils/isAdminChannel');
+const config = require('./configCommand');
 
 async function handle(interaction, client) {
     const [, action, token] = String(interaction.customId).split(':');

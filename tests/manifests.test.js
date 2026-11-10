@@ -172,7 +172,7 @@ function commandGate(route) {
 // Their gate is a claim taken from the source, not proven by the snapshot; each is cross-checked against the
 // static permission inventory below. Writing a test for each is part of lifting its check (step 4).
 const BLIND_SPOTS = {
-    'config:zz': { gate: 'admin', file: 'buttons/config.js', type: 'botAdmin' },
+    'config:zz': { gate: 'admin', file: 'features/config/buttons.js', type: 'botAdmin' },
     'dl:zz': { gate: 'hr', file: 'features/directLine/buttons.js', type: 'hr' },
 };
 
@@ -214,7 +214,7 @@ test('each documented blind spot is backed by a real isAdminChannel call in its 
 });
 
 test('every source file that still calls isAdminChannel belongs to a route that records a gate', () => {
-    // buttons/config, features/directLine/buttons and buttons/channelFile call it; the snapshot cannot reach all of
+    // features/config/buttons, features/directLine/buttons and buttons/channelFile call it; the snapshot cannot reach all of
     // them, so check the manifests directly.
     assert.equal(findCustomIdRoute(registry, 'button', 'config:x').gate, 'admin');
     assert.equal(findCustomIdRoute(registry, 'button', 'dl:x').gate, 'hr');

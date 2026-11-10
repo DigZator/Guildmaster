@@ -3,9 +3,9 @@
 // commands/config.js is the thin entry point; buttons/config.js handles the confirm / cancel buttons.
 const crypto = require('crypto');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { MAPPINGS } = require('../config/mappings');
-const { checkMappings, severity, chunkLines } = require('./mappingCheck');
-const channelMap = require('./channelMap');
+const { MAPPINGS } = require('../../config/mappings');
+const { checkMappings, severity, chunkLines } = require('../../utils/mappingCheck');
+const channelMap = require('../../utils/channelMap');
 
 const CONFIRM_TTL_MS = 2 * 60 * 1000;
 const RESTART_NOTE = 'This takes effect after the bot restarts.';
