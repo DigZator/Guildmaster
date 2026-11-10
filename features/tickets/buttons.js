@@ -3,7 +3,7 @@ const { isTicketStaff, isTicketRaiser, isTicketCloser, fileDenyMessage, denyMess
 const { buildCreateModal } = require('./modals');
 const ticketStore = require('./store');
 const ticketFlow = require('./flow');
-const { decodeId } = require('../../interactions/ticketId');
+const { decodeId } = require('./ticketId');
 
 const STAFF_ONLY_ACTIONS = new Set(['claim', 'unclaim', 'resurrect', 'resurrectYes', 'resurrectNo', 'file', 'fileYes', 'fileNo']);
 const RAISER_OR_STAFF_ACTIONS = new Set(['close', 'closeYes', 'closeNo']);

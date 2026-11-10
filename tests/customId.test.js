@@ -7,11 +7,11 @@ const { getButtonRoutes } = require('./helpers/snapshots');
 const { routesOfKinds } = require('./helpers/registryRoutes');
 
 const encoders = [
-    ['directLineId', 'dl'],
-    ['questDashboardId', 'questDash'],
-    ['tableAdminDashboardId', 'tableAdmin'],
-    ['ticketId', 'ticket'],
-].map(([file, prefix]) => ({ file, prefix, ...require(path.join(root, 'interactions', file)) }));
+    ['features/directLine', 'directLineId', 'dl'],
+    ['interactions', 'questDashboardId', 'questDash'],
+    ['interactions', 'tableAdminDashboardId', 'tableAdmin'],
+    ['features/tickets', 'ticketId', 'ticket'],
+].map(([dir, file, prefix]) => ({ file, prefix, ...require(path.join(root, dir, file)) }));
 
 for (const enc of encoders) {
     test(`${enc.file}: encode then decode round-trips`, () => {

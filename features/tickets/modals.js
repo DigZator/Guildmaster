@@ -1,5 +1,5 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
-const { encodeId } = require('../../interactions/ticketId');
+const { encodeId } = require('./ticketId');
 
 function input({ id, label, style, required, maxLength, value }) {
     const field = new TextInputBuilder()

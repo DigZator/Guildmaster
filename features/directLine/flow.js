@@ -12,7 +12,7 @@ const { HR_ROLE_ID } = require('../../utils/isAdminChannel');
 const directLineStore = require('./store');
 const { buildTranscript, sendTranscript, formatStamp } = require('../../utils/ticketTranscript');
 const { reportError } = require('../../utils/errorReporter');
-const { encodeId } = require('../../interactions/directLineId');
+const { encodeId } = require('./directLineId');
 
 const CHANNEL_PREFIX = 'dc-';
 
