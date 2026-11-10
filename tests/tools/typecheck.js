@@ -16,8 +16,17 @@ const baselinePath = path.join(root, 'tests', 'snapshots', 'typecheck-baseline.j
 const update = process.argv.includes('--update');
 
 const bin = path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'tsc.cmd' : 'tsc');
-const run = spawnSync(bin, ['-p', root, '--pretty', 'false', '--noEmit'], { cwd: root, encoding: 'utf8', timeout: 240000, maxBuffer: 1 << 26 });
-if (run.error) { console.error('Could not run tsc:', run.error.message); process.exit(2); }
+// How long tsc may run before it is killed. A slow or busy machine (a Raspberry Pi) can need longer than the default:
+//   TYPECHECK_TIMEOUT_MS=900000 npm run verify
+const timeoutMs = Number(process.env.TYPECHECK_TIMEOUT_MS) > 0 ? Number(process.env.TYPECHECK_TIMEOUT_MS) : 240000;
+const run = spawnSync(bin, ['-p', root, '--pretty', 'false', '--noEmit'], { cwd: root, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 26 });
+if (run.error) {
+    console.error('Could not run tsc:', run.error.message);
+    if (run.error.code === 'ETIMEDOUT') {
+        console.error(`tsc did not finish within ${timeoutMs / 1000} s. That is a timeout, not a type error. Run it again, or allow more time: TYPECHECK_TIMEOUT_MS=900000 npm run verify`);
+    }
+    process.exit(2);
+}
 
 // "file(12,3): error TS2339: message"  ->  key without the position, so edits above a finding do not churn the baseline.
 const found = {};
