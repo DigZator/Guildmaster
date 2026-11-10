@@ -12,6 +12,6 @@ module.exports = [
     require('../features/directLine').manifest,
     require('../features/channelFile').manifest,
     require('../features/verification').manifest,
-    require('./config'),
+    require('../features/config').manifest,
     require('./league'),
 ];

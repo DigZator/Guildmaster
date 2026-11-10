@@ -163,7 +163,7 @@ async function handleStatus(interaction, client) {
     return interaction.editReply({ embeds: [embed] });
 }
 
-// Who is offered keys is enforced by the router (manifests/config.js: others get an empty list).
+// Who is offered keys is enforced by the router (features/config/manifest.js: others get an empty list).
 async function autocomplete(interaction) {
     const focused = String(interaction.options.getFocused() ?? '').toLowerCase();
     let entries = channelMap.settableMappings();
@@ -178,7 +178,7 @@ async function autocomplete(interaction) {
     return interaction.respond(choices);
 }
 
-// Who may run /config is enforced by the router (manifests/config.js: the Admins role).
+// Who may run /config is enforced by the router (features/config/manifest.js: the Admins role).
 async function execute(interaction, client) {
     const sub = interaction.options.getSubcommand();
     if (sub === 'status') return handleStatus(interaction, client);

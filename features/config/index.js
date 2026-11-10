@@ -5,4 +5,7 @@
 module.exports = {
     definitions: require('./definitions').definitions,
     help: require('./help'),
+    // The routes of /config, its key autocomplete and the confirm button. Loaded on first use, because it loads the handlers
+    // and the exports above must stay light.
+    get manifest() { return require('./manifest'); },
 };

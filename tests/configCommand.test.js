@@ -11,7 +11,7 @@ const configEntry = require('../features/config/command');
 const configButtons = require('../features/config/buttons');
 const { createRegistry } = require('../core/registry');
 const { createRouter } = require('../core/router');
-const configManifest = require('../manifests/config');
+const configManifest = require('../features/config/manifest');
 
 // The refusal for /config now comes from the router, not from the handler, so refusal tests go through it.
 const router = createRouter(createRegistry([configManifest]));
