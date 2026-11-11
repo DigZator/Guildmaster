@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 
-// The slash command definitions of the games feature, as far as it has moved (the info, announcement and create campaign commands). They are exported by
+// The slash command definitions of the games feature, as far as it has moved (every games command except /schedule_activation). They are exported by
 // command name because they are not registered side by side: deploy-commands.js spreads each one in at its own position,
 // so the registered order never changes.
 
@@ -121,4 +121,14 @@ const create_campaign = new SlashCommandBuilder()
 	.addUserOption(option => option.setName('player_5').setDescription('Player 5: gets the campaign role'))
 	.addUserOption(option => option.setName('player_6').setDescription('Player 6: gets the campaign role'));
 
-module.exports = { definitions: { list_games, get_players, game_info, announce_game, edit_game, create_campaign } };
+//manipulate_table (scoped to the "Test" game only: see features/games/tableAdmin/data.js)
+const manipulate_table = new SlashCommandBuilder()
+    .setName('manipulate_table')
+    .setDescription('Admin dashboard for managing seats on the Test game')
+    .addStringOption(opt => opt
+        .setName('game')
+        .setDescription('Select a game/table (currently only "Test" is supported)')
+        .setRequired(false)
+        .setAutocomplete(true));
+
+module.exports = { definitions: { list_games, get_players, game_info, announce_game, edit_game, create_campaign, manipulate_table } };

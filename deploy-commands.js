@@ -39,15 +39,8 @@ const commands = [
 	//get_players: defined by the games feature
 	require('./features/games').definitions.get_players,
 
-	//manipulate_table (scoped to the "Test" game only — see utils/tableAdminData.js)
-	new SlashCommandBuilder()
-	    .setName('manipulate_table')
-	    .setDescription('Admin dashboard for managing seats on the Test game')
-	    .addStringOption(opt => opt
-	        .setName('game')
-	        .setDescription('Select a game/table (currently only "Test" is supported)')
-	        .setRequired(false)
-	        .setAutocomplete(true)),
+	//manipulate_table: defined by the games feature
+	require('./features/games').definitions.manipulate_table,
 	        
 	//game_info: defined by the games feature
 	require('./features/games').definitions.game_info,
