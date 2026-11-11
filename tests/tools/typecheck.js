@@ -16,14 +16,15 @@ const baselinePath = path.join(root, 'tests', 'snapshots', 'typecheck-baseline.j
 const update = process.argv.includes('--update');
 
 const bin = path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'tsc.cmd' : 'tsc');
-// How long tsc may run before it is killed. A slow or busy machine (a Raspberry Pi) can need longer than the default:
-//   TYPECHECK_TIMEOUT_MS=900000 npm run verify
-const timeoutMs = Number(process.env.TYPECHECK_TIMEOUT_MS) > 0 ? Number(process.env.TYPECHECK_TIMEOUT_MS) : 240000;
+// How long tsc may run before it is killed (default 15 minutes: the limit only catches a hang, so it is generous for a
+// slow or busy machine such as a Raspberry Pi). Allow more with:
+//   TYPECHECK_TIMEOUT_MS=1800000 npm run verify
+const timeoutMs = Number(process.env.TYPECHECK_TIMEOUT_MS) > 0 ? Number(process.env.TYPECHECK_TIMEOUT_MS) : 900000;
 const run = spawnSync(bin, ['-p', root, '--pretty', 'false', '--noEmit'], { cwd: root, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 1 << 26 });
 if (run.error) {
     console.error('Could not run tsc:', run.error.message);
     if (run.error.code === 'ETIMEDOUT') {
-        console.error(`tsc did not finish within ${timeoutMs / 1000} s. That is a timeout, not a type error. Run it again, or allow more time: TYPECHECK_TIMEOUT_MS=900000 npm run verify`);
+        console.error(`tsc did not finish within ${timeoutMs / 1000} s. That is a timeout, not a type error. Run it again, or allow more time: TYPECHECK_TIMEOUT_MS=1800000 npm run verify`);
     }
     process.exit(2);
 }
