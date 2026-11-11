@@ -2,6 +2,8 @@ const { route, routes } = require('../../core/manifest');
 const gameInfo = require('./gameInfo');
 const listGames = require('./listGames');
 const getPlayers = require('./getPlayers');
+const createCampaign = require('./createCampaign');
+const createCampaignButtons = require('./createCampaign/buttons');
 const listGamesButtons = require('./listGamesButtons');
 const announceGame = require('./announceGame');
 const editGame = require('./editGame');
@@ -14,7 +16,7 @@ const { gameAutocomplete } = require('../../utils/gameAutoComplete');
 const gamePicker = [{ name: 'games', policy: 'open', handle: gameAutocomplete }];
 
 // The games feature is moved in steps (plan section 8.1, A3a to A3e). This manifest holds what has moved so far: the info
-// and announcement commands. manifests/games.js still holds the rest and is registered after this one.
+// announcement and create campaign commands. manifests/games.js still holds the rest and is registered after this one.
 module.exports = {
     name: 'games',
     commands: [
@@ -25,6 +27,7 @@ module.exports = {
         // Enforced by the router; the refusal is the router's default text, which is what the handler used to say.
         { name: 'get_players', policy: 'admin', handler: getPlayers, autocomplete: gamePicker },
         { name: 'announce_game', policy: 'admin', handler: announceGame, autocomplete: gamePicker },
+        { name: 'create_campaign', policy: 'admin', handler: createCampaign },
         { name: 'edit_game', policy: 'admin', handler: editGame, autocomplete: [{ name: 'game / field', policy: 'open', handle: editGameAutocomplete }] },
     ],
     buttons: {
@@ -32,6 +35,8 @@ module.exports = {
         // POST_REFACTOR.md) or to /list_games.
         exact: {
             ...routes('open', announcementButtons.exact),
+            // The create-campaign Confirm and Cancel buttons: Admins-only, enforced by the router (plan item 15).
+            ...routes('admin', createCampaignButtons.exact),
         },
         prefix: {
             ...routes('open', listGamesButtons.prefix),
