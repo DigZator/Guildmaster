@@ -76,45 +76,11 @@ const commands = [
 	//direct_line: defined by the direct-line feature
 	...require('./features/directLine').definitions,
 
-	//list_games
-	new SlashCommandBuilder()
-		.setName('list_games')
-		.setDescription('Browse upcoming games')
-		.addBooleanOption(option => option
-			.setName('browsing')
-			.setDescription('Show all announced games including full and closed ones'))
-		.addIntegerOption(option => option
-			.setName('n')
-			.setDescription('Limit the number of games shown')
-			.setMinValue(1))
-		.addStringOption(option => option
-			.setName('format_filter')
-			.setDescription('Filter games by format')
-			.addChoices(
-				{ name: 'Online', value: 'Online' },
-				{ name: 'In-Person', value: 'In-Person' },
-				{ name: 'Play-by-Post', value: 'Play-By-Post' },))
-		.addStringOption(option => option
-			.setName('type_filter')
-			.setDescription('Filter games by type')
-			.addChoices(
-				{ name: 'One-Shots', value: 'One-Shot' },
-				{ name: 'Mini-Adventures', value: 'Mini-Adventure' },
-				{ name: 'Campaigns', value: 'Campaign' },
-				{ name: 'Workshops', value: 'Workshop' },))
-		.addBooleanOption(option => option
-			.setName('public')
-			.setDescription('Show results publicly in the channel (default: only you can see)')),
+	//list_games: defined by the games feature
+	require('./features/games').definitions.list_games,
 
-	//get_players
-	new SlashCommandBuilder()
-	    .setName('get_players')
-	    .setDescription('List players signed up for a table')
-	    .addStringOption(opt => opt
-	        .setName('game')
-	        .setDescription('Select a game/table')
-	        .setRequired(true)
-	        .setAutocomplete(true)),
+	//get_players: defined by the games feature
+	require('./features/games').definitions.get_players,
 
 	//manipulate_table (scoped to the "Test" game only — see utils/tableAdminData.js)
 	new SlashCommandBuilder()
@@ -126,18 +92,8 @@ const commands = [
 	        .setRequired(false)
 	        .setAutocomplete(true)),
 	        
-	//game_info
-	new SlashCommandBuilder()
-		.setName('game_info')
-		.setDescription('Get detailed info about a game')
-		.addStringOption(opt => opt
-			.setName('uid')
-			.setDescription('Search for game by name')
-			.setRequired(true)
-			.setAutocomplete(true))
-		.addBooleanOption(opt =>opt
-			.setName('public')
-			.setDescription('Show results public in channel (default: false)')),
+	//game_info: defined by the games feature
+	require('./features/games').definitions.game_info,
 
 	//rss and anon_msg: defined by the messaging feature
 	...require('./features/messaging').definitions,
