@@ -1,0 +1,28 @@
+{
+  "commands": {
+    "announce_game": "ad9eea255fb6",
+    "anon_msg": "30cd8d90bec9",
+    "archive": "d8aac1e42935",
+    "archive-config": "dd2e0861d7df",
+    "channel_file": "1facf1b9979a",
+    "config": "7a6005644fc6",
+    "create_campaign": "ad08f28a7f00",
+    "direct_line": "01eff0ffc6dc",
+    "edit_game": "944869eb092d",
+    "game_info": "b7fa5f0fba9d",
+    "get_players": "6ee7f05a424a",
+    "help": "b11d60f40a62",
+    "keep_alive": "5d58c965175a",
+    "league": "b325de1747fe",
+    "leagueadmin": "5085e7935f5e",
+    "leaguedm": "a8df97e365c0",
+    "list_games": "7da25a5e1cca",
+    "manipulate_table": "51336f11ebf4",
+    "ping": "36519525d3bb",
+    "rss": "d69115d68cb9",
+    "schedule_activation": "c0dd0edd1c59",
+    "the_long_rest": "51a96857294e",
+    "ticket": "b5b76d1357f2",
+    "verification": "47d7bde24ae3"
+  }
+}

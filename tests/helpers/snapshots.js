@@ -122,5 +122,20 @@ function buildAutocompleteSnapshot() {
     return JSON.parse(text.slice(start + 23, text.indexOf('AUTOCOMPLETE_JSON_END')));
 }
 
+// Which handler each command runs: a short hash of the handler function's source, with the paths inside require('...')
+// blanked so that moving a file never changes it. The manifests wire commands to handler functions, and nothing else
+// checks that a command still runs the handler it ran before.
+function buildHandlerSnapshot() {
+    const { loadRegistryData } = require('./registryRoutes');
+    const { createHash } = require('crypto');
+    const { registry } = loadRegistryData();
+    const commands = {};
+    for (const c of [...registry.commands].sort((x, y) => x.name.localeCompare(y.name))) {
+        const normalized = (c.handlerSource || '').replace(/require\((['"])[^'"]*\1\)/g, "require('')").replace(/\s+/g, ' ').trim();
+        commands[c.name] = createHash('sha1').update(normalized).digest('hex').slice(0, 12);
+    }
+    return { commands };
+}
+
 module.exports = {
-    buildAutocompleteSnapshot, buildCommandSnapshot, buildHelpSnapshot, buildInventory, buildRoutePermissions, getButtonRoutes, sortKeys, plain };
+    buildHandlerSnapshot, buildAutocompleteSnapshot, buildCommandSnapshot, buildHelpSnapshot, buildInventory, buildRoutePermissions, getButtonRoutes, sortKeys, plain };
