@@ -3,7 +3,7 @@
 const { testEnv } = require('./helpers/env');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { applyFilters, canSeeUnreleased, buildEmbed } = require('../utils/listGamesHelper');
+const { applyFilters, canSeeUnreleased, buildEmbed } = require('../features/games/listGamesHelper');
 
 const ROLE = { admin: testEnv.ADMINS_ROLE_ID, hr: testEnv.HR_ROLE_ID, cmd: testEnv.CMD_ROLE_ID };
 const CTRL = testEnv.GUILDMASTER_CTRL_CHANNEL_ID;

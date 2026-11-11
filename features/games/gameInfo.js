@@ -1,5 +1,5 @@
-const { buildAnnouncementEmbed } = require('../utils/announcementHelper');
-const { fetchGameByUID } = require('../utils/notion');
+const { buildAnnouncementEmbed } = require('../../utils/announcementHelper');
+const { fetchGameByUID } = require('../../utils/notion');
 
 module.exports = async (interaction, client) => {
     const uid = interaction.options.getString('uid');

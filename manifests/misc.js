@@ -1,4 +1,4 @@
-const game_info = require('../commands/game_info');
+const game_info = require('../features/games/gameInfo');
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
 
 module.exports = {

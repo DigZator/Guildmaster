@@ -1,6 +1,6 @@
-const { getCachedGames } = require('../utils/cache');
+const { getCachedGames } = require('../../utils/cache');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { buildEmbed, applyFilters, canSeeUnreleased } = require('../utils/listGamesHelper');
+const { buildEmbed, applyFilters, canSeeUnreleased } = require('./listGamesHelper');
 
 module.exports = async (interaction, client) => {
     const formatFilter = interaction.options.getString('format_filter');

@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { buildEmbed } = require('../utils/listGamesHelper');
+const { buildEmbed } = require('./listGamesHelper');
 
 function buildPaginationRow(page, totalPages, userId) {
     return new ActionRowBuilder().addComponents(

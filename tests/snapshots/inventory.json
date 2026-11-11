@@ -878,10 +878,6 @@
       "leagueDashSwitch",
       "leagueDashSwitchSelect"
     ],
-    "buttons/listGames.js": [
-      "list_games_next_${…}",
-      "list_games_prev_${…}"
-    ],
     "buttons/questDashboard/common.js": [
       "dynamic: encodeId(questId, backAction, backExtra)",
       "encodeId(*, 'backToDashboard')",
@@ -971,10 +967,6 @@
       "shopsell_confirm_no",
       "shopsell_confirm_yes"
     ],
-    "commands/list_games.js": [
-      "list_games_next_${…}",
-      "list_games_prev_${…}"
-    ],
     "features/archive/command.js": [
       "archive_cancel",
       "archive_confirm_${…}"
@@ -998,6 +990,14 @@
     "features/directLine/flow.js": [
       "encodeId(*, '${action}No')",
       "encodeId(*, '${action}Yes')"
+    ],
+    "features/games/listGames.js": [
+      "list_games_next_${…}",
+      "list_games_prev_${…}"
+    ],
+    "features/games/listGamesButtons.js": [
+      "list_games_next_${…}",
+      "list_games_prev_${…}"
     ],
     "features/messaging/anon/command.js": [
       "anon_cancel_${…}",

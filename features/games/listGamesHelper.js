@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { can } = require('../shared/auth');
+const { can } = require('../../shared/auth');
 
 // Who sees the games that are not released yet (and the [HIDDEN] marker): the Admins role only. Being in the
 // control channel is not enough (a deliberate change, plan item 10; it used to be the Admins role OR that channel).

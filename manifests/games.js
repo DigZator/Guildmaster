@@ -1,12 +1,12 @@
 const { route, routes } = require('../core/manifest');
 const create_campaign = require('../commands/create_campaign');
 const announce_game = require('../commands/announce_game');
-const list_games = require('../commands/list_games');
+const list_games = require('../features/games/listGames');
 const edit_game = require('../commands/edit_game');
-const get_players = require('../commands/get_players');
+const get_players = require('../features/games/getPlayers');
 const manipulate_table = require('../commands/manipulate_table');
 const announcement = require('../buttons/announcement');
-const listGames = require('../buttons/listGames');
+const listGames = require('../features/games/listGamesButtons');
 const editGameCheckbox = require('../buttons/editGameCheckbox');
 const tableAdmin = require('../buttons/tableAdmin');
 const createCampaign = require('../buttons/createCampaign');
@@ -42,7 +42,7 @@ module.exports = {
     commands: [
         admin('create_campaign', create_campaign),
         admin('announce_game', announce_game, gamePicker),
-        // Open to everyone. There is no refusal: the handler (utils/listGamesHelper.js canSeeUnreleased) shows the
+        // Open to everyone. There is no refusal: the handler (features/games/listGamesHelper.js canSeeUnreleased) shows the
         // unreleased games to the Admins role only, a view and not an access check.
         { name: 'list_games', policy: 'open', gate: 'admin', handler: list_games },
         admin('edit_game', edit_game, [{ name: 'game / field', policy: 'open', handle: editGameAutocomplete }]),
