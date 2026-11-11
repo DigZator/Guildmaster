@@ -1,4 +1,4 @@
-const { gameAutocomplete } = require('../../utils/gameAutoComplete');
+const { gameAutocomplete } = require('./gameAutoComplete');
 const gameFields = require('../../data/gameFields.json');
 
 // Autocomplete of /edit_game: the game picker for `game`, the Notion field names for `field`.

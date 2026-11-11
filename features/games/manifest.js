@@ -12,7 +12,7 @@ const editGame = require('./editGame');
 const editGameAutocomplete = require('./editGameAutocomplete');
 const announcementButtons = require('./announcementButtons');
 const editGameCheckboxButtons = require('./editGameCheckboxButtons');
-const { gameAutocomplete } = require('../../utils/gameAutoComplete');
+const { gameAutocomplete } = require('./gameAutoComplete');
 
 // Autocomplete is not permission-checked today (see POST_REFACTOR.md, issue 1), so every entry is 'open'.
 const gamePicker = [{ name: 'games', policy: 'open', handle: gameAutocomplete }];

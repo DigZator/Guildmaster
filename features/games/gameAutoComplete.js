@@ -1,5 +1,5 @@
-// const { fetchGames } = require('./notion');
-const { getCachedGames } = require('./cache');
+// const { fetchGames } = require('../../utils/notion');
+const { getCachedGames } = require('../../utils/cache');
 
 async function gameAutocomplete(interaction) {
     const focusedValue = interaction.options.getFocused().toLowerCase();

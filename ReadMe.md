@@ -309,7 +309,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - A dedicated system for posting character "memorials" (retirement/death write-ups) to a channel, with a searchable index that can be rebuilt via `/the_long_rest reindex` by rescanning the output channel.
 
 ### 8.8 Autocomplete
-Many options across the bot use live autocomplete, implemented in dedicated `utils/*AutoComplete.js` modules: games (`gameAutoComplete.js`), shop/catalogue items (`catalogueAutoComplete.js`, `magicItemAutoComplete.js`), spells (`spellAutoComplete.js`), downtime activities (`downtimeAutoComplete.js`).
+Many options across the bot use live autocomplete, implemented in dedicated `utils/*AutoComplete.js` modules: games (`features/games/gameAutoComplete.js`), shop/catalogue items (`catalogueAutoComplete.js`, `magicItemAutoComplete.js`), spells (`spellAutoComplete.js`), downtime activities (`downtimeAutoComplete.js`).
 
 ### 8.9 Error Reporting (`utils/errorReporter.js`)
 Centralized helper for reporting unexpected errors to an incident/debugging channel, used throughout commands and background services to surface failures (especially mid-transaction failures in gold transfers, shop purchases, and campaign creation) without crashing the process.
