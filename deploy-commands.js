@@ -18,44 +18,8 @@ const commands = [
 	//keep_alive: defined by the general feature
 	require('./features/general').definitions.keep_alive,
 
-	//create_campaign
-	new SlashCommandBuilder()
-		.setName('create_campaign')
-		.setDescription('Create a campaign role, category, and text/voice channels')
-		.addStringOption(option => option
-			.setName('name')
-			.setDescription('Campaign name, e.g. Lost Mines of Phandelver')
-			.setMaxLength(92)
-			.setRequired(true))
-		.addUserOption(option => option
-			.setName('dm')
-			.setDescription('The DM: gets the DM role and the campaign role')
-			.setRequired(true))
-		.addBooleanOption(option => option
-			.setName('spectators_read_chat')
-			.setDescription('Can spectators (Adventurer role) read the text chat?')
-			.setRequired(true))
-		.addBooleanOption(option => option
-			.setName('spectators_send_messages')
-			.setDescription('Can spectators send messages in the text chat? (only applies if they can read it)')
-			.setRequired(true))
-		.addBooleanOption(option => option
-			.setName('spectators_join_voice')
-			.setDescription('Can spectators join the voice/stage channel?')
-			.setRequired(true))
-		.addBooleanOption(option => option
-			.setName('spectators_send_voice_chat')
-			.setDescription('Can spectators send messages in the voice/stage channel chat?')
-			.setRequired(true))
-		.addBooleanOption(option => option
-			.setName('use_stage')
-			.setDescription('Use a Stage channel instead of a Voice channel? (default: No)'))
-		.addUserOption(option => option.setName('player_1').setDescription('Player 1: gets the campaign role'))
-		.addUserOption(option => option.setName('player_2').setDescription('Player 2: gets the campaign role'))
-		.addUserOption(option => option.setName('player_3').setDescription('Player 3: gets the campaign role'))
-		.addUserOption(option => option.setName('player_4').setDescription('Player 4: gets the campaign role'))
-		.addUserOption(option => option.setName('player_5').setDescription('Player 5: gets the campaign role'))
-		.addUserOption(option => option.setName('player_6').setDescription('Player 6: gets the campaign role')),
+	//create_campaign: defined by the games feature
+	require('./features/games').definitions.create_campaign,
 
 	//the_long_rest: defined by the long-rest feature
 	...require('./features/theLongRest').definitions,

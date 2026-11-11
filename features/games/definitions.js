@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 
-// The slash command definitions of the games feature, as far as it has moved (the info and announcement commands). They are exported by
+// The slash command definitions of the games feature, as far as it has moved (the info, announcement and create campaign commands). They are exported by
 // command name because they are not registered side by side: deploy-commands.js spreads each one in at its own position,
 // so the registered order never changes.
 
@@ -82,4 +82,43 @@ const edit_game = new SlashCommandBuilder()
 		.setRequired(true)
 		.setAutocomplete(true));
 
-module.exports = { definitions: { list_games, get_players, game_info, announce_game, edit_game } };
+//create_campaign (Admin role only: enforced by the router)
+const create_campaign = new SlashCommandBuilder()
+	.setName('create_campaign')
+	.setDescription('Create a campaign role, category, and text/voice channels')
+	.addStringOption(option => option
+		.setName('name')
+		.setDescription('Campaign name, e.g. Lost Mines of Phandelver')
+		.setMaxLength(92)
+		.setRequired(true))
+	.addUserOption(option => option
+		.setName('dm')
+		.setDescription('The DM: gets the DM role and the campaign role')
+		.setRequired(true))
+	.addBooleanOption(option => option
+		.setName('spectators_read_chat')
+		.setDescription('Can spectators (Adventurer role) read the text chat?')
+		.setRequired(true))
+	.addBooleanOption(option => option
+		.setName('spectators_send_messages')
+		.setDescription('Can spectators send messages in the text chat? (only applies if they can read it)')
+		.setRequired(true))
+	.addBooleanOption(option => option
+		.setName('spectators_join_voice')
+		.setDescription('Can spectators join the voice/stage channel?')
+		.setRequired(true))
+	.addBooleanOption(option => option
+		.setName('spectators_send_voice_chat')
+		.setDescription('Can spectators send messages in the voice/stage channel chat?')
+		.setRequired(true))
+	.addBooleanOption(option => option
+		.setName('use_stage')
+		.setDescription('Use a Stage channel instead of a Voice channel? (default: No)'))
+	.addUserOption(option => option.setName('player_1').setDescription('Player 1: gets the campaign role'))
+	.addUserOption(option => option.setName('player_2').setDescription('Player 2: gets the campaign role'))
+	.addUserOption(option => option.setName('player_3').setDescription('Player 3: gets the campaign role'))
+	.addUserOption(option => option.setName('player_4').setDescription('Player 4: gets the campaign role'))
+	.addUserOption(option => option.setName('player_5').setDescription('Player 5: gets the campaign role'))
+	.addUserOption(option => option.setName('player_6').setDescription('Player 6: gets the campaign role'));
+
+module.exports = { definitions: { list_games, get_players, game_info, announce_game, edit_game, create_campaign } };
