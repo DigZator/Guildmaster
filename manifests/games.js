@@ -1,6 +1,6 @@
 const { route, routes } = require('../core/manifest');
-const manipulate_table = require('../commands/manipulate_table');
-const tableAdmin = require('../buttons/tableAdmin');
+const manipulate_table = require('../features/games/tableAdmin/manipulateTable');
+const tableAdmin = require('../features/games/tableAdmin/buttons');
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
 
 // Autocomplete is not permission-checked today (see POST_REFACTOR.md, issue 1), so every entry is 'open'.
@@ -22,11 +22,11 @@ module.exports = {
     },
     modals: {
         prefix: {
-            'tableAdminAddPlayerModal:': route('admin', (i) => require('../modals/tableAdminAddPlayerModal')(i)),
-            'tableAdminNumberModal:': route('admin', (i) => require('../modals/tableAdminNumberModal')(i)),
+            'tableAdminAddPlayerModal:': route('admin', (i) => require('../features/games/tableAdmin/addPlayerModal')(i)),
+            'tableAdminNumberModal:': route('admin', (i) => require('../features/games/tableAdmin/numberModal')(i)),
         },
     },
     selects: {
-        prefix: { 'tableAdminSeatSelect:': route('admin', (i) => require('../selects/tableAdminSeatSelect').handle(i)) },
+        prefix: { 'tableAdminSeatSelect:': route('admin', (i) => require('../features/games/tableAdmin/seatSelect').handle(i)) },
     },
 };

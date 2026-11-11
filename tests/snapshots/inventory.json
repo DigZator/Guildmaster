@@ -932,10 +932,6 @@
       "startitems_confirm",
       "startitems_pick_${…}"
     ],
-    "buttons/tableAdmin.js": [
-      "tableAdminNumberModal:${…}",
-      "value"
-    ],
     "commands/league/actions/characterStatus.js": [
       "charstatus_cancel:${…}",
       "charstatus_confirm:${…}"
@@ -1007,6 +1003,28 @@
     "features/games/listGamesButtons.js": [
       "list_games_next_${…}",
       "list_games_prev_${…}"
+    ],
+    "features/games/tableAdmin/buttons.js": [
+      "tableAdminNumberModal:${…}",
+      "value"
+    ],
+    "features/games/tableAdmin/dashboardRender.js": [
+      "encodeId(*, 'addPlayer')",
+      "encodeId(*, 'addSeat')",
+      "encodeId(*, 'alterCapacity')",
+      "encodeId(*, 'alterReserved')",
+      "encodeId(*, 'autoAssignWaitlist')",
+      "encodeId(*, 'editStatus')",
+      "encodeId(*, 'refresh')"
+    ],
+    "features/games/tableAdmin/seatSelect.js": [
+      "encodeId(*, 'setStatus')",
+      "playerName",
+      "tableAdminAddPlayerModal:${…}",
+      "tableAdminSeatSelect:${…}"
+    ],
+    "features/games/tableAdmin/watcher.js": [
+      "tableAdminReactivate:${…}"
     ],
     "features/messaging/anon/command.js": [
       "anon_cancel_${…}",
@@ -1084,15 +1102,6 @@
       "encodeId(*, 'submit')",
       "encodeId(*, 'toggleGroup')"
     ],
-    "interactions/tableAdminDashboardRender.js": [
-      "encodeId(*, 'addPlayer')",
-      "encodeId(*, 'addSeat')",
-      "encodeId(*, 'alterCapacity')",
-      "encodeId(*, 'alterReserved')",
-      "encodeId(*, 'autoAssignWaitlist')",
-      "encodeId(*, 'editStatus')",
-      "encodeId(*, 'refresh')"
-    ],
     "modals/leagueCreate.js": [
       "background",
       "characterName",
@@ -1104,15 +1113,6 @@
     "selects/leagueDashSwitchSelect.js": [
       "charstatus_cancel:${…}",
       "charstatus_confirm:${…}"
-    ],
-    "selects/tableAdminSeatSelect.js": [
-      "encodeId(*, 'setStatus')",
-      "playerName",
-      "tableAdminAddPlayerModal:${…}",
-      "tableAdminSeatSelect:${…}"
-    ],
-    "utils/tableAdminWatcher.js": [
-      "tableAdminReactivate:${…}"
     ]
   },
   "permissionChecks": {

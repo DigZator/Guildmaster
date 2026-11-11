@@ -9,7 +9,7 @@ const { routesOfKinds } = require('./helpers/registryRoutes');
 const encoders = [
     ['features/directLine', 'directLineId', 'dl'],
     ['interactions', 'questDashboardId', 'questDash'],
-    ['interactions', 'tableAdminDashboardId', 'tableAdmin'],
+    ['features/games/tableAdmin', 'dashboardId', 'tableAdmin'],
     ['features/tickets', 'ticketId', 'ticket'],
 ].map(([dir, file, prefix]) => ({ file, prefix, ...require(path.join(root, dir, file)) }));
 

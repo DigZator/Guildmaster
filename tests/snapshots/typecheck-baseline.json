@@ -11,7 +11,6 @@
     "buttons/questDashboard/rewards.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "buttons/shopDiscount.js | TS2353 | Object literal may only specify known properties, and 'currentGold' does not exist in type '{ char: any; characterName: any; code: any; currentRep?: number; discount?: number; entry: any; rpCost?: number; }'.": 1,
     "buttons/starterItems.js | TS2554 | Expected 0-2 arguments, but got 3.": 1,
-    "buttons/tableAdmin.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "client.js | TS2339 | Property 'leaderboardSessions' does not exist on type 'Client<boolean>'.": 1,
     "commands/league/actions/gold.js | TS2339 | Property 'properties' does not exist on type 'PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 1,
     "commands/league/actions/questLog.js | TS2339 | Property 'properties' does not exist on type 'PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 6,
@@ -52,6 +51,11 @@
     "features/games/createCampaign/command.js | TS2339 | Property 'confirmCampaign' does not exist on type '(interaction: any) => Promise<void>'.": 1,
     "features/games/editGame.js | TS2339 | Property 'properties' does not exist on type 'GetPageResponse'.": 1,
     "features/games/editGame.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
+    "features/games/tableAdmin/buttons.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
+    "features/games/tableAdmin/data.js | TS2339 | Property 'properties' does not exist on type 'GetPageResponse'.": 2,
+    "features/games/tableAdmin/data.js | TS2362 | The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 2,
+    "features/games/tableAdmin/data.js | TS2363 | The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 2,
+    "features/games/tableAdmin/seatSelect.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "features/theLongRest/buttons.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<...>, ActionRowBuilder<...>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "features/theLongRest/buttons.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "features/theLongRest/dashboardConfig.js | TS2353 | Object literal may only specify known properties, and 'dashboardChannelId' does not exist in type 'any[]'.": 1,
@@ -81,7 +85,6 @@
     "manifests/activationSchedule.js | TS2363 | The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 1,
     "modals/leagueCreate.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<...>, ActionRowBuilder<...>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "selects/shopDiscountSelect.js | TS2353 | Object literal may only specify known properties, and 'currentGold' does not exist in type '{ char: any; characterName: any; code: any; currentRep?: number; discount?: number; entry: any; rpCost?: number; }'.": 1,
-    "selects/tableAdminSeatSelect.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "shared/archive/config.js | TS2353 | Object literal may only specify known properties, and 'categoryId' does not exist in type 'any[]'.": 1,
     "shared/ticketConfig/guildConfig.js | TS2353 | Object literal may only specify known properties, and 'categoryId' does not exist in type 'any[]'.": 1,
     "shared/transcript/build.js | TS2339 | Property 'closeFeedback' does not exist on type '{ preserveAttachments?: boolean; }'.": 1,
@@ -130,9 +133,6 @@
     "utils/shopFloor.js | TS2339 | Property 'quantity' does not exist on type '{}'.": 1,
     "utils/shopFloor.js | TS2740 | Type '{}' is missing the following properties from type 'any[]': length, pop, push, concat, and 35 more.": 2,
     "utils/starterEquipmentFlow.js | TS2339 | Property 'test' does not exist on type 'string | RegExp'.": 1,
-    "utils/tableAdminData.js | TS2339 | Property 'properties' does not exist on type 'GetPageResponse'.": 2,
-    "utils/tableAdminData.js | TS2362 | The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 2,
-    "utils/tableAdminData.js | TS2363 | The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 2,
     "utils/threadActivityReport.js | TS2353 | Object literal may only specify known properties, and 'nextReportDue' does not exist in type 'any[]'.": 1
   }
 }

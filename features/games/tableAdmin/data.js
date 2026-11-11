@@ -1,4 +1,4 @@
-// tableAdminData.js
+// features/games/tableAdmin/data.js
 //
 // SCOPE LOCK: every exported function only operates on the Notion game whose
 // Title === "Test". This is a deliberate, temporary guard while we build out
@@ -16,9 +16,9 @@
 // /get_players command. Swap this derivation out once the real Status field
 // exists on the Seats DB.
 
-const { fetchPage, fetchSeats, createSeat, createPlayerPage, assignPlayerToSeat, setSeatStatus, updateGameProperties } = require('./notion');
-const { getCachedGames } = require('./cache');
-const { getPlayers } = require('./fillout');
+const { fetchPage, fetchSeats, createSeat, createPlayerPage, assignPlayerToSeat, setSeatStatus, updateGameProperties } = require('../../../utils/notion');
+const { getCachedGames } = require('../../../utils/cache');
+const { getPlayers } = require('../../../utils/fillout');
 
 const TARGET_GAME_TITLE = 'Test';
 const CURRENT_COUNT_PROPERTY_NAME = 'Open Seats';

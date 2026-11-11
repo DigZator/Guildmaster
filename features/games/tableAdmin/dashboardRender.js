@@ -6,8 +6,8 @@
 // builds Discord UI objects. It never writes to Notion.
 
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { fetchMergedPlayerList, fetchTestGameCounts } = require('../utils/tableAdminData');
-const { encodeId } = require('./tableAdminDashboardId');
+const { fetchMergedPlayerList, fetchTestGameCounts } = require('./data');
+const { encodeId } = require('./dashboardId');
 
 function formatTimestamp(isoString) {
 	if (!isoString) return 'N/A';

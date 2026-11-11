@@ -1,6 +1,6 @@
 const { StringSelectMenuBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { fetchGameSeats } = require('../utils/tableAdminData');
-const { encodeId } = require('../interactions/tableAdminDashboardId');
+const { fetchGameSeats } = require('./data');
+const { encodeId } = require('./dashboardId');
 
 function seatLabel(seat, index) {
 	const statusPart = seat.status ? seat.status : 'No status set';

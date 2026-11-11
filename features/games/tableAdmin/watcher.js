@@ -1,6 +1,6 @@
 // STATUS: NOT WIRED IN.
 // To activate later, in index.js add (near the other .init(client) calls):
-//   require('./utils/tableAdminWatcher').init(client);
+//   require('./features/games/tableAdmin/watcher').init(client);
 //
 // SCOPE LOCK: this is a deliberately SEPARATE watcher from utils/deactivator.js,
 // not a modification of it. deactivator.js keeps working exactly as before for
@@ -11,10 +11,10 @@
 // scope widened deliberately — it will not pick up other games on its own,
 // since every check here goes through getTestGame().
 
-const { onCacheRefresh } = require('./cache');
-const { getTestGame, fetchTestGameCounts } = require('./tableAdminData');
-const { updateGameProperties } = require('./notion');
-const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
+const { onCacheRefresh } = require('../../../utils/cache');
+const { getTestGame, fetchTestGameCounts } = require('./data');
+const { updateGameProperties } = require('../../../utils/notion');
+const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../../../data/channels');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 let ctrlChannel = null;

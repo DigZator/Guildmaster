@@ -1,7 +1,7 @@
-// SCOPE LOCK: only operates on the "Test" game (see utils/tableAdminData.js).
+// SCOPE LOCK: only operates on the "Test" game (see features/games/tableAdmin/data.js).
 
-const { getTestGame } = require('../utils/tableAdminData');
-const { renderDashboard } = require('../interactions/tableAdminDashboardRender');
+const { getTestGame } = require('./data');
+const { renderDashboard } = require('./dashboardRender');
 
 module.exports = async (interaction) => {
 

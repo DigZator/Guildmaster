@@ -1,5 +1,5 @@
-const { addPlayerToSeat } = require('../utils/tableAdminData');
-const { renderDashboard } = require('../interactions/tableAdminDashboardRender');
+const { addPlayerToSeat } = require('./data');
+const { renderDashboard } = require('./dashboardRender');
 
 module.exports = async (interaction) => {
 	const [, gameUID, seatId] = interaction.customId.split(':');

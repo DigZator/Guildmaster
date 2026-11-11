@@ -1,8 +1,8 @@
-const { decodeId } = require('../interactions/tableAdminDashboardId');
-const { renderDashboard } = require('../interactions/tableAdminDashboardRender');
-const { getTestGame, addSeat, editSeatStatus, autoAssignWaitlist } = require('../utils/tableAdminData');
-const { updateGameProperties } = require('../utils/notion');
-const { buildSeatSelectRow } = require('../selects/tableAdminSeatSelect');
+const { decodeId } = require('./dashboardId');
+const { renderDashboard } = require('./dashboardRender');
+const { getTestGame, addSeat, editSeatStatus, autoAssignWaitlist } = require('./data');
+const { updateGameProperties } = require('../../../utils/notion');
+const { buildSeatSelectRow } = require('./seatSelect');
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: ModalActionRow } = require('discord.js');
 
 function buildNumberModal(gameUID, field, title) {
@@ -99,7 +99,7 @@ const prefix = {
 		}
 	},
 
-	// Separate id space — posted by utils/tableAdminWatcher.js in the ctrl
+	// Separate id space — posted by features/games/tableAdmin/watcher.js in the ctrl
 	// channel when Open Seats frees back up after a close. Deliberately not
 	// merged into the 'tableAdmin:' prefix above since it isn't tied to a
 	// dashboard message and doesn't need the scope-lock re-check pattern

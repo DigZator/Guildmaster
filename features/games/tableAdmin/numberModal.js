@@ -1,5 +1,5 @@
-const { setCapacity, setReserved } = require('../utils/tableAdminData');
-const { renderDashboard } = require('../interactions/tableAdminDashboardRender');
+const { setCapacity, setReserved } = require('./data');
+const { renderDashboard } = require('./dashboardRender');
 
 module.exports = async (interaction) => {
 	const [, gameUID, field] = interaction.customId.split(':'); // field: 'capacity' | 'reserved'
