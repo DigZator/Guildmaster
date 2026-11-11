@@ -936,10 +936,6 @@
       "tableAdminNumberModal:${…}",
       "value"
     ],
-    "commands/create_campaign/preview.js": [
-      "create_campaign_cancel",
-      "create_campaign_confirm"
-    ],
     "commands/league/actions/characterStatus.js": [
       "charstatus_cancel:${…}",
       "charstatus_confirm:${…}"
@@ -994,6 +990,10 @@
       "announce_cancel",
       "announce_confirm",
       "announce_edit"
+    ],
+    "features/games/createCampaign/preview.js": [
+      "create_campaign_cancel",
+      "create_campaign_confirm"
     ],
     "features/games/editGame.js": [
       "editgame_checkbox_${…}",
@@ -1116,10 +1116,6 @@
     ]
   },
   "permissionChecks": {
-    "commands/create_campaign/preflight.js": {
-      "roles.cache": 1,
-      "permissions.has": 1
-    },
     "commands/leagueGrants/pendingApprovals/dashboard.js": {
       "roles.cache": 1
     },
@@ -1135,6 +1131,10 @@
       "isAdminChannel": {
         "hr": 1
       }
+    },
+    "features/games/createCampaign/preflight.js": {
+      "roles.cache": 1,
+      "permissions.has": 1
     },
     "features/tickets/permissions.js": {
       "isAdminChannel": {

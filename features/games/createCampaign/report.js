@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
-const { renderMatrix } = require('../../utils/campaignPermissions');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
+const { renderMatrix } = require('./campaignPermissions');
 const { yn, clip, describeError, formatLog, chunkEmbeds } = require('./helpers');
 
 // ── Report ──────────────────────────────────────────────────────────────────

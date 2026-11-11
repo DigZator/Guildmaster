@@ -1,8 +1,8 @@
 const { route, routes } = require('../core/manifest');
-const create_campaign = require('../commands/create_campaign');
+const create_campaign = require('../features/games/createCampaign');
 const manipulate_table = require('../commands/manipulate_table');
 const tableAdmin = require('../buttons/tableAdmin');
-const createCampaign = require('../buttons/createCampaign');
+const createCampaign = require('../features/games/createCampaign/buttons');
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
 
 // Autocomplete is not permission-checked today (see POST_REFACTOR.md, issue 1), so every entry is 'open'.

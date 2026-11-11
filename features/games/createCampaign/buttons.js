@@ -1,4 +1,4 @@
-const { confirmCampaign, cancelCampaign } = require('../commands/create_campaign');
+const { confirmCampaign, cancelCampaign } = require('./index');
 
 module.exports = {
     exact: {

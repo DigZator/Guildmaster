@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { buildOverwrites, columnsFor, overwritesToMap, renderMatrix } = require('../../utils/campaignPermissions');
+const { buildOverwrites, columnsFor, overwritesToMap, renderMatrix } = require('./campaignPermissions');
 const { PLACEHOLDER_CAMPAIGN_ROLE } = require('./constants');
 const { pendingPreviews, PREVIEW_TTL_MS } = require('./state');
 const { clip } = require('./helpers');

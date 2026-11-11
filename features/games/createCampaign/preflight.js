@@ -1,5 +1,5 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const { requiredBotPermissions } = require('../../utils/campaignPermissions');
+const { requiredBotPermissions } = require('./campaignPermissions');
 const {
     ADMINS_ROLE_ID,
     CLANKERS_ROLE_ID,

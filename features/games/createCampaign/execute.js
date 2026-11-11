@@ -1,5 +1,5 @@
 const { ChannelType } = require('discord.js');
-const { buildOverwrites, columnsFor, overwritesToMap, channelToMap, diffMaps } = require('../../utils/campaignPermissions');
+const { buildOverwrites, columnsFor, overwritesToMap, channelToMap, diffMaps } = require('./campaignPermissions');
 const { DM_ROLE_ID } = require('./constants');
 const { describeError } = require('./helpers');
 const { rollback } = require('./rollback');
