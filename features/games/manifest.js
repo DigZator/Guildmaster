@@ -4,6 +4,8 @@ const listGames = require('./listGames');
 const getPlayers = require('./getPlayers');
 const createCampaign = require('./createCampaign');
 const createCampaignButtons = require('./createCampaign/buttons');
+const manipulateTable = require('./tableAdmin/manipulateTable');
+const tableAdminButtons = require('./tableAdmin/buttons');
 const listGamesButtons = require('./listGamesButtons');
 const announceGame = require('./announceGame');
 const editGame = require('./editGame');
@@ -16,7 +18,7 @@ const { gameAutocomplete } = require('../../utils/gameAutoComplete');
 const gamePicker = [{ name: 'games', policy: 'open', handle: gameAutocomplete }];
 
 // The games feature is moved in steps (plan section 8.1, A3a to A3e). This manifest holds what has moved so far: the info
-// announcement and create campaign commands. manifests/games.js still holds the rest and is registered after this one.
+// announcement, create campaign and table admin commands. Only /schedule_activation (manifests/activationSchedule.js) is still outside.
 module.exports = {
     name: 'games',
     commands: [
@@ -28,6 +30,7 @@ module.exports = {
         { name: 'get_players', policy: 'admin', handler: getPlayers, autocomplete: gamePicker },
         { name: 'announce_game', policy: 'admin', handler: announceGame, autocomplete: gamePicker },
         { name: 'create_campaign', policy: 'admin', handler: createCampaign },
+        { name: 'manipulate_table', policy: 'admin', handler: manipulateTable, autocomplete: gamePicker },
         { name: 'edit_game', policy: 'admin', handler: editGame, autocomplete: [{ name: 'game / field', policy: 'open', handle: editGameAutocomplete }] },
     ],
     buttons: {
@@ -41,15 +44,20 @@ module.exports = {
         prefix: {
             ...routes('open', listGamesButtons.prefix),
             ...routes('open', editGameCheckboxButtons.prefix),
+            // The table admin dashboard and the Reopen/Leave closed prompt: Admins-only, enforced by the router (plan item 15).
+            ...routes('admin', tableAdminButtons.prefix),
         },
     },
     modals: {
         prefix: {
             'editgame_modal_': route('open', (i, c) => require('./editGameModal')(i, c)),
             'announceedit_modal_': route('open', (i, c) => require('./announceEditModal')(i, c)),
+            'tableAdminAddPlayerModal:': route('admin', (i) => require('./tableAdmin/addPlayerModal')(i)),
+            'tableAdminNumberModal:': route('admin', (i) => require('./tableAdmin/numberModal')(i)),
         },
     },
     selects: {
         exact: { announce_edit_select: route('open', (i, c) => require('./announceEditSelect')(i, c)) },
+        prefix: { 'tableAdminSeatSelect:': route('admin', (i) => require('./tableAdmin/seatSelect').handle(i)) },
     },
 };
