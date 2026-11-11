@@ -6,4 +6,7 @@
 // other commands), so this file does not load helpData.
 module.exports = {
     definitions: require('./definitions').definitions,
+    // The routes of the commands moved so far. Loaded on first use, because it loads the handlers and the exports above
+    // must stay light.
+    get manifest() { return require('./manifest'); },
 };

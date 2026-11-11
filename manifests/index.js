@@ -2,7 +2,7 @@
 // in Phase 4 each manifest moves into its feature folder. Nothing requires this file at runtime yet.
 module.exports = [
     require('../features/general').manifest,
-    require('./misc'),
+    require('../features/games').manifest,
     require('./games'),
     require('../features/archive').manifest,
     require('../features/messaging').manifest,
