@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 
-// The slash command definitions of the games feature, as far as it has moved (the info commands). They are exported by
+// The slash command definitions of the games feature, as far as it has moved (the info and announcement commands). They are exported by
 // command name because they are not registered side by side: deploy-commands.js spreads each one in at its own position,
 // so the registered order never changes.
 
@@ -57,4 +57,29 @@ const game_info = new SlashCommandBuilder()
 		.setName('public')
 		.setDescription('Show results public in channel (default: false)'));
 
-module.exports = { definitions: { list_games, get_players, game_info } };
+//announce_game
+const announce_game = new SlashCommandBuilder()
+	.setName('announce_game')
+	.setDescription('Announce a game to the quest board')
+	.addStringOption(option => option
+		.setName('game')
+		.setDescription('Select a game to announce')
+		.setRequired(true)
+		.setAutocomplete(true));
+
+//edit_game
+const edit_game = new SlashCommandBuilder()
+	.setName('edit_game')
+	.setDescription('Edit a field on a game in Notion')
+	.addStringOption(option => option
+		.setName('game')
+		.setDescription('Select a game to edit')
+		.setRequired(true)
+		.setAutocomplete(true))
+	.addStringOption(opt => opt
+		.setName('field')
+		.setDescription('Select a field to edit')
+		.setRequired(true)
+		.setAutocomplete(true));
+
+module.exports = { definitions: { list_games, get_players, game_info, announce_game, edit_game } };

@@ -60,15 +60,8 @@ const commands = [
 	//the_long_rest: defined by the long-rest feature
 	...require('./features/theLongRest').definitions,
 
-	//announce_game
-	new SlashCommandBuilder()
-		.setName('announce_game')
-		.setDescription('Announce a game to the quest board')
-		.addStringOption(option => option
-			.setName('game')
-			.setDescription('Select a game to announce')
-			.setRequired(true)
-			.setAutocomplete(true)),
+	//announce_game: defined by the games feature
+	require('./features/games').definitions.announce_game,
 
 	//ticket: defined by the tickets feature
 	...require('./features/tickets').definitions,
@@ -163,20 +156,8 @@ const commands = [
 	//help: defined by the general feature
 	require('./features/general').definitions.help,
 
-	//edit_game
-	new SlashCommandBuilder()
-		.setName('edit_game')
-		.setDescription('Edit a field on a game in Notion')
-		.addStringOption(option => option
-			.setName('game')
-			.setDescription('Select a game to edit')
-			.setRequired(true)
-			.setAutocomplete(true))
-		.addStringOption(opt => opt
-			.setName('field')
-			.setDescription('Select a field to edit')
-			.setRequired(true)
-			.setAutocomplete(true)),
+	//edit_game: defined by the games feature
+	require('./features/games').definitions.edit_game,
 
 	//league
 	new SlashCommandBuilder()
