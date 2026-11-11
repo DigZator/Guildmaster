@@ -1,6 +1,6 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
-const { sessions } = require('../utils/sessionStore');
-const { isCurrentPreview, STALE_PREVIEW_MESSAGE } = require('../utils/announcementHelper');
+const { sessions } = require('./sessionStore');
+const { isCurrentPreview, STALE_PREVIEW_MESSAGE } = require('./announcementHelper');
 
 const MAX_MODAL_VALUE_LENGTH = 4000;
 

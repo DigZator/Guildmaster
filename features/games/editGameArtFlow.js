@@ -1,8 +1,8 @@
 const { EmbedBuilder } = require('discord.js');
-const editGameSession = require('../utils/editGameSession');
-const { updateGameProperties, rehostImageToNotion, filesPropertyFromUpload } = require('../utils/notion');
-const { invalidateCache } = require('../utils/cache');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
+const editGameSession = require('./editGameSession');
+const { updateGameProperties, rehostImageToNotion, filesPropertyFromUpload } = require('../../utils/notion');
+const { invalidateCache } = require('../../utils/cache');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 
 const URL_PATTERN = /https?:\/\/[^\s<>]+/i;
 

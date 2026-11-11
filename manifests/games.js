@@ -1,10 +1,10 @@
 const { route, routes } = require('../core/manifest');
 const create_campaign = require('../commands/create_campaign');
-const announce_game = require('../commands/announce_game');
-const edit_game = require('../commands/edit_game');
+const announce_game = require('../features/games/announceGame');
+const edit_game = require('../features/games/editGame');
 const manipulate_table = require('../commands/manipulate_table');
-const announcement = require('../buttons/announcement');
-const editGameCheckbox = require('../buttons/editGameCheckbox');
+const announcement = require('../features/games/announcementButtons');
+const editGameCheckbox = require('../features/games/editGameCheckboxButtons');
 const tableAdmin = require('../buttons/tableAdmin');
 const createCampaign = require('../buttons/createCampaign');
 const { gameAutocomplete } = require('../utils/gameAutoComplete');
@@ -57,14 +57,14 @@ module.exports = {
     },
     modals: {
         prefix: {
-            'editgame_modal_': route('open', (i, c) => require('../modals/editGameModal')(i, c)),
-            'announceedit_modal_': route('open', (i, c) => require('../modals/announceEditModal')(i, c)),
+            'editgame_modal_': route('open', (i, c) => require('../features/games/editGameModal')(i, c)),
+            'announceedit_modal_': route('open', (i, c) => require('../features/games/announceEditModal')(i, c)),
             'tableAdminAddPlayerModal:': route('admin', (i) => require('../modals/tableAdminAddPlayerModal')(i)),
             'tableAdminNumberModal:': route('admin', (i) => require('../modals/tableAdminNumberModal')(i)),
         },
     },
     selects: {
-        exact: { announce_edit_select: route('open', (i, c) => require('../selects/announceEditSelect')(i, c)) },
+        exact: { announce_edit_select: route('open', (i, c) => require('../features/games/announceEditSelect')(i, c)) },
         prefix: { 'tableAdminSeatSelect:': route('admin', (i) => require('../selects/tableAdminSeatSelect').handle(i)) },
     },
 };

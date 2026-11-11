@@ -1,4 +1,4 @@
-const { buildAnnouncementEmbed } = require('../../utils/announcementHelper');
+const { buildAnnouncementEmbed } = require('./announcementHelper');
 const { fetchGameByUID } = require('../../utils/notion');
 
 module.exports = async (interaction, client) => {

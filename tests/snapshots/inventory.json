@@ -858,9 +858,6 @@
     ]
   },
   "customIdProducers": {
-    "buttons/announcement.js": [
-      "announce_edit_select"
-    ],
     "buttons/inventory.js": [
       "inv_next_${…}",
       "inv_prev_${…}"
@@ -943,11 +940,6 @@
       "create_campaign_cancel",
       "create_campaign_confirm"
     ],
-    "commands/edit_game.js": [
-      "editgame_checkbox_${…}",
-      "editgame_modal_${…}",
-      "value"
-    ],
     "commands/league/actions/characterStatus.js": [
       "charstatus_cancel:${…}",
       "charstatus_confirm:${…}"
@@ -990,6 +982,23 @@
     "features/directLine/flow.js": [
       "encodeId(*, '${action}No')",
       "encodeId(*, '${action}Yes')"
+    ],
+    "features/games/announceEditSelect.js": [
+      "announceedit_modal_${…}",
+      "value"
+    ],
+    "features/games/announcementButtons.js": [
+      "announce_edit_select"
+    ],
+    "features/games/announcementHelper.js": [
+      "announce_cancel",
+      "announce_confirm",
+      "announce_edit"
+    ],
+    "features/games/editGame.js": [
+      "editgame_checkbox_${…}",
+      "editgame_modal_${…}",
+      "value"
     ],
     "features/games/listGames.js": [
       "list_games_next_${…}",
@@ -1092,10 +1101,6 @@
       "scores",
       "species"
     ],
-    "selects/announceEditSelect.js": [
-      "announceedit_modal_${…}",
-      "value"
-    ],
     "selects/leagueDashSwitchSelect.js": [
       "charstatus_cancel:${…}",
       "charstatus_confirm:${…}"
@@ -1105,11 +1110,6 @@
       "playerName",
       "tableAdminAddPlayerModal:${…}",
       "tableAdminSeatSelect:${…}"
-    ],
-    "utils/announcementHelper.js": [
-      "announce_cancel",
-      "announce_confirm",
-      "announce_edit"
     ],
     "utils/tableAdminWatcher.js": [
       "tableAdminReactivate:${…}"
@@ -1160,8 +1160,8 @@
   },
   "startupWiring": [
     "./interactions/threadAlertLog",
-    "./flow/announcementFlow",
-    "./flow/editGameArtFlow",
+    "./features/games/announcementFlow",
+    "./features/games/editGameArtFlow",
     "./features/theLongRest/submissionFlow",
     "./core/boot",
     "./features/messaging/rss/flow",

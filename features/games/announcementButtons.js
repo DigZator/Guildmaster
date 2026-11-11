@@ -1,12 +1,12 @@
 const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
-const { getRoleMention, sendChunkedText, clearSessionTimeout, restoreSession, isCurrentPreview, SESSION_GONE_MESSAGE, STALE_PREVIEW_MESSAGE } = require('../utils/announcementHelper');
-const { invalidateCache } = require('../utils/cache');
-const { updateGameProperties } = require('../utils/notion');
-const { addToQueue, getQueue } = require('../utils/activationQueue');
-const { hasCustomRegistrationLink } = require('../utils/registrationDefaults');
-const { sessions } = require('../utils/sessionStore');
-const { reportError } = require('../utils/errorReporter');
-const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
+const { getRoleMention, sendChunkedText, clearSessionTimeout, restoreSession, isCurrentPreview, SESSION_GONE_MESSAGE, STALE_PREVIEW_MESSAGE } = require('./announcementHelper');
+const { invalidateCache } = require('../../utils/cache');
+const { updateGameProperties } = require('../../utils/notion');
+const { addToQueue, getQueue } = require('../../utils/activationQueue');
+const { hasCustomRegistrationLink } = require('../../utils/registrationDefaults');
+const { sessions } = require('./sessionStore');
+const { reportError } = require('../../utils/errorReporter');
+const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 
 module.exports = {
 

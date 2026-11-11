@@ -1,8 +1,8 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { getCachedGames } = require('../utils/cache');
-const gameFields = require('../data/gameFields.json');
-const { fetchPage, stringifyPropertyValue } = require('../utils/notion');
-const editGameSession = require('../utils/editGameSession');
+const { getCachedGames } = require('../../utils/cache');
+const gameFields = require('../../data/gameFields.json');
+const { fetchPage, stringifyPropertyValue } = require('../../utils/notion');
+const editGameSession = require('./editGameSession');
 
 const MAX_MODAL_VALUE_LENGTH = 4000;
 

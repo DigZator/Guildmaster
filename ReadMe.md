@@ -38,7 +38,6 @@ The bot maintains its own local JSON data store (`/data`) for tickets, RSS feeds
 ├── buttons/                    Handlers for individual button customIds
 ├── modals/                     Handlers for individual modal submissions
 ├── selects/                    Handlers for select-menu interactions
-├── flow/                       Multi-step conversational flows (message-based)
 ├── utils/                      Business logic, Notion clients, schedulers, stores
 ├── config/                     Static/JSON-backed configuration
 ├── data/                       Runtime JSON data (persisted state)
@@ -98,8 +97,8 @@ All raw Discord interaction events are centralized in `interactions/`, each file
 - **`features/tickets/ticketId.js`** — routes ticket-specific button/modal interactions.
 - **`threadAlertLog.js`** — logs thread-related alerts to a monitoring channel.
 
-Multi-step, message-driven (not just component-driven) flows live in `flow/` and are also registered directly on `client` in `index.js`:
-- **`announcementFlow.js`** — manual game-announcement wizard.
+Multi-step, message-driven (not just component-driven) flows live in their feature folders and are also registered directly on `client` in `index.js`:
+- **`features/games/announcementFlow.js`** — manual game-announcement wizard.
 - **`features/theLongRest/submissionFlow.js`** — "The Long Rest" (character memorial) submission wizard.
 - **`features/messaging/rss/flow.js`** — guided RSS feed setup.
 - **`features/tickets/flow.js`** — ticket creation/lifecycle conversational steps.

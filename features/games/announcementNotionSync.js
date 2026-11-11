@@ -1,4 +1,4 @@
-const { updateGameProperties } = require('./notion');
+const { updateGameProperties } = require('../../utils/notion');
 const { formatValue } = require('./editGameFormat');
 
 const FIELD_TO_NOTION = {

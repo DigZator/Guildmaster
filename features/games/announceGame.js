@@ -1,6 +1,6 @@
-const { fetchGameByUID } = require('../utils/notion');
-const { buildAnnouncementEmbed, buildWhatsApp, sendChunkedText, getPreviewButtons, getPreviewWarnings, setSessionTimeout } = require('../utils/announcementHelper');
-const { sessions } = require('../utils/sessionStore');
+const { fetchGameByUID } = require('../../utils/notion');
+const { buildAnnouncementEmbed, buildWhatsApp, sendChunkedText, getPreviewButtons, getPreviewWarnings, setSessionTimeout } = require('./announcementHelper');
+const { sessions } = require('./sessionStore');
 
 module.exports = async (interaction, client) => {
     const uid = interaction.options.getString('game');

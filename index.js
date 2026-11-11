@@ -18,8 +18,8 @@ process.on('error', (error) => {
 require('./config/roleVars').report();
 
 require('./interactions/threadAlertLog')(client);
-require('./flow/announcementFlow')(client);
-require('./flow/editGameArtFlow')(client);
+require('./features/games/announcementFlow')(client);
+require('./features/games/editGameArtFlow')(client);
 require('./features/theLongRest/submissionFlow')(client);
 require('./core/boot')(client);
 require('./features/messaging/rss/flow')(client);
