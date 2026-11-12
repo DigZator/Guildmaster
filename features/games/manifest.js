@@ -6,6 +6,8 @@ const createCampaign = require('./createCampaign');
 const createCampaignButtons = require('./createCampaign/buttons');
 const manipulateTable = require('./tableAdmin/manipulateTable');
 const tableAdminButtons = require('./tableAdmin/buttons');
+const scheduleActivation = require('./activation/scheduleActivation');
+const scheduleActivationAutocomplete = require('./activation/autocomplete');
 const listGamesButtons = require('./listGamesButtons');
 const announceGame = require('./announceGame');
 const editGame = require('./editGame');
@@ -14,11 +16,13 @@ const announcementButtons = require('./announcementButtons');
 const editGameCheckboxButtons = require('./editGameCheckboxButtons');
 const { gameAutocomplete } = require('./gameAutoComplete');
 
+const MOD_CHANNEL_ONLY = '❌ This command can only be used by admins in the mod channel.';
+
 // Autocomplete is not permission-checked today (see POST_REFACTOR.md, issue 1), so every entry is 'open'.
 const gamePicker = [{ name: 'games', policy: 'open', handle: gameAutocomplete }];
 
-// The games feature is moved in steps (plan section 8.1, A3a to A3e). This manifest holds what has moved so far: the info
-// announcement, create campaign and table admin commands. Only /schedule_activation (manifests/activationSchedule.js) is still outside.
+// The routes of every games command (plan section 8.1, A3a to A3e): the info, announcement, create campaign, table admin
+// and activation commands, with their buttons, forms and selects.
 module.exports = {
     name: 'games',
     commands: [
@@ -31,6 +35,8 @@ module.exports = {
         { name: 'announce_game', policy: 'admin', handler: announceGame, autocomplete: gamePicker },
         { name: 'create_campaign', policy: 'admin', handler: createCampaign },
         { name: 'manipulate_table', policy: 'admin', handler: manipulateTable, autocomplete: gamePicker },
+        // Enforced by the router: the admin role AND the control channel, with this command's own refusal text.
+        { name: 'schedule_activation', policy: 'admin_ctrl', denied: MOD_CHANNEL_ONLY, handler: scheduleActivation, autocomplete: [{ name: 'add / remove', policy: 'open', handle: scheduleActivationAutocomplete }] },
         { name: 'edit_game', policy: 'admin', handler: editGame, autocomplete: [{ name: 'game / field', policy: 'open', handle: editGameAutocomplete }] },
     ],
     buttons: {

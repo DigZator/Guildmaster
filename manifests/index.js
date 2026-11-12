@@ -5,7 +5,6 @@ module.exports = [
     require('../features/games').manifest,
     require('../features/archive').manifest,
     require('../features/messaging').manifest,
-    require('./activationSchedule'),
     require('../features/theLongRest').manifest,
     require('../features/tickets').manifest,
     require('../features/directLine').manifest,

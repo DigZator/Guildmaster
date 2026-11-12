@@ -1,7 +1,7 @@
-const schedule_activation = require('../features/games/activation/scheduleActivation');
-const { getCachedGames } = require('../utils/cache');
-const { getQueue } = require('../features/games/activation/activationQueue');
+const { getCachedGames } = require('../../../utils/cache');
+const { getQueue } = require('./activationQueue');
 
+// Autocomplete of /schedule_activation: games not yet activated for `add`, the queued games for `remove`.
 async function scheduleActivationAutocomplete(interaction) {
     const sub = interaction.options.getSubcommand();
     const focused = interaction.options.getFocused().toLowerCase();
@@ -27,13 +27,4 @@ async function scheduleActivationAutocomplete(interaction) {
     }
 }
 
-// Enforced by the router: the admin role AND the control channel, with this command's own refusal text.
-const adminCtrl = (name, denied, handler, autocomplete) => ({ name, policy: 'admin_ctrl', denied, handler, autocomplete });
-const MOD_CHANNEL_ONLY = '❌ This command can only be used by admins in the mod channel.';
-
-module.exports = {
-    name: 'activation-schedule',
-    commands: [
-        adminCtrl('schedule_activation', MOD_CHANNEL_ONLY, schedule_activation, [{ name: 'add / remove', policy: 'open', handle: scheduleActivationAutocomplete }]),
-    ],
-};
+module.exports = scheduleActivationAutocomplete;
