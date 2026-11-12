@@ -3,12 +3,12 @@ const {
     loadClasses,
     loadBackgrounds,
     loadCategoryIndex,
-} = require('../utils/starterEquipmentData');
-const { buildInitialSession } = require('../utils/starterEquipmentFlow');
-const { getActiveCharacter } = require('../utils/leagueNotion');
-const starterItemsButtons = require('../buttons/starterItems');
+} = require('./equipmentData');
+const { buildInitialSession } = require('./equipmentFlow');
+const { getActiveCharacter } = require('../../../utils/leagueNotion');
+const starterItemsButtons = require('./buttons');
 
-const FIVEE_DATA_DIR = path.join(__dirname, '..', '..', '5etools-src', 'data');
+const FIVEE_DATA_DIR = path.join(__dirname, '..', '..', '..', '..', '5etools-src', 'data');
 
 function buildClassChoices() {
     const classes = loadClasses(FIVEE_DATA_DIR);

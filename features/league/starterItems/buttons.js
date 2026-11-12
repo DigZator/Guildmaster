@@ -1,13 +1,13 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
-const { currentStep, applyPick } = require('../utils/starterEquipmentFlow');
+const { currentStep, applyPick } = require('./equipmentFlow');
 const {
     createInventoryItem,
     adjustCharacterNumber,
     updatePageProperty,
     setItemStatus,
     getPageById,
-} = require('../utils/leagueNotion');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+} = require('../../../utils/leagueNotion');
+const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
 
 const TIMEOUT_MS = 10 * 60 * 1000;
 const sessions = new Map();

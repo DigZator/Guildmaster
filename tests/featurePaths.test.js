@@ -193,3 +193,27 @@ test('games: the activation queue and schedule settings still live in data/activ
     assert.deepEqual(storePathsOf('../features/games/activation/activationQueue'), [path.join(root, 'data', 'activationQueue.json')]);
 });
 
+test('league starter items: class and background data is still read from 5etools-src next to the project folder', async () => {
+    const seen = [];
+    const dataPath = require.resolve('../features/league/starterItems/equipmentData');
+    const realData = require(dataPath);
+    require.cache[dataPath].exports = {
+        ...realData,
+        loadClasses: (dir) => { seen.push(dir); return []; },
+        loadBackgrounds: (dir) => { seen.push(dir); return []; },
+        loadCategoryIndex: (dir) => { seen.push(dir); return {}; },
+    };
+    try {
+        const commandPath = require.resolve('../features/league/starterItems/command');
+        delete require.cache[commandPath];
+        const command = require(commandPath);
+        command.buildClassChoices();
+        await command.backgroundAutocomplete({ options: { getFocused: () => '' }, respond: async () => {} });
+    } finally {
+        require.cache[dataPath].exports = realData;
+        delete require.cache[require.resolve('../features/league/starterItems/command')];
+    }
+    assert.ok(seen.length >= 2);
+    for (const dir of seen) assert.equal(dir, path.join(path.dirname(root), '5etools-src', 'data'));
+});
+

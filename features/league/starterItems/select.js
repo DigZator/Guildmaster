@@ -1,5 +1,5 @@
-const { applyPick } = require('../utils/starterEquipmentFlow');
-const starterItemsButtons = require('../buttons/starterItems');
+const { applyPick } = require('./equipmentFlow');
+const starterItemsButtons = require('./buttons');
 
 module.exports = async function starterItemsSelect(interaction) {
     const messageId = interaction.message.id;

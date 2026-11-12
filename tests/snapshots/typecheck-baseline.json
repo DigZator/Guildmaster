@@ -10,7 +10,6 @@
     "buttons/questDashboard/items.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 2,
     "buttons/questDashboard/rewards.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "buttons/shopDiscount.js | TS2353 | Object literal may only specify known properties, and 'currentGold' does not exist in type '{ char: any; characterName: any; code: any; currentRep?: number; discount?: number; entry: any; rpCost?: number; }'.": 1,
-    "buttons/starterItems.js | TS2554 | Expected 0-2 arguments, but got 3.": 1,
     "client.js | TS2339 | Property 'leaderboardSessions' does not exist on type 'Client<boolean>'.": 1,
     "commands/league/actions/gold.js | TS2339 | Property 'properties' does not exist on type 'PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 1,
     "commands/league/actions/questLog.js | TS2339 | Property 'properties' does not exist on type 'PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 6,
@@ -22,7 +21,6 @@
     "commands/leagueQuest.js | TS2363 | The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 1,
     "commands/leagueShop/actions/marketplaceBuy.js | TS2339 | Property 'properties' does not exist on type 'GetPageResponse'.": 5,
     "commands/leagueShop/actions/shopBuy.js | TS2353 | Object literal may only specify known properties, and 'currentGold' does not exist in type '{ char: any; characterName: any; code: any; currentRep?: number; discount?: number; entry: any; rpCost?: number; }'.": 1,
-    "commands/leagueVoid.js | TS2339 | Property 'properties' does not exist on type 'PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 2,
     "features/archive/buttons.js | TS2305 | Module '\"./command\"' has no exported member 'MAX_CHANNELS_PER_CATEGORY'.": 1,
     "features/archive/buttons.js | TS2305 | Module '\"./command\"' has no exported member 'postLog'.": 1,
     "features/archive/command.js | TS2309 | An export assignment cannot be used in a module with other exported elements.": 1,
@@ -60,6 +58,9 @@
     "features/games/tableAdmin/data.js | TS2362 | The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 2,
     "features/games/tableAdmin/data.js | TS2363 | The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 2,
     "features/games/tableAdmin/seatSelect.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
+    "features/league/starterItems/buttons.js | TS2554 | Expected 0-2 arguments, but got 3.": 1,
+    "features/league/starterItems/equipmentFlow.js | TS2339 | Property 'test' does not exist on type 'string | RegExp'.": 1,
+    "features/league/void.js | TS2339 | Property 'properties' does not exist on type 'PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 2,
     "features/theLongRest/buttons.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<...>, ActionRowBuilder<...>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "features/theLongRest/buttons.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "features/theLongRest/dashboardConfig.js | TS2353 | Object literal may only specify known properties, and 'dashboardChannelId' does not exist in type 'any[]'.": 1,
@@ -132,7 +133,6 @@
     "utils/shopFloor.js | TS2339 | Property 'price' does not exist on type '{}'.": 1,
     "utils/shopFloor.js | TS2339 | Property 'quantity' does not exist on type '{}'.": 1,
     "utils/shopFloor.js | TS2740 | Type '{}' is missing the following properties from type 'any[]': length, pop, push, concat, and 35 more.": 2,
-    "utils/starterEquipmentFlow.js | TS2339 | Property 'test' does not exist on type 'string | RegExp'.": 1,
     "utils/threadActivityReport.js | TS2353 | Object literal may only specify known properties, and 'nextReportDue' does not exist in type 'any[]'.": 1
   }
 }

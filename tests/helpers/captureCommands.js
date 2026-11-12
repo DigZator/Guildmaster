@@ -4,7 +4,7 @@ const Module = require('module');
 const originalLoad = Module._load;
 Module._load = function (request, parent, isMain) {
     const loaded = originalLoad.apply(this, arguments);
-    if (/leagueStarterItems$/.test(request) && loaded && !loaded.__stubbed) {
+    if (/league\/starterItems\/command$/.test(request) && loaded && !loaded.__stubbed) {
         loaded.buildClassChoices = () => [{ name: 'class choices (from 5etools-src, not snapshotted)', value: 'stub' }];
         loaded.__stubbed = true;
     }

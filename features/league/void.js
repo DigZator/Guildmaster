@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
-const { getActiveCharacter, getPageById, setItemStatus, adjustCharacterNumber, getCharacterGold } = require('../utils/leagueNotion');
-const { formatCurrency } = require('../utils/currency');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+const { getActiveCharacter, getPageById, setItemStatus, adjustCharacterNumber, getCharacterGold } = require('../../utils/leagueNotion');
+const { formatCurrency } = require('../../utils/currency');
+const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../data/channels');
 
 async function sendVoidAuditLog(interaction, fields, color = 0x992d22) {
     const channel = interaction.guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);

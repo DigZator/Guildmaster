@@ -1,6 +1,6 @@
 const { route, routes } = require('../core/manifest');
 const { league, characterLogAutocomplete, characterOwnAutocomplete } = require('../commands/league');
-const { backgroundAutocomplete } = require('../commands/leagueStarterItems');
+const { backgroundAutocomplete } = require('../features/league/starterItems/command');
 const { questLinkAutocomplete, dashboardQuestAutocomplete } = require('../commands/leagueQuest');
 const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');
 const { getItemAutocompleteChoices } = require('../utils/inventoryHelper');
@@ -14,7 +14,7 @@ const shopBrowse = require('../buttons/shopBrowse');
 const shopDiscount = require('../buttons/shopDiscount');
 const shopSell = require('../buttons/shopSell');
 const downtimeBuyDays = require('../buttons/downtimeBuyDays');
-const starterItems = require('../buttons/starterItems');
+const starterItems = require('../features/league/starterItems/buttons');
 const leaderboard = require('../buttons/leaderboard');
 const characterStatus = require('../buttons/characterStatus');
 const questDashboard = require('../buttons/questDashboard');
@@ -156,7 +156,7 @@ module.exports = {
     selects: {
         exact: {
             shopbuy_discount_select: route('open', (i) => require('../selects/shopDiscountSelect')(i)),
-            starter_items_select: route('open', (i) => require('../selects/starterItemsSelect')(i)),
+            starter_items_select: route('open', (i) => require('../features/league/starterItems/select')(i)),
             leagueDashSwitchSelect: route('open', (i) => require('../selects/leagueDashSwitchSelect')(i)),
         },
         prefix: { 'questDash:': route('open', (i) => require('../buttons/questDashboard').handleDashboardSelect(i)) },

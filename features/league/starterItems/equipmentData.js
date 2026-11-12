@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { SOURCES } = require('../config/dndSources');
+const { SOURCES } = require('../../../config/dndSources');
 
 const ALLOWED_SOURCES = new Set(SOURCES);
 

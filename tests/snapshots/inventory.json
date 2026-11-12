@@ -926,12 +926,6 @@
       "shopsearch_next_${…}",
       "shopsearch_prev_${…}"
     ],
-    "buttons/starterItems.js": [
-      "starter_items_select",
-      "startitems_cancel",
-      "startitems_confirm",
-      "startitems_pick_${…}"
-    ],
     "commands/league/actions/characterStatus.js": [
       "charstatus_cancel:${…}",
       "charstatus_confirm:${…}"
@@ -1025,6 +1019,12 @@
     ],
     "features/games/tableAdmin/watcher.js": [
       "tableAdminReactivate:${…}"
+    ],
+    "features/league/starterItems/buttons.js": [
+      "starter_items_select",
+      "startitems_cancel",
+      "startitems_confirm",
+      "startitems_pick_${…}"
     ],
     "features/messaging/anon/command.js": [
       "anon_cancel_${…}",

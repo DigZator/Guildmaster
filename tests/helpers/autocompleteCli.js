@@ -32,7 +32,7 @@ const req = (rel) => require(path.join(root, rel));
 const recordHandler = (mod, name, label) => { mod[name] = async (i) => { hits.push(label || name); await i.respond([{ name: `<${label || name}>`, value: 'x' }]); }; };
 const recordChoices = (mod, name, label) => { mod[name] = async () => { hits.push(label || name); return [{ name: `<${label || name}>`, value: 'x' }]; }; };
 recordHandler(req('features/games/gameAutoComplete'), 'gameAutocomplete');
-recordHandler(req('commands/leagueStarterItems'), 'backgroundAutocomplete');
+recordHandler(req('features/league/starterItems/command'), 'backgroundAutocomplete');
 recordHandler(req('commands/leagueQuest'), 'questLinkAutocomplete');
 recordHandler(req('commands/leagueQuest'), 'dashboardQuestAutocomplete');
 recordHandler(req('utils/downtimeAutoComplete'), 'downtimeActivityAutocomplete');

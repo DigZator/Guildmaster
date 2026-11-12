@@ -1,6 +1,6 @@
 const { REST, Routes, SlashCommandBuilder } = require('discord.js');
 require('dotenv').config();
-const { buildClassChoices } = require('./commands/leagueStarterItems');
+const { buildClassChoices } = require('./features/league/starterItems/command');
 const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('./config/itemChoices');
 
 const token = process.env.DISCORD_TOKEN;

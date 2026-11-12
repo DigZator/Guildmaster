@@ -1,5 +1,5 @@
-const { resolveCategory } = require('./starterEquipmentData');
-const { getCatalogueItemByName, inferSubtype } = require('./5etoolsCatalogue');
+const { resolveCategory } = require('./equipmentData');
+const { getCatalogueItemByName, inferSubtype } = require('../../../utils/5etoolsCatalogue');
 
 const TYPE_KEYWORDS = [
     [/armor|mail|leather|shield/i, 'Armor'],
