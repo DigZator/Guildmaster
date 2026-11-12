@@ -214,12 +214,12 @@ Initialized in `index.js` at boot, these run independently of any single interac
 | `utils/cacheWatcher.js` | Watches/refreshes the in-memory games cache (`utils/cache.js`) |
 | `utils/cacheAlert.js` | Alerts on cache staleness/failures |
 | `utils/registrationDefaults.js` | Loads default registration-link settings |
-| `utils/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
+| `features/games/activation/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
 | `utils/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`utils/shopFloor.js`, `utils/5etoolsCatalogue.js`); also runs once ~30s after startup |
 | `utils/threadActivityReport.js` | Periodic thread-activity reporting; also triggers the Keep Alive refresh every 3 days |
 | `features/general/keepAlive/job.js` | Keep Alive refresh job, permission checks, safety-net listeners |
 | `utils/trapChannel.js` | Monitors a designated "trap" channel (likely anti-spam/honeypot) |
-| `utils/deactivator.js` | Handles scheduled deactivation logic |
+| `features/games/activation/deactivator.js` | Handles scheduled deactivation logic |
 | `features/tickets/dashboardWatcher.js` | Keeps the ticket dashboard message in sync |
 
 All scheduling that involves wall-clock time (`scheduler.js`) is computed in **Asia/Kolkata (IST)**, regardless of host server timezone.
@@ -238,7 +238,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `ticketGuildConfig.json` | Per-guild ticket category/log-channel config |
 | `features/messaging/rss/store.js` → `rssFeeds.json` | Configured RSS feeds |
 | `features/messaging/anon/store.js` → `anonMessages.json` | Anonymous messages by key |
-| `activationQueue.js` → `activationQueue.json` | Game activation queue + schedule settings |
+| `features/games/activation/activationQueue.js` → `activationQueue.json` | Game activation queue + schedule settings |
 | `shopFloor.js` → `shopFloor.json` | Current shop stock, prices, restock timers |
 | `5etoolsCatalogue.js` → `catalogue.json` | Cached 5e item catalogue, sourced from 5etools-src |
 | `5etoolsSpells.js` → `spells.json` | Cached spell list |
@@ -279,7 +279,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - Opening a ticket creates a private channel named from the type's slug/tag plus a counter (e.g. `#hr-000-janedoe`); counters are per-type and resettable via `/ticket reset_counter`.
 - On close, `shared/transcript/` generates and posts a transcript thread to the configured log channel. This module is the shared transcript engine: direct lines and `/channel_file` use it too. Attachments are reposted without a file-count cap, held in RAM per batch (no disk writes) and only staged through `temp/` when a single batch exceeds 32 MB.
 
-### 8.2 Game Announcements & Activation (`announce_game`, `edit_game`, `schedule_activation`, `utils/scheduler.js`, `utils/cache.js`)
+### 8.2 Game Announcements & Activation (`announce_game`, `edit_game`, `schedule_activation`, `features/games/activation/scheduler.js`, `utils/cache.js`)
 - Games are cached in memory (`cache.js`, refreshed on login and by `cacheWatcher.js`) for fast autocomplete across many commands (`get_players`, `game_info`, `edit_game`, `announce_game`, `schedule_activation`).
 - The **activation queue** lets admins pre-queue games for a specific activation pass; `scheduler.js` sends a daily IST reminder and performs activation automatically if `toggle-auto` is enabled.
 - `DEV_MODE=true` redirects scheduler/quest-board output to `BOT_DEBUGGING_CHANNEL_ID`.

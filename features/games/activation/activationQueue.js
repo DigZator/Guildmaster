@@ -1,6 +1,6 @@
 const path = require('path');
-const { createJsonStore } = require('./jsonStore');
-const { DEFAULT_REGISTRATION_LINK } = require('../data/registrationDefaults');
+const { createJsonStore } = require('../../../utils/jsonStore');
+const { DEFAULT_REGISTRATION_LINK } = require('../../../data/registrationDefaults');
 
 const DEFAULT_QUEUE = {
     reminderTime: "19:00",
@@ -14,7 +14,7 @@ const DEFAULT_QUEUE = {
     lastReminderDate: null
 };
 
-const store = createJsonStore(path.join(__dirname, '../data/activationQueue.json'), DEFAULT_QUEUE);
+const store = createJsonStore(path.join(__dirname, '../../../data/activationQueue.json'), DEFAULT_QUEUE);
 
 function getQueue() {
     return store.load();

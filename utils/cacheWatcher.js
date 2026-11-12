@@ -1,5 +1,5 @@
 const { onCacheRefresh } = require('./cache');
-const { isFlagged, addFlaggedUid, getQueue } = require('./activationQueue');
+const { isFlagged, addFlaggedUid, getQueue } = require('../features/games/activation/activationQueue');
 const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 
 let ctrlChannel = null;

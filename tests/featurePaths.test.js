@@ -189,3 +189,7 @@ test('shared transcript: a large attachment batch is still staged under temp/tra
     assert.match(path.basename(workDir), /^transcript-[0-9a-f-]{36}$/);
 });
 
+test('games: the activation queue and schedule settings still live in data/activationQueue.json', () => {
+    assert.deepEqual(storePathsOf('../features/games/activation/activationQueue'), [path.join(root, 'data', 'activationQueue.json')]);
+});
+

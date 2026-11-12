@@ -1,6 +1,6 @@
-const { onCacheRefresh } = require('./cache');
-const { updateGameProperties } = require('./notion');
-const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
+const { onCacheRefresh } = require('../../../utils/cache');
+const { updateGameProperties } = require('../../../utils/notion');
+const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../../../data/channels');
 
 let ctrlChannel = null;
 

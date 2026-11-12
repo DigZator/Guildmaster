@@ -1,13 +1,13 @@
-const { getCachedGames, invalidateCache } = require('./cache');
+const { getCachedGames, invalidateCache } = require('../../../utils/cache');
 const { getQueue, claimRunForDate, releaseRunForDate, claimReminderForDate, completeQueueEntries, getLastRunDate } = require('./activationQueue');
-const { updateGameProperties } = require('./notion');
-const { reportError } = require('./errorReporter');
-const { istDateStr, istTimeOnDayMs, toDiscordTimestamp, crossedDailyTime } = require('./istTime');
-const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
+const { updateGameProperties } = require('../../../utils/notion');
+const { reportError } = require('../../../utils/errorReporter');
+const { istDateStr, istTimeOnDayMs, toDiscordTimestamp, crossedDailyTime } = require('../../../utils/istTime');
+const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../../../data/channels');
 
 const QUEST_BOARD_ID = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
-const { DEFAULT_REGISTRATION_LINK } = require('../data/registrationDefaults');
-const { getRoleMention } = require('../features/games/announcementHelper');
+const { DEFAULT_REGISTRATION_LINK } = require('../../../data/registrationDefaults');
+const { getRoleMention } = require('../announcementHelper');
 
 const ACTIVATION_MAX_ATTEMPTS = 2;                      // the first run plus one retry
 const ACTIVATION_RETRY_DELAY_MS = 10 * 60 * 1000;

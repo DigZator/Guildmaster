@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getCachedGames } = require('../utils/cache');
+const { getCachedGames } = require('../../../utils/cache');
 const {
     getQueue,
     addToQueue,
@@ -8,10 +8,10 @@ const {
     setActivationTime,
     toggleReminder,
     toggleAutoSchedule
-} = require('../utils/activationQueue');
-const { runActivationJob } = require('../utils/scheduler');
-const { toDiscordTimestamp, istMinutesOfDay, parseTimeToMinutes } = require('../utils/istTime');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
+} = require('./activationQueue');
+const { runActivationJob } = require('./scheduler');
+const { toDiscordTimestamp, istMinutesOfDay, parseTimeToMinutes } = require('../../../utils/istTime');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
 
 function isValidTime(str) {
     return /^\d{2}:\d{2}$/.test(str) && str.split(':')[0] < 24 && str.split(':')[1] < 60;

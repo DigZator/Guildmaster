@@ -1,6 +1,6 @@
-const schedule_activation = require('../commands/schedule_activation');
+const schedule_activation = require('../features/games/activation/scheduleActivation');
 const { getCachedGames } = require('../utils/cache');
-const { getQueue } = require('../utils/activationQueue');
+const { getQueue } = require('../features/games/activation/activationQueue');
 
 async function scheduleActivationAutocomplete(interaction) {
     const sub = interaction.options.getSubcommand();

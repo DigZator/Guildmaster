@@ -2,7 +2,7 @@
 // To activate later, in index.js add (near the other .init(client) calls):
 //   require('./features/games/tableAdmin/watcher').init(client);
 //
-// SCOPE LOCK: this is a deliberately SEPARATE watcher from utils/deactivator.js,
+// SCOPE LOCK: this is a deliberately SEPARATE watcher from features/games/activation/deactivator.js,
 // not a modification of it. deactivator.js keeps working exactly as before for
 // every game, including "Test" — this file adds Test-only behavior on top,
 // using the new Total Capacity / Reserved Seats / Occupied Seats / Open Seats
