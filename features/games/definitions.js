@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 
-// The slash command definitions of the games feature, as far as it has moved (every games command except /schedule_activation). They are exported by
+// The slash command definitions of the games feature, as far as it has moved (every games command). They are exported by
 // command name because they are not registered side by side: deploy-commands.js spreads each one in at its own position,
 // so the registered order never changes.
 
@@ -131,4 +131,67 @@ const manipulate_table = new SlashCommandBuilder()
         .setRequired(false)
         .setAutocomplete(true));
 
-module.exports = { definitions: { list_games, get_players, game_info, announce_game, edit_game, create_campaign, manipulate_table } };
+//schedule_activation
+const schedule_activation = new SlashCommandBuilder()
+	.setName('schedule_activation')
+	.setDescription('Manage the game activation schedule')
+	//add
+	.addSubcommand(sub => sub
+		.setName('add')
+		.setDescription('Add a game to the activation queue')
+		.addStringOption(opt => opt
+			.setName('game')
+			.setDescription('Select a game to queue for activation')
+			.setRequired(true)
+			.setAutocomplete(true)))
+	//remove
+	.addSubcommand(sub => sub
+		.setName('remove')
+		.setDescription('Remove a game from the activation queue')
+		.addStringOption(opt => opt
+			.setName('game')
+			.setDescription('Select a game to remove from the queue')
+			.setRequired(true)
+			.setAutocomplete(true)))
+	//view
+	.addSubcommand(sub => sub
+		.setName('view')
+		.setDescription('View the current activation queue'))
+	//set-reminder-time
+	.addSubcommand(sub => sub
+		.setName('set-reminder-time')
+		.setDescription('Set the daily reminder time (IST, 24hr)')
+		.addStringOption(opt => opt
+			.setName('time')
+			.setDescription('Time in HH:MM format e.g. 19:00')
+			.setRequired(true)))
+	//set-activation-time
+	.addSubcommand(sub => sub
+		.setName('set-activation-time')
+		.setDescription('Set the activation time (IST, 24hr)')
+		.addStringOption(opt => opt
+			.setName('time')
+			.setDescription('Time in HH:MM format e.g. 21:00')
+			.setRequired(true)))
+	//toggle-reminder
+	.addSubcommand(sub => sub
+		.setName('toggle-reminder')
+		.setDescription('Enable or disable the daily reminder'))
+	//toggle-auto
+	.addSubcommand(sub => sub
+		.setName('toggle-auto')
+		.setDescription('Enable or disable auto-scheduling games on announcement'))
+	//status
+	.addSubcommand(sub => sub
+		.setName('status')
+		.setDescription('Show current schedule settings and queue'))
+	//run-now
+	.addSubcommand(sub => sub
+		.setName('run-now')
+		.setDescription('Force the activation job to run now for every queued game')
+		.addBooleanOption(opt => opt
+			.setName('announce')
+			.setDescription('Post the announcement (WhatsApp copy + quest board)? Default: yes')
+			.setRequired(false)));
+
+module.exports = { definitions: { list_games, get_players, game_info, announce_game, edit_game, create_campaign, manipulate_table, schedule_activation } };

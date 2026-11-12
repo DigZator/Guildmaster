@@ -80,50 +80,8 @@ module.exports = {
 
   // ─── /help admin <family> ───────────────────────────────────────────────
   admin: {
-    // game-management: help text of the games feature
+    // game-management and scheduling: help text of the games feature
     ...require('./features/games').help.admin,
-    scheduling: {
-      label: 'Activation Scheduling',
-      description: 'Manage the queue that automatically activates games at a scheduled time.',
-      commands: [
-        {
-          name: '/schedule_activation add <game>',
-          description: 'Queue a game for activation. `game` autocompletes.',
-        },
-        {
-          name: '/schedule_activation remove <game>',
-          description: 'Remove a game from the activation queue. `game` autocompletes.',
-        },
-        {
-          name: '/schedule_activation view',
-          description: 'View the current activation queue.',
-        },
-        {
-          name: '/schedule_activation set-reminder-time <time>',
-          description: 'Set the daily reminder time. `time` in HH:MM, IST, 24-hour format.',
-        },
-        {
-          name: '/schedule_activation set-activation-time <time>',
-          description: 'Set the activation time. `time` in HH:MM, IST, 24-hour format.',
-        },
-        {
-          name: '/schedule_activation toggle-reminder',
-          description: 'Enable or disable the daily reminder.',
-        },
-        {
-          name: '/schedule_activation toggle-auto',
-          description: 'Enable or disable auto-scheduling games on announcement.',
-        },
-        {
-          name: '/schedule_activation status',
-          description: 'Show current schedule settings and the queue.',
-        },
-        {
-          name: '/schedule_activation run-now [announce]',
-          description: 'Force the activation job to run immediately for every game in the queue, ignoring the once-a-day limit. `announce` (default Yes) controls whether the WhatsApp copy and quest-board post go out; set No to activate silently.',
-        },
-      ],
-    },
     // rss and messaging: help text of the messaging feature
     ...require('./features/messaging').help.admin,
     // tickets: help text of the tickets feature
