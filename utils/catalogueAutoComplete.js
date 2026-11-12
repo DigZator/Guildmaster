@@ -1,5 +1,5 @@
 const { searchCatalogue, defaultPriceFor } = require('./5etoolsCatalogue');
-const { getPriceOverride } = require('./shopFloor');
+const { getPriceOverride } = require('../features/league/shop/floor');
 const { formatCurrency } = require('./currency');
 
 function formatChoice(item) {

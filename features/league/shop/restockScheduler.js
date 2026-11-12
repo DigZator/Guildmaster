@@ -1,9 +1,9 @@
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
 
 const SCAN_INTERVAL_MS = 60 * 60 * 1000; // check hourly; cadence itself is enforced per-item
 let ctrlChannel = null;
 
-const { runRestockCheck } = require('./shopFloor');
+const { runRestockCheck } = require('./floor');
 
 async function runRestockScan() {
     const restocked = runRestockCheck();

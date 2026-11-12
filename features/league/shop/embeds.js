@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { formatCurrency } = require('../../utils/currency');
+const { formatCurrency } = require('../../../utils/currency');
 const { PAGE_SIZE, MARKETPLACE_TAX_RATE } = require('./constants');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

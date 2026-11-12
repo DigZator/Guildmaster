@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
-const { searchCatalogue, getCatalogueItemByCode } = require('../../../utils/5etoolsCatalogue');
-const { getShopEntry, getBuyableEntry, getAllStockedEntries } = require('../../../utils/shopFloor');
-const { formatCurrency } = require('../../../utils/currency');
+const { searchCatalogue, getCatalogueItemByCode } = require('../../../../utils/5etoolsCatalogue');
+const { getShopEntry, getBuyableEntry, getAllStockedEntries } = require('../floor');
+const { formatCurrency } = require('../../../../utils/currency');
 const { rarityEmoji } = require('../embeds');
 
 // ─── /league shop browse ──────────────────────────────────────────────────────
@@ -19,7 +19,7 @@ async function handleShopBrowse(interaction) {
     if (sortBy === 'name')       entries.sort((a, b) => a.name.localeCompare(b.name));
 
     if (entries.length === 0) return interaction.editReply({ content: '🏪 No items match your filters.' });
-    return require('../../../buttons/shopBrowse').sendPaged(interaction, 'shopbrowse', entries, { rarity, sortBy });
+    return require('../buttons/browse').sendPaged(interaction, 'shopbrowse', entries, { rarity, sortBy });
 }
 
 // ─── /league shop search ──────────────────────────────────────────────────────
@@ -38,7 +38,7 @@ async function handleShopSearch(interaction) {
         return interaction.editReply({ content: `🔎 No stocked items match \`${query}\`.` });
     }
 
-    return require('../../../buttons/shopSearch').sendResults(interaction, query, results);
+    return require('../buttons/search').sendResults(interaction, query, results);
 }
 
 // ─── /league shop info ────────────────────────────────────────────────────────

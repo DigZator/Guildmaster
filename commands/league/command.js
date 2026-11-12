@@ -1,7 +1,7 @@
 const { getActiveCharacter } = require('../../utils/leagueNotion');
 const { sendInventory } = require('../../buttons/inventory');
 const { sendItemDetail } = require('../../utils/inventoryHelper');
-const { leagueShop, leagueMarketplace } = require('../leagueShop');
+const { leagueShop, leagueMarketplace } = require('../../features/league/shop');
 const { listQuests } = require('../leagueQuest');
 const { leagueDowntime } = require('../leagueDowntime');
 const { leagueStarterItems } = require('../../features/league/starterItems/command');

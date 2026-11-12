@@ -8,9 +8,9 @@ const {
     setItemStatus,
     updatePageProperty,
     getPageById,
-} = require('../../../utils/leagueNotion');
-const { formatCurrency } = require('../../../utils/currency');
-const { sendAdminLog } = require('../../../utils/adminLog');
+} = require('../../../../utils/leagueNotion');
+const { formatCurrency } = require('../../../../utils/currency');
+const { sendAdminLog } = require('../../../../utils/adminLog');
 
 // ─── /league marketplace browse ───────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ async function handleMarketplaceBrowse(interaction) {
     }
 
     if (listings.length === 0) return interaction.editReply({ content: '🏬 No listings match your filters.' });
-    return require('../../../buttons/shopBrowse').sendPaged(interaction, 'marketbrowse', listings, { rarity, sortBy });
+    return require('../buttons/browse').sendPaged(interaction, 'marketbrowse', listings, { rarity, sortBy });
 }
 
 // ─── /league marketplace list ─────────────────────────────────────────────────

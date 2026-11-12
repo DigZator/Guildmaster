@@ -1,9 +1,9 @@
 const path = require('path');
-const { createJsonStore } = require('./jsonStore');
-const { getCatalogueItemByCode, restockQtyFor, restockCadenceMsFor, defaultPriceFor } = require('./5etoolsCatalogue');
+const { createJsonStore } = require('../../../utils/jsonStore');
+const { getCatalogueItemByCode, restockQtyFor, restockCadenceMsFor, defaultPriceFor } = require('../../../utils/5etoolsCatalogue');
 
-const floorStore     = createJsonStore(path.join(__dirname, '..', 'data', 'shopFloor.json'), {});
-const overridesStore = createJsonStore(path.join(__dirname, '..', 'data', 'priceOverrides.json'), {});
+const floorStore     = createJsonStore(path.join(__dirname, '..', '..', '..', 'data', 'shopFloor.json'), {});
+const overridesStore = createJsonStore(path.join(__dirname, '..', '..', '..', 'data', 'priceOverrides.json'), {});
 
 const TIER_MIN_BY_RARITY = { Common: 1, Uncommon: 1, Rare: 2, 'Very Rare': 3, Legendary: 4 };
 function tierMinFor(rarity) { return TIER_MIN_BY_RARITY[rarity] ?? 1; }

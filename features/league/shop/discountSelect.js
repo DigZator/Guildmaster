@@ -1,4 +1,4 @@
-const { getPendingBuy, clearPendingBuy } = require('../utils/shopBuySessions');
+const { getPendingBuy, clearPendingBuy } = require('./buySessions');
 
 module.exports = async (interaction) => {
     await interaction.deferUpdate();
@@ -12,7 +12,7 @@ module.exports = async (interaction) => {
 
     clearPendingBuy(interaction.user.id);
 
-    const { finalizePurchase } = require('../commands/leagueShop');
+    const { finalizePurchase } = require('./index');
     const { char, characterName, code, entry, currentGold, currentRep } = pending;
 
     return finalizePurchase(interaction, {

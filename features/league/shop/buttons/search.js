@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { formatCurrency } = require('../utils/currency');
+const { formatCurrency } = require('../../../../utils/currency');
 
 const PAGE_SIZE = 10;
 const TIMEOUT_MS = 10 * 60 * 1000;

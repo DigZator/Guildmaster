@@ -27,7 +27,7 @@ require('./utils/cacheWatcher').init(client);
 require('./utils/cacheAlert').init(client);
 require('./utils/registrationDefaults').init(client);
 require('./features/games/activation/scheduler').init(client);
-require('./utils/restockScheduler').init(client);
+require('./features/league/shop/restockScheduler').init(client);
 require('./utils/threadActivityReport').init(client);
 require('./features/general/keepAlive/job').initListeners(client);
 require('./utils/trapChannel')(client);

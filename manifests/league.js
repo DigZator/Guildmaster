@@ -9,10 +9,10 @@ const { magicItemAutocomplete } = require('../utils/magicItemAutoComplete');
 const { downtimeActivityAutocomplete, downtimeTierAutocomplete } = require('../utils/downtimeAutoComplete');
 const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
 const inventory = require('../buttons/inventory');
-const shopSearch = require('../buttons/shopSearch');
-const shopBrowse = require('../buttons/shopBrowse');
-const shopDiscount = require('../buttons/shopDiscount');
-const shopSell = require('../buttons/shopSell');
+const shopSearch = require('../features/league/shop/buttons/search');
+const shopBrowse = require('../features/league/shop/buttons/browse');
+const shopDiscount = require('../features/league/shop/buttons/discount');
+const shopSell = require('../features/league/shop/buttons/sell');
 const downtimeBuyDays = require('../buttons/downtimeBuyDays');
 const starterItems = require('../features/league/starterItems/buttons');
 const leaderboard = require('../buttons/leaderboard');
@@ -155,7 +155,7 @@ module.exports = {
     },
     selects: {
         exact: {
-            shopbuy_discount_select: route('open', (i) => require('../selects/shopDiscountSelect')(i)),
+            shopbuy_discount_select: route('open', (i) => require('../features/league/shop/discountSelect')(i)),
             starter_items_select: route('open', (i) => require('../features/league/starterItems/select')(i)),
             leagueDashSwitchSelect: route('open', (i) => require('../selects/leagueDashSwitchSelect')(i)),
         },

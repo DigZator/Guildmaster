@@ -1,6 +1,6 @@
 const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
-const { getPendingBuy, clearPendingBuy } = require('../utils/shopBuySessions');
-const { formatCurrency } = require('../utils/currency');
+const { getPendingBuy, clearPendingBuy } = require('../buySessions');
+const { formatCurrency } = require('../../../../utils/currency');
 
 module.exports = {
 
@@ -13,7 +13,7 @@ module.exports = {
             if (!pending) return interaction.editReply({ content: '❌ This purchase prompt expired. Please run `/league shop buy` again.', components: [] });
 
             clearPendingBuy(interaction.user.id);
-            const { finalizePurchase } = require('../commands/leagueShop');
+            const { finalizePurchase } = require('../index');
             const { char, characterName, code, entry, currentGold } = pending;
             return finalizePurchase(interaction, { char, characterName, code, entry, currentGold });
         },

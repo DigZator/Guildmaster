@@ -217,3 +217,7 @@ test('league starter items: class and background data is still read from 5etools
     for (const dir of seen) assert.equal(dir, path.join(path.dirname(root), '5etools-src', 'data'));
 });
 
+test('league shop: the shop floor and the price overrides still live in data/shopFloor.json and data/priceOverrides.json', () => {
+    assert.deepEqual(storePathsOf('../features/league/shop/floor'), [path.join(root, 'data', 'shopFloor.json'), path.join(root, 'data', 'priceOverrides.json')]);
+});
+

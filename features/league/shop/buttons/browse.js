@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { buildShopEmbed, buildMarketEmbed } = require('../commands/leagueShop');
+const { buildShopEmbed, buildMarketEmbed } = require('../index');
 
 const TIMEOUT_MS = 10 * 60 * 1000;
 const timeouts = new Map();

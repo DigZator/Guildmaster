@@ -1,4 +1,4 @@
-const { leagueAdminShop, leagueAdminCatalogue } = require('../leagueShop');
+const { leagueAdminShop, leagueAdminCatalogue } = require('../../features/league/shop');
 const { leagueDowntime } = require('../leagueDowntime');
 const { leagueDMQuest } = require('../leagueQuest');
 const { REP_MAX } = require('./shared');

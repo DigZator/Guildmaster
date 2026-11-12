@@ -215,7 +215,7 @@ Initialized in `index.js` at boot, these run independently of any single interac
 | `utils/cacheAlert.js` | Alerts on cache staleness/failures |
 | `utils/registrationDefaults.js` | Loads default registration-link settings |
 | `features/games/activation/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
-| `utils/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`utils/shopFloor.js`, `utils/5etoolsCatalogue.js`); also runs once ~30s after startup |
+| `features/league/shop/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`features/league/shop/floor.js`, `utils/5etoolsCatalogue.js`); also runs once ~30s after startup |
 | `utils/threadActivityReport.js` | Periodic thread-activity reporting; also triggers the Keep Alive refresh every 3 days |
 | `features/general/keepAlive/job.js` | Keep Alive refresh job, permission checks, safety-net listeners |
 | `utils/trapChannel.js` | Monitors a designated "trap" channel (likely anti-spam/honeypot) |
@@ -239,7 +239,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `features/messaging/rss/store.js` → `rssFeeds.json` | Configured RSS feeds |
 | `features/messaging/anon/store.js` → `anonMessages.json` | Anonymous messages by key |
 | `features/games/activation/activationQueue.js` → `activationQueue.json` | Game activation queue + schedule settings |
-| `shopFloor.js` → `shopFloor.json` | Current shop stock, prices, restock timers |
+| `features/league/shop/floor.js` → `shopFloor.json` | Current shop stock, prices, restock timers |
 | `5etoolsCatalogue.js` → `catalogue.json` | Cached 5e item catalogue, sourced from 5etools-src |
 | `5etoolsSpells.js` → `spells.json` | Cached spell list |
 | `downtime.js` → `downtimeBlueprints.json`, `downtimeQuotes.json`, `downtimeSequence.json` | Downtime activity definitions, running quotes, and the list of downtime IDs already issued |
@@ -284,7 +284,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - The **activation queue** lets admins pre-queue games for a specific activation pass; `scheduler.js` sends a daily IST reminder and performs activation automatically if `toggle-auto` is enabled.
 - `DEV_MODE=true` redirects scheduler/quest-board output to `BOT_DEBUGGING_CHANNEL_ID`.
 
-### 8.3 League Economy (`commands/league.js` + `commands/leagueGrants/`, `commands/leagueShop.js`, `commands/leagueDowntime.js`, `commands/leagueQuest.js`, `features/league/void.js`)
+### 8.3 League Economy (`commands/league.js` + `commands/leagueGrants/`, `features/league/shop/`, `commands/leagueDowntime.js`, `commands/leagueQuest.js`, `features/league/void.js`)
 - **Approval workflow:** DM-initiated rep/gold/milestone/item grants are staged in `data/pendingActions.json` and require League Admin approval (`/leagueadmin approve|reject|pending`) before they post to Notion — direct Admin grants skip this queue.
 - **Shop vs. Marketplace:** the Shop is stocked/administered by League Admins from the catalogue (with auto-restock on a per-item cadence); the Marketplace is player-to-player, with a configurable tax (`MARKETPLACE_TAX_RATE` in `commands/leagueShop.js`) deducted from seller proceeds.
 - **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 item data from **5etools-src** (`utils/5etoolsCatalogue.js`), filtered to the sourcebooks allow-listed in `config/dndSources.js`; `sync-spells` does the same for spells (`utils/5etoolsSpells.js`) and refreshes the list used by the "Scribe a Spell Scroll" downtime activity. Adding a new sourcebook is a one-line change to `config/dndSources.js` — see that file's comment for the current allow-list.

@@ -916,16 +916,6 @@
       "encodeId(*, 'addRewardBulkNext')",
       "encodeId(*, 'addRewardType')"
     ],
-    "buttons/shopBrowse.js": [
-      "${…}"
-    ],
-    "buttons/shopDiscount.js": [
-      "shopbuy_discount_select"
-    ],
-    "buttons/shopSearch.js": [
-      "shopsearch_next_${…}",
-      "shopsearch_prev_${…}"
-    ],
     "commands/league/actions/characterStatus.js": [
       "charstatus_cancel:${…}",
       "charstatus_confirm:${…}"
@@ -936,14 +926,6 @@
     "commands/leagueDowntime.js": [
       "dtbuy_cancel",
       "dtbuy_confirm"
-    ],
-    "commands/leagueShop/actions/shopBuy.js": [
-      "shopbuy_discount_no",
-      "shopbuy_discount_yes"
-    ],
-    "commands/leagueShop/actions/shopSell.js": [
-      "shopsell_confirm_no",
-      "shopsell_confirm_yes"
     ],
     "features/archive/command.js": [
       "archive_cancel",
@@ -1019,6 +1001,24 @@
     ],
     "features/games/tableAdmin/watcher.js": [
       "tableAdminReactivate:${…}"
+    ],
+    "features/league/shop/actions/shopBuy.js": [
+      "shopbuy_discount_no",
+      "shopbuy_discount_yes"
+    ],
+    "features/league/shop/actions/shopSell.js": [
+      "shopsell_confirm_no",
+      "shopsell_confirm_yes"
+    ],
+    "features/league/shop/buttons/browse.js": [
+      "${…}"
+    ],
+    "features/league/shop/buttons/discount.js": [
+      "shopbuy_discount_select"
+    ],
+    "features/league/shop/buttons/search.js": [
+      "shopsearch_next_${…}",
+      "shopsearch_prev_${…}"
     ],
     "features/league/starterItems/buttons.js": [
       "starter_items_select",
@@ -1169,7 +1169,7 @@
     "./utils/cacheAlert.init",
     "./utils/registrationDefaults.init",
     "./features/games/activation/scheduler.init",
-    "./utils/restockScheduler.init",
+    "./features/league/shop/restockScheduler.init",
     "./utils/threadActivityReport.init",
     "./features/general/keepAlive/job.initListeners",
     "./utils/trapChannel",
