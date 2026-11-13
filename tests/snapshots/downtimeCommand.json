@@ -1,0 +1,364 @@
+{
+  "listNoCharacter": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ No active character found."
+      }
+    ]
+  ],
+  "buyNoCharacter": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ No active character found."
+      }
+    ]
+  ],
+  "progressNoCharacter": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ No active character found."
+      }
+    ]
+  ],
+  "listEmpty": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "📋 No active or pending downtime activities."
+      }
+    ]
+  ],
+  "buyNoRep": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ You need **1 reputation point** to do this, you have **0**."
+      }
+    ]
+  ],
+  "buyOffer": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "Spend **1 reputation point** for **+10 downtime days**?\nCurrent: 4 RP, 7 downtime day(s).\nAfter: 3 RP, 17 downtime day(s).",
+        "components": [
+          {
+            "type": 1,
+            "components": [
+              {
+                "type": 2,
+                "custom_id": "dtbuy_confirm",
+                "label": "Confirm",
+                "style": 3
+              },
+              {
+                "type": 2,
+                "custom_id": "dtbuy_cancel",
+                "label": "Cancel",
+                "style": 2
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  ],
+  "listFull": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "📋 **Your Downtime Activities**\n\n**In Progress**\n`00AF`  Brew Potions [3×, spell: Fireball, item: Longsword]  (2/5 days)\n\n**Awaiting Completion Approval**\n`p1`  Scribe (2×, spell: Shield, item: Dagger)  — ⏳ awaiting admin completion sign-off\n\n**Awaiting Start Approval**\n`p2`  Craft (Tier 2, 4×)  — ⏳ awaiting admin approval to start"
+      }
+    ]
+  ],
+  "activities": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "📋 **Downtime Activities** (reference only — use `/league downtime start` and pick from the autocomplete)\n\n**__Crafting__**\n`500`  **Brew a Potion of Healing** 🔒pre — 1d · 25 gp\n**Craft a Magic Item** 🔒pre\n  `101`  Common  · 5d · 50 gp\n  `102`  Uncommon  · 10d · 200 gp\n  `103`  Rare  · 50d · 2000 gp\n  `104`  Very Rare  · 125d · 20000 gp\n  `105`  Legendary  · 250d · 100000 gp\n**Craft a Magic Item (Assistant)** 🔒pre\n  `201`  Common  · 3d · 50 gp (+ assistant pay)\n  `202`  Uncommon  · 5d · 200 gp (+ assistant pay)\n  `203`  Rare  · 25d · 2000 gp (+ assistant pay)\n  `204`  Very Rare  · 63d · 20000 gp (+ assistant pay)\n  `205`  Legendary  · 125d · 100000 gp (+ assistant pay)\n**Scribe a Spell Scroll** 🔒pre\n  `400`  0  · 1d · 15 gp\n  `401`  1  · 1d · 25 gp\n  `402`  2  · 3d · 100 gp\n  `403`  3  · 5d · 150 gp\n  `404`  4  · 10d · 1000 gp\n  `405`  5  · 25d · 1500 gp\n  `406`  6  · 40d · 10000 gp\n  `407`  7  · 50d · 12500 gp\n  `408`  8  · 60d · 15000 gp\n  `409`  9  · 120d · 50000 gp\n\n**__Progression__**\n**Catch Up (Gain a Milestone)** — *tier auto-detected from your level*\n  `001`  Tier 1  · 10d · 6 gp/day\n  `002`  Tier 2  · 10d · 30 gp/day\n  `003`  Tier 3  · 10d · 200 gp/day\n  `004`  Tier 4  · 10d · 2000 gp/day\n\n**__SpellCopying__**\n**Copy a Spell**\n  `300`  0  · 1d · 50 gp\n  `301`  1  · 1d · 50 gp\n  `302`  2  · 1d · 100 gp\n  `303`  3  · 1d · 150 gp\n  `304`  4  · 1d · 200 gp\n  `305`  5  · 2d · 300 gp\n  `306`  6  · 2d · 350 gp\n  `307`  7  · 2d · 400 gp\n  `308`  8  · 2d · 450 gp\n  `309`  9  · 2d · 500 gp"
+      }
+    ],
+    [
+      "followUp",
+      {
+        "content": "**__Training__**\n**Learn a Language**\n  `601`  Common  · 45d · 1 gp/day\n  `602`  Rare  · 120d · 5 gp/day\n**Learn a Tool Proficiency**\n  `701`  Alchemist's Supplies  · 90d · 3 gp/day\n  `702`  Brewer's Supplies  · 45d · 5 sp/day\n  `703`  Calligrapher's Supplies  · 90d · 1 gp/day\n  `704`  Carpenter's Tools  · 30d · 1 gp/day\n  `705`  Cartographer's Tools  · 75d · 3 gp/day\n  `706`  Cobbler's Tools  · 30d · 1 gp/day\n  `707`  Cook's Utensils  · 45d · 1 gp/day\n  `708`  Glassblower's Tools  · 45d · 5 sp/day\n  `709`  Jeweler's Tools  · 60d · 3 gp/day\n  `70A`  Leatherworker's Tools  · 60d · 1 gp/day\n  `70B`  Mason's Tools  · 75d · 1 gp/day\n  `70C`  Painter's Supplies  · 45d · 2 gp/day\n  `70D`  Potter's Tools  · 30d · 5 sp/day\n  `70E`  Smith's Tools  · 90d · 3 gp/day\n  `710`  Tinker's Tools  · 30d · 5 sp/day\n  `71A`  Weaver's Tools  · 60d · 2 gp/day\n  `71B`  Woodcarver's Tools  · 30d · 1 gp/day",
+        "flags": 64
+      }
+    ]
+  ],
+  "progressMissing": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ No downtime activity found with ID `DTA1`."
+      }
+    ]
+  ],
+  "progressNotInProgress": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ This activity is not in progress (status: Completed)."
+      }
+    ]
+  ],
+  "progressTooManyDays": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ Only 1 day(s) remain on this activity."
+      }
+    ]
+  ],
+  "progressOneDayTooMany": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ Only 1 day(s) remain on this activity."
+      }
+    ]
+  ],
+  "progressNotEnoughDays": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ Not enough downtime days. This costs **2** day(s), you have **1** banked."
+      }
+    ]
+  ],
+  "startUnknown": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ Couldn't find that activity — please pick one from the `activity` autocomplete list rather than typing it out."
+      }
+    ]
+  ],
+  "startNeedsTier": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ **Craft a Magic Item** needs a `tier` selection (e.g. rarity, spell level, or tool). Fill in `activity` first, then pick from the `tier` autocomplete that appears.\nValid options for **Craft a Magic Item**: `Common — 5d · 50gp`, `Uncommon — 10d · 200gp`, `Rare — 50d · 2000gp`, `Very Rare — 125d · 20000gp`, `Legendary — 250d · 100000gp`"
+      }
+    ]
+  ],
+  "startBadTier": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ `ZZZZ` isn't a valid tier for **Craft a Magic Item**. Please pick one from the `tier` autocomplete list.\nValid options for **Craft a Magic Item**: `Common — 5d · 50gp`, `Uncommon — 10d · 200gp`, `Rare — 50d · 2000gp`, `Very Rare — 125d · 20000gp`, `Legendary — 250d · 100000gp`"
+      }
+    ]
+  ],
+  "startTierNotTaken": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ **Catch Up (Gain a Milestone)** doesn't take a `tier` option — leave it blank."
+      }
+    ]
+  ],
+  "startQuantityNotAllowed": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ **Catch Up (Gain a Milestone)** doesn't support batch quantity — only crafting activities do."
+      }
+    ]
+  ],
+  "startCraftingWithQuantity": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ No active character found."
+      }
+    ]
+  ],
+  "startPlainNoCharacter": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ No active character found."
+      }
+    ]
+  ],
+  "startSpellNotScroll": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ The `spell` option only applies to **Scribe a Spell Scroll**."
+      }
+    ]
+  ],
+  "startItemNotMagic": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ The `item` option only applies to **Craft a Magic Item** activities."
+      }
+    ]
+  ],
+  "startScrollNeedsSpell": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ **Scribe a Spell Scroll** requires the `spell` option so the bot knows what to scribe — pick one from the autocomplete list, e.g. `spell: Fireball`."
+      }
+    ]
+  ],
+  "startMagicItemNeedsItem": [
+    [
+      "deferReply",
+      {
+        "flags": 64
+      }
+    ],
+    [
+      "editReply",
+      {
+        "content": "❌ **Craft a Magic Item** requires the `item` option so the bot knows what to craft — pick one from the autocomplete list, e.g. `item: Bag of Holding`."
+      }
+    ]
+  ]
+}
