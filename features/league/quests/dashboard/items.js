@@ -7,13 +7,13 @@ const {
     TextInputBuilder,
     TextInputStyle,
 } = require('discord.js');
-const { encodeId } = require('../../interactions/questDashboardId');
-const { loadDashboardState } = require('../../interactions/questDashboardRender');
-const questDrafts = require('../../utils/questDrafts');
-const { searchCatalogue, getCatalogueItemByCode, defaultPriceFor, inferSubtype } = require('../../utils/5etoolsCatalogue');
-const { formatCurrency } = require('../../utils/currency');
-const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('../../config/itemChoices');
-const { setPendingManualItem, getPendingManualItem, clearPendingManualItem } = require('../../utils/pendingManualItems');
+const { encodeId } = require('../dashboardId');
+const { loadDashboardState } = require('../dashboardRender');
+const questDrafts = require('../drafts');
+const { searchCatalogue, getCatalogueItemByCode, defaultPriceFor, inferSubtype } = require('../../../../utils/5etoolsCatalogue');
+const { formatCurrency } = require('../../../../utils/currency');
+const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('../../../../config/itemChoices');
+const { setPendingManualItem, getPendingManualItem, clearPendingManualItem } = require('../../../../utils/pendingManualItems');
 const { assertOwner, assertUnlocked, finishAndDelete, navRow, refreshDashboardMessage } = require('./common');
 
 // Add Reward — item

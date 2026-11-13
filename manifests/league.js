@@ -1,7 +1,7 @@
 const { route, routes } = require('../core/manifest');
 const { league, characterLogAutocomplete, characterOwnAutocomplete } = require('../commands/league');
 const { backgroundAutocomplete } = require('../features/league/starterItems/command');
-const { questLinkAutocomplete, dashboardQuestAutocomplete } = require('../commands/leagueQuest');
+const { questLinkAutocomplete, dashboardQuestAutocomplete } = require('../features/league/quests/command');
 const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');
 const { getItemAutocompleteChoices } = require('../utils/inventoryHelper');
 const { spellAutocomplete } = require('../utils/spellAutoComplete');
@@ -17,7 +17,7 @@ const downtimeBuyDays = require('../features/league/downtime/buyDaysButton');
 const starterItems = require('../features/league/starterItems/buttons');
 const leaderboard = require('../buttons/leaderboard');
 const characterStatus = require('../buttons/characterStatus');
-const questDashboard = require('../buttons/questDashboard');
+const questDashboard = require('../features/league/quests/dashboard');
 const leagueDashboard = require('../buttons/leagueDashboard');
 
 const CODE_AUTOCOMPLETE_TARGETS = new Set([
@@ -150,7 +150,7 @@ module.exports = {
         exact: { leagueCreate: route('open', (i, c) => require('../interactions/leagueCreateModal').handleLeagueCreate(i, c)) },
         prefix: {
             'leagueDashEditModal:': route('open', (i) => require('../modals/leagueDashEdit')(i)),
-            'questDash:': route('open', (i) => require('../buttons/questDashboard').handleDashboardModal(i)),
+            'questDash:': route('open', (i) => require('../features/league/quests/dashboard').handleDashboardModal(i)),
         },
     },
     selects: {
@@ -159,9 +159,9 @@ module.exports = {
             starter_items_select: route('open', (i) => require('../features/league/starterItems/select')(i)),
             leagueDashSwitchSelect: route('open', (i) => require('../selects/leagueDashSwitchSelect')(i)),
         },
-        prefix: { 'questDash:': route('open', (i) => require('../buttons/questDashboard').handleDashboardSelect(i)) },
+        prefix: { 'questDash:': route('open', (i) => require('../features/league/quests/dashboard').handleDashboardSelect(i)) },
     },
     userSelects: {
-        prefix: { 'questDash:': route('open', (i) => require('../buttons/questDashboard').handleDashboardUserSelect(i)) },
+        prefix: { 'questDash:': route('open', (i) => require('../features/league/quests/dashboard').handleDashboardUserSelect(i)) },
     },
 };

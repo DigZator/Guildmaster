@@ -875,47 +875,6 @@
       "leagueDashSwitch",
       "leagueDashSwitchSelect"
     ],
-    "buttons/questDashboard/common.js": [
-      "dynamic: encodeId(questId, backAction, backExtra)",
-      "encodeId(*, 'backToDashboard')",
-      "encodeId(*, 'cancelQuestConfirm')",
-      "encodeId(*, 'cancelQuestReturn')",
-      "encodeId(*, 'completeCancel')",
-      "encodeId(*, 'completeConfirm')"
-    ],
-    "buttons/questDashboard/items.js": [
-      "encodeId(*, 'addItemAction')",
-      "encodeId(*, 'addItemCatalogueSelect')",
-      "encodeId(*, 'addItemManualRarity')",
-      "encodeId(*, 'addItemManualSubtype')",
-      "encodeId(*, 'addItemManualType')",
-      "encodeId(*, 'addItemModal')",
-      "encodeId(*, 'addItemPlayer')",
-      "encodeId(*, 'addItemRemoveSelect')",
-      "encodeId(*, 'addItemRetrySearch')",
-      "encodeId(*, 'addItemSearch')",
-      "encodeId(*, 'addItemSource')",
-      "itemName",
-      "itemNotes",
-      "itemValue",
-      "query"
-    ],
-    "buttons/questDashboard/party.js": [
-      "encodeId(*, 'partyAction')",
-      "encodeId(*, 'partyAddCancel')",
-      "encodeId(*, 'partyAddConfirm')",
-      "encodeId(*, 'partyAddUser')",
-      "encodeId(*, 'partyInfoPage')",
-      "encodeId(*, 'partyRemoveCancel')",
-      "encodeId(*, 'partyRemoveConfirm')",
-      "encodeId(*, 'partyRemoveSelect')"
-    ],
-    "buttons/questDashboard/rewards.js": [
-      "amt${…}",
-      "encodeId(*, 'addRewardBulk')",
-      "encodeId(*, 'addRewardBulkNext')",
-      "encodeId(*, 'addRewardType')"
-    ],
     "commands/league/actions/characterStatus.js": [
       "charstatus_cancel:${…}",
       "charstatus_confirm:${…}"
@@ -1001,6 +960,55 @@
     "features/league/downtime/command/buyDays.js": [
       "dtbuy_cancel",
       "dtbuy_confirm"
+    ],
+    "features/league/quests/dashboard/common.js": [
+      "dynamic: encodeId(questId, backAction, backExtra)",
+      "encodeId(*, 'backToDashboard')",
+      "encodeId(*, 'cancelQuestConfirm')",
+      "encodeId(*, 'cancelQuestReturn')",
+      "encodeId(*, 'completeCancel')",
+      "encodeId(*, 'completeConfirm')"
+    ],
+    "features/league/quests/dashboard/items.js": [
+      "encodeId(*, 'addItemAction')",
+      "encodeId(*, 'addItemCatalogueSelect')",
+      "encodeId(*, 'addItemManualRarity')",
+      "encodeId(*, 'addItemManualSubtype')",
+      "encodeId(*, 'addItemManualType')",
+      "encodeId(*, 'addItemModal')",
+      "encodeId(*, 'addItemPlayer')",
+      "encodeId(*, 'addItemRemoveSelect')",
+      "encodeId(*, 'addItemRetrySearch')",
+      "encodeId(*, 'addItemSearch')",
+      "encodeId(*, 'addItemSource')",
+      "itemName",
+      "itemNotes",
+      "itemValue",
+      "query"
+    ],
+    "features/league/quests/dashboard/party.js": [
+      "encodeId(*, 'partyAction')",
+      "encodeId(*, 'partyAddCancel')",
+      "encodeId(*, 'partyAddConfirm')",
+      "encodeId(*, 'partyAddUser')",
+      "encodeId(*, 'partyInfoPage')",
+      "encodeId(*, 'partyRemoveCancel')",
+      "encodeId(*, 'partyRemoveConfirm')",
+      "encodeId(*, 'partyRemoveSelect')"
+    ],
+    "features/league/quests/dashboard/rewards.js": [
+      "amt${…}",
+      "encodeId(*, 'addRewardBulk')",
+      "encodeId(*, 'addRewardBulkNext')",
+      "encodeId(*, 'addRewardType')"
+    ],
+    "features/league/quests/dashboardRender.js": [
+      "encodeId(*, 'addReward')",
+      "encodeId(*, 'cancelQuest')",
+      "encodeId(*, 'editParty')",
+      "encodeId(*, 'partyInfo')",
+      "encodeId(*, 'submit')",
+      "encodeId(*, 'toggleGroup')"
     ],
     "features/league/shop/actions/shopBuy.js": [
       "shopbuy_discount_no",
@@ -1094,14 +1102,6 @@
     "features/verification/pending.js": [
       "${…}"
     ],
-    "interactions/questDashboardRender.js": [
-      "encodeId(*, 'addReward')",
-      "encodeId(*, 'cancelQuest')",
-      "encodeId(*, 'editParty')",
-      "encodeId(*, 'partyInfo')",
-      "encodeId(*, 'submit')",
-      "encodeId(*, 'toggleGroup')"
-    ],
     "modals/leagueCreate.js": [
       "background",
       "characterName",
@@ -1119,9 +1119,6 @@
     "commands/leagueGrants/pendingApprovals/dashboard.js": {
       "roles.cache": 1
     },
-    "commands/leagueQuest.js": {
-      "roles.cache": 1
-    },
     "features/config/buttons.js": {
       "isAdminChannel": {
         "botAdmin": 1
@@ -1135,6 +1132,9 @@
     "features/games/createCampaign/preflight.js": {
       "roles.cache": 1,
       "permissions.has": 1
+    },
+    "features/league/quests/command.js": {
+      "roles.cache": 1
     },
     "features/tickets/permissions.js": {
       "isAdminChannel": {

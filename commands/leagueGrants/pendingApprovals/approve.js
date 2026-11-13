@@ -9,10 +9,10 @@ const {
 const leagueNotion = require('../../../utils/leagueNotion');
 const { applyMilestones } = require('../../../utils/milestones');
 const { getById, removeById, updateById } = require('../../../utils/pendingActions');
-const { applyReportLines } = require('../../../utils/questReportAppliers');
-const { buildByCharacterEmbed } = require('../../../utils/questReportEmbed');
-const questDrafts = require('../../../utils/questDrafts');
-const { approveQuestLink, approveQuestComplete, approveQuestCancel } = require('../../leagueQuest');
+const { applyReportLines } = require('../../../features/league/quests/reportAppliers');
+const { buildByCharacterEmbed } = require('../../../features/league/quests/reportEmbed');
+const questDrafts = require('../../../features/league/quests/drafts');
+const { approveQuestLink, approveQuestComplete, approveQuestCancel } = require('../../../features/league/quests/command');
 const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../../../features/league/downtime/engine');
 const { sendAdminLog } = require('../../../utils/adminLog');
 

@@ -1,4 +1,4 @@
-// Mirrors interactions/questDashboardId.js exactly.
+// Mirrors features/league/quests/dashboardId.js exactly.
 // Used by buttons/tableAdmin.js to encode/decode customIds for the
 // /manipulate_table dashboard. Kept separate from questDashboardId.js so the
 // two dashboards' id spaces can never collide.

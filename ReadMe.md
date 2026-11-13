@@ -93,7 +93,7 @@ All raw Discord interaction events are centralized in `interactions/`, each file
 - **`modalHandler.js`** — routes modal submissions by `customId` to `modals/`.
 - **`selectHandler.js`** — routes select-menu interactions to `selects/`.
 - **`leagueCreateModal.js`** — handles the character-creation modal specifically.
-- **`questDashboardId.js` / `questDashboardRender.js`** — render and route the interactive quest-reward dashboard used by DMs/admins.
+- **`features/league/quests/dashboardId.js` / `dashboardRender.js`** — render and route the interactive quest-reward dashboard used by DMs/admins.
 - **`features/tickets/ticketId.js`** — routes ticket-specific button/modal interactions.
 - **`threadAlertLog.js`** — logs thread-related alerts to a monitoring channel.
 
@@ -245,7 +245,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `features/league/downtime/engine.js` → `downtimeBlueprints.json`, `downtimeQuotes.json`, `downtimeSequence.json` | Downtime activity definitions, running quotes, and the list of downtime IDs already issued |
 | `channelMap.js` → `channelMap.json` | Channel mappings set with `/config` (they override `.env`; applied when the bot starts) |
 | `pendingActions.js` → `pendingActions.json` | Generic pending-approval queue (rep/gold/milestone/item grants) |
-| `questDrafts.js` / `questReportDrafts` → `questRewardDrafts.json` | In-progress quest reward dashboards |
+| `features/league/quests/drafts.js` → `questRewardDrafts.json` | In-progress quest reward dashboards |
 | `features/theLongRest/memorialIndex.js` → `memorialIndex.json` | The Long Rest memorial index |
 | `priceOverrides.json` | Manual price overrides for catalogue items |
 | `shared/archive/config.js` → `archiveConfig.json` | Destination category for `/archive` |
@@ -284,7 +284,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - The **activation queue** lets admins pre-queue games for a specific activation pass; `scheduler.js` sends a daily IST reminder and performs activation automatically if `toggle-auto` is enabled.
 - `DEV_MODE=true` redirects scheduler/quest-board output to `BOT_DEBUGGING_CHANNEL_ID`.
 
-### 8.3 League Economy (`commands/league.js` + `commands/leagueGrants/`, `features/league/shop/`, `features/league/downtime/command.js`, `commands/leagueQuest.js`, `features/league/void.js`)
+### 8.3 League Economy (`commands/league.js` + `commands/leagueGrants/`, `features/league/shop/`, `features/league/downtime/command.js`, `features/league/quests/command.js`, `features/league/void.js`)
 - **Approval workflow:** DM-initiated rep/gold/milestone/item grants are staged in `data/pendingActions.json` and require League Admin approval (`/leagueadmin approve|reject|pending`) before they post to Notion — direct Admin grants skip this queue.
 - **Shop vs. Marketplace:** the Shop is stocked/administered by League Admins from the catalogue (with auto-restock on a per-item cadence); the Marketplace is player-to-player, with a configurable tax (`MARKETPLACE_TAX_RATE` in `commands/leagueShop.js`) deducted from seller proceeds.
 - **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 item data from **5etools-src** (`utils/5etoolsCatalogue.js`), filtered to the sourcebooks allow-listed in `config/dndSources.js`; `sync-spells` does the same for spells (`utils/5etoolsSpells.js`) and refreshes the list used by the "Scribe a Spell Scroll" downtime activity. Adding a new sourcebook is a one-line change to `config/dndSources.js` — see that file's comment for the current allow-list.

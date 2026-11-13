@@ -7,10 +7,10 @@ const {
     TextInputBuilder,
     TextInputStyle,
 } = require('discord.js');
-const { encodeId } = require('../../interactions/questDashboardId');
-const { loadDashboardState } = require('../../interactions/questDashboardRender');
-const questDrafts = require('../../utils/questDrafts');
-const { REP_MAX } = require('../../commands/leagueGrants');
+const { encodeId } = require('../dashboardId');
+const { loadDashboardState } = require('../dashboardRender');
+const questDrafts = require('../drafts');
+const { REP_MAX } = require('../../../../commands/leagueGrants');
 const { assertOwner, assertUnlocked, backRow, refreshDashboardMessage } = require('./common');
 const { showItemPlayerSelect } = require('./items');
 

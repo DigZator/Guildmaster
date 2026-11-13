@@ -33,8 +33,8 @@ const recordHandler = (mod, name, label) => { mod[name] = async (i) => { hits.pu
 const recordChoices = (mod, name, label) => { mod[name] = async () => { hits.push(label || name); return [{ name: `<${label || name}>`, value: 'x' }]; }; };
 recordHandler(req('features/games/gameAutoComplete'), 'gameAutocomplete');
 recordHandler(req('features/league/starterItems/command'), 'backgroundAutocomplete');
-recordHandler(req('commands/leagueQuest'), 'questLinkAutocomplete');
-recordHandler(req('commands/leagueQuest'), 'dashboardQuestAutocomplete');
+recordHandler(req('features/league/quests/command'), 'questLinkAutocomplete');
+recordHandler(req('features/league/quests/command'), 'dashboardQuestAutocomplete');
 recordHandler(req('features/league/downtime/autocomplete'), 'downtimeActivityAutocomplete');
 recordHandler(req('features/league/downtime/autocomplete'), 'downtimeTierAutocomplete');
 recordHandler(req('utils/spellAutoComplete'), 'spellAutocomplete');

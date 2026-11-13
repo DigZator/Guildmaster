@@ -1,6 +1,6 @@
 const path = require('path');
 const { randomBytes } = require('crypto');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../../../utils/jsonStore');
 
 const STATUSES = Object.freeze({
     DRAFT: 'draft',
@@ -16,7 +16,7 @@ const LINE_APPLY_STATUSES = Object.freeze({
 
 const LINE_TYPES = Object.freeze(['gold', 'rep', 'item', 'milestone']);
 
-const store = createJsonStore(path.join(__dirname, '../data/questRewardDrafts.json'), {});
+const store = createJsonStore(path.join(__dirname, '../../../data/questRewardDrafts.json'), {});
 
 function makeLineId() {
     return randomBytes(2).toString('hex');

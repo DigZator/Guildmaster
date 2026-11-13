@@ -1,5 +1,5 @@
-const { adjustCharacterNumber, createInventoryItem, getActiveCharacter } = require('./leagueNotion');
-const { applyMilestones } = require('./milestones');
+const { adjustCharacterNumber, createInventoryItem, getActiveCharacter } = require('../../../utils/leagueNotion');
+const { applyMilestones } = require('../../../utils/milestones');
 
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const DEFAULT_RETRY_BACKOFF_MS = 500;

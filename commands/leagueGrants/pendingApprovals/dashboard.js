@@ -1,4 +1,4 @@
-const { renderMainView, loadDashboardState } = require('../../../interactions/questDashboardRender');
+const { renderMainView, loadDashboardState } = require('../../../features/league/quests/dashboardRender');
 const { attachDashboardExpiry } = require('../../../utils/dashboardExpiry');
 const { DM_ROLE_ID } = require('../shared');
 

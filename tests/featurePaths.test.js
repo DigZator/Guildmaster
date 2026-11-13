@@ -259,3 +259,7 @@ test('league downtime: the blueprints, the quotes and the id sequence still live
         ['write', data('downtimeSequence.json')],
     ]);
 });
+
+test('league quests: the quest reward drafts still live in data/questRewardDrafts.json', () => {
+    assert.deepEqual(storePathsOf('../features/league/quests/drafts'), [path.join(root, 'data', 'questRewardDrafts.json')]);
+});

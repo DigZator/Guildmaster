@@ -1,6 +1,6 @@
 const { leagueAdminShop, leagueAdminCatalogue } = require('../../features/league/shop');
 const { leagueDowntime } = require('../../features/league/downtime/command');
-const { leagueDMQuest } = require('../leagueQuest');
+const { leagueDMQuest } = require('../../features/league/quests/command');
 const { REP_MAX } = require('./shared');
 
 const { handleAdminRep, handleAdminGold, handleAdminMilestone } = require('./repGoldMilestone');

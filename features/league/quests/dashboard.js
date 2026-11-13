@@ -1,4 +1,4 @@
-const { decodeId } = require('../interactions/questDashboardId');
+const { decodeId } = require('./dashboardId');
 const {
     handleBackToDashboard,
     handleSubmit,
@@ -7,13 +7,13 @@ const {
     handleCancelQuest,
     handleCancelQuestConfirm,
     handleCancelQuestReturn,
-} = require('./questDashboard/common');
+} = require('./dashboard/common');
 const {
     handleAddReward,
     handleAddRewardTypeSelect,
     handleAddRewardBulkModalSubmit,
     handleAddRewardBulkNext,
-} = require('./questDashboard/rewards');
+} = require('./dashboard/rewards');
 const {
     handleAddItemPlayerSelect,
     handleItemBackToPlayer,
@@ -28,7 +28,7 @@ const {
     handleAddItemManualSubtypeSelect,
     handleAddItemManualRaritySelect,
     handleAddItemRemoveSelect,
-} = require('./questDashboard/items');
+} = require('./dashboard/items');
 const {
     handleEditParty,
     handlePartyActionSelect,
@@ -41,7 +41,7 @@ const {
     handleToggleGroup,
     handlePartyInfo,
     handlePartyInfoPage,
-} = require('./questDashboard/party');
+} = require('./dashboard/party');
 
 // Dispatch
 

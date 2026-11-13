@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getCharacterQuestLog, getPageById } = require('../../../utils/leagueNotion');
-const { getQuestById } = require('../../leagueQuest');
+const { getQuestById } = require('../../../features/league/quests/command');
 
 // ─── /league log ──────────────────────────────────────────────────────────────
 function formatDateIST(dateString) {

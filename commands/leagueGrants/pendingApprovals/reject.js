@@ -1,8 +1,8 @@
 const { EmbedBuilder } = require('discord.js');
 const { setDowntimeStatus } = require('../../../utils/leagueNotion');
 const { getById, removeById, updateById } = require('../../../utils/pendingActions');
-const { rejectReportLine } = require('../../../utils/questReportAppliers');
-const questDrafts = require('../../../utils/questDrafts');
+const { rejectReportLine } = require('../../../features/league/quests/reportAppliers');
+const questDrafts = require('../../../features/league/quests/drafts');
 const { sendAdminLog } = require('../../../utils/adminLog');
 
 // ─── /leagueadmin reject ──────────────────────────────────────────────────────────────────

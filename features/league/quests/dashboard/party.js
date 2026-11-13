@@ -6,13 +6,13 @@ const {
     StringSelectMenuBuilder,
     UserSelectMenuBuilder,
 } = require('discord.js');
-const { encodeId } = require('../../interactions/questDashboardId');
-const { loadDashboardState, renderMainView } = require('../../interactions/questDashboardRender');
-const { attachDashboardExpiry } = require('../../utils/dashboardExpiry');
-const questDrafts = require('../../utils/questDrafts');
-const { formatCurrency } = require('../../utils/currency');
-const { getActiveCharacter, getCharacterInventory, getCharacterQuestLog } = require('../../utils/leagueNotion');
-const { addCharacterToRoster, removeCharactersFromRoster } = require('../../commands/leagueQuest');
+const { encodeId } = require('../dashboardId');
+const { loadDashboardState, renderMainView } = require('../dashboardRender');
+const { attachDashboardExpiry } = require('../../../../utils/dashboardExpiry');
+const questDrafts = require('../drafts');
+const { formatCurrency } = require('../../../../utils/currency');
+const { getActiveCharacter, getCharacterInventory, getCharacterQuestLog } = require('../../../../utils/leagueNotion');
+const { addCharacterToRoster, removeCharactersFromRoster } = require('../command');
 const { assertOwner, assertUnlocked, finishAndDelete, backRow, navRow, refreshDashboardMessage } = require('./common');
 
 // Edit Party

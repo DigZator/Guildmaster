@@ -1,10 +1,10 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { buildByCharacterEmbed, buildByRewardEmbed, itemAverageValue } = require('../utils/questReportEmbed');
-const { encodeId } = require('./questDashboardId');
-const { getQuestById } = require('../commands/leagueQuest');
-const { getPageById } = require('../utils/leagueNotion');
-const { checkGoldAgainstTierLimit } = require('../config/questRewardLimits');
-const questDrafts = require('../utils/questDrafts');
+const { buildByCharacterEmbed, buildByRewardEmbed, itemAverageValue } = require('./reportEmbed');
+const { encodeId } = require('./dashboardId');
+const { getQuestById } = require('./command');
+const { getPageById } = require('../../../utils/leagueNotion');
+const { checkGoldAgainstTierLimit } = require('./rewardLimits');
+const questDrafts = require('./drafts');
 
 const GROUPINGS = Object.freeze(['character', 'reward']);
 
