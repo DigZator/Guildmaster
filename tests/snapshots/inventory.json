@@ -998,7 +998,7 @@
     "features/games/tableAdmin/watcher.js": [
       "tableAdminReactivate:${…}"
     ],
-    "features/league/downtime/command.js": [
+    "features/league/downtime/command/buyDays.js": [
       "dtbuy_cancel",
       "dtbuy_confirm"
     ],
