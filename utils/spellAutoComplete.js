@@ -1,5 +1,5 @@
 const { searchSpells } = require('./5etoolsSpells');
-const { getBlueprintById } = require('./downtime');
+const { getBlueprintById } = require('../features/league/downtime/engine');
 
 function formatChoice(spell) {
     const levelLabel = spell.level === 0 ? 'Cantrip' : `Level ${spell.level}`;

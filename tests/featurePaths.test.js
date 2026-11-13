@@ -221,3 +221,41 @@ test('league shop: the shop floor and the price overrides still live in data/sho
     assert.deepEqual(storePathsOf('../features/league/shop/floor'), [path.join(root, 'data', 'shopFloor.json'), path.join(root, 'data', 'priceOverrides.json')]);
 });
 
+
+test('league downtime: the blueprints, the quotes and the id sequence still live in data/downtime*.json', () => {
+    const enginePath = require.resolve('../features/league/downtime/engine');
+    const seen = [];
+    const real = { read: fs.readFileSync, write: fs.writeFileSync, mkdir: fs.mkdirSync };
+    fs.readFileSync = function (p, ...rest) {
+        if (typeof p === 'string' && p.endsWith('.json') && p.includes('downtime')) { seen.push(['read', p]); throw new Error('stubbed'); }
+        return real.read.call(this, p, ...rest);
+    };
+    fs.writeFileSync = function (p, ...rest) {
+        if (typeof p === 'string' && p.endsWith('.json') && p.includes('downtime')) { seen.push(['write', p]); return; }
+        return real.write.call(this, p, ...rest);
+    };
+    fs.mkdirSync = function (p, ...rest) {
+        if (typeof p === 'string' && p.endsWith('.json') && p.includes('downtime')) return undefined;
+        return real.mkdir.call(this, p, ...rest);
+    };
+    const warn = console.warn;
+    console.warn = () => {};
+    try {
+        delete require.cache[enginePath];
+        const engine = require(enginePath);
+        engine.loadQuotes();
+        assert.throws(() => engine.loadBlueprints());
+        engine.nextDtaId();
+    } finally {
+        console.warn = warn;
+        fs.readFileSync = real.read; fs.writeFileSync = real.write; fs.mkdirSync = real.mkdir;
+        delete require.cache[enginePath];
+    }
+    const data = (name) => path.join(root, 'data', name);
+    assert.deepEqual(seen, [
+        ['read', data('downtimeQuotes.json')],
+        ['read', data('downtimeBlueprints.json')],
+        ['read', data('downtimeSequence.json')],
+        ['write', data('downtimeSequence.json')],
+    ]);
+});

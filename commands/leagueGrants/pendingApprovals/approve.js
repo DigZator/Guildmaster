@@ -13,7 +13,7 @@ const { applyReportLines } = require('../../../utils/questReportAppliers');
 const { buildByCharacterEmbed } = require('../../../utils/questReportEmbed');
 const questDrafts = require('../../../utils/questDrafts');
 const { approveQuestLink, approveQuestComplete, approveQuestCancel } = require('../../leagueQuest');
-const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../../../utils/downtime');
+const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../../../features/league/downtime/engine');
 const { sendAdminLog } = require('../../../utils/adminLog');
 
 // ─── /leagueadmin approve ─────────────────────────────────────────────────────

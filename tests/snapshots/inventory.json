@@ -923,10 +923,6 @@
     "commands/league/actions/leaderboard.js": [
       "leaderboard_page:${…}"
     ],
-    "commands/leagueDowntime.js": [
-      "dtbuy_cancel",
-      "dtbuy_confirm"
-    ],
     "features/archive/command.js": [
       "archive_cancel",
       "archive_confirm_${…}"
@@ -1001,6 +997,10 @@
     ],
     "features/games/tableAdmin/watcher.js": [
       "tableAdminReactivate:${…}"
+    ],
+    "features/league/downtime/command.js": [
+      "dtbuy_cancel",
+      "dtbuy_confirm"
     ],
     "features/league/shop/actions/shopBuy.js": [
       "shopbuy_discount_no",

@@ -242,7 +242,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `features/league/shop/floor.js` → `shopFloor.json` | Current shop stock, prices, restock timers |
 | `5etoolsCatalogue.js` → `catalogue.json` | Cached 5e item catalogue, sourced from 5etools-src |
 | `5etoolsSpells.js` → `spells.json` | Cached spell list |
-| `downtime.js` → `downtimeBlueprints.json`, `downtimeQuotes.json`, `downtimeSequence.json` | Downtime activity definitions, running quotes, and the list of downtime IDs already issued |
+| `features/league/downtime/engine.js` → `downtimeBlueprints.json`, `downtimeQuotes.json`, `downtimeSequence.json` | Downtime activity definitions, running quotes, and the list of downtime IDs already issued |
 | `channelMap.js` → `channelMap.json` | Channel mappings set with `/config` (they override `.env`; applied when the bot starts) |
 | `pendingActions.js` → `pendingActions.json` | Generic pending-approval queue (rep/gold/milestone/item grants) |
 | `questDrafts.js` / `questReportDrafts` → `questRewardDrafts.json` | In-progress quest reward dashboards |
@@ -284,11 +284,11 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - The **activation queue** lets admins pre-queue games for a specific activation pass; `scheduler.js` sends a daily IST reminder and performs activation automatically if `toggle-auto` is enabled.
 - `DEV_MODE=true` redirects scheduler/quest-board output to `BOT_DEBUGGING_CHANNEL_ID`.
 
-### 8.3 League Economy (`commands/league.js` + `commands/leagueGrants/`, `features/league/shop/`, `commands/leagueDowntime.js`, `commands/leagueQuest.js`, `features/league/void.js`)
+### 8.3 League Economy (`commands/league.js` + `commands/leagueGrants/`, `features/league/shop/`, `features/league/downtime/command.js`, `commands/leagueQuest.js`, `features/league/void.js`)
 - **Approval workflow:** DM-initiated rep/gold/milestone/item grants are staged in `data/pendingActions.json` and require League Admin approval (`/leagueadmin approve|reject|pending`) before they post to Notion — direct Admin grants skip this queue.
 - **Shop vs. Marketplace:** the Shop is stocked/administered by League Admins from the catalogue (with auto-restock on a per-item cadence); the Marketplace is player-to-player, with a configurable tax (`MARKETPLACE_TAX_RATE` in `commands/leagueShop.js`) deducted from seller proceeds.
 - **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 item data from **5etools-src** (`utils/5etoolsCatalogue.js`), filtered to the sourcebooks allow-listed in `config/dndSources.js`; `sync-spells` does the same for spells (`utils/5etoolsSpells.js`) and refreshes the list used by the "Scribe a Spell Scroll" downtime activity. Adding a new sourcebook is a one-line change to `config/dndSources.js` — see that file's comment for the current allow-list.
-- **Downtime:** activities, tiers, and approval requirements are defined as blueprints (`config` + `utils/downtime.js`); starting one produces a running "quote," and progress is invested in days via `/league downtime progress`. Some activities (e.g. crafting, scroll-scribing) require picking a spell/item and quantity.
+- **Downtime:** activities, tiers, and approval requirements are defined as blueprints (`config` + `features/league/downtime/engine.js`); starting one produces a running "quote," and progress is invested in days via `/league downtime progress`. Some activities (e.g. crafting, scroll-scribing) require picking a spell/item and quantity.
 - **Void:** `/league void item|gold` lets a player voluntarily remove their own item or gold — useful for correcting mistakes without admin intervention.
 - **Two-page locking** (`withTwoPageLocks`) guards operations that must atomically update two Notion pages (e.g. a gold transfer between two characters) — failures mid-transaction are reported with a specific failure `stage` for manual recovery, and rolled back where possible.
 

@@ -16,7 +16,7 @@ const {
 } = require('../utils/leagueNotion');
 const { sendInventory } = require('./inventory');
 const { showBalance } = require('../commands/league');
-const { handleDowntimeList } = require('../commands/leagueDowntime');
+const { handleDowntimeList } = require('../features/league/downtime/command');
 const { LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_FORUM_ID } = require('../data/channels');
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB

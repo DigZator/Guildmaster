@@ -1,5 +1,5 @@
-const { getActiveCharacter, adjustCharacterNumbersUnlocked, withPageLock } = require('../utils/leagueNotion');
-const { REP_COST_PER_TOPUP, DAYS_PER_TOPUP } = require('../commands/leagueDowntime');
+const { getActiveCharacter, adjustCharacterNumbersUnlocked, withPageLock } = require('../../../utils/leagueNotion');
+const { REP_COST_PER_TOPUP, DAYS_PER_TOPUP } = require('./command');
 
 module.exports = {
     exact: {

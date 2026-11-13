@@ -1,4 +1,4 @@
-const { listActivityChoices, listTierChoices } = require('./downtime');
+const { listActivityChoices, listTierChoices } = require('./engine');
 
 async function downtimeActivityAutocomplete(interaction) {
     const focused = interaction.options.getFocused();

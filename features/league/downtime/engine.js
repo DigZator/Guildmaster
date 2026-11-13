@@ -1,13 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const { EmbedBuilder } = require('discord.js');
-const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('./leagueNotion');
-const { resolveLevelUps, LEVEL_CONFIG } = require('../config/leagueLeveling');
-const { getCatalogueItemByName, inferSubtype } = require('./5etoolsCatalogue');
+const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('../../../utils/leagueNotion');
+const { resolveLevelUps, LEVEL_CONFIG } = require('../../../config/leagueLeveling');
+const { getCatalogueItemByName, inferSubtype } = require('../../../utils/5etoolsCatalogue');
 
-const BLUEPRINTS_PATH = path.join(__dirname, '..', 'data', 'downtimeBlueprints.json');
-const SEQUENCE_PATH    = path.join(__dirname, '..', 'data', 'downtimeSequence.json');
-const QUOTES_PATH      = path.join(__dirname, '..', 'data', 'downtimeQuotes.json');
+const BLUEPRINTS_PATH = path.join(__dirname, '..', '..', '..', 'data', 'downtimeBlueprints.json');
+const SEQUENCE_PATH    = path.join(__dirname, '..', '..', '..', 'data', 'downtimeSequence.json');
+const QUOTES_PATH      = path.join(__dirname, '..', '..', '..', 'data', 'downtimeQuotes.json');
 
 const TIER_COLORS = [0xe74c3c, 0x3498db, 0x9b59b6, 0xf1c40f, 0x2ecc71, 0xe67e22, 0x1abc9c];
 
