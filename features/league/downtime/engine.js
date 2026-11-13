@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { EmbedBuilder } = require('discord.js');
-const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('../../../utils/leagueNotion');
+const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('../notion');
 const { resolveLevelUps, LEVEL_CONFIG } = require('../../../config/leagueLeveling');
 const { getCatalogueItemByName, inferSubtype } = require('../../../utils/5etoolsCatalogue');
 

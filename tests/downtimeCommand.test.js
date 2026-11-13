@@ -13,7 +13,7 @@ const goldenPath = path.join(__dirname, 'snapshots', 'downtimeCommand.json');
 const world = { char: null, active: [], progress: null, pending: [] };
 
 function loadCommand() {
-    const notionPath = require.resolve('../utils/leagueNotion');
+    const notionPath = require.resolve('../features/league/notion');
     const pendingPath = require.resolve('../utils/pendingActions');
     const commandPath = require.resolve('../features/league/downtime/command');
     const realNotion = require(notionPath);

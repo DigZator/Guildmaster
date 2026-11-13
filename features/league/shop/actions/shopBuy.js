@@ -5,7 +5,7 @@ const {
     withPageLock,
     createInventoryItem,
     getCharacterGold,
-} = require('../../../../utils/leagueNotion');
+} = require('../../notion');
 const { tierMinFor, getBuyableEntry, decrementStock } = require('../floor');
 const { formatCurrency } = require('../../../../utils/currency');
 const { availableDiscounts } = require('../../../../config/reputationDiscounts');

@@ -11,7 +11,7 @@ const { loadDashboardState, renderMainView } = require('../dashboardRender');
 const { attachDashboardExpiry } = require('../../../../utils/dashboardExpiry');
 const questDrafts = require('../drafts');
 const { formatCurrency } = require('../../../../utils/currency');
-const { getActiveCharacter, getCharacterInventory, getCharacterQuestLog } = require('../../../../utils/leagueNotion');
+const { getActiveCharacter, getCharacterInventory, getCharacterQuestLog } = require('../../notion');
 const { addCharacterToRoster, removeCharactersFromRoster } = require('../command');
 const { assertOwner, assertUnlocked, finishAndDelete, backRow, navRow, refreshDashboardMessage } = require('./common');
 

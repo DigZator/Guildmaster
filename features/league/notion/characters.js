@@ -1,4 +1,4 @@
-const { todayISTDateString } = require('../dateFormat');
+const { todayISTDateString } = require('../../../utils/dateFormat');
 const { notion, DB, withPageLock, updatePageProperty, queryAllPages } = require('./core');
 
 async function getCharacterGold(characterId) {

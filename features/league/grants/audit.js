@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { findCharacterStatusIssues } = require('../../../utils/leagueNotion');
+const { findCharacterStatusIssues } = require('../notion');
 
 async function handleAdminAuditCharacters(interaction) {
     await interaction.deferReply({ flags: 64 });

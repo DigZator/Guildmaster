@@ -2,7 +2,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { buildByCharacterEmbed, buildByRewardEmbed, itemAverageValue } = require('./reportEmbed');
 const { encodeId } = require('./dashboardId');
 const { getQuestById } = require('./command');
-const { getPageById } = require('../../../utils/leagueNotion');
+const { getPageById } = require('../notion');
 const { checkGoldAgainstTierLimit } = require('./rewardLimits');
 const questDrafts = require('./drafts');
 

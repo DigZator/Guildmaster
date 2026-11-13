@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { getActiveCharacter, getCharacterInventory } = require('../../../utils/leagueNotion');
+const { getActiveCharacter, getCharacterInventory } = require('../notion');
 
 const PAGE_SIZE = 12;
 const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes

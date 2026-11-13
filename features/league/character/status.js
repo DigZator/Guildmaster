@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getActiveCharacter, getPageById } = require('../../../utils/leagueNotion');
+const { getActiveCharacter, getPageById } = require('../notion');
 
 async function changeCharacterStatus(interaction) {
 	const characterId = interaction.options.getString('character');

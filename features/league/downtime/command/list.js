@@ -1,4 +1,4 @@
-const { getActiveCharacter, getActiveDowntimeForCharacter } = require('../../../../utils/leagueNotion');
+const { getActiveCharacter, getActiveDowntimeForCharacter } = require('../../notion');
 const { getAll: getAllPendingActions } = require('../../../../utils/pendingActions');
 
 // ─── /league downtime list ─────────────────────────────────────────────────────

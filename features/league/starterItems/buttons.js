@@ -6,7 +6,7 @@ const {
     updatePageProperty,
     setItemStatus,
     getPageById,
-} = require('../../../utils/leagueNotion');
+} = require('../notion');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
 
 const TIMEOUT_MS = 10 * 60 * 1000;

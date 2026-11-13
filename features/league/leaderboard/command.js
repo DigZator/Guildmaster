@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { randomBytes } = require('crypto');
-const { queryLeaderboard } = require('../../../utils/leagueNotion');
+const { queryLeaderboard } = require('../notion');
 
 // ─── /league leaderboard ───────────────────────────────────────────────────────
 const LEADERBOARD_LABELS = {

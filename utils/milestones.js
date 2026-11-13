@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('./leagueNotion');
+const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('../features/league/notion');
 const { resolveLevelUps, LEVEL_CONFIG } = require('../config/leagueLeveling');
 
 const QUOTES_PATH = path.join(__dirname, '..', 'data', 'downtimeQuotes.json');

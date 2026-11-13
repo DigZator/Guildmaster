@@ -13,7 +13,7 @@ const {
     getCharacterQuestLog,
     getCharactersByDiscordId,
     updateCharacterArt,
-} = require('../../../utils/leagueNotion');
+} = require('../notion');
 const { sendInventory } = require('../inventory/button');
 const { showBalance } = require('../../../commands/league');
 const { handleDowntimeList } = require('../downtime/command');

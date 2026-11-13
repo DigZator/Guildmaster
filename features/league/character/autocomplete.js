@@ -1,4 +1,4 @@
-const { getCharactersByDiscordId, searchCharactersByName } = require('../../../utils/leagueNotion');
+const { getCharactersByDiscordId, searchCharactersByName } = require('../notion');
 
 async function characterOwnAutocomplete(interaction) {
 	const focused = interaction.options.getFocused().toLowerCase();

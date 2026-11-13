@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getPageById, getActiveCharacter } = require('../../../utils/leagueNotion');
+const { getPageById, getActiveCharacter } = require('../notion');
 
 module.exports = async (interaction) => {
     const characterId = interaction.values[0];

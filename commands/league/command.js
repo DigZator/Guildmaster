@@ -1,4 +1,4 @@
-const { getActiveCharacter } = require('../../utils/leagueNotion');
+const { getActiveCharacter } = require('../../features/league/notion');
 const { sendInventory } = require('../../features/league/inventory/button');
 const { sendItemDetail } = require('../../features/league/inventory/helper');
 const { leagueShop, leagueMarketplace } = require('../../features/league/shop');

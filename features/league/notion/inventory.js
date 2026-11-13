@@ -1,4 +1,4 @@
-const { todayISTDateString } = require('../dateFormat');
+const { todayISTDateString } = require('../../../utils/dateFormat');
 const { notion, DB, queryAllPages } = require('./core');
 
 // ─── league_inventory ────────────────────────────────────────────────────────

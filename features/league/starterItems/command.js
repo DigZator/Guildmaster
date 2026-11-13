@@ -5,7 +5,7 @@ const {
     loadCategoryIndex,
 } = require('./equipmentData');
 const { buildInitialSession } = require('./equipmentFlow');
-const { getActiveCharacter } = require('../../../utils/leagueNotion');
+const { getActiveCharacter } = require('../notion');
 const starterItemsButtons = require('./buttons');
 
 const FIVEE_DATA_DIR = path.join(__dirname, '..', '..', '..', '..', '5etools-src', 'data');

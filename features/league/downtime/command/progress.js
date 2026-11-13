@@ -7,10 +7,10 @@ const {
     getCharacterGold,
     adjustCharacterNumbersUnlocked,
     withPageLock,
-} = require('../../../../utils/leagueNotion');
+} = require('../../notion');
 const { addAction } = require('../../../../utils/pendingActions');
 const { loadBlueprints, getBlueprint, applyDowntimeOutput } = require('../engine');
-const leagueNotion = require('../../../../utils/leagueNotion');
+const leagueNotion = require('../../notion');
 const { formatCurrency } = require('../../../../utils/currency');
 const { sendAdminLog } = require('../../../../utils/adminLog');
 const { coerceParam, postToCharacterThread } = require('./helpers');

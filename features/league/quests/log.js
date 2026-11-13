@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getActiveCharacter, getCharacterQuestLog, getPageById } = require('../../../utils/leagueNotion');
+const { getActiveCharacter, getCharacterQuestLog, getPageById } = require('../notion');
 const { getQuestById } = require('./command');
 
 // ─── /league log ──────────────────────────────────────────────────────────────

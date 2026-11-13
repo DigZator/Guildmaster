@@ -1,6 +1,6 @@
 const { Client } = require('@notionhq/client');
-const client = require('../../client');
-const { reportError } = require('../errorReporter');
+const client = require('../../../client');
+const { reportError } = require('../../../utils/errorReporter');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 

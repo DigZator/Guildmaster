@@ -4,7 +4,7 @@ const {
     updatePageProperty,
     getPageById,
     withPageLock,
-} = require('../../../utils/leagueNotion');
+} = require('../notion');
 const { getCachedGames } = require('../../../utils/cache');
 const { addAction } = require('../../../utils/pendingActions');
 const { sendAdminLog } = require('../../../utils/adminLog');

@@ -8,7 +8,7 @@ const {
     setItemStatus,
     updatePageProperty,
     getPageById,
-} = require('../../../../utils/leagueNotion');
+} = require('../../notion');
 const { formatCurrency } = require('../../../../utils/currency');
 const { sendAdminLog } = require('../../../../utils/adminLog');
 

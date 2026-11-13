@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { createCharacter, getActiveCharacter, createInventoryItem } = require('../../../utils/leagueNotion');
+const { createCharacter, getActiveCharacter, createInventoryItem } = require('../notion');
 const { getCatalogueItemByName, defaultPriceFor } = require('../../../utils/5etoolsCatalogue');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
 

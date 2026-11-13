@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { adjustCharacterNumber } = require('../../../utils/leagueNotion');
+const { adjustCharacterNumber } = require('../notion');
 const { applyMilestones } = require('../../../utils/milestones');
 const { formatCurrency } = require('../../../utils/currency');
 const { sendAdminLog } = require('../../../utils/adminLog');

@@ -1,4 +1,4 @@
-const { getCharacterGold, adjustCharacterNumbersUnlocked, withPageLock, setItemStatus } = require('../../../../utils/leagueNotion');
+const { getCharacterGold, adjustCharacterNumbersUnlocked, withPageLock, setItemStatus } = require('../../notion');
 const { getPendingSell, clearPendingSell } = require('../sellSessions');
 const { formatCurrency } = require('../../../../utils/currency');
 const { EmbedBuilder } = require('discord.js');

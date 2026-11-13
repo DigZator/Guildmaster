@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getActiveCharacter, createDowntimeProgress } = require('../../../../utils/leagueNotion');
+const { getActiveCharacter, createDowntimeProgress } = require('../../notion');
 const { addAction } = require('../../../../utils/pendingActions');
 const {
     resolveCostFromUID,

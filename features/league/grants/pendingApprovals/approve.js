@@ -5,8 +5,8 @@ const {
     createInventoryItem,
     setDowntimeStatus,
     createDowntimeProgress,
-} = require('../../../../utils/leagueNotion');
-const leagueNotion = require('../../../../utils/leagueNotion');
+} = require('../../notion');
+const leagueNotion = require('../../notion');
 const { applyMilestones } = require('../../../../utils/milestones');
 const { getById, removeById, updateById } = require('../../../../utils/pendingActions');
 const { applyReportLines } = require('../../quests/reportAppliers');

@@ -255,7 +255,7 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `registrationDefaults.js` | Default registration link |
 | `channels.js` | Central export of channel-ID env vars for reuse across modules |
 
-### 7.2 Notion integration (`utils/notion.js`, `utils/leagueNotion.js`)
+### 7.2 Notion integration (`utils/notion.js`, `features/league/notion/`)
 The league character economy is authoritative in Notion, not local JSON:
 
 - **Characters DB** — profile fields, class/species/background, status, art, gold, reputation, milestones (via `LEAGUE_CHARACTERS_DB_ID`)
@@ -265,7 +265,7 @@ The league character economy is authoritative in Notion, not local JSON:
 - **Trades DB** — marketplace transaction history (`LEAGUE_TRADES_DB_ID`)
 - **Guild Shop DB** / **Player Marketplace DB** — shop and marketplace listings
 
-`leagueNotion.js` exposes higher-level helpers used throughout `commands/league.js` and related modules, e.g. `getActiveCharacter`, `updateCharacterArt`, `updatePageProperty`, `getCharacterGold`, `adjustCharacterNumbersUnlocked`, `withTwoPageLocks` (optimistic-locking helper for concurrent page edits), `getCharactersByDiscordId`, `searchCharactersByName`, `queryLeaderboard`, `getCharacterQuestLog`, `getPageById`.
+`features/league/notion/` exposes higher-level helpers used throughout the league feature, e.g. `getActiveCharacter`, `updateCharacterArt`, `updatePageProperty`, `getCharacterGold`, `adjustCharacterNumbersUnlocked`, `withTwoPageLocks` (optimistic-locking helper for concurrent page edits), `getCharactersByDiscordId`, `searchCharactersByName`, `queryLeaderboard`, `getCharacterQuestLog`, `getPageById`.
 
 A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEATS_DATASOURCE_ID`) supports the game-scheduling side (announced games / table seats), separate from the league economy databases.
 

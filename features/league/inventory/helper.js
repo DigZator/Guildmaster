@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getActiveCharacter, getCharacterInventory } = require('../../../utils/leagueNotion');
+const { getActiveCharacter, getCharacterInventory } = require('../notion');
 const { formatCurrency } = require('../../../utils/currency');
 const { getCatalogueItemByName, defaultPriceFor } = require('../../../utils/5etoolsCatalogue');
 

@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { setDowntimeStatus } = require('../../../../utils/leagueNotion');
+const { setDowntimeStatus } = require('../../notion');
 const { getById, removeById, updateById } = require('../../../../utils/pendingActions');
 const { rejectReportLine } = require('../../quests/reportAppliers');
 const questDrafts = require('../../quests/drafts');

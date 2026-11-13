@@ -1,4 +1,4 @@
-const { adjustCharacterNumber, createInventoryItem, getActiveCharacter } = require('../../../utils/leagueNotion');
+const { adjustCharacterNumber, createInventoryItem, getActiveCharacter } = require('../notion');
 const { applyMilestones } = require('../../../utils/milestones');
 
 const DEFAULT_RETRY_ATTEMPTS = 3;

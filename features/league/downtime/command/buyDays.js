@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getActiveCharacter } = require('../../../../utils/leagueNotion');
+const { getActiveCharacter } = require('../../notion');
 
 // ─── /league downtime buy-days ─────────────────────────────────────────────────
 
