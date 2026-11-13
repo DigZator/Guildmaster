@@ -1,4 +1,4 @@
-const { getActiveCharacter } = require('../../utils/leagueNotion');
+const { getActiveCharacter } = require('../../../utils/leagueNotion');
 
 const DM_ROLE_ID = process.env.DM_ROLE_ID;
 const REP_MAX    = 2;

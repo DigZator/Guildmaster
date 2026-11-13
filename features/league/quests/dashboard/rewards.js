@@ -10,7 +10,7 @@ const {
 const { encodeId } = require('../dashboardId');
 const { loadDashboardState } = require('../dashboardRender');
 const questDrafts = require('../drafts');
-const { REP_MAX } = require('../../../../commands/leagueGrants');
+const { REP_MAX } = require('../../grants');
 const { assertOwner, assertUnlocked, backRow, refreshDashboardMessage } = require('./common');
 const { showItemPlayerSelect } = require('./items');
 

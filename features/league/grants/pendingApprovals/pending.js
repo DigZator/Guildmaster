@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getAll } = require('../../../utils/pendingActions');
+const { getAll } = require('../../../../utils/pendingActions');
 
 // ─── /leagueadmin pending ─────────────────────────────────────────────────────
 async function handlePending(interaction) {

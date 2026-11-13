@@ -1116,9 +1116,6 @@
     ]
   },
   "permissionChecks": {
-    "commands/leagueGrants/pendingApprovals/dashboard.js": {
-      "roles.cache": 1
-    },
     "features/config/buttons.js": {
       "isAdminChannel": {
         "botAdmin": 1
@@ -1132,6 +1129,9 @@
     "features/games/createCampaign/preflight.js": {
       "roles.cache": 1,
       "permissions.has": 1
+    },
+    "features/league/grants/pendingApprovals/dashboard.js": {
+      "roles.cache": 1
     },
     "features/league/quests/command.js": {
       "roles.cache": 1

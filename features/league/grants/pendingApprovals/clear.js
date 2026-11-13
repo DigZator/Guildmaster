@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
-const { getById, removeById } = require('../../../utils/pendingActions');
-const { sendAdminLog } = require('../../../utils/adminLog');
+const { getById, removeById } = require('../../../../utils/pendingActions');
+const { sendAdminLog } = require('../../../../utils/adminLog');
 
 // ─── /leagueadmin clear ────────────────────────────────────────────────────────
 async function handleClear(interaction) {

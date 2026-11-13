@@ -329,7 +329,7 @@ async function removeCharactersFromRoster(quest, characterIds) {
     return { removedCount: existing.length - remaining.length };
 }
 
-// ─── Approve handlers (called from leagueGrants.js handleApprove) ─────────────
+// ─── Approve handlers (called from features/league/grants/pendingApprovals/approve.js) ─────────────
 
 async function approveQuestLink(entry, interaction) {
     const { adventureName, date, tier, notes, goldAwarded } = entry.payload;

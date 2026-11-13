@@ -33,7 +33,7 @@ The bot maintains its own local JSON data store (`/data`) for tickets, RSS feeds
 ├── art-thread.js              Character-art archive thread logic
 │
 ├── commands/                  One file per top-level slash command
-│   └── leagueGrants/          Shared logic for DM/Admin reward-granting flows
+│   └── league/                The /league command router (moves with the league definitions)
 ├── interactions/               Central dispatch: commands, buttons, modals, selects
 ├── buttons/                    Handlers for individual button customIds
 ├── modals/                     Handlers for individual modal submissions
@@ -284,7 +284,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - The **activation queue** lets admins pre-queue games for a specific activation pass; `scheduler.js` sends a daily IST reminder and performs activation automatically if `toggle-auto` is enabled.
 - `DEV_MODE=true` redirects scheduler/quest-board output to `BOT_DEBUGGING_CHANNEL_ID`.
 
-### 8.3 League Economy (`commands/league.js` + `commands/leagueGrants/`, `features/league/shop/`, `features/league/downtime/command.js`, `features/league/quests/command.js`, `features/league/void.js`)
+### 8.3 League Economy (`commands/league.js` + `features/league/grants/`, `features/league/shop/`, `features/league/downtime/command.js`, `features/league/quests/command.js`, `features/league/void.js`)
 - **Approval workflow:** DM-initiated rep/gold/milestone/item grants are staged in `data/pendingActions.json` and require League Admin approval (`/leagueadmin approve|reject|pending`) before they post to Notion — direct Admin grants skip this queue.
 - **Shop vs. Marketplace:** the Shop is stocked/administered by League Admins from the catalogue (with auto-restock on a per-item cadence); the Marketplace is player-to-player, with a configurable tax (`MARKETPLACE_TAX_RATE` in `commands/leagueShop.js`) deducted from seller proceeds.
 - **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 item data from **5etools-src** (`utils/5etoolsCatalogue.js`), filtered to the sourcebooks allow-listed in `config/dndSources.js`; `sync-spells` does the same for spells (`utils/5etoolsSpells.js`) and refreshes the list used by the "Scribe a Spell Scroll" downtime activity. Adding a new sourcebook is a one-line change to `config/dndSources.js` — see that file's comment for the current allow-list.
@@ -363,7 +363,7 @@ Configured in `client.js`: `Guilds`, `GuildMessages`, `MessageContent`, `GuildMe
 ## 10. Notes for Maintainers
 
 - **Config-over-code:** Ticket types and several other subsystems intentionally avoid hardcoded per-type branches in favor of JSON-configured definitions — prefer adding entries to `data/*.json` (via the relevant slash command) over hand-editing `config/` files where a runtime command exists.
-- **Approval-queue pattern:** Any economy-affecting action initiated by a DM (as opposed to an Admin) is expected to route through `pendingActions.js` for admin sign-off. When adding new DM-facing grant/item commands, follow the existing pattern in `commands/leagueGrants/` rather than writing directly to Notion.
+- **Approval-queue pattern:** Any economy-affecting action initiated by a DM (as opposed to an Admin) is expected to route through `pendingActions.js` for admin sign-off. When adding new DM-facing grant/item commands, follow the existing pattern in `features/league/grants/` rather than writing directly to Notion.
 - **IST-based scheduling:** Any new time-based feature should follow `scheduler.js`'s pattern of converting to `Asia/Kolkata` explicitly rather than relying on host timezone.
 - **Two-page Notion locking:** any operation that must update two Notion pages together (transfers, trades) should use `withTwoPageLocks` to avoid partial-write races, and should report a `stage` on failure so admins can manually reconcile.
 - **`.gitignore`** excludes `node_modules/`, `.git/`, `*.log`, and `.env` — confirmed by the zip command used to package this bundle.
