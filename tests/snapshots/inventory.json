@@ -858,30 +858,6 @@
     ]
   },
   "customIdProducers": {
-    "buttons/inventory.js": [
-      "inv_next_${…}",
-      "inv_prev_${…}"
-    ],
-    "buttons/leagueDashboard.js": [
-      "dynamic: f.id",
-      "leagueDashBalance",
-      "leagueDashDowntimes",
-      "leagueDashEdit",
-      "leagueDashEditModal:${…}",
-      "leagueDashInventory",
-      "leagueDashProfile",
-      "leagueDashQuests",
-      "leagueDashSetArt",
-      "leagueDashSwitch",
-      "leagueDashSwitchSelect"
-    ],
-    "commands/league/actions/characterStatus.js": [
-      "charstatus_cancel:${…}",
-      "charstatus_confirm:${…}"
-    ],
-    "commands/league/actions/leaderboard.js": [
-      "leaderboard_page:${…}"
-    ],
     "features/archive/command.js": [
       "archive_cancel",
       "archive_confirm_${…}"
@@ -957,9 +933,45 @@
     "features/games/tableAdmin/watcher.js": [
       "tableAdminReactivate:${…}"
     ],
+    "features/league/character/createModal.js": [
+      "background",
+      "characterName",
+      "classLevels",
+      "leagueCreate",
+      "scores",
+      "species"
+    ],
+    "features/league/character/status.js": [
+      "charstatus_cancel:${…}",
+      "charstatus_confirm:${…}"
+    ],
+    "features/league/dashboard/dashboard.js": [
+      "dynamic: f.id",
+      "leagueDashBalance",
+      "leagueDashDowntimes",
+      "leagueDashEdit",
+      "leagueDashEditModal:${…}",
+      "leagueDashInventory",
+      "leagueDashProfile",
+      "leagueDashQuests",
+      "leagueDashSetArt",
+      "leagueDashSwitch",
+      "leagueDashSwitchSelect"
+    ],
+    "features/league/dashboard/switchSelect.js": [
+      "charstatus_cancel:${…}",
+      "charstatus_confirm:${…}"
+    ],
     "features/league/downtime/command/buyDays.js": [
       "dtbuy_cancel",
       "dtbuy_confirm"
+    ],
+    "features/league/inventory/button.js": [
+      "inv_next_${…}",
+      "inv_prev_${…}"
+    ],
+    "features/league/leaderboard/command.js": [
+      "leaderboard_page:${…}"
     ],
     "features/league/quests/dashboard/common.js": [
       "dynamic: encodeId(questId, backAction, backExtra)",
@@ -1101,18 +1113,6 @@
     ],
     "features/verification/pending.js": [
       "${…}"
-    ],
-    "modals/leagueCreate.js": [
-      "background",
-      "characterName",
-      "classLevels",
-      "leagueCreate",
-      "scores",
-      "species"
-    ],
-    "selects/leagueDashSwitchSelect.js": [
-      "charstatus_cancel:${…}",
-      "charstatus_confirm:${…}"
     ]
   },
   "permissionChecks": {

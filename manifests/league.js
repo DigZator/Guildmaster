@@ -3,22 +3,22 @@ const { league, characterLogAutocomplete, characterOwnAutocomplete } = require('
 const { backgroundAutocomplete } = require('../features/league/starterItems/command');
 const { questLinkAutocomplete, dashboardQuestAutocomplete } = require('../features/league/quests/command');
 const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');
-const { getItemAutocompleteChoices } = require('../utils/inventoryHelper');
+const { getItemAutocompleteChoices } = require('../features/league/inventory/helper');
 const { spellAutocomplete } = require('../utils/spellAutoComplete');
 const { magicItemAutocomplete } = require('../utils/magicItemAutoComplete');
 const { downtimeActivityAutocomplete, downtimeTierAutocomplete } = require('../features/league/downtime/autocomplete');
 const { leagueAdmin, leagueDM } = require('../commands/leagueGrants');
-const inventory = require('../buttons/inventory');
+const inventory = require('../features/league/inventory/button');
 const shopSearch = require('../features/league/shop/buttons/search');
 const shopBrowse = require('../features/league/shop/buttons/browse');
 const shopDiscount = require('../features/league/shop/buttons/discount');
 const shopSell = require('../features/league/shop/buttons/sell');
 const downtimeBuyDays = require('../features/league/downtime/buyDaysButton');
 const starterItems = require('../features/league/starterItems/buttons');
-const leaderboard = require('../buttons/leaderboard');
-const characterStatus = require('../buttons/characterStatus');
+const leaderboard = require('../features/league/leaderboard/button');
+const characterStatus = require('../features/league/character/statusButton');
 const questDashboard = require('../features/league/quests/dashboard');
-const leagueDashboard = require('../buttons/leagueDashboard');
+const leagueDashboard = require('../features/league/dashboard/dashboard');
 
 const CODE_AUTOCOMPLETE_TARGETS = new Set([
     'league:shop:info',
@@ -147,9 +147,9 @@ module.exports = {
         },
     },
     modals: {
-        exact: { leagueCreate: route('open', (i, c) => require('../interactions/leagueCreateModal').handleLeagueCreate(i, c)) },
+        exact: { leagueCreate: route('open', (i, c) => require('../features/league/character/createSubmit').handleLeagueCreate(i, c)) },
         prefix: {
-            'leagueDashEditModal:': route('open', (i) => require('../modals/leagueDashEdit')(i)),
+            'leagueDashEditModal:': route('open', (i) => require('../features/league/dashboard/editModal')(i)),
             'questDash:': route('open', (i) => require('../features/league/quests/dashboard').handleDashboardModal(i)),
         },
     },
@@ -157,7 +157,7 @@ module.exports = {
         exact: {
             shopbuy_discount_select: route('open', (i) => require('../features/league/shop/discountSelect')(i)),
             starter_items_select: route('open', (i) => require('../features/league/starterItems/select')(i)),
-            leagueDashSwitchSelect: route('open', (i) => require('../selects/leagueDashSwitchSelect')(i)),
+            leagueDashSwitchSelect: route('open', (i) => require('../features/league/dashboard/switchSelect')(i)),
         },
         prefix: { 'questDash:': route('open', (i) => require('../features/league/quests/dashboard').handleDashboardSelect(i)) },
     },

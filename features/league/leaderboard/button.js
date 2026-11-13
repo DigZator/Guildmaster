@@ -1,4 +1,4 @@
-const { buildLeaderboardEmbedAndRow, LEADERBOARD_PAGE_SIZE } = require('../commands/league');
+const { buildLeaderboardEmbedAndRow, LEADERBOARD_PAGE_SIZE } = require('../../../commands/league');
 
 async function handleLeaderboardPage(interaction, client) {
     const [, sessionId, direction] = interaction.customId.split(':');

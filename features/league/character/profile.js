@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, updateCharacterArt, updatePageProperty } = require('../../../utils/leagueNotion');
-const { buildLeagueCreateModal } = require('../../../modals/leagueCreate');
+const { buildLeagueCreateModal } = require('./createModal');
 const { LEAGUE_ADMIN_CHANNEL_ID, LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_FORUM_ID } = require('../../../data/channels');
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB

@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
-const { getPageById, updatePageProperty } = require('../utils/leagueNotion');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+const { getPageById, updatePageProperty } = require('../../../utils/leagueNotion');
+const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
 
 module.exports = async (interaction) => {
     if (!interaction.isModalSubmit()) return;

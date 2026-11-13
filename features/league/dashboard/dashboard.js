@@ -13,11 +13,11 @@ const {
     getCharacterQuestLog,
     getCharactersByDiscordId,
     updateCharacterArt,
-} = require('../utils/leagueNotion');
-const { sendInventory } = require('./inventory');
-const { showBalance } = require('../commands/league');
-const { handleDowntimeList } = require('../features/league/downtime/command');
-const { LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_FORUM_ID } = require('../data/channels');
+} = require('../../../utils/leagueNotion');
+const { sendInventory } = require('../inventory/button');
+const { showBalance } = require('../../../commands/league');
+const { handleDowntimeList } = require('../downtime/command');
+const { LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_FORUM_ID } = require('../../../data/channels');
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
 const ART_TIMEOUT_MS = 5 * 60 * 1000;

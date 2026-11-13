@@ -92,7 +92,7 @@ All raw Discord interaction events are centralized in `interactions/`, each file
 - **`buttonHandler.js`** — routes button clicks by `customId` prefix to `buttons/`.
 - **`modalHandler.js`** — routes modal submissions by `customId` to `modals/`.
 - **`selectHandler.js`** — routes select-menu interactions to `selects/`.
-- **`leagueCreateModal.js`** — handles the character-creation modal specifically.
+- **`features/league/character/createSubmit.js`** — handles the character-creation modal specifically.
 - **`features/league/quests/dashboardId.js` / `dashboardRender.js`** — render and route the interactive quest-reward dashboard used by DMs/admins.
 - **`features/tickets/ticketId.js`** — routes ticket-specific button/modal interactions.
 - **`threadAlertLog.js`** — logs thread-related alerts to a monitoring channel.

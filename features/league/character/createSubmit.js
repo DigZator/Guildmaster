@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
-const { createCharacter, getActiveCharacter, createInventoryItem } = require('../utils/leagueNotion');
-const { getCatalogueItemByName, defaultPriceFor } = require('../utils/5etoolsCatalogue');
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+const { createCharacter, getActiveCharacter, createInventoryItem } = require('../../../utils/leagueNotion');
+const { getCatalogueItemByName, defaultPriceFor } = require('../../../utils/5etoolsCatalogue');
+const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
 
 const LEAGUE_PLAYERS_ROLE_ID = process.env.LEAGUE_PLAYERS_ROLE_ID;
 const STARTER_POTION_NAME = 'Potion of Healing';

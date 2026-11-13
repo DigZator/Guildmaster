@@ -42,7 +42,7 @@ recordHandler(req('utils/magicItemAutoComplete'), 'magicItemAutocomplete');
 recordHandler(req('commands/league'), 'characterLogAutocomplete');
 recordHandler(req('commands/league'), 'characterOwnAutocomplete');
 recordHandler(req('utils/catalogueAutoComplete'), 'catalogueAutocomplete');
-recordChoices(req('utils/inventoryHelper'), 'getItemAutocompleteChoices');
+recordChoices(req('features/league/inventory/helper'), 'getItemAutocompleteChoices');
 // data the inline branches read, with distinctive values
 req('features/messaging/anon/store').getKeys = () => ['alpha-key', 'beta-key'];
 req('utils/cache').getCachedGames = async () => [
