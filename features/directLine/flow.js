@@ -11,7 +11,7 @@ const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../../shared
 const { HR_ROLE_ID } = require('../../utils/isAdminChannel');
 const directLineStore = require('./store');
 const { buildTranscript, sendTranscript, formatStamp } = require('../../shared/transcript');
-const { reportError } = require('../../utils/errorReporter');
+const { reportError } = require('../../shared/utilities/errorReporter');
 const { encodeId } = require('./directLineId');
 
 const CHANNEL_PREFIX = 'dc-';

@@ -1,10 +1,10 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const memorialDrafts = require('./memorialDrafts');
 const memorialIndex = require('./memorialIndex');
-const { reportError } = require('../../utils/errorReporter');
+const { reportError } = require('../../shared/utilities/errorReporter');
 const { THE_LONG_REST_CHANNEL_ID, TLR_CONTROL_CHANNEL_ID } = require('../../data/channels');
 const { TLR_MOD_PING_ROLE_ID } = require('./roles');
-const { tryAcquire, release } = require('../../utils/interactionLock');
+const { tryAcquire, release } = require('../../shared/utilities/interactionLock');
 const { buildPreviewButtons, buildModButtons } = require('./memorialButtons');
 const { MEMORIAL_LIMITS } = require('./memorialEmbed');
 

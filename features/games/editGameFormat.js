@@ -1,4 +1,4 @@
-const { parseDateFromInput } = require('../../utils/dateFormat');
+const { parseDateFromInput } = require('../../shared/utilities/dateFormat');
 
 function formatValue(fieldType, raw) {
     switch (fieldType) {

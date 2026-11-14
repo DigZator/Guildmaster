@@ -2,7 +2,7 @@ const store = require('./store');
 const log = require('./log');
 const service = require('./service');
 const { getConfig, setConfig } = require('./config');
-const { reportError } = require('../../utils/errorReporter');
+const { reportError } = require('../../shared/utilities/errorReporter');
 
 const TICK_MS = 60 * 1000;
 let busy = false;

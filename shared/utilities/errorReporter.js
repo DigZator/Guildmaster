@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../data/channels');
+const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 
 async function reportError(client, { scope = '', message, error, context = {} } = {}) {
     const prefix = scope ? `${scope} ` : '';

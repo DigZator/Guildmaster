@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { downloadAttachment: downloadToFile } = require('../../utils/downloadAttachment');
+const { downloadAttachment: downloadToFile } = require('../utilities/downloadAttachment');
 const { UNKNOWN_SIZE_ESTIMATE } = require('./limits');
 
 // Fetching attachments into memory or onto disk, and packing them into upload batches.

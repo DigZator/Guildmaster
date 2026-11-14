@@ -2,7 +2,7 @@ const { PermissionFlagsBits } = require('discord.js');
 const store = require('./store');
 const log = require('./log');
 const { getConfig } = require('./config');
-const { reportError } = require('../../utils/errorReporter');
+const { reportError } = require('../../shared/utilities/errorReporter');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

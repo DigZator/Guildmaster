@@ -5,7 +5,7 @@ const { updateGameProperties } = require('../../utils/notion');
 const { addToQueue, getQueue } = require('./activation/activationQueue');
 const { hasCustomRegistrationLink } = require('../../utils/registrationDefaults');
 const { sessions } = require('./sessionStore');
-const { reportError } = require('../../utils/errorReporter');
+const { reportError } = require('../../shared/utilities/errorReporter');
 const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 
 module.exports = {

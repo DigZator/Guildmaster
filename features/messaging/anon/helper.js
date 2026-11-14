@@ -1,7 +1,7 @@
 const fs   = require('fs');
 const path = require('path');
 const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
-const { downloadAttachment } = require('../../../utils/downloadAttachment');
+const { downloadAttachment } = require('../../../shared/utilities/downloadAttachment');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
 
 const TEMP_DIR       = path.join(__dirname, '../../../temp');

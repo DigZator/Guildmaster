@@ -7,9 +7,9 @@ const log = require('./log');
 const service = require('./service');
 const { getConfig } = require('./config');
 const { generateProblem, parseAnswer } = require('./problems');
-const { tryAcquire, release } = require('../../utils/interactionLock');
+const { tryAcquire, release } = require('../../shared/utilities/interactionLock');
 const { buildPendingPage, PAGER_PREFIX } = require('./pending');
-const { reportError } = require('../../utils/errorReporter');
+const { reportError } = require('../../shared/utilities/errorReporter');
 
 const START_ID = 'verification:start';
 const RETRY_ID = 'verification:retry';

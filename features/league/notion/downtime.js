@@ -1,4 +1,4 @@
-const { todayISTDateString } = require('../../../utils/dateFormat');
+const { todayISTDateString } = require('../../../shared/utilities/dateFormat');
 const { notion, DB, withKnownProperties } = require('./core');
 
 // ─── league_downtime_progress ────────────────────────────────────────────────

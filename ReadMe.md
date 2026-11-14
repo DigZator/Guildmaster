@@ -309,7 +309,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 ### 8.8 Autocomplete
 Many options across the bot use live autocomplete, implemented in dedicated autocomplete modules inside their features: games (`features/games/gameAutoComplete.js`), shop/catalogue items (`features/league/shop/catalogueAutocomplete.js`, `features/league/downtime/magicItemAutocomplete.js`), spells (`features/league/downtime/spellAutocomplete.js`), downtime activities (`features/league/downtime/autocomplete.js`).
 
-### 8.9 Error Reporting (`utils/errorReporter.js`)
+### 8.9 Error Reporting (`shared/utilities/errorReporter.js`)
 Centralized helper for reporting unexpected errors to an incident/debugging channel, used throughout commands and background services to surface failures (especially mid-transaction failures in gold transfers, shop purchases, and campaign creation) without crashing the process.
 
 ### 8.10 Channel Filing (`/channel_file`, `features/channelFile/`: `command.js`, `buttons.js`, `review.js`, `guards.js`, `jobs.js` and the `filer/` engine)

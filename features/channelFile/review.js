@@ -5,7 +5,7 @@ const {
 const jobsStore = require('./jobs');
 const filer = require('./filer');
 const { getProtectionReason } = require('./guards');
-const { reportError } = require('../../utils/errorReporter');
+const { reportError } = require('../../shared/utilities/errorReporter');
 const { formatStamp } = require('../../shared/transcript');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 

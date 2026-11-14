@@ -2,7 +2,7 @@ require('dotenv').config();
 const dns = require('dns').promises;
 const net = require('net');
 const { Client } = require('@notionhq/client');
-const { formatDateForDisplay } = require('./dateFormat');
+const { formatDateForDisplay } = require('../shared/utilities/dateFormat');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DATASOURCE_ID = process.env.DATASOURCE_ID;
