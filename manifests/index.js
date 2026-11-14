@@ -11,5 +11,5 @@ module.exports = [
     require('../features/channelFile').manifest,
     require('../features/verification').manifest,
     require('../features/config').manifest,
-    require('./league'),
+    require('../features/league').manifest,
 ];

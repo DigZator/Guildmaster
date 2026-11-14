@@ -6,4 +6,7 @@ module.exports = {
     // The /league, /leagueadmin and /leaguedm command definitions. Loaded on first use, because the class choices of
     // /league starter-items are read from 5etools-src on disk when they load, and only deploy-commands.js needs them.
     get definitions() { return require('./definitions').definitions; },
+    // The routes (policy, handler) of the three league commands and the league buttons, modals and selects. Loaded on first
+    // use, because it loads the handlers and the exports above must stay light.
+    get manifest() { return require('./manifest'); },
 };
