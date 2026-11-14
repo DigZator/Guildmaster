@@ -1,6 +1,7 @@
 // Child process: loads every source module, then checks that every relative require resolves
 // and that every destructured / member-accessed name actually exists on the target module.
 require('./env');
+require('./stubClassChoices');
 const Module = require('module');
 const path = require('path');
 const { root, loadableFiles, sourceFiles } = require('./repo');
