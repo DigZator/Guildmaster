@@ -263,3 +263,34 @@ test('league downtime: the blueprints, the quotes and the id sequence still live
 test('league quests: the quest reward drafts still live in data/questRewardDrafts.json', () => {
     assert.deepEqual(storePathsOf('../features/league/quests/drafts'), [path.join(root, 'data', 'questRewardDrafts.json')]);
 });
+
+test('league: the pending actions queue still lives in data/pendingActions.json', () => {
+    assert.deepEqual(storePathsOf('../features/league/pendingActions'), [path.join(root, 'data', 'pendingActions.json')]);
+});
+
+// The catalogue, the spell list and the level-up quotes are read with fs directly; record the path each one asks for.
+function pathsReadBy(modulePath, call) {
+    const seen = [];
+    const realRead = fs.readFileSync;
+    fs.readFileSync = function (p, ...rest) {
+        if (typeof p === 'string' && p.startsWith(path.join(root, 'data'))) { seen.push(p); throw new Error('stubbed'); }
+        return realRead.call(this, p, ...rest);
+    };
+    const warn = console.warn;
+    console.warn = () => {};
+    try {
+        delete require.cache[require.resolve(modulePath)];
+        call(require(modulePath));
+    } finally {
+        fs.readFileSync = realRead;
+        console.warn = warn;
+        delete require.cache[require.resolve(modulePath)];
+    }
+    return seen;
+}
+
+test('league: the item catalogue, the spell list and the level-up quotes still live in data/', () => {
+    assert.deepEqual(pathsReadBy('../features/league/fiveEtools/catalogue', (m) => m.loadCatalogue()), [path.join(root, 'data', 'catalogue.json')]);
+    assert.deepEqual(pathsReadBy('../features/league/fiveEtools/spells', (m) => m.getSpellsMeta()), [path.join(root, 'data', 'spells.json')]);
+    assert.deepEqual(pathsReadBy('../features/league/milestones', (m) => m.loadQuotes()), [path.join(root, 'data', 'downtimeQuotes.json')]);
+});

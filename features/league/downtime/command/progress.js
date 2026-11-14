@@ -8,11 +8,11 @@ const {
     adjustCharacterNumbersUnlocked,
     withPageLock,
 } = require('../../notion');
-const { addAction } = require('../../../../utils/pendingActions');
+const { addAction } = require('../../pendingActions');
 const { loadBlueprints, getBlueprint, applyDowntimeOutput } = require('../engine');
 const leagueNotion = require('../../notion');
-const { formatCurrency } = require('../../../../utils/currency');
-const { sendAdminLog } = require('../../../../utils/adminLog');
+const { formatCurrency } = require('../../currency');
+const { sendAdminLog } = require('../../adminLog');
 const { coerceParam, postToCharacterThread } = require('./helpers');
 
 // ─── /league downtime progress ─────────────────────────────────────────────────

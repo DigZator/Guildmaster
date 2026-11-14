@@ -1,5 +1,5 @@
-const { loadCatalogue, getComboCache } = require('./5etoolsCatalogue');
-const { getBlueprintById } = require('../features/league/downtime/engine');
+const { loadCatalogue, getComboCache } = require('../fiveEtools/catalogue');
+const { getBlueprintById } = require('./engine');
 
 function formatChoice(item) {
     const name = `${item.name} (${item.rarity})`.slice(0, 100);

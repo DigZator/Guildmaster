@@ -1,6 +1,6 @@
 const path = require('path');
 const { createJsonStore } = require('../../../utils/jsonStore');
-const { getCatalogueItemByCode, restockQtyFor, restockCadenceMsFor, defaultPriceFor } = require('../../../utils/5etoolsCatalogue');
+const { getCatalogueItemByCode, restockQtyFor, restockCadenceMsFor, defaultPriceFor } = require('../fiveEtools/catalogue');
 
 const floorStore     = createJsonStore(path.join(__dirname, '..', '..', '..', 'data', 'shopFloor.json'), {});
 const overridesStore = createJsonStore(path.join(__dirname, '..', '..', '..', 'data', 'priceOverrides.json'), {});

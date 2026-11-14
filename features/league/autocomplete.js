@@ -1,4 +1,4 @@
-const { catalogueAutocomplete } = require('../../utils/catalogueAutoComplete');
+const { catalogueAutocomplete } = require('./shop/catalogueAutocomplete');
 const { getItemAutocompleteChoices } = require('./inventory/helper');
 const starterItems = require('./routes/starterItems');
 const quests = require('./routes/quests');

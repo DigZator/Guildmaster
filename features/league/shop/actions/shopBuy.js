@@ -7,10 +7,10 @@ const {
     getCharacterGold,
 } = require('../../notion');
 const { tierMinFor, getBuyableEntry, decrementStock } = require('../floor');
-const { formatCurrency } = require('../../../../utils/currency');
-const { availableDiscounts } = require('../../../../config/reputationDiscounts');
+const { formatCurrency } = require('../../currency');
+const { availableDiscounts } = require('../../reputationDiscounts');
 const { setPendingBuy } = require('../buySessions');
-const { sendAdminLog } = require('../../../../utils/adminLog');
+const { sendAdminLog } = require('../../adminLog');
 
 // ─── /league shop buy ─────────────────────────────────────────────────────────
 

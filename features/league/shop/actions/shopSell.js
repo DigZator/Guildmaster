@@ -1,7 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getActiveCharacter, getPageById, getCharacterInventory } = require('../../notion');
-const { getCatalogueItemByName, defaultPriceFor } = require('../../../../utils/5etoolsCatalogue');
-const { formatCurrency } = require('../../../../utils/currency');
+const { getCatalogueItemByName, defaultPriceFor } = require('../../fiveEtools/catalogue');
+const { formatCurrency } = require('../../currency');
 const { setPendingSell } = require('../sellSessions');
 
 // ─── /league shop sell ─────────────────────────────────────────────────────────

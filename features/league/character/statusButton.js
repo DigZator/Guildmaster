@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const { getPageById, getActiveCharacter, setCharacterStatus, withTwoPageLocks, withPageLock } = require('../notion');
-const { sendAdminLog } = require('../../../utils/adminLog');
+const { sendAdminLog } = require('../adminLog');
 
 module.exports = {
 

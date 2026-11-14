@@ -1,10 +1,10 @@
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('../features/league/notion');
-const { resolveLevelUps, LEVEL_CONFIG } = require('../config/leagueLeveling');
+const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('./notion');
+const { resolveLevelUps, LEVEL_CONFIG } = require('./leveling');
 
-const QUOTES_PATH = path.join(__dirname, '..', 'data', 'downtimeQuotes.json');
+const QUOTES_PATH = path.join(__dirname, '..', '..', 'data', 'downtimeQuotes.json');
 const TIER_COLORS = [0xe74c3c, 0x3498db, 0x9b59b6, 0xf1c40f, 0x2ecc71, 0xe67e22, 0x1abc9c];
 
 let quotesCache = null;

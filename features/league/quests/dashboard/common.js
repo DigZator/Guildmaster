@@ -1,9 +1,9 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const { encodeId } = require('../dashboardId');
 const { loadDashboardState, renderMainView } = require('../dashboardRender');
-const { addAction } = require('../../../../utils/pendingActions');
-const { sendAdminLog } = require('../../../../utils/adminLog');
-const { attachDashboardExpiry } = require('../../../../utils/dashboardExpiry');
+const { addAction } = require('../../pendingActions');
+const { sendAdminLog } = require('../../adminLog');
+const { attachDashboardExpiry } = require('../../dashboard/expiry');
 const { getQuestSummary, buildQuestSummaryEmbed, confirmQuestCompletion } = require('../command');
 
 function assertOwner(state, interaction) {

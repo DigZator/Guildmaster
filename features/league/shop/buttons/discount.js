@@ -1,6 +1,6 @@
 const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 const { getPendingBuy, clearPendingBuy } = require('../buySessions');
-const { formatCurrency } = require('../../../../utils/currency');
+const { formatCurrency } = require('../../currency');
 
 module.exports = {
 

@@ -1,6 +1,6 @@
 // The slash command definitions of the /leagueadmin grant, approval, item and audit commands. Each export is the callback one subcommand (or group) is built from;
 // ./index.js adds them in the order they are registered.
-const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('../../../config/itemChoices');
+const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('../itemChoices');
 
 //rep
 const rep = sub => sub

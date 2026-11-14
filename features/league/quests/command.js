@@ -6,8 +6,8 @@ const {
     withPageLock,
 } = require('../notion');
 const { getCachedGames } = require('../../../utils/cache');
-const { addAction } = require('../../../utils/pendingActions');
-const { sendAdminLog } = require('../../../utils/adminLog');
+const { addAction } = require('../pendingActions');
+const { sendAdminLog } = require('../adminLog');
 const questDrafts = require('./drafts');
 const { buildByCharacterEmbed } = require('./reportEmbed');
 

@@ -197,7 +197,7 @@ Commands are defined with `SlashCommandBuilder` in `deploy-commands.js` and thei
 - `shop stockall [rarity]` — bulk-stock the whole catalogue (or one rarity) at default quantities
 - `shop unstock <code>` — remove an item from the shop floor
 - `shop restock <code>` — manually trigger a restock
-- `catalogue sync` — refresh the item catalogue from the 5e source data (5etools-src), filtered by the allowed sourcebooks in `config/dndSources.js`
+- `catalogue sync` — refresh the item catalogue from the 5e source data (5etools-src), filtered by the allowed sourcebooks in `features/league/fiveEtools/sources.js`
 - `catalogue sync-spells` — refresh the spell list used by scroll-scribing downtime
 - `audit characters` — flag players with more than one Active character
 
@@ -213,7 +213,7 @@ Initialized in `index.js` at boot, these run independently of any single interac
 | `utils/cacheAlert.js` | Alerts on cache staleness/failures |
 | `utils/registrationDefaults.js` | Loads default registration-link settings |
 | `features/games/activation/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
-| `features/league/shop/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`features/league/shop/floor.js`, `utils/5etoolsCatalogue.js`); also runs once ~30s after startup |
+| `features/league/shop/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`features/league/shop/floor.js`, `features/league/fiveEtools/catalogue.js`); also runs once ~30s after startup |
 | `utils/threadActivityReport.js` | Periodic thread-activity reporting; also triggers the Keep Alive refresh every 3 days |
 | `features/general/keepAlive/job.js` | Keep Alive refresh job, permission checks, safety-net listeners |
 | `utils/trapChannel.js` | Monitors a designated "trap" channel (likely anti-spam/honeypot) |
@@ -238,11 +238,11 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `features/messaging/anon/store.js` → `anonMessages.json` | Anonymous messages by key |
 | `features/games/activation/activationQueue.js` → `activationQueue.json` | Game activation queue + schedule settings |
 | `features/league/shop/floor.js` → `shopFloor.json` | Current shop stock, prices, restock timers |
-| `5etoolsCatalogue.js` → `catalogue.json` | Cached 5e item catalogue, sourced from 5etools-src |
-| `5etoolsSpells.js` → `spells.json` | Cached spell list |
+| `features/league/fiveEtools/catalogue.js` → `catalogue.json` | Cached 5e item catalogue, sourced from 5etools-src |
+| `features/league/fiveEtools/spells.js` → `spells.json` | Cached spell list |
 | `features/league/downtime/engine.js` → `downtimeBlueprints.json`, `downtimeQuotes.json`, `downtimeSequence.json` | Downtime activity definitions, running quotes, and the list of downtime IDs already issued |
 | `channelMap.js` → `channelMap.json` | Channel mappings set with `/config` (they override `.env`; applied when the bot starts) |
-| `pendingActions.js` → `pendingActions.json` | Generic pending-approval queue (rep/gold/milestone/item grants) |
+| `features/league/pendingActions.js` → `pendingActions.json` | Generic pending-approval queue (rep/gold/milestone/item grants) |
 | `features/league/quests/drafts.js` → `questRewardDrafts.json` | In-progress quest reward dashboards |
 | `features/theLongRest/memorialIndex.js` → `memorialIndex.json` | The Long Rest memorial index |
 | `priceOverrides.json` | Manual price overrides for catalogue items |
@@ -285,7 +285,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 ### 8.3 League Economy (`features/league/command.js` + `features/league/grants/`, `features/league/shop/`, `features/league/downtime/command.js`, `features/league/quests/command.js`, `features/league/void.js`)
 - **Approval workflow:** DM-initiated rep/gold/milestone/item grants are staged in `data/pendingActions.json` and require League Admin approval (`/leagueadmin approve|reject|pending`) before they post to Notion — direct Admin grants skip this queue.
 - **Shop vs. Marketplace:** the Shop is stocked/administered by League Admins from the catalogue (with auto-restock on a per-item cadence); the Marketplace is player-to-player, with a configurable tax (`MARKETPLACE_TAX_RATE` in `commands/leagueShop.js`) deducted from seller proceeds.
-- **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 item data from **5etools-src** (`utils/5etoolsCatalogue.js`), filtered to the sourcebooks allow-listed in `config/dndSources.js`; `sync-spells` does the same for spells (`utils/5etoolsSpells.js`) and refreshes the list used by the "Scribe a Spell Scroll" downtime activity. Adding a new sourcebook is a one-line change to `config/dndSources.js` — see that file's comment for the current allow-list.
+- **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 item data from **5etools-src** (`features/league/fiveEtools/catalogue.js`), filtered to the sourcebooks allow-listed in `features/league/fiveEtools/sources.js`; `sync-spells` does the same for spells (`features/league/fiveEtools/spells.js`) and refreshes the list used by the "Scribe a Spell Scroll" downtime activity. Adding a new sourcebook is a one-line change to `config/dndSources.js` — see that file's comment for the current allow-list.
 - **Downtime:** activities, tiers, and approval requirements are defined as blueprints (`config` + `features/league/downtime/engine.js`); starting one produces a running "quote," and progress is invested in days via `/league downtime progress`. Some activities (e.g. crafting, scroll-scribing) require picking a spell/item and quantity.
 - **Void:** `/league void item|gold` lets a player voluntarily remove their own item or gold — useful for correcting mistakes without admin intervention.
 - **Two-page locking** (`withTwoPageLocks`) guards operations that must atomically update two Notion pages (e.g. a gold transfer between two characters) — failures mid-transaction are reported with a specific failure `stage` for manual recovery, and rolled back where possible.
@@ -307,7 +307,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - A dedicated system for posting character "memorials" (retirement/death write-ups) to a channel, with a searchable index that can be rebuilt via `/the_long_rest reindex` by rescanning the output channel.
 
 ### 8.8 Autocomplete
-Many options across the bot use live autocomplete, implemented in dedicated `utils/*AutoComplete.js` modules: games (`features/games/gameAutoComplete.js`), shop/catalogue items (`catalogueAutoComplete.js`, `magicItemAutoComplete.js`), spells (`spellAutoComplete.js`), downtime activities (`downtimeAutoComplete.js`).
+Many options across the bot use live autocomplete, implemented in dedicated autocomplete modules inside their features: games (`features/games/gameAutoComplete.js`), shop/catalogue items (`features/league/shop/catalogueAutocomplete.js`, `features/league/downtime/magicItemAutocomplete.js`), spells (`features/league/downtime/spellAutocomplete.js`), downtime activities (`features/league/downtime/autocomplete.js`).
 
 ### 8.9 Error Reporting (`utils/errorReporter.js`)
 Centralized helper for reporting unexpected errors to an incident/debugging channel, used throughout commands and background services to surface failures (especially mid-transaction failures in gold transfers, shop purchases, and campaign creation) without crashing the process.
@@ -361,7 +361,7 @@ Configured in `client.js`: `Guilds`, `GuildMessages`, `MessageContent`, `GuildMe
 ## 10. Notes for Maintainers
 
 - **Config-over-code:** Ticket types and several other subsystems intentionally avoid hardcoded per-type branches in favor of JSON-configured definitions — prefer adding entries to `data/*.json` (via the relevant slash command) over hand-editing `config/` files where a runtime command exists.
-- **Approval-queue pattern:** Any economy-affecting action initiated by a DM (as opposed to an Admin) is expected to route through `pendingActions.js` for admin sign-off. When adding new DM-facing grant/item commands, follow the existing pattern in `features/league/grants/` rather than writing directly to Notion.
+- **Approval-queue pattern:** Any economy-affecting action initiated by a DM (as opposed to an Admin) is expected to route through `features/league/pendingActions.js` for admin sign-off. When adding new DM-facing grant/item commands, follow the existing pattern in `features/league/grants/` rather than writing directly to Notion.
 - **IST-based scheduling:** Any new time-based feature should follow `scheduler.js`'s pattern of converting to `Asia/Kolkata` explicitly rather than relying on host timezone.
 - **Two-page Notion locking:** any operation that must update two Notion pages together (transfers, trades) should use `withTwoPageLocks` to avoid partial-write races, and should report a `stage` on failure so admins can manually reconcile.
 - **`.gitignore`** excludes `node_modules/`, `.git/`, `*.log`, and `.env` — confirmed by the zip command used to package this bundle.

@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const { EmbedBuilder } = require('discord.js');
 const { adjustCharacterNumbersUnlocked, setCharacterLevel, withPageLock, getPageById } = require('../notion');
-const { resolveLevelUps, LEVEL_CONFIG } = require('../../../config/leagueLeveling');
-const { getCatalogueItemByName, inferSubtype } = require('../../../utils/5etoolsCatalogue');
+const { resolveLevelUps, LEVEL_CONFIG } = require('../leveling');
+const { getCatalogueItemByName, inferSubtype } = require('../fiveEtools/catalogue');
 
 const BLUEPRINTS_PATH = path.join(__dirname, '..', '..', '..', 'data', 'downtimeBlueprints.json');
 const SEQUENCE_PATH    = path.join(__dirname, '..', '..', '..', 'data', 'downtimeSequence.json');

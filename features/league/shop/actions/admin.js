@@ -1,7 +1,7 @@
-const { syncCatalogue, getCatalogueMeta } = require('../../../../utils/5etoolsCatalogue');
-const { syncSpells, getSpellsMeta } = require('../../../../utils/5etoolsSpells');
+const { syncCatalogue, getCatalogueMeta } = require('../../fiveEtools/catalogue');
+const { syncSpells, getSpellsMeta } = require('../../fiveEtools/spells');
 const { stockItem, unstockItem, restockItem } = require('../floor');
-const { formatCurrency } = require('../../../../utils/currency');
+const { formatCurrency } = require('../../currency');
 
 // ─── /leagueadmin shop stock ───────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ async function handleAdminShopStock(interaction) {
 async function handleAdminShopStockAll(interaction) {
     await interaction.deferReply({ flags: 64 });
     const rarityFilter = interaction.options.getString('rarity');
-    const { items } = require('../../../../utils/5etoolsCatalogue').loadCatalogue();
+    const { items } = require('../../fiveEtools/catalogue').loadCatalogue();
     const list = rarityFilter ? items.filter(i => i.rarity === rarityFilter) : items;
 
     if (!list.length) return interaction.editReply({ content: '❌ Catalogue is empty — run `/leagueadmin catalogue sync` first.' });

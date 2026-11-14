@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getCharacterGold, adjustCharacterNumbersUnlocked, withTwoPageLocks } = require('./notion');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../data/channels');
-const { formatCurrency } = require('../../utils/currency');
+const { formatCurrency } = require('./currency');
 
 // ─── /league gold ─────────────────────────────────────────────────────────
 async function transferGold(interaction) {

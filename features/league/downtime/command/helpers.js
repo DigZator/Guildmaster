@@ -1,5 +1,5 @@
 const { sumCosts } = require('../engine');
-const { formatCurrency } = require('../../../../utils/currency');
+const { formatCurrency } = require('../../currency');
 
 function coerceParam(raw) {
     if (raw == null) return null;

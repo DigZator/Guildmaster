@@ -1,8 +1,8 @@
 const { getCharacterGold, adjustCharacterNumbersUnlocked, withPageLock, setItemStatus } = require('../../notion');
 const { getPendingSell, clearPendingSell } = require('../sellSessions');
-const { formatCurrency } = require('../../../../utils/currency');
+const { formatCurrency } = require('../../currency');
 const { EmbedBuilder } = require('discord.js');
-const { sendAdminLog } = require('../../../../utils/adminLog');
+const { sendAdminLog } = require('../../adminLog');
 
 module.exports = {
 

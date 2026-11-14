@@ -7,14 +7,14 @@ const {
     createDowntimeProgress,
 } = require('../../notion');
 const leagueNotion = require('../../notion');
-const { applyMilestones } = require('../../../../utils/milestones');
-const { getById, removeById, updateById } = require('../../../../utils/pendingActions');
+const { applyMilestones } = require('../../milestones');
+const { getById, removeById, updateById } = require('../../pendingActions');
 const { applyReportLines } = require('../../quests/reportAppliers');
 const { buildByCharacterEmbed } = require('../../quests/reportEmbed');
 const questDrafts = require('../../quests/drafts');
 const { approveQuestLink, approveQuestComplete, approveQuestCancel } = require('../../quests/command');
 const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../../downtime/engine');
-const { sendAdminLog } = require('../../../../utils/adminLog');
+const { sendAdminLog } = require('../../adminLog');
 
 // ─── /leagueadmin approve ─────────────────────────────────────────────────────
 async function handleApprove(interaction, client) {

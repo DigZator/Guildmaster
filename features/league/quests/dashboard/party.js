@@ -8,9 +8,9 @@ const {
 } = require('discord.js');
 const { encodeId } = require('../dashboardId');
 const { loadDashboardState, renderMainView } = require('../dashboardRender');
-const { attachDashboardExpiry } = require('../../../../utils/dashboardExpiry');
+const { attachDashboardExpiry } = require('../../dashboard/expiry');
 const questDrafts = require('../drafts');
-const { formatCurrency } = require('../../../../utils/currency');
+const { formatCurrency } = require('../../currency');
 const { getActiveCharacter, getCharacterInventory, getCharacterQuestLog } = require('../../notion');
 const { addCharacterToRoster, removeCharactersFromRoster } = require('../command');
 const { assertOwner, assertUnlocked, finishAndDelete, backRow, navRow, refreshDashboardMessage } = require('./common');

@@ -1,9 +1,9 @@
 const { EmbedBuilder } = require('discord.js');
 const { setDowntimeStatus } = require('../../notion');
-const { getById, removeById, updateById } = require('../../../../utils/pendingActions');
+const { getById, removeById, updateById } = require('../../pendingActions');
 const { rejectReportLine } = require('../../quests/reportAppliers');
 const questDrafts = require('../../quests/drafts');
-const { sendAdminLog } = require('../../../../utils/adminLog');
+const { sendAdminLog } = require('../../adminLog');
 
 // ─── /leagueadmin reject ──────────────────────────────────────────────────────────────────
 async function handleReject(interaction) {

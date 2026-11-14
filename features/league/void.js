@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getPageById, setItemStatus, adjustCharacterNumber, getCharacterGold } = require('./notion');
-const { formatCurrency } = require('../../utils/currency');
+const { formatCurrency } = require('./currency');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../data/channels');
 
 async function sendVoidAuditLog(interaction, fields, color = 0x992d22) {

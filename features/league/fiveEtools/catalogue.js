@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const DATA_DIR = path.join(process.env.HOME, '5etools-src', 'data');
 
-const CATALOGUE_PATH = path.join(__dirname, '..', 'data', 'catalogue.json');
-const { SOURCES: SOURCES_LIST } = require('../config/dndSources');
+const CATALOGUE_PATH = path.join(__dirname, '..', '..', '..', 'data', 'catalogue.json');
+const { SOURCES: SOURCES_LIST } = require('./sources');
 const SOURCES = new Set(SOURCES_LIST);
 
 const TYPE_NAMES = {

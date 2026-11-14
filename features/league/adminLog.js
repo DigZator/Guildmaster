@@ -1,4 +1,4 @@
-const { LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../data/channels');
 
 async function sendAdminLog(guild, embed) {
     const channel = guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);

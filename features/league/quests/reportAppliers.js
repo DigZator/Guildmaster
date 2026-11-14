@@ -1,5 +1,5 @@
 const { adjustCharacterNumber, createInventoryItem, getActiveCharacter } = require('../notion');
-const { applyMilestones } = require('../../../utils/milestones');
+const { applyMilestones } = require('../milestones');
 
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const DEFAULT_RETRY_BACKOFF_MS = 500;

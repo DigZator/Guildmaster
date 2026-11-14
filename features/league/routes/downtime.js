@@ -2,8 +2,8 @@
 // the old single manifest listed them (the order of the keys decides which prefix route wins).
 const { routes } = require('../../../core/manifest');
 const { downtimeActivityAutocomplete, downtimeTierAutocomplete } = require('../downtime/autocomplete');
-const { spellAutocomplete } = require('../../../utils/spellAutoComplete');
-const { magicItemAutocomplete } = require('../../../utils/magicItemAutoComplete');
+const { spellAutocomplete } = require('../downtime/spellAutocomplete');
+const { magicItemAutocomplete } = require('../downtime/magicItemAutocomplete');
 const downtimeBuyDays = require('../downtime/buyDaysButton');
 
 // Downtime start: activity, then tier (depends on activity), then spell / item. Returns true when it answered.

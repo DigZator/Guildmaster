@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
-const { searchCatalogue, getCatalogueItemByCode } = require('../../../../utils/5etoolsCatalogue');
+const { searchCatalogue, getCatalogueItemByCode } = require('../../fiveEtools/catalogue');
 const { getShopEntry, getBuyableEntry, getAllStockedEntries } = require('../floor');
-const { formatCurrency } = require('../../../../utils/currency');
+const { formatCurrency } = require('../../currency');
 const { rarityEmoji } = require('../embeds');
 
 // ─── /league shop browse ──────────────────────────────────────────────────────

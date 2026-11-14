@@ -1,8 +1,8 @@
 const path = require('path');
 const { randomBytes } = require('crypto');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../../utils/jsonStore');
 
-const store = createJsonStore(path.join(__dirname, '../data/pendingActions.json'), []);
+const store = createJsonStore(path.join(__dirname, '../../data/pendingActions.json'), []);
 
 function addAction(data) {
     const actions = store.load();

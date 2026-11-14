@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { formatCurrency } = require('../../../utils/currency');
+const { formatCurrency } = require('../currency');
 
 const TYPE_META = {
     gold:      { emoji: '💰', label: 'Gold' },

@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, createInventoryItem } = require('../notion');
-const { getCatalogueItemByCode, defaultPriceFor } = require('../../../utils/5etoolsCatalogue');
-const { sendAdminLog } = require('../../../utils/adminLog');
+const { getCatalogueItemByCode, defaultPriceFor } = require('../fiveEtools/catalogue');
+const { sendAdminLog } = require('../adminLog');
 
 async function resolveItemAssignment(interaction, label) {
     const targetUser = interaction.options.getUser('player');

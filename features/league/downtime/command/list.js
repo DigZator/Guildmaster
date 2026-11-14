@@ -1,5 +1,5 @@
 const { getActiveCharacter, getActiveDowntimeForCharacter } = require('../../notion');
-const { getAll: getAllPendingActions } = require('../../../../utils/pendingActions');
+const { getAll: getAllPendingActions } = require('../../pendingActions');
 
 // ─── /league downtime list ─────────────────────────────────────────────────────
 

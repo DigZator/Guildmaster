@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, createDowntimeProgress } = require('../../notion');
-const { addAction } = require('../../../../utils/pendingActions');
+const { addAction } = require('../../pendingActions');
 const {
     resolveCostFromUID,
     getBlueprintById,
@@ -10,9 +10,9 @@ const {
     nextDtaId,
     getParamName,
 } = require('../engine');
-const { getCatalogueItemByName } = require('../../../../utils/5etoolsCatalogue');
-const { formatCurrency } = require('../../../../utils/currency');
-const { sendAdminLog } = require('../../../../utils/adminLog');
+const { getCatalogueItemByName } = require('../../fiveEtools/catalogue');
+const { formatCurrency } = require('../../currency');
+const { sendAdminLog } = require('../../adminLog');
 
 // ─── /league downtime start ────────────────────────────────────────────────────
 

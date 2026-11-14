@@ -37,11 +37,11 @@ recordHandler(req('features/league/quests/command'), 'questLinkAutocomplete');
 recordHandler(req('features/league/quests/command'), 'dashboardQuestAutocomplete');
 recordHandler(req('features/league/downtime/autocomplete'), 'downtimeActivityAutocomplete');
 recordHandler(req('features/league/downtime/autocomplete'), 'downtimeTierAutocomplete');
-recordHandler(req('utils/spellAutoComplete'), 'spellAutocomplete');
-recordHandler(req('utils/magicItemAutoComplete'), 'magicItemAutocomplete');
+recordHandler(req('features/league/downtime/spellAutocomplete'), 'spellAutocomplete');
+recordHandler(req('features/league/downtime/magicItemAutocomplete'), 'magicItemAutocomplete');
 recordHandler(req('features/league/character/autocomplete'), 'characterLogAutocomplete');
 recordHandler(req('features/league/character/autocomplete'), 'characterOwnAutocomplete');
-recordHandler(req('utils/catalogueAutoComplete'), 'catalogueAutocomplete');
+recordHandler(req('features/league/shop/catalogueAutocomplete'), 'catalogueAutocomplete');
 recordChoices(req('features/league/inventory/helper'), 'getItemAutocompleteChoices');
 // data the inline branches read, with distinctive values
 req('features/messaging/anon/store').getKeys = () => ['alpha-key', 'beta-key'];

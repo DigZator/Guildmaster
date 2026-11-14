@@ -1,8 +1,8 @@
 const { EmbedBuilder } = require('discord.js');
 const { adjustCharacterNumber } = require('../notion');
-const { applyMilestones } = require('../../../utils/milestones');
-const { formatCurrency } = require('../../../utils/currency');
-const { sendAdminLog } = require('../../../utils/adminLog');
+const { applyMilestones } = require('../milestones');
+const { formatCurrency } = require('../currency');
+const { sendAdminLog } = require('../adminLog');
 const { REP_MAX, resolveTarget } = require('./shared');
 
 async function runAdminGrant(interaction, config) {

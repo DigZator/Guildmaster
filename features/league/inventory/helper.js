@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getCharacterInventory } = require('../notion');
-const { formatCurrency } = require('../../../utils/currency');
-const { getCatalogueItemByName, defaultPriceFor } = require('../../../utils/5etoolsCatalogue');
+const { formatCurrency } = require('../currency');
+const { getCatalogueItemByName, defaultPriceFor } = require('../fiveEtools/catalogue');
 
 const RARITY_COLORS = {
     'Common':    0xaaaaaa,

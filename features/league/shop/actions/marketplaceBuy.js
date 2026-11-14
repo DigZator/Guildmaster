@@ -8,8 +8,8 @@ const {
     updatePageProperty,
     getPageById,
 } = require('../../notion');
-const { formatCurrency } = require('../../../../utils/currency');
-const { sendAdminLog } = require('../../../../utils/adminLog');
+const { formatCurrency } = require('../../currency');
+const { sendAdminLog } = require('../../adminLog');
 const { MARKETPLACE_TAX_RATE } = require('../constants');
 
 // ─── /league marketplace buy ──────────────────────────────────────────────────
