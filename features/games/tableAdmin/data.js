@@ -18,7 +18,7 @@
 
 const { fetchPage, fetchSeats, createSeat, createPlayerPage, assignPlayerToSeat, setSeatStatus, updateGameProperties } = require('../../../utils/notion');
 const { getCachedGames } = require('../../../utils/cache');
-const { getPlayers } = require('../../../utils/fillout');
+const { getPlayers } = require('../fillout');
 
 const TARGET_GAME_TITLE = 'Test';
 const CURRENT_COUNT_PROPERTY_NAME = 'Open Seats';

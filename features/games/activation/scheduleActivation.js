@@ -10,7 +10,7 @@ const {
     toggleAutoSchedule
 } = require('./activationQueue');
 const { runActivationJob } = require('./scheduler');
-const { toDiscordTimestamp, istMinutesOfDay, parseTimeToMinutes } = require('../../../utils/istTime');
+const { toDiscordTimestamp, istMinutesOfDay, parseTimeToMinutes } = require('../istTime');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
 
 function isValidTime(str) {

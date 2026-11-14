@@ -2,7 +2,7 @@ const { getCachedGames, invalidateCache } = require('../../../utils/cache');
 const { getQueue, claimRunForDate, releaseRunForDate, claimReminderForDate, completeQueueEntries, getLastRunDate } = require('./activationQueue');
 const { updateGameProperties } = require('../../../utils/notion');
 const { reportError } = require('../../../utils/errorReporter');
-const { istDateStr, istTimeOnDayMs, toDiscordTimestamp, crossedDailyTime } = require('../../../utils/istTime');
+const { istDateStr, istTimeOnDayMs, toDiscordTimestamp, crossedDailyTime } = require('../istTime');
 const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../../../data/channels');
 
 const QUEST_BOARD_ID = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
