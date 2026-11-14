@@ -113,7 +113,7 @@ function countOpenSeats(seats, gamePageId) {
 }
 
 async function fetchGameByUID(uid) {
-	const { getCachedGames } = require('./cache');
+	const { getCachedGames } = require('../shared/data-access/cache');
 	const games = await getCachedGames();
 	return games.find(g => g.uid === uid) || null;
 }

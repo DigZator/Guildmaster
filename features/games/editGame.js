@@ -1,5 +1,5 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { getCachedGames } = require('../../utils/cache');
+const { getCachedGames } = require('../../shared/data-access/cache');
 const gameFields = require('../../data/gameFields.json');
 const { fetchPage, stringifyPropertyValue } = require('../../utils/notion');
 const editGameSession = require('./editGameSession');

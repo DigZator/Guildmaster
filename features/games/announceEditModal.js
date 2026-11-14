@@ -1,7 +1,7 @@
 const { buildAnnouncementEmbed, buildWhatsApp, italizeBlurb, bulletizeNotes, getPreviewButtons, getPreviewWarnings, setSessionTimeout, isCurrentPreview, STALE_PREVIEW_MESSAGE } = require('./announcementHelper');
 const { sessions } = require('./sessionStore');
 const { syncAnnouncementFieldToNotion, UNSYNCED_FIELDS } = require('./announcementNotionSync');
-const { invalidateCache } = require('../../utils/cache');
+const { invalidateCache } = require('../../shared/data-access/cache');
 
 module.exports = async (interaction, client) => {
     const field = interaction.customId.slice('announceedit_modal_'.length + interaction.user.id.length + 1);

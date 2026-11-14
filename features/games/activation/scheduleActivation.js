@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { getCachedGames } = require('../../../utils/cache');
+const { getCachedGames } = require('../../../shared/data-access/cache');
 const {
     getQueue,
     addToQueue,

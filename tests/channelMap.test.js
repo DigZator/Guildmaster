@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { createJsonStore } = require('../utils/jsonStore');
+const { createJsonStore } = require('../shared/data-access/jsonStore');
 const channelMap = require('../utils/channelMap');
 const { MAPPINGS } = require('../config/mappings');
 
@@ -131,5 +131,5 @@ test('requiring utils/channelMap loads no module that reads channel ids at load 
         console.log(JSON.stringify(loaded.sort()));`;
     const run = spawnSync(process.execPath, ['-e', script], { cwd: root, encoding: 'utf8', env: { PATH: process.env.PATH } });
     assert.equal(run.status, 0, run.stderr);
-    assert.deepEqual(JSON.parse(run.stdout), ['config/mappings.js', 'utils/channelMap.js', 'utils/jsonStore.js']);
+    assert.deepEqual(JSON.parse(run.stdout), ['config/mappings.js', 'shared/data-access/jsonStore.js', 'utils/channelMap.js']);
 });

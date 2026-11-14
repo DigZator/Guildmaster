@@ -1,5 +1,5 @@
 const path = require('path');
-const { createJsonStore } = require('../../utils/jsonStore');
+const { createJsonStore } = require('../../shared/data-access/jsonStore');
 
 const DEFAULTS = {
     dashboardChannelId: null,

@@ -1,6 +1,6 @@
 const path = require('path');
 const { randomBytes } = require('crypto');
-const { createJsonStore } = require('../../utils/jsonStore');
+const { createJsonStore } = require('../../shared/data-access/jsonStore');
 
 const store = createJsonStore(path.join(__dirname, '../../data/pendingActions.json'), []);
 

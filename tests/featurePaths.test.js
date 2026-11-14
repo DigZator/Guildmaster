@@ -9,7 +9,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 
 test('messaging: the RSS and anonymous-message stores still use data/rssFeeds.json and data/anonMessages.json', () => {
-    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
     const real = require(jsonStorePath);
     const seen = [];
     require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
@@ -40,7 +40,7 @@ test('messaging: anonymous-message attachments are still swept from temp/ in the
 });
 
 test('direct line: the store still uses data/directLines.json', () => {
-    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
     const real = require(jsonStorePath);
     const seen = [];
     require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
@@ -54,7 +54,7 @@ test('direct line: the store still uses data/directLines.json', () => {
 });
 
 test('tickets: the store still uses data/tickets.json and data/ticketCounters.json', () => {
-    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
     const real = require(jsonStorePath);
     const seen = [];
     require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
@@ -87,7 +87,7 @@ test('channel file: jobs still live in data/channelFileJobs, and CHANNEL_FILE_JO
 });
 
 test('channel file: the protect list is still data/channelFileProtected.json, and CHANNEL_FILE_PROTECTED_PATH still overrides it', () => {
-    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
     const real = require(jsonStorePath);
     const seenWith = (env) => {
         const seen = [];
@@ -100,7 +100,7 @@ test('channel file: the protect list is still data/channelFileProtected.json, an
 });
 
 test('verification: the settings and the member store still use data/verificationConfig.json and data/verification.json', () => {
-    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
     const real = require(jsonStorePath);
     const seen = [];
     require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
@@ -116,7 +116,7 @@ test('verification: the settings and the member store still use data/verificatio
 });
 
 test('the long rest: the dashboard settings and the memorial index still use data/tlrDashboardConfig.json and data/memorialIndex.json', () => {
-    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
     const real = require(jsonStorePath);
     const seen = [];
     require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
@@ -132,7 +132,7 @@ test('the long rest: the dashboard settings and the memorial index still use dat
 });
 
 test('general: the keep-alive store still uses data/keepAliveThreads.json', () => {
-    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
     const real = require(jsonStorePath);
     const seen = [];
     require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };
@@ -147,7 +147,7 @@ test('general: the keep-alive store still uses data/keepAliveThreads.json', () =
 
 // Which json file a module's store is built on, by absolute location.
 function storePathsOf(modulePath) {
-    const jsonStorePath = require.resolve('../utils/jsonStore');
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
     const real = require(jsonStorePath);
     const seen = [];
     require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return real.createJsonStore(filePath, def); } };

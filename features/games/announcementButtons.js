@@ -1,6 +1,6 @@
 const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = require('discord.js');
 const { getRoleMention, sendChunkedText, clearSessionTimeout, restoreSession, isCurrentPreview, SESSION_GONE_MESSAGE, STALE_PREVIEW_MESSAGE } = require('./announcementHelper');
-const { invalidateCache } = require('../../utils/cache');
+const { invalidateCache } = require('../../shared/data-access/cache');
 const { updateGameProperties } = require('../../utils/notion');
 const { addToQueue, getQueue } = require('./activation/activationQueue');
 const { hasCustomRegistrationLink } = require('../../utils/registrationDefaults');

@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const { updateGameProperties } = require('../../utils/notion');
-const { invalidateCache } = require('../../utils/cache');
+const { invalidateCache } = require('../../shared/data-access/cache');
 const editGameSession = require('./editGameSession');
 const { formatValue } = require('./editGameFormat');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');

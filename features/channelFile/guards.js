@@ -1,6 +1,6 @@
 const path = require('path');
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const { createJsonStore } = require('../../utils/jsonStore');
+const { createJsonStore } = require('../../shared/data-access/jsonStore');
 const channelIds = require('../../data/channels');
 const channelFileJobs = require('./jobs');
 const { freeDiskBytes, MIN_FREE_DISK_BYTES } = require('../../shared/transcript');

@@ -2,7 +2,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { EmbedBuilder, ChannelType, PermissionFlagsBits } = require('discord.js');
 const { MAPPINGS } = require('../config/mappings');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../shared/data-access/jsonStore');
 
 const PROBLEM_STATUSES = new Set(['unset', 'not_found', 'wrong_type', 'wrong_guild', 'no_access', 'error']);
 const SKIPPED_STATUSES = new Set(['unchecked', 'skipped']);

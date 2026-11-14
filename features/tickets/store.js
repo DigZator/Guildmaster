@@ -1,5 +1,5 @@
 const path = require('path');
-const { createJsonStore } = require('../../utils/jsonStore');
+const { createJsonStore } = require('../../shared/data-access/jsonStore');
 
 const ticketsStore  = createJsonStore(path.join(__dirname, '../../data/tickets.json'), []);
 const countersStore = createJsonStore(path.join(__dirname, '../../data/ticketCounters.json'), {});

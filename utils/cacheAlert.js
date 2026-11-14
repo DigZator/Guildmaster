@@ -1,4 +1,4 @@
-const { onCacheRefreshFailure } = require('./cache');
+const { onCacheRefreshFailure } = require('../shared/data-access/cache');
 const { reportError } = require('./errorReporter');
 
 function init(client) {

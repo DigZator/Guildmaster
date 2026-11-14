@@ -1,4 +1,4 @@
-const { getCachedGames } = require('../../utils/cache');
+const { getCachedGames } = require('../../shared/data-access/cache');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { buildEmbed, applyFilters, canSeeUnreleased } = require('./listGamesHelper');
 

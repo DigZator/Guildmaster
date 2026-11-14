@@ -1,4 +1,4 @@
-const { onCacheRefresh } = require('./cache');
+const { onCacheRefresh } = require('../shared/data-access/cache');
 const { isFlagged, addFlaggedUid, getQueue } = require('../features/games/activation/activationQueue');
 const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../data/channels');
 

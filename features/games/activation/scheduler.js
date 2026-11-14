@@ -1,4 +1,4 @@
-const { getCachedGames, invalidateCache } = require('../../../utils/cache');
+const { getCachedGames, invalidateCache } = require('../../../shared/data-access/cache');
 const { getQueue, claimRunForDate, releaseRunForDate, claimReminderForDate, completeQueueEntries, getLastRunDate } = require('./activationQueue');
 const { updateGameProperties } = require('../../../utils/notion');
 const { reportError } = require('../../../utils/errorReporter');

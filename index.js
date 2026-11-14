@@ -41,7 +41,7 @@ require('./utils/mappingCheck').init(client);
 
 const token = process.env.DISCORD_TOKEN;
 
-const { refreshCache } = require('./utils/cache');
+const { refreshCache } = require('./shared/data-access/cache');
 client.once('clientReady', () => refreshCache());
 
 client.login(token);

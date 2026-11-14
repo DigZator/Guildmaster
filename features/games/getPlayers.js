@@ -1,4 +1,4 @@
-const { getCachedGames } = require('../../utils/cache');
+const { getCachedGames } = require('../../shared/data-access/cache');
 const { formatPlayerList } = require('./fillout');
 
 module.exports = async (interaction) => {

@@ -8,7 +8,7 @@
 //     never read from or written to this file, even if someone edits it by hand.
 const path = require('path');
 const { MAPPINGS } = require('../config/mappings');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../shared/data-access/jsonStore');
 
 const SNOWFLAKE = /^\d{17,20}$/;
 const QUIET = /** @type {any} */ ({ log() {}, warn() {} });

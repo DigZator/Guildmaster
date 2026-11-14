@@ -11,7 +11,7 @@
 // scope widened deliberately — it will not pick up other games on its own,
 // since every check here goes through getTestGame().
 
-const { onCacheRefresh } = require('../../../utils/cache');
+const { onCacheRefresh } = require('../../../shared/data-access/cache');
 const { getTestGame, fetchTestGameCounts } = require('./data');
 const { updateGameProperties } = require('../../../utils/notion');
 const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../../../data/channels');

@@ -1,7 +1,7 @@
 const { buildWhatsApp, buildAnnouncementEmbed, sendChunkedText, setSessionTimeout, clearSessionTimeout, getPreviewButtons, getPreviewWarnings } = require('./announcementHelper');
 const { sessions } = require('./sessionStore');
 const { syncAnnouncementFieldToNotion } = require('./announcementNotionSync');
-const { invalidateCache } = require('../../utils/cache');
+const { invalidateCache } = require('../../shared/data-access/cache');
 
 async function sendChunkedWhatsApp(channel, whatsapp, embed, prefix = '') {
     return sendChunkedText(channel.send.bind(channel), whatsapp, {

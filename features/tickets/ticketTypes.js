@@ -15,7 +15,7 @@
 //   categoryGroup - which ticket category this type's channels are created under ('normal' | 'hr').
 
 const path = require('path');
-const { createJsonStore } = require('../../utils/jsonStore');
+const { createJsonStore } = require('../../shared/data-access/jsonStore');
 
 const DEFAULT_TICKET_TYPES = [
     {

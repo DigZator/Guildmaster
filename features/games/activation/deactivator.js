@@ -1,4 +1,4 @@
-const { onCacheRefresh } = require('../../../utils/cache');
+const { onCacheRefresh } = require('../../../shared/data-access/cache');
 const { updateGameProperties } = require('../../../utils/notion');
 const { GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../../../data/channels');
 

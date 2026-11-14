@@ -1,4 +1,4 @@
-const { getCachedGames } = require('../../../utils/cache');
+const { getCachedGames } = require('../../../shared/data-access/cache');
 const { getQueue } = require('./activationQueue');
 
 // Autocomplete of /schedule_activation: games not yet activated for `add`, the queued games for `remove`.

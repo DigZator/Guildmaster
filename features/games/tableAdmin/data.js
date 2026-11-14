@@ -17,7 +17,7 @@
 // exists on the Seats DB.
 
 const { fetchPage, fetchSeats, createSeat, createPlayerPage, assignPlayerToSeat, setSeatStatus, updateGameProperties } = require('../../../utils/notion');
-const { getCachedGames } = require('../../../utils/cache');
+const { getCachedGames } = require('../../../shared/data-access/cache');
 const { getPlayers } = require('../fillout');
 
 const TARGET_GAME_TITLE = 'Test';

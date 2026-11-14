@@ -1,5 +1,5 @@
 const path = require('path');
-const { createJsonStore } = require('../../../utils/jsonStore');
+const { createJsonStore } = require('../../../shared/data-access/jsonStore');
 
 const store = createJsonStore(path.join(__dirname, '../../../data/anonMessages.json'), []);
 

@@ -1,4 +1,4 @@
-const { onCacheRefresh, invalidateCache } = require('./cache');
+const { onCacheRefresh, invalidateCache } = require('../shared/data-access/cache');
 const { updateGameProperties } = require('./notion');
 const { DEFAULT_REGISTRATION_LINE, DEFAULT_REGISTRATION_LINK, LINKED_REGISTRATION_LINE } = require('../data/registrationDefaults');
 

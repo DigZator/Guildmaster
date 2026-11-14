@@ -1,5 +1,5 @@
 const path = require('path');
-const { createJsonStore } = require('./jsonStore');
+const { createJsonStore } = require('../shared/data-access/jsonStore');
 const { BOT_LOG_CHANNEL_ID } = require('../data/channels');
 const keepAliveStore = require('../features/general/keepAlive/store');
 const { runKeepAliveRefresh, realLastActivity } = require('../features/general/keepAlive/job');

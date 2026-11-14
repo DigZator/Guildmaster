@@ -209,7 +209,7 @@ Initialized in `index.js` at boot, these run independently of any single interac
 
 | Module | Responsibility |
 |---|---|
-| `utils/cacheWatcher.js` | Watches/refreshes the in-memory games cache (`utils/cache.js`) |
+| `utils/cacheWatcher.js` | Watches/refreshes the in-memory games cache (`shared/data-access/cache.js`) |
 | `utils/cacheAlert.js` | Alerts on cache staleness/failures |
 | `utils/registrationDefaults.js` | Loads default registration-link settings |
 | `features/games/activation/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
@@ -227,7 +227,7 @@ All scheduling that involves wall-clock time (`scheduler.js`) is computed in **A
 ## 7. Data Layer
 
 ### 7.1 Local JSON store
-Persistent runtime state lives under `/data` as JSON files, generally read/written through `utils/jsonStore.js` (a small file-backed key/value helper) or dedicated store modules:
+Persistent runtime state lives under `/data` as JSON files, generally read/written through `shared/data-access/jsonStore.js` (a small file-backed key/value helper) or dedicated store modules:
 
 | File / Store module | Contents |
 |---|---|
@@ -277,7 +277,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - Opening a ticket creates a private channel named from the type's slug/tag plus a counter (e.g. `#hr-000-janedoe`); counters are per-type and resettable via `/ticket reset_counter`.
 - On close, `shared/transcript/` generates and posts a transcript thread to the configured log channel. This module is the shared transcript engine: direct lines and `/channel_file` use it too. Attachments are reposted without a file-count cap, held in RAM per batch (no disk writes) and only staged through `temp/` when a single batch exceeds 32 MB.
 
-### 8.2 Game Announcements & Activation (`announce_game`, `edit_game`, `schedule_activation`, `features/games/activation/scheduler.js`, `utils/cache.js`)
+### 8.2 Game Announcements & Activation (`announce_game`, `edit_game`, `schedule_activation`, `features/games/activation/scheduler.js`, `shared/data-access/cache.js`)
 - Games are cached in memory (`cache.js`, refreshed on login and by `cacheWatcher.js`) for fast autocomplete across many commands (`get_players`, `game_info`, `edit_game`, `announce_game`, `schedule_activation`).
 - The **activation queue** lets admins pre-queue games for a specific activation pass; `scheduler.js` sends a daily IST reminder and performs activation automatically if `toggle-auto` is enabled.
 - `DEV_MODE=true` redirects scheduler/quest-board output to `BOT_DEBUGGING_CHANNEL_ID`.

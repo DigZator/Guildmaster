@@ -5,7 +5,7 @@ const {
     getPageById,
     withPageLock,
 } = require('../notion');
-const { getCachedGames } = require('../../../utils/cache');
+const { getCachedGames } = require('../../../shared/data-access/cache');
 const { addAction } = require('../pendingActions');
 const { sendAdminLog } = require('../adminLog');
 const questDrafts = require('./drafts');
