@@ -1,5 +1,6 @@
 const { route, routes } = require('../core/manifest');
-const { league, characterLogAutocomplete, characterOwnAutocomplete } = require('../commands/league');
+const { league } = require('../features/league/command');
+const { characterLogAutocomplete, characterOwnAutocomplete } = require('../features/league/character/autocomplete');
 const { backgroundAutocomplete } = require('../features/league/starterItems/command');
 const { questLinkAutocomplete, dashboardQuestAutocomplete } = require('../features/league/quests/command');
 const { catalogueAutocomplete } = require('../utils/catalogueAutoComplete');

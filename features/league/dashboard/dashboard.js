@@ -15,7 +15,7 @@ const {
     updateCharacterArt,
 } = require('../notion');
 const { sendInventory } = require('../inventory/button');
-const { showBalance } = require('../../../commands/league');
+const { showBalance } = require('../gold');
 const { handleDowntimeList } = require('../downtime/command');
 const { LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_FORUM_ID } = require('../../../data/channels');
 

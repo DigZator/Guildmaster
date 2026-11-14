@@ -38,7 +38,7 @@ function loadRouter(calls) {
         }
         require.cache[file] = { id: file, filename: file, loaded: true, exports };
     }
-    const routerFile = require.resolve('../commands/league/command');
+    const routerFile = require.resolve('../features/league/command');
     delete require.cache[routerFile];
     const { league } = require(routerFile);
     return { league, restore() { delete require.cache[routerFile]; for (const [f, old] of saved) { if (old) require.cache[f] = old; else delete require.cache[f]; } } };

@@ -1,16 +1,16 @@
-const { getActiveCharacter } = require('../../features/league/notion');
-const { sendInventory } = require('../../features/league/inventory/button');
-const { sendItemDetail } = require('../../features/league/inventory/helper');
-const { leagueShop, leagueMarketplace } = require('../../features/league/shop');
-const { listQuests } = require('../../features/league/quests/command');
-const { leagueDowntime } = require('../../features/league/downtime/command');
-const { leagueStarterItems } = require('../../features/league/starterItems/command');
-const { leagueVoid } = require('../../features/league/void');
-const { handleCreate, showProfile, setCharacterArt, editCharacter } = require('../../features/league/character/profile');
-const { transferGold, showBalance } = require('../../features/league/gold');
-const { showLeaderboard } = require('../../features/league/leaderboard/command');
-const { showQuestLog } = require('../../features/league/quests/log');
-const { changeCharacterStatus } = require('../../features/league/character/status');
+const { getActiveCharacter } = require('./notion');
+const { sendInventory } = require('./inventory/button');
+const { sendItemDetail } = require('./inventory/helper');
+const { leagueShop, leagueMarketplace } = require('./shop');
+const { listQuests } = require('./quests/command');
+const { leagueDowntime } = require('./downtime/command');
+const { leagueStarterItems } = require('./starterItems/command');
+const { leagueVoid } = require('./void');
+const { handleCreate, showProfile, setCharacterArt, editCharacter } = require('./character/profile');
+const { transferGold, showBalance } = require('./gold');
+const { showLeaderboard } = require('./leaderboard/command');
+const { showQuestLog } = require('./quests/log');
+const { changeCharacterStatus } = require('./character/status');
 
 async function league(interaction, client) {
 	const group = interaction.options.getSubcommandGroup(false);
@@ -59,7 +59,7 @@ async function league(interaction, client) {
 
 		case 'dashboard': {
 			await interaction.deferReply({ flags: 64 });
-			const { buildDashboardEmbed, buildDashboardRows } = require('../../features/league/dashboard/dashboard');
+			const { buildDashboardEmbed, buildDashboardRows } = require('./dashboard/dashboard');
 			const character = await getActiveCharacter(interaction.user.id).catch(() => null);
 			return interaction.editReply({ embeds: [buildDashboardEmbed(character)], components: buildDashboardRows(!!character) });
 		}

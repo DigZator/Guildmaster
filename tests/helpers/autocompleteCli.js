@@ -39,8 +39,8 @@ recordHandler(req('features/league/downtime/autocomplete'), 'downtimeActivityAut
 recordHandler(req('features/league/downtime/autocomplete'), 'downtimeTierAutocomplete');
 recordHandler(req('utils/spellAutoComplete'), 'spellAutocomplete');
 recordHandler(req('utils/magicItemAutoComplete'), 'magicItemAutocomplete');
-recordHandler(req('commands/league'), 'characterLogAutocomplete');
-recordHandler(req('commands/league'), 'characterOwnAutocomplete');
+recordHandler(req('features/league/character/autocomplete'), 'characterLogAutocomplete');
+recordHandler(req('features/league/character/autocomplete'), 'characterOwnAutocomplete');
 recordHandler(req('utils/catalogueAutoComplete'), 'catalogueAutocomplete');
 recordChoices(req('features/league/inventory/helper'), 'getItemAutocompleteChoices');
 // data the inline branches read, with distinctive values

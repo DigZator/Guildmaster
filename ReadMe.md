@@ -32,8 +32,6 @@ The bot maintains its own local JSON data store (`/data`) for tickets, RSS feeds
 ├── helpData.js                Content shown by /help
 ├── art-thread.js              Character-art archive thread logic
 │
-├── commands/                  One file per top-level slash command
-│   └── league/                The /league command router (moves with the league definitions)
 ├── interactions/               Central dispatch: commands, buttons, modals, selects
 ├── buttons/                    Handlers for individual button customIds
 ├── modals/                     Handlers for individual modal submissions
@@ -284,7 +282,7 @@ A second Notion client area (`DATABASE_ID`, `SEATBASE_ID`, `DATASOURCE_ID`, `SEA
 - The **activation queue** lets admins pre-queue games for a specific activation pass; `scheduler.js` sends a daily IST reminder and performs activation automatically if `toggle-auto` is enabled.
 - `DEV_MODE=true` redirects scheduler/quest-board output to `BOT_DEBUGGING_CHANNEL_ID`.
 
-### 8.3 League Economy (`commands/league.js` + `features/league/grants/`, `features/league/shop/`, `features/league/downtime/command.js`, `features/league/quests/command.js`, `features/league/void.js`)
+### 8.3 League Economy (`features/league/command.js` + `features/league/grants/`, `features/league/shop/`, `features/league/downtime/command.js`, `features/league/quests/command.js`, `features/league/void.js`)
 - **Approval workflow:** DM-initiated rep/gold/milestone/item grants are staged in `data/pendingActions.json` and require League Admin approval (`/leagueadmin approve|reject|pending`) before they post to Notion — direct Admin grants skip this queue.
 - **Shop vs. Marketplace:** the Shop is stocked/administered by League Admins from the catalogue (with auto-restock on a per-item cadence); the Marketplace is player-to-player, with a configurable tax (`MARKETPLACE_TAX_RATE` in `commands/leagueShop.js`) deducted from seller proceeds.
 - **Catalogue:** `/leagueadmin catalogue sync` pulls current D&D 2024 item data from **5etools-src** (`utils/5etoolsCatalogue.js`), filtered to the sourcebooks allow-listed in `config/dndSources.js`; `sync-spells` does the same for spells (`utils/5etoolsSpells.js`) and refreshes the list used by the "Scribe a Spell Scroll" downtime activity. Adding a new sourcebook is a one-line change to `config/dndSources.js` — see that file's comment for the current allow-list.
