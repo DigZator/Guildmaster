@@ -866,7 +866,7 @@
       "channelFile:cancel",
       "channelFile:confirm:${…}"
     ],
-    "features/channelFile/review.js": [
+    "features/channelFile/reviewMessages.js": [
       "confirmName",
       "dynamic: customId(job.id, 'abort')",
       "dynamic: customId(job.id, 'errors')",

@@ -1,0 +1,279 @@
+{
+    "clean2": {
+        "review": {
+            "embeds": [
+                {
+                    "title": "\ud83d\uddc4\ufe0f Channel filing \u2014 ready for review",
+                    "color": 5763719,
+                    "description": "**Channel:** #old-channel\n**Filed copy:** https://discord.com/channels/g1/t1\n**Filed by:** <@u1>\n**Contents:** 12 messages, 3 files reposted, 1 public thread(s) inlined\n**Private threads:** 2 filed separately (details in the completion note)\n\n\u2705 Filed copy read-back: 12 posts checked in 2 batch check(s) while filing, 0 problem(s)\n\u2705 Fresh re-scan of the source: 0 deleted since filing, 0 new message(s) and 0 new thread(s) not filed\n\n\u2705 **No snags.**\n\nThe channel stays as it is until someone presses **Proceed** or **Abort**. Nothing is deleted automatically, and these buttons never expire.",
+                    "footer": {
+                        "text": "Job abcdef12"
+                    },
+                    "timestamp": "2023-11-14T22:13:20.000Z"
+                }
+            ],
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:errors",
+                            "label": "Display errors",
+                            "style": 2
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:proceed",
+                            "label": "Proceed",
+                            "style": 4
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:abort",
+                            "label": "Abort",
+                            "style": 2
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:rerun",
+                            "label": "Re-run checks",
+                            "style": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        "modal": {
+            "custom_id": "channelFile:abcdef1234567890:proceedModal",
+            "title": "Delete the original channel",
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 4,
+                            "custom_id": "confirmName",
+                            "label": "Type the channel name to confirm",
+                            "placeholder": "old-channel",
+                            "style": 1,
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        "proceedId": "channelFile:abcdef1234567890:proceed"
+    },
+    "clean3": {
+        "review": {
+            "embeds": [
+                {
+                    "title": "\ud83d\uddc4\ufe0f Channel filing \u2014 ready for review",
+                    "color": 5763719,
+                    "description": "**Channel:** #old-channel\n**Filed copy:** https://discord.com/channels/g1/t1\n**Filed by:** <@u1>\n**Contents:** 12 messages, 3 files reposted, 1 public thread(s) inlined\n**Private threads:** 2 filed separately (details in the completion note)\n\n\u2705 Inventory vs. transcript: 12 messages collected, 0 not posted\n\u26a0\ufe0f Destination read-back: 12 posts checked, 1 problem(s)\n\u2705 Fresh re-scan: 1 deleted since filing, 2 new message(s) and 0 new thread(s) not filed\n\n\u2705 **No snags.**\n\nThe channel stays as it is until someone presses **Proceed** or **Abort**. Nothing is deleted automatically, and these buttons never expire.",
+                    "footer": {
+                        "text": "Job abcdef12"
+                    },
+                    "timestamp": "2023-11-14T22:13:20.000Z"
+                }
+            ],
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:errors",
+                            "label": "Display errors",
+                            "style": 2
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:proceed",
+                            "label": "Proceed",
+                            "style": 4
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:abort",
+                            "label": "Abort",
+                            "style": 2
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:rerun",
+                            "label": "Re-run checks",
+                            "style": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        "modal": {
+            "custom_id": "channelFile:abcdef1234567890:proceedModal",
+            "title": "Delete the original channel",
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 4,
+                            "custom_id": "confirmName",
+                            "label": "Type the channel name to confirm",
+                            "placeholder": "old-channel",
+                            "style": 1,
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        "proceedId": "channelFile:abcdef1234567890:proceed"
+    },
+    "snags": {
+        "review": {
+            "embeds": [
+                {
+                    "title": "\ud83d\uddc4\ufe0f Channel filing \u2014 ready for review",
+                    "color": 16705372,
+                    "description": "**Channel:** #old-channel\n**Filed copy:** https://discord.com/channels/g1/t1\n**Filed by:** <@u1>\n**Contents:** 12 messages, 3 files reposted, 1 public thread(s) inlined\n**Private threads:** 2 filed separately (details in the completion note)\n\n\u26a0\ufe0f Filed copy read-back: not run\n\u26a0\ufe0f Fresh re-scan of the source: not run\n\n\ud83e\uddca\u26a0\ufe0f **The channel was not fully frozen.** Anything posted while filing ran is not in the copy and will be lost if you proceed \u2014 see **Display errors**.\n\u26a0\ufe0f **5 snag(s)** \u2014 press **Display errors** to see them.\n\ud83d\uddd1\ufe0f **2 file(s) (3.0 MB) will be permanently lost** if you proceed.\n\nThe channel stays as it is until someone presses **Proceed** or **Abort**. Nothing is deleted automatically, and these buttons never expire.",
+                    "footer": {
+                        "text": "Job abcdef12"
+                    },
+                    "timestamp": "2023-11-14T22:13:20.000Z"
+                }
+            ],
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:errors",
+                            "label": "Display errors",
+                            "style": 2
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:proceed",
+                            "label": "Proceed",
+                            "style": 4
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:abort",
+                            "label": "Abort",
+                            "style": 2
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:abcdef1234567890:rerun",
+                            "label": "Re-run checks",
+                            "style": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        "modal": {
+            "custom_id": "channelFile:abcdef1234567890:proceedModal",
+            "title": "Delete channel \u2014 2 file(s) lost",
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 4,
+                            "custom_id": "confirmName",
+                            "label": "Type the channel name to confirm",
+                            "placeholder": "old-channel",
+                            "style": 1,
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        "proceedId": "channelFile:abcdef1234567890:proceed"
+    },
+    "empty": {
+        "review": {
+            "embeds": [
+                {
+                    "title": "\ud83d\uddc4\ufe0f Channel filing \u2014 ready for review",
+                    "color": 5763719,
+                    "description": "**Channel:** #n\n**Filed copy:** https://discord.com/channels/g/t\n**Filed by:** <@undefined>\n**Contents:** 0 messages, 0 files reposted, 0 public thread(s) inlined\n\n\u26a0\ufe0f Filed copy read-back: not run\n\u26a0\ufe0f Fresh re-scan of the source: not run\n\n\u2705 **No snags.**\n\nThe channel stays as it is until someone presses **Proceed** or **Abort**. Nothing is deleted automatically, and these buttons never expire.",
+                    "footer": {
+                        "text": "Job ffff0000"
+                    },
+                    "timestamp": "2023-11-14T22:13:20.000Z"
+                }
+            ],
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:ffff0000aaaa1111:errors",
+                            "label": "Display errors",
+                            "style": 2
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:ffff0000aaaa1111:proceed",
+                            "label": "Proceed",
+                            "style": 4
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:ffff0000aaaa1111:abort",
+                            "label": "Abort",
+                            "style": 2
+                        },
+                        {
+                            "type": 2,
+                            "custom_id": "channelFile:ffff0000aaaa1111:rerun",
+                            "label": "Re-run checks",
+                            "style": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        "modal": {
+            "custom_id": "channelFile:ffff0000aaaa1111:proceedModal",
+            "title": "Delete the original channel",
+            "components": [
+                {
+                    "type": 1,
+                    "components": [
+                        {
+                            "type": 4,
+                            "custom_id": "confirmName",
+                            "label": "Type the channel name to confirm",
+                            "placeholder": "n",
+                            "style": 1,
+                            "required": true
+                        }
+                    ]
+                }
+            ]
+        },
+        "proceedId": "channelFile:ffff0000aaaa1111:proceed"
+    },
+    "exports": [
+        "abort",
+        "buildProceedModal",
+        "buildReviewMessage",
+        "customId",
+        "init",
+        "proceed",
+        "recoverJobs",
+        "rerun",
+        "runJob",
+        "showErrors",
+        "startJob"
+    ]
+}
