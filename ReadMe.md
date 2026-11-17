@@ -93,7 +93,7 @@ All raw Discord interaction events are centralized in `interactions/`, each file
 - **`features/league/character/createSubmit.js`** — handles the character-creation modal specifically.
 - **`features/league/quests/dashboardId.js` / `dashboardRender.js`** — render and route the interactive quest-reward dashboard used by DMs/admins.
 - **`features/tickets/ticketId.js`** — routes ticket-specific button/modal interactions.
-- **`threadAlertLog.js`** — logs thread-related alerts to a monitoring channel.
+- **`features/general/threadAlertLog.js`** — logs thread-related alerts to a monitoring channel.
 
 Multi-step, message-driven (not just component-driven) flows live in their feature folders and are also registered directly on `client` in `index.js`:
 - **`features/games/announcementFlow.js`** — manual game-announcement wizard.
@@ -209,14 +209,14 @@ Initialized in `index.js` at boot, these run independently of any single interac
 
 | Module | Responsibility |
 |---|---|
-| `utils/cacheWatcher.js` | Watches/refreshes the in-memory games cache (`shared/data-access/cache.js`) |
-| `utils/cacheAlert.js` | Alerts on cache staleness/failures |
-| `utils/registrationDefaults.js` | Loads default registration-link settings |
+| `features/games/cacheWatcher.js` | Watches/refreshes the in-memory games cache (`shared/data-access/cache.js`) |
+| `shared/data-access/cacheAlert.js` | Alerts on cache staleness/failures |
+| `features/games/registrationDefaults.js` | Loads default registration-link settings |
 | `features/games/activation/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
 | `features/league/shop/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`features/league/shop/floor.js`, `features/league/fiveEtools/catalogue.js`); also runs once ~30s after startup |
-| `utils/threadActivityReport.js` | Periodic thread-activity reporting; also triggers the Keep Alive refresh every 3 days |
+| `features/general/threadActivityReport.js` | Periodic thread-activity reporting; also triggers the Keep Alive refresh every 3 days |
 | `features/general/keepAlive/job.js` | Keep Alive refresh job, permission checks, safety-net listeners |
-| `utils/trapChannel.js` | Monitors a designated "trap" channel (likely anti-spam/honeypot) |
+| `features/general/trapChannel.js` | Monitors a designated "trap" channel (likely anti-spam/honeypot) |
 | `features/games/activation/deactivator.js` | Handles scheduled deactivation logic |
 | `features/tickets/dashboardWatcher.js` | Keeps the ticket dashboard message in sync |
 

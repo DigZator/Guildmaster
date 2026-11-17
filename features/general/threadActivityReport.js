@@ -1,15 +1,15 @@
 const path = require('path');
-const { createJsonStore } = require('../shared/data-access/jsonStore');
-const { BOT_LOG_CHANNEL_ID } = require('../data/channels');
-const keepAliveStore = require('../features/general/keepAlive/store');
-const { runKeepAliveRefresh, realLastActivity } = require('../features/general/keepAlive/job');
+const { createJsonStore } = require('../../shared/data-access/jsonStore');
+const { BOT_LOG_CHANNEL_ID } = require('../../data/channels');
+const keepAliveStore = require('./keepAlive/store');
+const { runKeepAliveRefresh, realLastActivity } = require('./keepAlive/job');
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 const DISCORD_EPOCH = 1420070400000n;
 
-const store = createJsonStore(path.join(__dirname, '../data/threadReport.json'), { nextReportDue: null });
+const store = createJsonStore(path.join(__dirname, '../../data/threadReport.json'), { nextReportDue: null });
 
 function timestampFromSnowflake(id) {
     return Number((BigInt(id) >> 22n) + DISCORD_EPOCH);

@@ -43,6 +43,7 @@
     "features/games/tableAdmin/data.js | TS2362 | The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 2,
     "features/games/tableAdmin/data.js | TS2363 | The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 2,
     "features/games/tableAdmin/seatSelect.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
+    "features/general/threadActivityReport.js | TS2353 | Object literal may only specify known properties, and 'nextReportDue' does not exist in type 'any[]'.": 1,
     "features/league/character/createModal.js | TS2345 | Argument of type '[ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<AnyComponentBuilder>, ActionRowBuilder<...>, ActionRowBuilder<...>]' is not assignable to parameter of type 'RestOrArray<APIActionRowComponent<APITextInputComponent> | APILabelComponent | APITextDisplayComponent | ... 4 more ... | TextInputBuilder>'.": 1,
     "features/league/character/statusButton.js | TS2339 | Property 'properties' does not exist on type 'PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 1,
     "features/league/dashboard/dashboard.js | TS2345 | Argument of type 'Date' is not assignable to parameter of type 'number'.": 1,
@@ -109,6 +110,7 @@
     "shared/archive/config.js | TS2353 | Object literal may only specify known properties, and 'categoryId' does not exist in type 'any[]'.": 1,
     "shared/data-access/cache.js | TS2362 | The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 1,
     "shared/data-access/cache.js | TS2363 | The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.": 1,
+    "shared/data-access/cacheAlert.js | TS2353 | Object literal may only specify known properties, and 'message' does not exist in type '{ context?: {}; scope?: string; }'.": 1,
     "shared/ticketConfig/guildConfig.js | TS2353 | Object literal may only specify known properties, and 'categoryId' does not exist in type 'any[]'.": 1,
     "shared/transcript/build.js | TS2339 | Property 'closeFeedback' does not exist on type '{ preserveAttachments?: boolean; }'.": 1,
     "shared/transcript/build.js | TS2339 | Property 'closeReason' does not exist on type '{ preserveAttachments?: boolean; }'.": 1,
@@ -129,10 +131,8 @@
     "shared/transcript/staging.js | TS2741 | Property 'refreshUrl' is missing in type '{}' but required in type '{ attempts?: number; refreshUrl: any; retryBaseMs?: number; }'.": 2,
     "shared/utilities/errorReporter.js | TS2339 | Property 'error' does not exist on type '{ context?: {}; scope?: string; }'.": 1,
     "shared/utilities/errorReporter.js | TS2339 | Property 'message' does not exist on type '{ context?: {}; scope?: string; }'.": 1,
-    "utils/cacheAlert.js | TS2353 | Object literal may only specify known properties, and 'message' does not exist in type '{ context?: {}; scope?: string; }'.": 1,
     "utils/mappingCheck.js | TS2353 | Object literal may only specify known properties, and 'signature' does not exist in type 'any[]'.": 1,
     "utils/notion.js | TS2339 | Property 'created_time' does not exist on type 'DataSourceObjectResponse | PageObjectResponse | PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 2,
-    "utils/notion.js | TS2339 | Property 'properties' does not exist on type 'DataSourceObjectResponse | PageObjectResponse | PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 5,
-    "utils/threadActivityReport.js | TS2353 | Object literal may only specify known properties, and 'nextReportDue' does not exist in type 'any[]'.": 1
+    "utils/notion.js | TS2339 | Property 'properties' does not exist on type 'DataSourceObjectResponse | PageObjectResponse | PartialDataSourceObjectResponse | PartialPageObjectResponse'.": 5
   }
 }

@@ -294,3 +294,7 @@ test('league: the item catalogue, the spell list and the level-up quotes still l
     assert.deepEqual(pathsReadBy('../features/league/fiveEtools/spells', (m) => m.getSpellsMeta()), [path.join(root, 'data', 'spells.json')]);
     assert.deepEqual(pathsReadBy('../features/league/milestones', (m) => m.loadQuotes()), [path.join(root, 'data', 'downtimeQuotes.json')]);
 });
+
+test('general: the thread activity report still keeps its schedule in data/threadReport.json', () => {
+    assert.deepEqual(storePathsOf('../features/general/threadActivityReport'), [path.join(root, 'data', 'threadReport.json')]);
+});

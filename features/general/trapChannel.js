@@ -1,5 +1,5 @@
 const { EmbedBuilder, AttachmentBuilder, PermissionsBitField } = require('discord.js');
-const { TRAP_CHANNEL_ID, BOT_LOG_CHANNEL_ID, INCIDENT_REPORT_CHANNEL_ID } = require('../data/channels');
+const { TRAP_CHANNEL_ID, BOT_LOG_CHANNEL_ID, INCIDENT_REPORT_CHANNEL_ID } = require('../../data/channels');
 
 const LOOKBACK_MS = 3 * 60 * 1000; // 3 minutes
 const FETCH_LIMIT = 20; // Discord's max per channel.messages.fetch() call

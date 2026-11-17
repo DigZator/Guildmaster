@@ -1,5 +1,5 @@
 const { ChannelType } = require('discord.js');
-const { BOT_LOG_CHANNEL_ID } = require('../data/channels');
+const { BOT_LOG_CHANNEL_ID } = require('../../data/channels');
 
 const KEEP_ALIVE_NOTICE =
     '📌 Want this thread to stay open? Use `/keep_alive` to stop it from being archived due to inactivity. ' +

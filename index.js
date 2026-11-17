@@ -17,20 +17,20 @@ process.on('error', (error) => {
 
 require('./config/roleVars').report();
 
-require('./interactions/threadAlertLog')(client);
+require('./features/general/threadAlertLog')(client);
 require('./features/games/announcementFlow')(client);
 require('./features/games/editGameArtFlow')(client);
 require('./features/theLongRest/submissionFlow')(client);
 require('./core/boot')(client);
 require('./features/messaging/rss/flow')(client);
-require('./utils/cacheWatcher').init(client);
-require('./utils/cacheAlert').init(client);
-require('./utils/registrationDefaults').init(client);
+require('./features/games/cacheWatcher').init(client);
+require('./shared/data-access/cacheAlert').init(client);
+require('./features/games/registrationDefaults').init(client);
 require('./features/games/activation/scheduler').init(client);
 require('./features/league/shop/restockScheduler').init(client);
-require('./utils/threadActivityReport').init(client);
+require('./features/general/threadActivityReport').init(client);
 require('./features/general/keepAlive/job').initListeners(client);
-require('./utils/trapChannel')(client);
+require('./features/general/trapChannel')(client);
 require('./features/games/activation/deactivator').init(client);
 require('./features/tickets/dashboardWatcher').init(client);
 require('./features/tickets/mentions').init(client);
