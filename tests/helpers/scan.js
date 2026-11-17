@@ -80,15 +80,12 @@ function scanCustomIdProducers() {
 function scanPermissionChecks() {
     const out = {};
     for (const file of sourceFiles()) {
-        if (file === 'utils/isAdminChannel.js') continue;
         const src = read(file);
         const rec = {};
         const admin = {};
-        for (const m of src.matchAll(/\b(isAdminChannel|isAdmin)\(\s*[^,()]+(?:,\s*'([^']+)')?\s*\)/g)) {
-            const key = (m[2] || 'bot (default)') + (m[1] === 'isAdmin' ? ' [alias]' : '');
-            admin[key] = (admin[key] || 0) + 1;
-        }
-        if (Object.keys(admin).length) rec.isAdminChannel = Object.fromEntries(Object.entries(admin).sort());
+        // Access checks a handler makes itself: auth.can('<policy>', interaction) (the router's own are in the manifests).
+        for (const m of src.matchAll(/\b(?:auth\.)?can\(\s*'([^']+)'/g)) admin[m[1]] = (admin[m[1]] || 0) + 1;
+        if (Object.keys(admin).length) rec.can = Object.fromEntries(Object.entries(admin).sort());
         const roles = (src.match(/\.roles\.cache\.(?:has|some)\(/g) || []).length;
         if (roles) rec['roles.cache'] = roles;
         const perms = (src.match(/\.(?:memberPermissions|permissions)\??\.has\(/g) || []).length;

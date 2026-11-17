@@ -1,4 +1,6 @@
-const { GUILDMASTER_CTRL_CHANNEL_ID, LEAGUE_ADMIN_CHANNEL_ID } = require('../data/channels');
+// FROZEN REFERENCE: the access check the bot used before shared/auth (utils/isAdminChannel.js, retired in plan step C5),
+// kept verbatim so the tests can still prove that shared/auth answers exactly like it did. Nothing in the bot loads this.
+const { GUILDMASTER_CTRL_CHANNEL_ID, LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
 
 const ADMINS_ROLE_ID = process.env.ADMINS_ROLE_ID;
 const HR_ROLE_ID = process.env.HR_ROLE_ID;

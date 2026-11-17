@@ -1,6 +1,6 @@
 // Confirm / cancel buttons for risky /config changes (currently the trap channel).
 const { EmbedBuilder } = require('discord.js');
-const { isAdminChannel } = require('../../utils/isAdminChannel');
+const auth = require('../../shared/auth');
 const config = require('./configCommand');
 
 async function handle(interaction, client) {
@@ -14,7 +14,7 @@ async function handle(interaction, client) {
     if (interaction.user.id !== entry.userId) {
         return interaction.reply({ content: '❌ Only the person who ran the command can confirm it.', flags: 64 });
     }
-    if (!isAdminChannel(interaction, 'botAdmin')) {
+    if (!auth.can('admin', interaction)) {
         return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
     }
 

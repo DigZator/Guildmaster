@@ -122,24 +122,11 @@ const PERSONAS = [
     { name: 'admins-role@ctrl-channel', roles: [E.ADMINS_ROLE_ID], channel: E.GUILDMASTER_CTRL_CHANNEL_ID },
 ];
 
-// ---- record every isAdminChannel call --------------------------------------------------
+// ---- record every access check ---------------------------------------------------------
 let gateLog = null;
-const iacPath = require.resolve(path.join(root, 'utils/isAdminChannel.js'));
-const realIac = require(iacPath);
-const wrapped = (interaction, type = 'bot') => {
-    try {
-        const result = realIac.isAdminChannel(interaction, type);
-        if (gateLog) gateLog.push(`${type}=${result}`);
-        return result;
-    } catch (err) {
-        if (gateLog) gateLog.push(`${type}=throws`);
-        throw err;
-    }
-};
-require.cache[iacPath].exports = { ...realIac, isAdminChannel: wrapped, ...('isAdmin' in realIac ? { isAdmin: wrapped } : {}) };
 
-// Once a check moves from a handler into the router it is made by shared/auth instead. Record those calls under
-// the old type's name so a lifted check shows up in the snapshot exactly as it did before. A policy that never
+// Every access check, in the router and in handlers, is made by shared/auth (handlers call it as auth.can(...) so this
+// wrapper sees it). Record the calls under the old isAdminChannel type's name so the snapshot reads as it always did. A policy that never
 // had an old type (admin_or_discord_admin) is recorded under its own name.
 const auth = require(path.join(root, 'shared/auth'));
 const realCan = auth.can;

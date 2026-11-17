@@ -1,14 +1,14 @@
-// shared/auth must reproduce today's access checks exactly. The old helpers stay in place until Phase 3,
-// so this test runs both against the same inputs and demands identical answers.
+// shared/auth must reproduce the old access checks exactly. The old helpers are gone from the bot and live on as frozen
+// references in tests/helpers/legacy/, so this test runs both against the same inputs and demands identical answers.
 require('./helpers/env');
 const CLERK = '200000000000000010';
 process.env.CLERK_OF_MORTAL_AFFAIRS_ROLE_ID = CLERK; // before tlrRoles loads
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { testEnv } = require('./helpers/env');
-const { isAdminChannel, ADMIN_CONFIG } = require('../utils/isAdminChannel');
+const { isAdminChannel, ADMIN_CONFIG } = require('./helpers/legacy/isAdminChannel');
 const { isTlrMod } = require('../features/theLongRest/roles');
-const { isVerificationAdmin } = require('../features/verification/admin');
+const { isVerificationAdmin } = require('./helpers/legacy/verificationAdmin');
 const auth = require('../shared/auth');
 const { ROLE_VARS } = require('../core/roleVars');
 

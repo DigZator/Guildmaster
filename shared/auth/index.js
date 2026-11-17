@@ -1,6 +1,6 @@
 // The single public entry point for access checks. The router enforces the policies of every route (core/router.js);
-// handlers call `can` for the checks that stay inside them (plan section 5.3). utils/isAdminChannel.js still serves
-// four call sites and is retired in plan step C5.
+// handlers call `auth.can(...)` for the checks that stay inside them (plan section 5.3). Call it as a property of this
+// module, not destructured at load, so the route-permission harness can record it. The old utils/isAdminChannel.js is gone.
 const { can, getPolicy, knownPolicies, validate } = require('./check');
 const { POLICIES, COMBINE_MODES } = require('./policies');
 const { CHANNEL_ENV, currentChannelIds } = require('./channels');

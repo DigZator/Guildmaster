@@ -1,4 +1,4 @@
-const { isAdminChannel } = require('../../utils/isAdminChannel');
+const auth = require('../../shared/auth');
 const directLineStore = require('./store');
 const directLineFlow = require('./flow');
 const { decodeId } = require('./directLineId');
@@ -25,7 +25,7 @@ async function handleDirectLineButton(interaction) {
         return interaction.reply({ content: '❌ This direct line record no longer exists.', flags: 64 });
     }
 
-    if (!isAdminChannel(interaction, 'hr')) {
+    if (!auth.can('hr', interaction)) {
         return interaction.reply(denyMessage());
     }
 

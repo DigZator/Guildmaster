@@ -4,8 +4,8 @@
 // and says how the two combine: 'role' (roles only), 'channel' (channels only), 'either', 'both'.
 // 'open' lets everyone through.
 //
-// The policies encode the behavior of the old helpers only. `legacy` names the utils/isAdminChannel.js type each policy
-// reproduces, so a test can prove the two agree. Rules that are meant to change later (refactor plan, section 6)
+// The policies encode the behavior of the old helpers only. `legacy` names the type of the old isAdminChannel check each policy
+// reproduces (that module is retired; tests/helpers/legacy/isAdminChannel.js keeps it so a test can prove the two agree). Rules that are meant to change later (refactor plan, section 6)
 // are not here yet: they arrive as separate changes, each as its own policy or route declaration.
 //
 // `modeEnv` marks the two policies whose combine mode can be overridden from .env today

@@ -1,10 +1,11 @@
-// Characterization of utils/isAdminChannel.js: who passes each check today.
+// Characterization of the old access check (utils/isAdminChannel.js, retired in plan step C5; kept as
+// tests/helpers/legacy/isAdminChannel.js): who passed each check. shared/auth is proven against it in auth.test.js.
 // Some rows document behaviour the refactor plan intends to change later (see section 6).
 require('./helpers/env');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { testEnv } = require('./helpers/env');
-const { isAdminChannel, ADMIN_CONFIG } = require('../utils/isAdminChannel');
+const { isAdminChannel, ADMIN_CONFIG } = require('./helpers/legacy/isAdminChannel');
 
 const CTRL = testEnv.GUILDMASTER_CTRL_CHANNEL_ID;
 const LEAGUE = testEnv.LEAGUE_ADMIN_CHANNEL_ID;

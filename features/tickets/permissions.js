@@ -1,8 +1,8 @@
 const { getTicketType } = require('./ticketTypes');
-const { isAdminChannel } = require('../../utils/isAdminChannel');
+const auth = require('../../shared/auth');
 
 function isTicketStaff(interaction, ticket) {
-    if (isAdminChannel(interaction, 'botAdmin')) return true;
+    if (auth.can('admin', interaction)) return true;
     const type = getTicketType(ticket.type);
     if (!type?.viewerRoleId) return false;
     return interaction.member?.roles?.cache?.has(type.viewerRoleId) ?? false;

@@ -1117,18 +1117,23 @@
   },
   "permissionChecks": {
     "features/config/buttons.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
+      "can": {
+        "admin": 1
       }
     },
     "features/directLine/buttons.js": {
-      "isAdminChannel": {
+      "can": {
         "hr": 1
       }
     },
     "features/games/createCampaign/preflight.js": {
       "roles.cache": 1,
       "permissions.has": 1
+    },
+    "features/games/listGamesHelper.js": {
+      "can": {
+        "admin": 1
+      }
     },
     "features/league/grants/pendingApprovals/dashboard.js": {
       "roles.cache": 1
@@ -1137,15 +1142,9 @@
       "roles.cache": 1
     },
     "features/tickets/permissions.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
+      "can": {
+        "admin": 1
       }
-    },
-    "features/verification/admin.js": {
-      "isAdminChannel": {
-        "botAdmin": 1
-      },
-      "permissions.has": 1
     },
     "features/verification/command.js": {
       "permissions.has": 2

@@ -8,7 +8,7 @@ const {
     PermissionsBitField,
 } = require('discord.js');
 const { getCategoryIdForGroup, getLogChannelIdForGroup } = require('../../shared/ticketConfig/guildConfig');
-const { HR_ROLE_ID } = require('../../utils/isAdminChannel');
+const HR_ROLE_ID = process.env.HR_ROLE_ID;
 const directLineStore = require('./store');
 const { buildTranscript, sendTranscript, formatStamp } = require('../../shared/transcript');
 const { reportError } = require('../../shared/utilities/errorReporter');
