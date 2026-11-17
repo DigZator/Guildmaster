@@ -7,7 +7,7 @@
 //   - Permission gates (the control and league-admin channels) and mappings managed by other commands are
 //     never read from or written to this file, even if someone edits it by hand.
 const path = require('path');
-const { MAPPINGS } = require('../config/mappings');
+const { MAPPINGS } = require('./mappings');
 const { createJsonStore } = require('../shared/data-access/jsonStore');
 
 const SNOWFLAKE = /^\d{17,20}$/;

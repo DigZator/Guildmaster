@@ -3,7 +3,7 @@
 const { can, getPolicy, knownPolicies, validate } = require('./check');
 const { POLICIES, COMBINE_MODES } = require('./policies');
 const { CHANNEL_ENV, currentChannelIds } = require('./channels');
-const roleVars = require('../../config/roleVars');
+const roleVars = require('../../core/roleVars');
 
 module.exports = {
     can, getPolicy, knownPolicies, validate,

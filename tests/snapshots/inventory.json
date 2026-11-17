@@ -1179,6 +1179,6 @@
     "./features/verification/watcher.init",
     "./features/theLongRest/memorialReindex.init",
     "./features/channelFile/review.init",
-    "./utils/mappingCheck.init"
+    "./core/mappingCheck.init"
   ]
 }

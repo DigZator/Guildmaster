@@ -10,7 +10,7 @@ const { isAdminChannel, ADMIN_CONFIG } = require('../utils/isAdminChannel');
 const { isTlrMod } = require('../features/theLongRest/roles');
 const { isVerificationAdmin } = require('../features/verification/admin');
 const auth = require('../shared/auth');
-const { ROLE_VARS } = require('../config/roleVars');
+const { ROLE_VARS } = require('../core/roleVars');
 
 const ROLE = { admin: testEnv.ADMINS_ROLE_ID, hr: testEnv.HR_ROLE_ID, cmd: testEnv.CMD_ROLE_ID, clerk: CLERK, other: '200000000000000999' };
 const CTRL = testEnv.GUILDMASTER_CTRL_CHANNEL_ID;
@@ -155,7 +155,7 @@ test('validate() reports unknown roles, unknown channels, bad combine modes and 
     assert.match(problems.join('\n'), /eithr/);
 });
 
-test('every role a policy uses is registered in config/roleVars.js', () => {
+test('every role a policy uses is registered in core/roleVars.js', () => {
     const registered = new Set(ROLE_VARS.map(entry => entry.key));
     for (const policy of Object.values(auth.POLICIES)) {
         for (const key of policy.who) assert.ok(registered.has(key), `${policy.name}: ${key}`);

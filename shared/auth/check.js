@@ -1,6 +1,6 @@
 const { POLICIES, COMBINE_MODES } = require('./policies');
 const { CHANNEL_ENV, channelIdsFor, currentChannelIds } = require('./channels');
-const { ROLE_VARS } = require('../../config/roleVars');
+const { ROLE_VARS } = require('../../core/roleVars');
 const { PermissionFlagsBits } = require('discord.js');
 
 function knownPolicies() {
@@ -70,7 +70,7 @@ function validate(policies = POLICIES, env = process.env) {
     const registered = new Set(ROLE_VARS.map(entry => entry.key));
     for (const policy of Object.values(policies)) {
         for (const key of policy.who) {
-            if (!registered.has(key)) problems.push(`policy "${policy.name}" uses role variable ${key}, which is not in config/roleVars.js`);
+            if (!registered.has(key)) problems.push(`policy "${policy.name}" uses role variable ${key}, which is not in core/roleVars.js`);
         }
         for (const key of policy.where) {
             if (!CHANNEL_ENV[key]) problems.push(`policy "${policy.name}" uses unknown channel key "${key}"`);

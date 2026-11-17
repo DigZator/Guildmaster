@@ -1,5 +1,5 @@
 require('dotenv').config();
-require('./utils/channelMap').applyToEnv();
+require('./core/channelMap').applyToEnv();
 const client = require('./client');
 
 process.on('unhandledRejection', (error) => {
@@ -15,7 +15,7 @@ process.on('error', (error) => {
     console.error('Process error:', error);
 });
 
-require('./config/roleVars').report();
+require('./core/roleVars').report();
 
 require('./features/general/threadAlertLog')(client);
 require('./features/games/announcementFlow')(client);
@@ -37,7 +37,7 @@ require('./features/tickets/mentions').init(client);
 require('./features/verification/watcher').init(client);
 require('./features/theLongRest/memorialReindex').init(client);
 require('./features/channelFile/review').init(client);
-require('./utils/mappingCheck').init(client);
+require('./core/mappingCheck').init(client);
 
 const token = process.env.DISCORD_TOKEN;
 

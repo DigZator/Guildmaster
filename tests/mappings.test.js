@@ -4,8 +4,8 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const { MAPPINGS } = require('../config/mappings');
-const mapping = require('../utils/mappingCheck');
+const { MAPPINGS } = require('../core/mappings');
+const mapping = require('../core/mappingCheck');
 const { sourceFiles, read, root } = require('./helpers/repo');
 const { stripComments } = require('./helpers/scan');
 
@@ -270,7 +270,7 @@ const documented = new Set(
 test('every channel, category, forum or thread ID the code reads from env is in the registry', () => {
     const registry = new Set(MAPPINGS.map(m => m.key));
     const missing = [...envReads].filter(name => /_(CHANNEL|CATEGORY|FORUM|THREAD)_ID$/.test(name) && !registry.has(name));
-    assert.deepEqual(missing, [], 'add these to config/mappings.js so the startup check covers them');
+    assert.deepEqual(missing, [], 'add these to core/mappings.js so the startup check covers them');
 });
 
 test('every env-backed registry entry is actually read by the code', () => {

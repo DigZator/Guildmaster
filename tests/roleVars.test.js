@@ -2,7 +2,7 @@
 require('./helpers/env');
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { ROLE_VARS, missingRoles, formatReport, report } = require('../config/roleVars');
+const { ROLE_VARS, missingRoles, formatReport, report } = require('../core/roleVars');
 const { sourceFiles, read } = require('./helpers/repo');
 const { stripComments } = require('./helpers/scan');
 
@@ -55,7 +55,7 @@ test('every *_ROLE_ID the code reads from process.env is in the registry', () =>
     for (const file of sourceFiles()) {
         for (const m of stripComments(read(file)).matchAll(/process\.env\.([A-Z][A-Z0-9_]*_ROLE_ID)\b/g)) if (!known.has(m[1])) unregistered.add(`${m[1]} (${file})`);
     }
-    assert.deepEqual([...unregistered], [], 'add these to config/roleVars.js');
+    assert.deepEqual([...unregistered], [], 'add these to core/roleVars.js');
 });
 
 test('every registered role variable is documented in .env.example', () => {

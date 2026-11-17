@@ -1,11 +1,11 @@
 // Logic for /config status | set | clear: change where the bot sends things without editing .env.
-// Saved to data/channelMap.json by utils/channelMap.js and applied at the next start.
+// Saved to data/channelMap.json by core/channelMap.js and applied at the next start.
 // commands/config.js is the thin entry point; buttons/config.js handles the confirm / cancel buttons.
 const crypto = require('crypto');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { MAPPINGS } = require('../../config/mappings');
-const { checkMappings, severity, chunkLines } = require('../../utils/mappingCheck');
-const channelMap = require('../../utils/channelMap');
+const { MAPPINGS } = require('../../core/mappings');
+const { checkMappings, severity, chunkLines } = require('../../core/mappingCheck');
+const channelMap = require('../../core/channelMap');
 
 const CONFIRM_TTL_MS = 2 * 60 * 1000;
 const RESTART_NOTE = 'This takes effect after the bot restarts.';

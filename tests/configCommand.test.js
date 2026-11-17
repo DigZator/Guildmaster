@@ -5,7 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { ChannelType } = require('discord.js');
 const { testEnv } = require('./helpers/env');
-const channelMap = require('../utils/channelMap');
+const channelMap = require('../core/channelMap');
 const config = require('../features/config/configCommand');
 const configEntry = require('../features/config/command');
 const configButtons = require('../features/config/buttons');
@@ -259,7 +259,7 @@ test('status lists all 18 mappings, shows health and marks changes waiting for a
     const i = fakeInteraction({ sub: 'status' });
     await configEntry(i, client);
     const out = text(lastReply(i));
-    const { MAPPINGS } = require('../config/mappings');
+    const { MAPPINGS } = require('../core/mappings');
     for (const m of MAPPINGS) assert.ok(out.includes(`\`${m.key}\``), `${m.key} listed`);
     assert.ok(out.includes(`after restart: <#${ID(5)}>`), 'the saved channel is shown as waiting for a restart');
     assert.match(out, /1 saved change\(s\) will apply after the next restart/);

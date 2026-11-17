@@ -6,8 +6,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { createJsonStore } = require('../shared/data-access/jsonStore');
-const channelMap = require('../utils/channelMap');
-const { MAPPINGS } = require('../config/mappings');
+const channelMap = require('../core/channelMap');
+const { MAPPINGS } = require('../core/mappings');
 
 const silent = { log() {}, warn() {} };
 const memStore = (initial = { channels: {} }) => { let data = JSON.parse(JSON.stringify(initial)); return { load: () => data, save: (d) => { data = JSON.parse(JSON.stringify(d)); }, peek: () => data }; };
@@ -120,16 +120,16 @@ test('the trap channel is the only mapping that needs a confirmation', () => {
 
 // index.js loads the map before anything else. That only works if loading the map module itself never pulls in
 // a module that reads these variables at load time (data/channels.js and friends).
-test('requiring utils/channelMap loads no module that reads channel ids at load time', () => {
+test('requiring core/channelMap loads no module that reads channel ids at load time', () => {
     const { spawnSync } = require('child_process');
     const { root } = require('./helpers/repo');
     const script = `
         const before = new Set(Object.keys(require.cache));
-        require('./utils/channelMap');
+        require('./core/channelMap');
         const root = process.cwd() + require('path').sep;
         const loaded = Object.keys(require.cache).filter(f => f.startsWith(root) && !f.includes('node_modules')).map(f => f.slice(root.length));
         console.log(JSON.stringify(loaded.sort()));`;
     const run = spawnSync(process.execPath, ['-e', script], { cwd: root, encoding: 'utf8', env: { PATH: process.env.PATH } });
     assert.equal(run.status, 0, run.stderr);
-    assert.deepEqual(JSON.parse(run.stdout), ['config/mappings.js', 'shared/data-access/jsonStore.js', 'utils/channelMap.js']);
+    assert.deepEqual(JSON.parse(run.stdout), ['core/channelMap.js', 'core/mappings.js', 'shared/data-access/jsonStore.js']);
 });

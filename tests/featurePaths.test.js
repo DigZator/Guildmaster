@@ -298,3 +298,28 @@ test('league: the item catalogue, the spell list and the level-up quotes still l
 test('general: the thread activity report still keeps its schedule in data/threadReport.json', () => {
     assert.deepEqual(storePathsOf('../features/general/threadActivityReport'), [path.join(root, 'data', 'threadReport.json')]);
 });
+
+// Which file a core module's default store is built on, by absolute location (the store is stubbed, nothing is read or written).
+async function defaultStorePathOf(modulePath, use) {
+    const jsonStorePath = require.resolve('../shared/data-access/jsonStore');
+    const real = require(jsonStorePath);
+    const seen = [];
+    require.cache[jsonStorePath].exports = { ...real, createJsonStore: (filePath, def) => { seen.push(filePath); return { load: () => JSON.parse(JSON.stringify(def)), save() {} }; } };
+    try {
+        delete require.cache[require.resolve(modulePath)];
+        await use(require(modulePath));
+    } finally {
+        require.cache[jsonStorePath].exports = real;
+        delete require.cache[require.resolve(modulePath)];
+    }
+    return seen;
+}
+
+test('startup: the channel map still lives in data/channelMap.json', async () => {
+    assert.deepEqual(await defaultStorePathOf('../core/channelMap', (m) => m.readEntries({ log: { log() {}, warn() {} } })), [path.join(root, 'data', 'channelMap.json')]);
+});
+
+test('startup: the mapping report state still lives in data/mappingReport.json', async () => {
+    const quiet = { log() {}, warn() {} };
+    assert.deepEqual(await defaultStorePathOf('../core/mappingCheck', (m) => m.runMappingCheck({ guilds: { cache: new Map(), fetch: async () => null } }, { mappings: [], log: quiet })), [path.join(root, 'data', 'mappingReport.json')]);
+});
