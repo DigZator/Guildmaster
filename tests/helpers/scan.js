@@ -98,10 +98,24 @@ function scanPermissionChecks() {
     return out;
 }
 
+// What starts when the bot starts: index.js's own lines, then each feature's manifest `init` (in the order core/boot.js
+// runs them, which is the order of manifests/index.js), as repo-relative module names.
 function scanStartupWiring() {
-    const src = read('index.js');
-    return [...src.matchAll(/require\('([^']+)'\)(?:\.(\w+))?\(client\)/g)]
+    const path = require('path');
+    const fromIndex = [...read('index.js').matchAll(/require\('([^']+)'\)(?:\.(\w+))?\(client\)/g)]
         .map(m => m[1] + (m[2] ? '.' + m[2] : ''));
+    const features = [...read('manifests/index.js').matchAll(/require\('\.\.\/features\/(\w+)'\)\.manifest/g)].map(m => m[1]);
+    const fromManifests = [];
+    for (const feature of features) {
+        const src = read(`features/${feature}/manifest.js`);
+        const at = src.indexOf('function init(client)');
+        if (at === -1) continue;
+        for (const m of src.slice(at).matchAll(/require\('([^']+)'\)(?:\.(\w+))?\(client\)/g)) {
+            const spec = './' + path.posix.normalize(path.posix.join('features', feature, m[1]));
+            fromManifests.push(spec + (m[2] ? '.' + m[2] : ''));
+        }
+    }
+    return [...fromIndex, ...fromManifests];
 }
 
 function stripComments(src) {

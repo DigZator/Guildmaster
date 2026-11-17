@@ -26,7 +26,7 @@ The bot maintains its own local JSON data store (`/data`) for tickets, RSS feeds
 
 ```
 .
-├── index.js                  Entry point — wires up all handlers/watchers, logs in
+├── index.js                  Entry point — starts `core/boot.js`, logs in
 ├── client.js                 Discord.js Client instance + intents
 ├── deploy-commands.js        Registers all slash commands to a guild
 ├── helpData.js                Content shown by /help
@@ -47,7 +47,7 @@ The bot maintains its own local JSON data store (`/data`) for tickets, RSS feeds
 On boot, the bot:
 1. Loads environment variables (`dotenv`).
 2. Registers global error handlers (`unhandledRejection`, `uncaughtException`, `error`).
-3. Requires and initializes every interaction handler and background watcher (see §4 and §6).
+3. Calls `core/boot.js`, which installs the interaction router and then runs each feature's `init(client)` (the `init` in its `manifest.js`) to start its flows, schedulers and watchers (see §4 and §6).
 4. Refreshes the games cache once logged in (`clientReady`).
 5. Logs in with `DISCORD_TOKEN`.
 
@@ -95,7 +95,7 @@ All raw Discord interaction events are centralized in `interactions/`, each file
 - **`features/tickets/ticketId.js`** — routes ticket-specific button/modal interactions.
 - **`features/general/threadAlertLog.js`** — logs thread-related alerts to a monitoring channel.
 
-Multi-step, message-driven (not just component-driven) flows live in their feature folders and are also registered directly on `client` in `index.js`:
+Multi-step, message-driven (not just component-driven) flows live in their feature folders and are also registered directly on `client` by their feature's `init` (see its `manifest.js`):
 - **`features/games/announcementFlow.js`** — manual game-announcement wizard.
 - **`features/theLongRest/submissionFlow.js`** — "The Long Rest" (character memorial) submission wizard.
 - **`features/messaging/rss/flow.js`** — guided RSS feed setup.
@@ -205,7 +205,7 @@ Commands are defined with `SlashCommandBuilder` in `deploy-commands.js` and thei
 
 ## 6. Background Services
 
-Initialized in `index.js` at boot, these run independently of any single interaction:
+Started by each feature's `init` at boot, these run independently of any single interaction:
 
 | Module | Responsibility |
 |---|---|

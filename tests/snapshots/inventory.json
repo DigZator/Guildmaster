@@ -1159,26 +1159,26 @@
     }
   },
   "startupWiring": [
+    "./core/boot",
     "./features/general/threadAlertLog",
+    "./features/general/threadActivityReport.init",
+    "./features/general/keepAlive/job.initListeners",
+    "./features/general/trapChannel",
     "./features/games/announcementFlow",
     "./features/games/editGameArtFlow",
-    "./features/theLongRest/submissionFlow",
-    "./core/boot",
-    "./features/messaging/rss/flow",
     "./features/games/cacheWatcher.init",
     "./shared/data-access/cacheAlert.init",
     "./features/games/registrationDefaults.init",
     "./features/games/activation/scheduler.init",
-    "./features/league/shop/restockScheduler.init",
-    "./features/general/threadActivityReport.init",
-    "./features/general/keepAlive/job.initListeners",
-    "./features/general/trapChannel",
     "./features/games/activation/deactivator.init",
+    "./features/messaging/rss/flow",
+    "./features/theLongRest/submissionFlow",
+    "./features/theLongRest/memorialReindex.init",
     "./features/tickets/dashboardWatcher.init",
     "./features/tickets/mentions.init",
-    "./features/verification/watcher.init",
-    "./features/theLongRest/memorialReindex.init",
     "./features/channelFile/review.init",
-    "./core/mappingCheck.init"
+    "./features/verification/watcher.init",
+    "./core/mappingCheck.init",
+    "./features/league/shop/restockScheduler.init"
   ]
 }

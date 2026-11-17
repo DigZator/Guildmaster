@@ -25,6 +25,7 @@ const gamePicker = [{ name: 'games', policy: 'open', handle: gameAutocomplete }]
 // and activation commands, with their buttons, forms and selects.
 module.exports = {
     name: 'games',
+    init,   // see the bottom of this file
     commands: [
         { name: 'game_info', policy: 'open', handler: gameInfo, autocomplete: gamePicker },
         // Open to everyone. There is no refusal: the handler (listGamesHelper.js canSeeUnreleased) shows the
@@ -67,3 +68,15 @@ module.exports = {
         prefix: { 'tableAdminSeatSelect:': route('admin', (i) => require('./tableAdmin/seatSelect').handle(i)) },
     },
 };
+
+// Starts what this feature runs by itself (listeners, schedulers, watchers). core/boot.js calls it once when the bot starts;
+// the modules load only then, so loading the manifest (tests, deploy tooling) starts nothing.
+function init(client) {
+    require('./announcementFlow')(client);
+    require('./editGameArtFlow')(client);
+    require('./cacheWatcher').init(client);
+    require('../../shared/data-access/cacheAlert').init(client);
+    require('./registrationDefaults').init(client);
+    require('./activation/scheduler').init(client);
+    require('./activation/deactivator').init(client);
+}

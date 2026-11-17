@@ -17,27 +17,8 @@ process.on('error', (error) => {
 
 require('./core/roleVars').report();
 
-require('./features/general/threadAlertLog')(client);
-require('./features/games/announcementFlow')(client);
-require('./features/games/editGameArtFlow')(client);
-require('./features/theLongRest/submissionFlow')(client);
+// Installs the router and starts every feature's own listeners, schedulers and watchers (manifest `init`).
 require('./core/boot')(client);
-require('./features/messaging/rss/flow')(client);
-require('./features/games/cacheWatcher').init(client);
-require('./shared/data-access/cacheAlert').init(client);
-require('./features/games/registrationDefaults').init(client);
-require('./features/games/activation/scheduler').init(client);
-require('./features/league/shop/restockScheduler').init(client);
-require('./features/general/threadActivityReport').init(client);
-require('./features/general/keepAlive/job').initListeners(client);
-require('./features/general/trapChannel')(client);
-require('./features/games/activation/deactivator').init(client);
-require('./features/tickets/dashboardWatcher').init(client);
-require('./features/tickets/mentions').init(client);
-require('./features/verification/watcher').init(client);
-require('./features/theLongRest/memorialReindex').init(client);
-require('./features/channelFile/review').init(client);
-require('./core/mappingCheck').init(client);
 
 const token = process.env.DISCORD_TOKEN;
 

@@ -55,7 +55,7 @@ req('features/tickets/ticketTypes').loadTicketTypes = () => [{ key: 'k-one', slu
 // ── the routers under test ───────────────────────────────────────────────────
 const listeners = [];
 const client = { on: (ev, fn) => { if (ev === 'interactionCreate') listeners.push(fn); }, user: { id: testEnv.CLIENT_ID } };
-require(path.join(root, 'core', 'boot'))(client);   // the router, exactly as index.js starts it
+require(path.join(root, 'core', 'boot'))(client, { start: false });   // the router, exactly as index.js installs it (the features are not started)
 
 // ── what to fire ─────────────────────────────────────────────────────────────
 const definitions = JSON.parse(fs.readFileSync(path.join(root, 'tests', 'snapshots', 'commands.json'), 'utf8')).commands;

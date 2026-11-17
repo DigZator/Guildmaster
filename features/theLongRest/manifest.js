@@ -8,6 +8,7 @@ const ownTlr = { gate: 'own: tlr_mod' };
 
 module.exports = {
     name: 'theLongRest',
+    init,   // see the bottom of this file
     commands: [{
         name: 'the_long_rest', policy: 'open', handler: the_long_rest,
         subcommands: {
@@ -41,3 +42,10 @@ module.exports = {
         exact: { tlrRemoveSelect: route('open', (i) => require('./buttons').handleRemoveSelect(i), { gate: 'own: author, or tlr_mod' }) },
     },
 };
+
+// Starts what this feature runs by itself (listeners, schedulers, watchers). core/boot.js calls it once when the bot starts;
+// the modules load only then, so loading the manifest (tests, deploy tooling) starts nothing.
+function init(client) {
+    require('./submissionFlow')(client);
+    require('./memorialReindex').init(client);
+}

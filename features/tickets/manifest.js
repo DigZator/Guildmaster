@@ -41,6 +41,7 @@ const rules = { gate: 'own: ticket staff / raiser / closer rules (features/ticke
 
 module.exports = {
     name: 'tickets',
+    init,   // see the bottom of this file
     commands: [{
         name: 'ticket', policy: 'open', handler: ticket,
         autocomplete: [{ name: 'type / key', policy: 'open', handle: ticketAutocomplete }],
@@ -57,3 +58,10 @@ module.exports = {
         },
     },
 };
+
+// Starts what this feature runs by itself (listeners, schedulers, watchers). core/boot.js calls it once when the bot starts;
+// the modules load only then, so loading the manifest (tests, deploy tooling) starts nothing.
+function init(client) {
+    require('./dashboardWatcher').init(client);
+    require('./mentions').init(client);
+}

@@ -18,6 +18,7 @@ const leagueAutocompleteEntries = [{ name: 'league / leagueadmin / leaguedm', po
 
 module.exports = {
     name: 'league',
+    init,   // see the bottom of this file
     commands: [
         // Player commands: no role check today (several check for an active character inside the handler).
         { name: 'league', policy: 'open', handler: league, autocomplete: leagueAutocompleteEntries },
@@ -61,3 +62,9 @@ module.exports = {
         prefix: { ...quests.userSelects.prefix },
     },
 };
+
+// Starts what this feature runs by itself (listeners, schedulers, watchers). core/boot.js calls it once when the bot starts;
+// the modules load only then, so loading the manifest (tests, deploy tooling) starts nothing.
+function init(client) {
+    require('./shop/restockScheduler').init(client);
+}

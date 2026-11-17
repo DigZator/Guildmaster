@@ -19,6 +19,7 @@ const ADMIN_CHANNEL_ONLY = '❌ This command can only be used by admins in the a
 
 module.exports = {
     name: 'messaging',
+    init,   // see the bottom of this file
     commands: [
         adminCtrl('rss', ADMIN_CHANNEL_ONLY, rss),
         adminCtrl('anon_msg', ADMIN_CHANNEL_ONLY, anon_msg, [{ name: 'keys', policy: 'open', handle: anonKeyAutocomplete }]),
@@ -28,3 +29,9 @@ module.exports = {
         prefix: routes('open', anonMessages.prefix),
     },
 };
+
+// Starts what this feature runs by itself (listeners, schedulers, watchers). core/boot.js calls it once when the bot starts;
+// the modules load only then, so loading the manifest (tests, deploy tooling) starts nothing.
+function init(client) {
+    require('./rss/flow')(client);
+}

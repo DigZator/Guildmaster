@@ -6,6 +6,7 @@ const ownVerify = { gate: 'own: roles and Discord permissions (utils/verificatio
 
 module.exports = {
     name: 'verification',
+    init,   // see the bottom of this file
     // Enforced by the router with the Admins role OR the Discord Administrator permission (not a plain admin gate:
     // anyone Discord lets administer the server has always passed). The refusal text is the command's own.
     commands: [{ name: 'verification', policy: 'admin_or_discord_admin', denied: '❌ You don\'t have permission to run this.', handler: verification }],
@@ -19,3 +20,9 @@ module.exports = {
     },
     modals: { exact: { 'verification:modal': route('open', (i, c) => require('./buttons').handleModalSubmit(i, c), ownVerify) } },
 };
+
+// Starts what this feature runs by itself (listeners, schedulers, watchers). core/boot.js calls it once when the bot starts;
+// the modules load only then, so loading the manifest (tests, deploy tooling) starts nothing.
+function init(client) {
+    require('./watcher').init(client);
+}

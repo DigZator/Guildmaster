@@ -5,6 +5,7 @@ const configCommand = require('./configCommand');
 
 module.exports = {
     name: 'config',
+    init,   // see the bottom of this file
     commands: [{
         // Enforced by the router (Admins role), with the router's default refusal text.
         name: 'config', policy: 'admin', handler: config,
@@ -13,3 +14,9 @@ module.exports = {
     }],
     buttons: { prefix: routes('open', configButtons.prefix, { gate: 'admin' }) },
 };
+
+// Starts what this feature runs by itself (listeners, schedulers, watchers). core/boot.js calls it once when the bot starts;
+// the modules load only then, so loading the manifest (tests, deploy tooling) starts nothing.
+function init(client) {
+    require('../../core/mappingCheck').init(client);
+}

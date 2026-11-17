@@ -224,7 +224,7 @@ function summarize(payload) {
 // ---- drive the real routers --------------------------------------------------------------
 const listeners = [];
 const client = withProps({ on: (ev, fn) => { if (ev === 'interactionCreate') listeners.push(fn); }, user: { id: E.CLIENT_ID } });
-require(path.join(root, 'core', 'boot'))(client);   // the router, exactly as index.js starts it
+require(path.join(root, 'core', 'boot'))(client, { start: false });   // the router, exactly as index.js installs it (the features are not started)
 
 const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 const quiet = { log: console.log, warn: console.warn, error: console.error, info: console.info };
