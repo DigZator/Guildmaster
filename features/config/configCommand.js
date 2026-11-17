@@ -6,6 +6,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('
 const { MAPPINGS } = require('../../core/mappings');
 const { checkMappings, severity, chunkLines } = require('../../core/mappingCheck');
 const channelMap = require('../../core/channelMap');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const CONFIRM_TTL_MS = 2 * 60 * 1000;
 const RESTART_NOTE = 'This takes effect after the bot restarts.';
@@ -69,10 +70,10 @@ async function handleSet(interaction, client) {
     const key = interaction.options.getString('key');
     const channel = interaction.options.getChannel('channel');
     const refusal = key ? channelMap.refusalFor(key) : 'Pick a mapping from the list.';
-    if (refusal) return interaction.reply({ content: `❌ ${refusal}`, flags: 64 });
-    if (!channel) return interaction.reply({ content: '❌ Pick a channel.', flags: 64 });
+    if (refusal) return interaction.reply({ content: `❌ ${refusal}`, flags: EPHEMERAL });
+    if (!channel) return interaction.reply({ content: '❌ Pick a channel.', flags: EPHEMERAL });
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     const entry = entryFor(key);
 
     // Same checks as the startup report, on the channel that was picked: right type, this server, bot permissions.
@@ -109,11 +110,11 @@ async function handleSet(interaction, client) {
 async function handleClear(interaction, client) {
     const key = interaction.options.getString('key');
     const refusal = key ? channelMap.refusalFor(key) : 'Pick a mapping from the list.';
-    if (refusal) return interaction.reply({ content: `❌ ${refusal}`, flags: 64 });
+    if (refusal) return interaction.reply({ content: `❌ ${refusal}`, flags: EPHEMERAL });
     const entry = entryFor(key);
     const before = channelMap.describe(key);
     if (!before.saved) {
-        return interaction.reply({ content: `**${entry.label}** has no saved override. It uses ${before.runningSource === 'env' ? `the .env value ${mention(before.running)}` : 'nothing (not set)'}.`, flags: 64 });
+        return interaction.reply({ content: `**${entry.label}** has no saved override. It uses ${before.runningSource === 'env' ? `the .env value ${mention(before.running)}` : 'nothing (not set)'}.`, flags: EPHEMERAL });
     }
     channelMap.clearMapping(key);
     const after = channelMap.describe(key);
@@ -123,13 +124,13 @@ async function handleClear(interaction, client) {
         .setColor(0x57F287)
         .setDescription(`**${entry.label}** goes back to ${after.next ? `the .env value ${mention(after.next)}` : 'not set (there is no .env value)'}.\n${RESTART_NOTE} Until then the bot keeps using ${mention(after.running)}.`)
         .addFields({ name: 'Key', value: `\`${key}\`` });
-    return interaction.reply({ embeds: [embed], flags: 64 });
+    return interaction.reply({ embeds: [embed], flags: EPHEMERAL });
 }
 
 const ICONS = { ok: '✅', warn: '⚠️', error: '❌' };
 
 async function handleStatus(interaction, client) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     const results = await checkMappings(client);
     const resultFor = (key) => results.find(r => r.key === key);
 
@@ -184,7 +185,7 @@ async function execute(interaction, client) {
     if (sub === 'status') return handleStatus(interaction, client);
     if (sub === 'set') return handleSet(interaction, client);
     if (sub === 'clear') return handleClear(interaction, client);
-    return interaction.reply({ content: '❌ Unknown subcommand.', flags: 64 });
+    return interaction.reply({ content: '❌ Unknown subcommand.', flags: EPHEMERAL });
 }
 
 module.exports = { execute, autocomplete, applySet, pending, sweepPending };

@@ -12,6 +12,7 @@ const ticketFlow = require('./flow');
 const { getTicketType } = require('./ticketTypes');
 const { isTicketStaff, isTicketRaiser, denyMessage } = require('./permissions');
 const { buildCreateModal } = require('./modals');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const CLOSE_MODAL_WHEN_FEEDBACK_MISSING = false;
 
@@ -62,7 +63,7 @@ async function handleSetup(interaction) {
             const oldChannel = await interaction.guild.channels.fetch(existing.dashboardChannelId);
             const oldMessage = await oldChannel.messages.fetch(existing.dashboardMessageId);
             await oldMessage.edit({ embeds: [buildDashboardEmbed()], components: buildDashboardRow() });
-            await interaction.reply({ content: `✅ Dashboard refreshed in ${oldChannel}.`, flags: 64 });
+            await interaction.reply({ content: `✅ Dashboard refreshed in ${oldChannel}.`, flags: EPHEMERAL });
             return;
         } catch {  }
     }
@@ -77,7 +78,7 @@ async function handleSetup(interaction) {
 
     const message = await interaction.channel.send({ embeds: [buildDashboardEmbed()], components: buildDashboardRow() });
     setConfig({ dashboardChannelId: interaction.channel.id, dashboardMessageId: message.id });
-    await interaction.reply({ content: `✅ Ticket dashboard posted here.${relocate ? ' Old dashboard removed.' : ''}`, flags: 64 });
+    await interaction.reply({ content: `✅ Ticket dashboard posted here.${relocate ? ' Old dashboard removed.' : ''}`, flags: EPHEMERAL });
 }
 
 async function handleConfig(interaction) {
@@ -90,7 +91,7 @@ async function handleConfig(interaction) {
         const current = getConfig();
         return interaction.reply({
             content: `Current config:\n• Category (normal): ${current.categoryId ? `<#${current.categoryId}>` : '*not set*'}\n• Category (HR): ${current.hrCategoryId ? `<#${current.hrCategoryId}>` : '*not set*'}\n• Log channel (normal): ${current.logChannelId ? `<#${current.logChannelId}>` : '*not set*'}\n• Log channel (HR): ${current.hrLogChannelId ? `<#${current.hrLogChannelId}>` : '*not set*'}`,
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
@@ -101,18 +102,18 @@ async function handleConfig(interaction) {
     if (hrLogChannel) patch.hrLogChannelId = hrLogChannel.id;
     setConfig(patch);
 
-    await interaction.reply({ content: '✅ Ticket config updated.', flags: 64 });
+    await interaction.reply({ content: '✅ Ticket config updated.', flags: EPHEMERAL });
 }
 
 async function handleResetCounter(interaction) {
     const slug = interaction.options.getString('type');
     if (slug) {
         await ticketStore.resetCounter(slug);
-        return interaction.reply({ content: `✅ Counter for \`${slug}\` reset to \`000\`.`, flags: 64 });
+        return interaction.reply({ content: `✅ Counter for \`${slug}\` reset to \`000\`.`, flags: EPHEMERAL });
     }
 
     await ticketStore.resetAllCounters();
-    await interaction.reply({ content: '✅ All ticket counters reset to `000`.', flags: 64 });
+    await interaction.reply({ content: '✅ All ticket counters reset to `000`.', flags: EPHEMERAL });
 }
 
 function formatTypeLine(type) {
@@ -125,10 +126,10 @@ function formatTypeLine(type) {
 async function handleTypeList(interaction) {
     const types = loadTicketTypes();
     if (!types.length) {
-        return interaction.reply({ content: 'No ticket types configured.', flags: 64 });
+        return interaction.reply({ content: 'No ticket types configured.', flags: EPHEMERAL });
     }
 
-    return interaction.reply({ content: types.map(formatTypeLine).join('\n'), flags: 64 });
+    return interaction.reply({ content: types.map(formatTypeLine).join('\n'), flags: EPHEMERAL });
 }
 
 async function handleTypeAdd(interaction) {
@@ -146,13 +147,13 @@ async function handleTypeAdd(interaction) {
     });
 
     if (!result.ok) {
-        return interaction.reply({ content: `❌ ${result.error}`, flags: 64 });
+        return interaction.reply({ content: `❌ ${result.error}`, flags: EPHEMERAL });
     }
 
     const refreshed = await refreshDashboard(interaction.guild);
     return interaction.reply({
         content: `✅ Ticket type \`${result.type.key}\` added.${refreshed ? ' Dashboard refreshed.' : ' (No dashboard is posted yet — run `/ticket setup` to post one.)'}`,
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 
@@ -178,18 +179,18 @@ async function handleTypeEdit(interaction) {
     if (pingTargetRole !== null) patch.pingTargetId = pingTargetRole.id;
 
     if (!Object.keys(patch).length) {
-        return interaction.reply({ content: '❌ Provide at least one field to change.', flags: 64 });
+        return interaction.reply({ content: '❌ Provide at least one field to change.', flags: EPHEMERAL });
     }
 
     const result = updateTicketType(key, patch);
     if (!result.ok) {
-        return interaction.reply({ content: `❌ ${result.error}`, flags: 64 });
+        return interaction.reply({ content: `❌ ${result.error}`, flags: EPHEMERAL });
     }
 
     const refreshed = await refreshDashboard(interaction.guild);
     return interaction.reply({
         content: `✅ Ticket type \`${key}\` updated.${refreshed ? ' Dashboard refreshed.' : ''}`,
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 
@@ -197,13 +198,13 @@ async function handleTypeRemove(interaction) {
     const key = interaction.options.getString('key', true);
     const result = removeTicketType(key);
     if (!result.ok) {
-        return interaction.reply({ content: `❌ ${result.error}`, flags: 64 });
+        return interaction.reply({ content: `❌ ${result.error}`, flags: EPHEMERAL });
     }
 
     const refreshed = await refreshDashboard(interaction.guild);
     return interaction.reply({
         content: `✅ Ticket type \`${key}\` removed. Existing tickets of this type are unaffected.${refreshed ? ' Dashboard refreshed.' : ''}`,
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 
@@ -219,7 +220,7 @@ function resolveType(input) {
 async function handleRaise(interaction) {
     const type = resolveType(interaction.options.getString('type', true));
     if (!type) {
-        return interaction.reply({ content: '❌ Unknown ticket type — pick one from the list as you type.', flags: 64 });
+        return interaction.reply({ content: '❌ Unknown ticket type — pick one from the list as you type.', flags: EPHEMERAL });
     }
 
     const reason = interaction.options.getString('reason')?.trim() || '';
@@ -227,7 +228,7 @@ async function handleRaise(interaction) {
     const details = interaction.options.getString('details')?.trim() || '';
 
     if (reason && identification) {
-        await interaction.deferReply({ flags: 64 });
+        await interaction.deferReply({ flags: EPHEMERAL });
         return ticketFlow.createTicket(interaction, type.key, { reason, identification, details });
     }
 
@@ -237,7 +238,7 @@ async function handleRaise(interaction) {
 async function handleClose(interaction) {
     const ticket = ticketStore.getTicketByChannelId(interaction.channelId);
     if (!ticket) {
-        return interaction.reply({ content: '❌ This command only works inside a ticket channel.', flags: 64 });
+        return interaction.reply({ content: '❌ This command only works inside a ticket channel.', flags: EPHEMERAL });
     }
 
     if (!isTicketStaff(interaction, ticket) && !isTicketRaiser(interaction, ticket)) {
@@ -247,7 +248,7 @@ async function handleClose(interaction) {
     if (ticket.status !== 'open') {
         return interaction.reply({
             content: `⚠️ This ticket is ${ticketFlow.describeStatus(ticket.status)} — it can only be closed while it's open.`,
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
@@ -258,7 +259,7 @@ async function handleClose(interaction) {
         return ticketFlow.promptCloseFeedbackModal(interaction, ticket, { reason, feedback });
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     const result = await ticketFlow.finalizeClose(interaction, ticket, { reason, feedback });
     if (!result.ok) {
         const latest = ticketStore.getTicketById(ticket.id);
@@ -288,7 +289,7 @@ module.exports = async function ticket(interaction) {
     if (sub === 'config') return handleConfig(interaction);
     if (sub === 'reset_counter') return handleResetCounter(interaction);
 
-    return interaction.reply({ content: '❌ Unknown subcommand.', flags: 64 });
+    return interaction.reply({ content: '❌ Unknown subcommand.', flags: EPHEMERAL });
 };
 
 module.exports.buildDashboardEmbed = buildDashboardEmbed;

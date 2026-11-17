@@ -4,6 +4,7 @@ const { getTestGame, addSeat, editSeatStatus, autoAssignWaitlist } = require('./
 const { updateGameProperties } = require('../../../utils/notion');
 const { buildSeatSelectRow } = require('./seatSelect');
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: ModalActionRow } = require('discord.js');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 function buildNumberModal(gameUID, field, title) {
 	return new ModalBuilder()
@@ -62,14 +63,14 @@ const prefix = {
 
 				case 'addPlayer': {
 					const row = await buildSeatSelectRow(gameUID, 'addPlayer');
-					if (!row) return await interaction.followUp({ content: '❌ No seats exist yet — add a seat first.', flags: 64 });
-					return await interaction.followUp({ content: 'Which seat is this player going into?', components: [row], flags: 64 });
+					if (!row) return await interaction.followUp({ content: '❌ No seats exist yet — add a seat first.', flags: EPHEMERAL });
+					return await interaction.followUp({ content: 'Which seat is this player going into?', components: [row], flags: EPHEMERAL });
 				}
 
 				case 'editStatus': {
 					const row = await buildSeatSelectRow(gameUID, 'editStatus');
-					if (!row) return await interaction.followUp({ content: '❌ No seats exist yet.', flags: 64 });
-					return await interaction.followUp({ content: 'Which seat do you want to update?', components: [row], flags: 64 });
+					if (!row) return await interaction.followUp({ content: '❌ No seats exist yet.', flags: EPHEMERAL });
+					return await interaction.followUp({ content: 'Which seat do you want to update?', components: [row], flags: EPHEMERAL });
 				}
 
 				case 'setStatus': {
@@ -84,17 +85,17 @@ const prefix = {
 					const result = await autoAssignWaitlist(gameUID);
 					const payload = await refreshDashboardPayload(gameUID);
 					await interaction.editReply(payload);
-					await interaction.followUp({ content: `⚖️ Demoted ${result.demotedCount}/${result.requested} seat(s) to Waitlisted.`, flags: 64 });
+					await interaction.followUp({ content: `⚖️ Demoted ${result.demotedCount}/${result.requested} seat(s) to Waitlisted.`, flags: EPHEMERAL });
 					return;
 				}
 
 				default:
 					console.warn(`[tableAdmin] Unhandled dashboard action: ${action}`);
-					return await interaction.followUp({ content: '❌ Unknown action.', flags: 64 });
+					return await interaction.followUp({ content: '❌ Unknown action.', flags: EPHEMERAL });
 			}
 		} catch (err) {
 			console.error('[tableAdmin] button error:', err);
-			const payload = { content: `❌ ${err.message}`, flags: 64 };
+			const payload = { content: `❌ ${err.message}`, flags: EPHEMERAL };
 			await interaction.followUp(payload).catch(() => {});
 		}
 	},

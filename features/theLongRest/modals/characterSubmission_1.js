@@ -1,5 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const memorialDrafts = require('../memorialDrafts');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 module.exports = async (interaction, client) => {
     if (!interaction.isModalSubmit()) return;
@@ -32,6 +33,6 @@ module.exports = async (interaction, client) => {
                  `**Please keep the Portrait URL and Embed Color handy for the next step.**\n\n` +
                  `Click the button below to continue to Part 2.`,
         components: [row],
-        flags: 64
+        flags: EPHEMERAL
     });
 };

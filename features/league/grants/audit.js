@@ -1,8 +1,9 @@
 const { EmbedBuilder } = require('discord.js');
 const { findCharacterStatusIssues } = require('../notion');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 async function handleAdminAuditCharacters(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let result;
     try {

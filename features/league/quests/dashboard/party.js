@@ -14,10 +14,11 @@ const { formatCurrency } = require('../../currency');
 const { getActiveCharacter, getCharacterInventory, getCharacterQuestLog } = require('../../notion');
 const { addCharacterToRoster, removeCharactersFromRoster } = require('../command');
 const { assertOwner, assertUnlocked, finishAndDelete, backRow, navRow, refreshDashboardMessage } = require('./common');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // Edit Party
 async function handleEditParty(interaction, questId) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let state;
     try {
@@ -301,7 +302,7 @@ async function handleToggleGroup(interaction, questId, grouping) {
         });
         assertOwner(state, interaction);
     } catch (err) {
-        return interaction.followUp({ content: err.message, flags: 64 }).catch(() => {});
+        return interaction.followUp({ content: err.message, flags: EPHEMERAL }).catch(() => {});
     }
 
     const newMessage = await interaction.channel.send(renderMainView(state.draft, state.roster, { grouping, quest: state.quest }));
@@ -366,7 +367,7 @@ async function respondPartyInfo(interaction, questId, index, isUpdate) {
     if (isUpdate) {
         await interaction.deferUpdate();
     } else {
-        await interaction.deferReply({ flags: 64 });
+        await interaction.deferReply({ flags: EPHEMERAL });
     }
 
     let state;

@@ -1,5 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getCharacterInventory } = require('../notion');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const PAGE_SIZE = 12;
 const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -66,7 +67,7 @@ function scheduleTimeout(message, timeoutMs) {
 
 module.exports = {
     async sendInventory(interaction) {
-        await interaction.deferReply({ flags: 64 });
+        await interaction.deferReply({ flags: EPHEMERAL });
 
         let character;
         try {

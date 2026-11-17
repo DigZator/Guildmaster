@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { getFeeds, addFeed, removeFeed } = require('./store');
 const Parser = require('rss-parser');
 const { FEEDS_CHANNEL_ID } = require('../../../data/channels');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const parser = new Parser();
 
@@ -15,10 +16,10 @@ module.exports = async (interaction, client) => {
             ?? interaction.guild.channels.cache.get(FEEDS_CHANNEL_ID);
 
         if (!channel) {
-            return interaction.reply({ content: `❌ Could not find the feeds channel. Please specify one.`, flags: 64 });
+            return interaction.reply({ content: `❌ Could not find the feeds channel. Please specify one.`, flags: EPHEMERAL });
         }
 
-        await interaction.deferReply({ flags: 64 });
+        await interaction.deferReply({ flags: EPHEMERAL });
         try {
             await parser.parseURL(url);
         } catch {
@@ -34,13 +35,13 @@ module.exports = async (interaction, client) => {
     if (sub === 'remove') {
         const query  = interaction.options.getString('query');
         const result = removeFeed(query);
-        if (result.error) return interaction.reply({ content: `❌ ${result.error}`, flags: 64 });
-        return interaction.reply({ content: `✅ Removed **${result.removed.name}**.`, flags: 64 });
+        if (result.error) return interaction.reply({ content: `❌ ${result.error}`, flags: EPHEMERAL });
+        return interaction.reply({ content: `✅ Removed **${result.removed.name}**.`, flags: EPHEMERAL });
     }
 
     if (sub === 'list') {
         const feeds = getFeeds();
-        if (!feeds.length) return interaction.reply({ content: 'No RSS feeds configured yet.', flags: 64 });
+        if (!feeds.length) return interaction.reply({ content: 'No RSS feeds configured yet.', flags: EPHEMERAL });
 
         const embed = new EmbedBuilder()
             .setTitle('📰 RSS Feeds')
@@ -48,6 +49,6 @@ module.exports = async (interaction, client) => {
                 `**${f.name}**\n<#${f.channelId}> · Last: ${f.lastPostTitle ? `*${f.lastPostTitle}*` : 'none yet'}`
             ).join('\n\n'));
 
-        return interaction.reply({ embeds: [embed], flags: 64 });
+        return interaction.reply({ embeds: [embed], flags: EPHEMERAL });
     }
 };

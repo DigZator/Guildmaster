@@ -4,12 +4,13 @@ const { invalidateCache } = require('../../shared/data-access/cache');
 const editGameSession = require('./editGameSession');
 const { formatValue } = require('./editGameFormat');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = async (interaction, client) => {
     const session = editGameSession.get(interaction.user.id);
 
     if (!session) {
-        await interaction.reply({ content: '❌ Session expired. Run `/edit_game` again.', flags: 64 });
+        await interaction.reply({ content: '❌ Session expired. Run `/edit_game` again.', flags: EPHEMERAL });
         return;
     }
 
@@ -25,7 +26,7 @@ module.exports = async (interaction, client) => {
 
         await interaction.reply({
             content: `✅ **${session.fieldName}** updated for **${session.gameName}**.`,
-            flags: 64,
+            flags: EPHEMERAL,
         });
 
         const ctrlChannel = GUILDMASTER_CTRL_CHANNEL_ID ? interaction.guild.channels.cache.get(GUILDMASTER_CTRL_CHANNEL_ID) : null;
@@ -50,6 +51,6 @@ module.exports = async (interaction, client) => {
         }
     } catch (error) {
         console.error('[editGameModal] Error:', error);
-        await interaction.reply({ content: `❌ ${error.message}`, flags: 64 });
+        await interaction.reply({ content: `❌ ${error.message}`, flags: EPHEMERAL });
     }
 };

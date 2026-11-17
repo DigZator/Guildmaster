@@ -2,9 +2,10 @@ const auth = require('../../shared/auth');
 const directLineStore = require('./store');
 const directLineFlow = require('./flow');
 const { decodeId } = require('./directLineId');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 function denyMessage() {
-    return { content: '❌ Only HR can do that.', flags: 64 };
+    return { content: '❌ Only HR can do that.', flags: EPHEMERAL };
 }
 
 function outOfDateText(record) {
@@ -22,7 +23,7 @@ async function handleDirectLineButton(interaction) {
     const record = directLineStore.getDirectLineById(dlId);
 
     if (!record) {
-        return interaction.reply({ content: '❌ This direct line record no longer exists.', flags: 64 });
+        return interaction.reply({ content: '❌ This direct line record no longer exists.', flags: EPHEMERAL });
     }
 
     if (!auth.can('hr', interaction)) {
@@ -50,7 +51,7 @@ async function handleDirectLineButton(interaction) {
         case 'fileNo':
             return directLineFlow.cancelFile(interaction);
         default:
-            return interaction.reply({ content: '❌ This control isn\'t wired up yet.', flags: 64 });
+            return interaction.reply({ content: '❌ This control isn\'t wired up yet.', flags: EPHEMERAL });
     }
 }
 

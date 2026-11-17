@@ -13,6 +13,7 @@ const directLineStore = require('./store');
 const { buildTranscript, sendTranscript, formatStamp } = require('../../shared/transcript');
 const { reportError } = require('../../shared/utilities/errorReporter');
 const { encodeId } = require('./directLineId');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const CHANNEL_PREFIX = 'dc-';
 
@@ -312,7 +313,7 @@ async function promptFileConfirm(interaction, record) {
     await interaction.reply({
         content: '🗄️ File this direct line? This is **irreversible** — the transcript will be logged and the channel will be deleted. Attachments are reposted to the log where possible; anything too large or that can\'t be downloaded is listed as not preserved.',
         components: [confirmRow(record.id, 'file')],
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 

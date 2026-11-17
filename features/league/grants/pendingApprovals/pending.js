@@ -1,9 +1,10 @@
 const { EmbedBuilder } = require('discord.js');
 const { getAll } = require('../../pendingActions');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /leagueadmin pending ─────────────────────────────────────────────────────
 async function handlePending(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const actions = getAll().filter(a => a.status === 'pending' || a.status === 'partially_failed');
 

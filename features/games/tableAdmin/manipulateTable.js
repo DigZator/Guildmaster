@@ -2,12 +2,13 @@
 
 const { getTestGame } = require('./data');
 const { renderDashboard } = require('./dashboardRender');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 module.exports = async (interaction) => {
 
 	const gameUID = interaction.options.getString('game');
 
-	await interaction.deferReply({ flags: 64 });
+	await interaction.deferReply({ flags: EPHEMERAL });
 
 	let game;
 	try {

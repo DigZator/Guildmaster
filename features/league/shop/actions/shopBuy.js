@@ -11,6 +11,7 @@ const { formatCurrency } = require('../../currency');
 const { availableDiscounts } = require('../../reputationDiscounts');
 const { setPendingBuy } = require('../buySessions');
 const { sendAdminLog } = require('../../adminLog');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league shop buy ─────────────────────────────────────────────────────────
 
@@ -112,7 +113,7 @@ async function finalizePurchase(interaction, { char, characterName, code, entry,
 }
 
 async function handleShopBuy(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const code = interaction.options.getString('id').toUpperCase();
 

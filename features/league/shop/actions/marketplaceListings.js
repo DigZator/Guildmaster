@@ -11,11 +11,12 @@ const {
 } = require('../../notion');
 const { formatCurrency } = require('../../currency');
 const { sendAdminLog } = require('../../adminLog');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league marketplace browse ───────────────────────────────────────────────
 
 async function handleMarketplaceBrowse(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const rarity = interaction.options.getString('rarity') ?? null;
     const sortBy = interaction.options.getString('sort')   ?? null;
@@ -35,7 +36,7 @@ async function handleMarketplaceBrowse(interaction) {
 // ─── /league marketplace list ─────────────────────────────────────────────────
 
 async function handleMarketplaceList(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const itemPageId  = interaction.options.getString('item_id');
     const askingPrice = interaction.options.getInteger('price');
@@ -112,7 +113,7 @@ async function handleMarketplaceList(interaction) {
 // ─── /league marketplace unlist ───────────────────────────────────────────────
 
 async function handleMarketplaceUnlist(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const listingId = interaction.options.getString('id').toUpperCase();
 

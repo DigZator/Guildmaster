@@ -1,5 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { buildEmbed } = require('./listGamesHelper');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 function buildPaginationRow(page, totalPages, userId) {
     return new ActionRowBuilder().addComponents(
@@ -26,7 +27,7 @@ module.exports = {
             const userId = parts[4];
 
             const session = client.listGamesSessions?.get(userId);
-            if (!session) return interaction.reply({ content: '❌ Session expired. Run the command again.', flags: 64 });
+            if (!session) return interaction.reply({ content: '❌ Session expired. Run the command again.', flags: EPHEMERAL });
 
             const { embed, totalPages } = buildEmbed(session.sorted, page, session.isAdmin);
             await interaction.update({ embeds: [embed], components: [buildPaginationRow(page, totalPages, userId)] });
@@ -38,7 +39,7 @@ module.exports = {
             const userId = parts[4];
 
             const session = client.listGamesSessions?.get(userId);
-            if (!session) return interaction.reply({ content: '❌ Session expired. Run the command again.', flags: 64 });
+            if (!session) return interaction.reply({ content: '❌ Session expired. Run the command again.', flags: EPHEMERAL });
 
             const { embed, totalPages } = buildEmbed(session.sorted, page, session.isAdmin);
             await interaction.update({ embeds: [embed], components: [buildPaginationRow(page, totalPages, userId)] });

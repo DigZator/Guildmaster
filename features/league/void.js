@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getPageById, setItemStatus, adjustCharacterNumber, getCharacterGold } = require('./notion');
 const { formatCurrency } = require('./currency');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../data/channels');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 async function sendVoidAuditLog(interaction, fields, color = 0x992d22) {
     const channel = interaction.guild.channels.cache.get(LEAGUE_ADMIN_CHANNEL_ID);
@@ -22,7 +23,7 @@ async function resolveOwnActiveCharacter(interaction) {
 
 // ─── /league void item ───────────────────────────────────────────────
 async function handleVoidItem(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const itemPageId = interaction.options.getString('id');
     const character = await resolveOwnActiveCharacter(interaction);
@@ -63,7 +64,7 @@ async function handleVoidItem(interaction) {
 
 // ─── /league void gold ───────────────────────────────────────────────
 async function handleVoidGold(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const amount = interaction.options.getNumber('amount'); // positive value to remove
     if (amount <= 0) {

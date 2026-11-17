@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getCharacterInventory } = require('../notion');
 const { formatCurrency } = require('../currency');
 const { getCatalogueItemByName, defaultPriceFor } = require('../fiveEtools/catalogue');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const RARITY_COLORS = {
     'Common':    0xaaaaaa,
@@ -20,11 +21,11 @@ async function sendItemDetail(interaction) {
     if (!autoItemId && serialInput == null) {
         return interaction.reply({
             content: 'Pick an item from the list, or use `id` with the exact number from `/league inv` for a precise check.',
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
-    await interaction.deferReply({ flags: isPublic ? 0 : 64 });
+    await interaction.deferReply({ flags: isPublic ? 0 : EPHEMERAL });
 
     let character;
     try {

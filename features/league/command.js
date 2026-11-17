@@ -11,6 +11,7 @@ const { transferGold, showBalance } = require('./gold');
 const { showLeaderboard } = require('./leaderboard/command');
 const { showQuestLog } = require('./quests/log');
 const { changeCharacterStatus } = require('./character/status');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 async function league(interaction, client) {
 	const group = interaction.options.getSubcommandGroup(false);
@@ -58,7 +59,7 @@ async function league(interaction, client) {
 			return showLeaderboard(interaction, client);
 
 		case 'dashboard': {
-			await interaction.deferReply({ flags: 64 });
+			await interaction.deferReply({ flags: EPHEMERAL });
 			const { buildDashboardEmbed, buildDashboardRows } = require('./dashboard/dashboard');
 			const character = await getActiveCharacter(interaction.user.id).catch(() => null);
 			return interaction.editReply({ embeds: [buildDashboardEmbed(character)], components: buildDashboardRows(!!character) });
@@ -67,7 +68,7 @@ async function league(interaction, client) {
 		default:
 			return interaction.reply({
 				content: 'Unknown subcommand.',
-				flags: 64,
+				flags: EPHEMERAL,
 			});
 	}
 }
@@ -82,7 +83,7 @@ async function handleCharacterGroup(interaction) {
 	const sub = interaction.options.getSubcommand();
 	if (sub === 'status') return changeCharacterStatus(interaction);
 
-	return interaction.reply({ content: 'Unknown subcommand.', flags: 64 });
+	return interaction.reply({ content: 'Unknown subcommand.', flags: EPHEMERAL });
 }
 
 module.exports = {

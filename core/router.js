@@ -9,12 +9,12 @@ const { findCustomIdRoute } = require('./registry');
 // purpose in `kinds` below: moving the code never changes what users see.
 
 const DEFAULT_DENIED = '❌ You do not have permission to use this command.';
-const ephemeral = 64;
+const { EPHEMERAL } = require('../shared/utilities/ephemeral');
 
 const respondTo = (interaction, content, { followUpWhenAnswered }) => {
     const answered = interaction.replied || interaction.deferred;
     if (answered && !followUpWhenAnswered) return null;
-    return answered ? interaction.followUp({ content, flags: ephemeral }) : interaction.reply({ content, flags: ephemeral });
+    return answered ? interaction.followUp({ content, flags: EPHEMERAL }) : interaction.reply({ content, flags: EPHEMERAL });
 };
 
 // Everything that differs between the four old routers, in one table.
@@ -44,7 +44,7 @@ const kinds = {
         followUpWhenAnswered: false,
         unhandled: async (i) => {
             console.warn(`[modalHandler] Unhandled modal submission: ${i.customId}`);
-            if (!i.replied && !i.deferred) await i.reply({ content: '❌ This form isn\'t wired up yet.', flags: ephemeral });
+            if (!i.replied && !i.deferred) await i.reply({ content: '❌ This form isn\'t wired up yet.', flags: EPHEMERAL });
         },
         expiredFirst: true,
     },

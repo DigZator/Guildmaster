@@ -1,7 +1,7 @@
 const keepAliveStore = require('./store');
 const { KEEP_ALIVE_DURATION, missingPermissions, sendToCtrl } = require('./job');
 
-const EPHEMERAL = 64;
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 module.exports = async (interaction, client) => {
     const thread = interaction.channel;

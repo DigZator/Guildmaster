@@ -1,11 +1,12 @@
 const { EmbedBuilder } = require('discord.js');
 const { getById, removeById } = require('../../pendingActions');
 const { sendAdminLog } = require('../../adminLog');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /leagueadmin clear ────────────────────────────────────────────────────────
 async function handleClear(interaction) {
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const results = [];
 

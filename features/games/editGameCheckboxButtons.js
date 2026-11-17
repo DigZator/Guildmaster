@@ -4,6 +4,7 @@ const { invalidateCache } = require('../../shared/data-access/cache');
 const editGameSession = require('./editGameSession');
 const { formatValue } = require('./editGameFormat');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = {
 
@@ -16,7 +17,7 @@ module.exports = {
             const choice = rest.slice(lastUnderscore + 1);
 
             if (interaction.user.id !== ownerId) {
-                await interaction.reply({ content: '❌ This isn\'t your edit session.', flags: 64 });
+                await interaction.reply({ content: '❌ This isn\'t your edit session.', flags: EPHEMERAL });
                 return;
             }
 

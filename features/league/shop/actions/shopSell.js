@@ -3,6 +3,7 @@ const { getActiveCharacter, getPageById, getCharacterInventory } = require('../.
 const { getCatalogueItemByName, defaultPriceFor } = require('../../fiveEtools/catalogue');
 const { formatCurrency } = require('../../currency');
 const { setPendingSell } = require('../sellSessions');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league shop sell ─────────────────────────────────────────────────────────
 
@@ -35,7 +36,7 @@ function priceItemForSale(item, labelForErrors) {
 }
 
 async function handleShopSell(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const autoItemId  = interaction.options.getString('item');
     const legacyInput = interaction.options.getString('item_id');

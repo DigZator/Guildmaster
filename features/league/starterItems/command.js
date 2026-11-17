@@ -7,6 +7,7 @@ const {
 const { buildInitialSession } = require('./equipmentFlow');
 const { getActiveCharacter } = require('../notion');
 const starterItemsButtons = require('./buttons');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const FIVEE_DATA_DIR = path.join(__dirname, '..', '..', '..', '..', '5etools-src', 'data');
 
@@ -37,7 +38,7 @@ async function backgroundAutocomplete(interaction) {
 }
 
 async function leagueStarterItems(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let character;
     try {

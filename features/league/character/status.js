@@ -1,5 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getActiveCharacter, getPageById } = require('../notion');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 async function changeCharacterStatus(interaction) {
 	const characterId = interaction.options.getString('character');
@@ -10,19 +11,19 @@ async function changeCharacterStatus(interaction) {
 		character = await getPageById(characterId);
 	} catch (err) {
 		console.error('[league character status] Notion error fetching character:', err);
-		return interaction.reply({ content: '❌ Could not reach the database. Please try again.', flags: 64 });
+		return interaction.reply({ content: '❌ Could not reach the database. Please try again.', flags: EPHEMERAL });
 	}
 
 	const ownerDiscordId = character?.properties?.['Discord ID']?.rich_text?.[0]?.plain_text ?? null;
 	if (!character || ownerDiscordId !== interaction.user.id) {
-		return interaction.reply({ content: '❌ That character was not found among your own characters.', flags: 64 });
+		return interaction.reply({ content: '❌ That character was not found among your own characters.', flags: EPHEMERAL });
 	}
 
 	const characterName  = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
 	const currentStatus  = character.properties['Status']?.select?.name ?? 'Unknown';
 
 	if (currentStatus === newStatus) {
-		return interaction.reply({ content: `**${characterName}** is already **${newStatus}**.`, flags: 64 });
+		return interaction.reply({ content: `**${characterName}** is already **${newStatus}**.`, flags: EPHEMERAL });
 	}
 
 	let warningLine = '';
@@ -32,7 +33,7 @@ async function changeCharacterStatus(interaction) {
 			currentlyActive = await getActiveCharacter(interaction.user.id);
 		} catch (err) {
 			console.error('[league character status] Notion error checking active character:', err);
-			return interaction.reply({ content: '❌ Could not reach the database. Please try again.', flags: 64 });
+			return interaction.reply({ content: '❌ Could not reach the database. Please try again.', flags: EPHEMERAL });
 		}
 		if (currentlyActive && currentlyActive.id !== character.id) {
 			const otherName = currentlyActive.properties['Character Name']?.title?.[0]?.plain_text ?? 'your other character';
@@ -56,7 +57,7 @@ async function changeCharacterStatus(interaction) {
 			.setStyle(ButtonStyle.Secondary),
 	);
 
-	return interaction.reply({ embeds: [embed], components: [row], flags: 64 });
+	return interaction.reply({ embeds: [embed], components: [row], flags: EPHEMERAL });
 }
 
 module.exports = {

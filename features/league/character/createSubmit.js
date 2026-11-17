@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { createCharacter, getActiveCharacter, createInventoryItem } = require('../notion');
 const { getCatalogueItemByName, defaultPriceFor } = require('../fiveEtools/catalogue');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const LEAGUE_PLAYERS_ROLE_ID = process.env.LEAGUE_PLAYERS_ROLE_ID;
 const STARTER_POTION_NAME = 'Potion of Healing';
@@ -46,7 +47,7 @@ async function handleLeagueCreate(interaction, client) {
 	  const discordUsername = interaction.user.tag;
 	  const forumThreadId   = interaction.channelId;
 
-	  await interaction.deferReply({ flags : 64 });
+	  await interaction.deferReply({ flags : EPHEMERAL });
 
 	  if (!isValidInput(scores)) {
 	  	return interaction.editReply({

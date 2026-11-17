@@ -7,6 +7,7 @@ const { hasCustomRegistrationLink } = require('./registrationDefaults');
 const { sessions } = require('./sessionStore');
 const { reportError } = require('../../shared/utilities/errorReporter');
 const { QUEST_BOARD_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = {
 
@@ -24,7 +25,7 @@ module.exports = {
             }
 
             const session = sessions.get(interaction.user.id);
-            if (!session) return interaction.followUp({ content: SESSION_GONE_MESSAGE, flags: 64 });
+            if (!session) return interaction.followUp({ content: SESSION_GONE_MESSAGE, flags: EPHEMERAL });
             if (!isCurrentPreview(session, interaction)) {
                 return interaction.editReply({ content: STALE_PREVIEW_MESSAGE, embeds: [], components: [] });
             }
@@ -37,7 +38,7 @@ module.exports = {
 
             if (!outputChannel) {
                 restoreSession(interaction.user.id, session);
-                return interaction.followUp({ content: '❌ Output channel not found.', flags: 64 });
+                return interaction.followUp({ content: '❌ Output channel not found.', flags: EPHEMERAL });
             }
 
             const roleMention = getRoleMention(session.game, interaction.guild);
@@ -57,7 +58,7 @@ module.exports = {
                 });
                 return interaction.followUp({
                     content: `❌ Couldn't post the announcement: ${error.message}\nYour preview is still here — fix the problem and try again.`,
-                    flags: 64,
+                    flags: EPHEMERAL,
                 });
             }
 
@@ -93,13 +94,13 @@ module.exports = {
                         console.error('[announcement] Failed to post WhatsApp copy to guildmaster-ctrl:', e);
                         await interaction.followUp({
                             content: '⚠️ Announcement posted, but the WhatsApp copy could not be saved to guildmaster-ctrl. Check the bot logs.',
-                            flags: 64,
+                            flags: EPHEMERAL,
                         }).catch(() => {});
                     }
                 } else {
                     await interaction.followUp({
                         content: '⚠️ Announcement posted, but `GUILDMASTER_CTRL_CHANNEL_ID` is not configured or the channel could not be found — the WhatsApp copy was not saved anywhere.',
-                        flags: 64,
+                        flags: EPHEMERAL,
                     }).catch(() => {});
                 }
             }
@@ -182,7 +183,7 @@ module.exports = {
             }
 
             if (scheduleNote) {
-                await interaction.followUp({ content: scheduleNote, flags: 64 });
+                await interaction.followUp({ content: scheduleNote, flags: EPHEMERAL });
             }
         
 

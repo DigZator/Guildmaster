@@ -1,23 +1,24 @@
 const { getCachedGames } = require('../../shared/data-access/cache');
 const { formatPlayerList } = require('./fillout');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = async (interaction) => {
 
     const gameUID = interaction.options.getString('game');
 
     if (!gameUID) {
-        await interaction.reply({ content: '❌ Please select a game.', flags: 64 });
+        await interaction.reply({ content: '❌ Please select a game.', flags: EPHEMERAL });
         return;
     }
 
     const games = await getCachedGames();
     const game = games?.find(g => g.uid === gameUID);
     if (!game) {
-        await interaction.reply({ content: '❌ Game not found.', flags: 64 });
+        await interaction.reply({ content: '❌ Game not found.', flags: EPHEMERAL });
         return;
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     try {
         const totalSeats = game.totalSeats ?? 4;

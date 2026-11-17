@@ -6,7 +6,7 @@ const { getConfig, setConfig, BOUNDS } = require('./config');
 const { buildPendingPage } = require('./pending');
 const { START_ID } = require('./buttons');
 
-const EPHEMERAL = 64;
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 function buildDashboardEmbed(cfg = getConfig()) {
     return new EmbedBuilder()

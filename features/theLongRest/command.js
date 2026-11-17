@@ -3,14 +3,15 @@ const { getConfig, setConfig } = require('./dashboardConfig');
 const { buildDashboardEmbed, buildDashboardRow, buildSubmissionModal } = require('./buttons');
 const { buildRemoveConfirmation } = require('./removeFlow');
 const { reindexChannel } = require('./memorialReindex');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 async function handleReindex(interaction) {
     const outputChannel = interaction.guild.channels.cache.get(THE_LONG_REST_CHANNEL_ID);
     if (!outputChannel) {
-        return interaction.reply({ content: 'Output channel not found. Contact an admin.', flags: 64 });
+        return interaction.reply({ content: 'Output channel not found. Contact an admin.', flags: EPHEMERAL });
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     try {
         const { count, truncated } = await reindexChannel(outputChannel);
@@ -31,14 +32,14 @@ async function handleSetup(interaction) {
             const oldChannel = await interaction.guild.channels.fetch(existing.dashboardChannelId);
             const oldMessage = await oldChannel.messages.fetch(existing.dashboardMessageId);
             await oldMessage.edit({ embeds: [buildDashboardEmbed()], components: [buildDashboardRow()] });
-            await interaction.reply({ content: `✅ Dashboard refreshed in ${oldChannel}.`, flags: 64 });
+            await interaction.reply({ content: `✅ Dashboard refreshed in ${oldChannel}.`, flags: EPHEMERAL });
             return;
         } catch { /* fall through and post a new one */ }
     }
 
     const message = await interaction.channel.send({ embeds: [buildDashboardEmbed()], components: [buildDashboardRow()] });
     setConfig({ dashboardChannelId: interaction.channel.id, dashboardMessageId: message.id });
-    await interaction.reply({ content: '✅ The Long Rest dashboard posted here.', flags: 64 });
+    await interaction.reply({ content: '✅ The Long Rest dashboard posted here.', flags: EPHEMERAL });
 }
 
 module.exports = async (interaction, client) => {
@@ -62,7 +63,7 @@ module.exports = async (interaction, client) => {
                     content: TLR_SUBMISSION_CHANNEL_ID
                         ? `This command can only be used in <#${TLR_SUBMISSION_CHANNEL_ID}>.`
                         : 'The submission channel is not configured. Contact an admin.',
-                    flags: 64
+                    flags: EPHEMERAL
                 });
                 return;
             }
@@ -72,7 +73,7 @@ module.exports = async (interaction, client) => {
             if (!outputChannel) {
                 await interaction.reply({
                     content: 'Output channel not found. Contact an admin.',
-                    flags: 64
+                    flags: EPHEMERAL
                 });
                 return;
             }
@@ -86,11 +87,11 @@ module.exports = async (interaction, client) => {
             if (!allowedChannel.includes(interaction.channel.id)) {
                 await interaction.reply({
                     content: 'This command can only be used in the memorial submission or control channel.',
-                    flags: 64
+                    flags: EPHEMERAL
                 });
                 return;
             }
-            await interaction.deferReply({flags: 64});
+            await interaction.deferReply({flags: EPHEMERAL});
             const messageId = interaction.options.getString('message_id');
 
             const { payload } = await buildRemoveConfirmation(interaction, messageId);
@@ -101,7 +102,7 @@ module.exports = async (interaction, client) => {
         if (!interaction.replied && !interaction.deferred) {
             await interaction.reply({
                 content: 'There was an error while executing this command!',
-                flags: 64
+                flags: EPHEMERAL
             });
         }
     }

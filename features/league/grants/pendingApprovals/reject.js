@@ -4,13 +4,14 @@ const { getById, removeById, updateById } = require('../../pendingActions');
 const { rejectReportLine } = require('../../quests/reportAppliers');
 const questDrafts = require('../../quests/drafts');
 const { sendAdminLog } = require('../../adminLog');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /leagueadmin reject ──────────────────────────────────────────────────────────────────
 async function handleReject(interaction) {
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
     const reason = interaction.options.getString('reason');
     const lineId = interaction.options.getString('line');
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     if (lineId && ids.length !== 1) {
         return interaction.editReply({ content: '❌ `line` can only be used when rejecting a single `id`.' });

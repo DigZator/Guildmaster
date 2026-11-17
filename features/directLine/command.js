@@ -1,5 +1,6 @@
 const directLineStore = require('./store');
 const directLineFlow = require('./flow');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 function collectTargets(interaction) {
     const users = ['target', 'target2', 'target3', 'target4']
@@ -28,13 +29,13 @@ async function handleCreate(interaction) {
     const targets = collectTargets(interaction);
 
     if (!targets.length) {
-        return interaction.reply({ content: '❌ You must provide at least one target.', flags: 64 });
+        return interaction.reply({ content: '❌ You must provide at least one target.', flags: EPHEMERAL });
     }
     if (targets.some(u => u.bot)) {
-        return interaction.reply({ content: '❌ You can\'t target a bot.', flags: 64 });
+        return interaction.reply({ content: '❌ You can\'t target a bot.', flags: EPHEMERAL });
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     await directLineFlow.createDirectLine(interaction, targets);
 }
 
@@ -43,22 +44,22 @@ async function handleAttach(interaction) {
     const remove = interaction.options.getBoolean('remove', true);
 
     if (!targets.length) {
-        return interaction.reply({ content: '❌ You must provide at least one target.', flags: 64 });
+        return interaction.reply({ content: '❌ You must provide at least one target.', flags: EPHEMERAL });
     }
     if (targets.some(u => u.bot)) {
-        return interaction.reply({ content: '❌ You can\'t target a bot.', flags: 64 });
+        return interaction.reply({ content: '❌ You can\'t target a bot.', flags: EPHEMERAL });
     }
 
     const { record, error } = findOpenDirectLine(interaction);
-    if (error) return interaction.reply({ content: error, flags: 64 });
+    if (error) return interaction.reply({ content: error, flags: EPHEMERAL });
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     await directLineFlow.attachTargets(interaction, record, targets, remove);
 }
 
 async function handleFile(interaction) {
     const { record, error } = findOpenDirectLine(interaction);
-    if (error) return interaction.reply({ content: error, flags: 64 });
+    if (error) return interaction.reply({ content: error, flags: EPHEMERAL });
 
     await directLineFlow.promptFileConfirm(interaction, record);
 }
@@ -70,5 +71,5 @@ module.exports = async function direct_line(interaction) {
     if (sub === 'attach') return handleAttach(interaction);
     if (sub === 'file') return handleFile(interaction);
 
-    return interaction.reply({ content: '❌ Unknown subcommand.', flags: 64 });
+    return interaction.reply({ content: '❌ Unknown subcommand.', flags: EPHEMERAL });
 };

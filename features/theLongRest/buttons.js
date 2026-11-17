@@ -12,6 +12,7 @@ const { buildRemoveConfirmation } = require('./removeFlow');
 const memorialIndex = require('./memorialIndex');
 const { isTlrMod } = require('./roles');
 const { MEMORIAL_LIMITS } = require('./memorialEmbed');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const MAX_SELECT_OPTIONS = 25; // Discord's limit for a select menu
 
@@ -135,7 +136,7 @@ async function handleRemoveRequestButton(interaction) {
     }
     rows.push(new ActionRowBuilder().addComponents(...buttons));
 
-    await interaction.reply({ content, components: rows, flags: 64 });
+    await interaction.reply({ content, components: rows, flags: EPHEMERAL });
 }
 
 async function handleRemoveSelect(interaction) {
@@ -152,7 +153,7 @@ async function handleRemoveSelect(interaction) {
 
 async function handleRemoveProceedButton(interaction) {
     if (!isTlrMod(interaction.member)) {
-        return interaction.reply({ content: '❌ Only moderators can remove a memorial by message ID.', flags: 64 });
+        return interaction.reply({ content: '❌ Only moderators can remove a memorial by message ID.', flags: EPHEMERAL });
     }
 
     const modal = new ModalBuilder()
@@ -180,7 +181,7 @@ async function handleRemoveModalSubmit(interaction) {
 
     const { payload } = await buildRemoveConfirmation(interaction, messageId);
 
-    await interaction.reply({ ...payload, flags: 64 });
+    await interaction.reply({ ...payload, flags: EPHEMERAL });
 }
 
 module.exports = {

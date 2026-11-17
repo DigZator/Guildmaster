@@ -11,11 +11,12 @@ const {
 const { formatCurrency } = require('../../currency');
 const { sendAdminLog } = require('../../adminLog');
 const { MARKETPLACE_TAX_RATE } = require('../constants');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league marketplace buy ──────────────────────────────────────────────────
 
 async function handleMarketplaceBuy(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const listingId = interaction.options.getString('id').toUpperCase();
 

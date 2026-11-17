@@ -18,4 +18,15 @@ module.exports = [
         plugins: { boundaries: boundaries.plugin },
         rules: { 'boundaries/feature-boundaries': 'error' },
     },
+    {
+        // Ephemeral replies are written with the named constant, never the bare number (plan step D4).
+        files: ['**/*.js'],
+        ignores: ['tests/**', 'shared/utilities/ephemeral.js'],
+        rules: {
+            'no-restricted-syntax': ['error', {
+                selector: "Property[key.name='flags'] Literal[value=64]",
+                message: "Write `flags: EPHEMERAL` (require('shared/utilities/ephemeral')), not the bare number 64.",
+            }],
+        },
+    },
 ];

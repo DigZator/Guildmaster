@@ -14,11 +14,12 @@ const leagueNotion = require('../../notion');
 const { formatCurrency } = require('../../currency');
 const { sendAdminLog } = require('../../adminLog');
 const { coerceParam, postToCharacterThread } = require('./helpers');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league downtime progress ─────────────────────────────────────────────────
 
 async function handleDowntimeProgress(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const dtaId = interaction.options.getString('id').toUpperCase();
     const days  = interaction.options.getInteger('days');

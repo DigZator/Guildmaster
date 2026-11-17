@@ -1,10 +1,11 @@
 const { renderMainView, loadDashboardState } = require('../../quests/dashboardRender');
 const { attachDashboardExpiry } = require('../../dashboard/expiry');
 const { DM_ROLE_ID } = require('../shared');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 async function handleDashboard(interaction) {
     if (!interaction.member.roles.cache.has(DM_ROLE_ID)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
+        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: EPHEMERAL });
     }
 
     await interaction.deferReply();

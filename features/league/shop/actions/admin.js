@@ -2,11 +2,12 @@ const { syncCatalogue, getCatalogueMeta } = require('../../fiveEtools/catalogue'
 const { syncSpells, getSpellsMeta } = require('../../fiveEtools/spells');
 const { stockItem, unstockItem, restockItem } = require('../floor');
 const { formatCurrency } = require('../../currency');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /leagueadmin shop stock ───────────────────────────────────────────────────
 
 async function handleAdminShopStock(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     const code = interaction.options.getString('code');
     const quantity = interaction.options.getInteger('quantity');
     const price = interaction.options.getInteger('price');
@@ -20,7 +21,7 @@ async function handleAdminShopStock(interaction) {
 // ─── /leagueadmin shop stockall — bulk-stocks the whole catalogue (or a rarity slice) ──
 
 async function handleAdminShopStockAll(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     const rarityFilter = interaction.options.getString('rarity');
     const { items } = require('../../fiveEtools/catalogue').loadCatalogue();
     const list = rarityFilter ? items.filter(i => i.rarity === rarityFilter) : items;
@@ -38,7 +39,7 @@ async function handleAdminShopStockAll(interaction) {
 // ─── /leagueadmin shop unstock ─────────────────────────────────────────────────
 
 async function handleAdminShopUnstock(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     const code = interaction.options.getString('code').toUpperCase();
     const item = unstockItem(code);
     if (!item) return interaction.editReply({ content: `❌ No shop item found with code \`${code}\`.` });
@@ -48,7 +49,7 @@ async function handleAdminShopUnstock(interaction) {
 // ─── /leagueadmin shop restock ─────────────────────────────────────────────────
 
 async function handleAdminShopRestock(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     const code = interaction.options.getString('code').toUpperCase();
     const item = restockItem(code);
     if (!item) return interaction.editReply({ content: `❌ No shop item found with code \`${code}\`.` });

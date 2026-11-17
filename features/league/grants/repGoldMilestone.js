@@ -4,6 +4,7 @@ const { applyMilestones } = require('../milestones');
 const { formatCurrency } = require('../currency');
 const { sendAdminLog } = require('../adminLog');
 const { REP_MAX, resolveTarget } = require('./shared');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 async function runAdminGrant(interaction, config) {
     const { label, getAmount, validateAmount, mutate, buildEmbed, buildReply } = config;
@@ -12,11 +13,11 @@ async function runAdminGrant(interaction, config) {
     if (validateAmount) {
         const validationError = validateAmount(amount);
         if (validationError) {
-            return interaction.reply({ content: validationError, flags: 64 });
+            return interaction.reply({ content: validationError, flags: EPHEMERAL });
         }
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let resolved;
     try {

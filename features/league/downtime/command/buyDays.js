@@ -1,5 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getActiveCharacter } = require('../../notion');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league downtime buy-days ─────────────────────────────────────────────────
 
@@ -7,7 +8,7 @@ const REP_COST_PER_TOPUP = 1;
 const DAYS_PER_TOPUP = 10;
 
 async function handleDowntimeBuyDays(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const char = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!char) return interaction.editReply({ content: '❌ No active character found.' });

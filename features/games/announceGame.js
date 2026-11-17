@@ -1,14 +1,15 @@
 const { fetchGameByUID } = require('../../utils/notion');
 const { buildAnnouncementEmbed, buildWhatsApp, sendChunkedText, getPreviewButtons, getPreviewWarnings, setSessionTimeout } = require('./announcementHelper');
 const { sessions } = require('./sessionStore');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = async (interaction, client) => {
     const uid = interaction.options.getString('game');
     if (!uid) {
-        await interaction.reply({ content: '❌ Please select a game from the dropdown.', flags: 64 });
+        await interaction.reply({ content: '❌ Please select a game from the dropdown.', flags: EPHEMERAL });
         return;
     }
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     try {
         const game = await fetchGameByUID(uid);
         if (!game) {
@@ -31,7 +32,7 @@ module.exports = async (interaction, client) => {
         let sentFirst = false;
         const send = async payload => {
             if (!sentFirst) { sentFirst = true; return interaction.editReply(payload); }
-            else { return interaction.followUp({ ...payload, flags: 64 }); }
+            else { return interaction.followUp({ ...payload, flags: EPHEMERAL }); }
         };
         const previewMessage = await sendChunkedText(send, whatsapp, {
             prefix: `${getPreviewWarnings(game, embed)}**Preview:**\n`,
@@ -42,7 +43,7 @@ module.exports = async (interaction, client) => {
         session.previewMessageId = previewMessage?.id;
 
         if (game.artURL) {
-            await interaction.followUp({ files: [game.artURL], flags: 64 });
+            await interaction.followUp({ files: [game.artURL], flags: EPHEMERAL });
         }
     } catch (error) {
         console.error('announce_game error:', error);

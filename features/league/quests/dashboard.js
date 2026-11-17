@@ -42,6 +42,7 @@ const {
     handlePartyInfo,
     handlePartyInfoPage,
 } = require('./dashboard/party');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 // Dispatch
 
@@ -70,7 +71,7 @@ async function handleDashboardButton(interaction) {
     if (action === 'cancelQuestReturn')  return handleCancelQuestReturn(interaction);
     if (action === 'backToDashboard')    return handleBackToDashboard(interaction);
 
-    return interaction.reply({ content: '❌ This dashboard control isn\'t wired up yet.', flags: 64 });
+    return interaction.reply({ content: '❌ This dashboard control isn\'t wired up yet.', flags: EPHEMERAL });
 }
 
 async function handleDashboardSelect(interaction) {
@@ -88,7 +89,7 @@ async function handleDashboardSelect(interaction) {
     if (action === 'partyAction')         return handlePartyActionSelect(interaction, questId, extra);
     if (action === 'partyRemoveSelect')   return handlePartyRemoveSelect(interaction, questId, extra);
 
-    return interaction.reply({ content: '❌ This dashboard control isn\'t wired up yet.', flags: 64 });
+    return interaction.reply({ content: '❌ This dashboard control isn\'t wired up yet.', flags: EPHEMERAL });
 }
 
 async function handleDashboardUserSelect(interaction) {
@@ -96,7 +97,7 @@ async function handleDashboardUserSelect(interaction) {
 
     if (action === 'partyAddUser') return handlePartyAddUserSelect(interaction, questId, extra);
 
-    return interaction.reply({ content: '❌ This dashboard control isn\'t wired up yet.', flags: 64 });
+    return interaction.reply({ content: '❌ This dashboard control isn\'t wired up yet.', flags: EPHEMERAL });
 }
 
 async function handleDashboardModal(interaction) {
@@ -106,7 +107,7 @@ async function handleDashboardModal(interaction) {
     if (action === 'addItemModal')  return handleAddItemModalSubmit(interaction, questId, extra);
     if (action === 'addItemSearch') return handleAddItemSearchModalSubmit(interaction, questId, extra);
 
-    return interaction.reply({ content: '❌ This dashboard control isn\'t wired up yet.', flags: 64 });
+    return interaction.reply({ content: '❌ This dashboard control isn\'t wired up yet.', flags: EPHEMERAL });
 }
 
 module.exports = {

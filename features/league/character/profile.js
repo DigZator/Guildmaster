@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, updateCharacterArt, updatePageProperty } = require('../notion');
 const { buildLeagueCreateModal } = require('./createModal');
 const { LEAGUE_ADMIN_CHANNEL_ID, LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_FORUM_ID } = require('../../../data/channels');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
 
@@ -17,7 +18,7 @@ async function handleCreate(interaction) {
 		    return interaction.reply({
 			      content:
 			        	'You need to run `/league create` inside your character profile thread in the **#character-profiles** forum.',
-			      flags: 64,
+			      flags: EPHEMERAL,
 		    });
 	  }
 
@@ -28,7 +29,7 @@ async function handleCreate(interaction) {
 		    console.error('[league create] Notion error during pre-check:', err);
 		    return interaction.reply({
 			      content: 'Could not reach the database right now. Please try again in a moment.',
-			      flags: 64,
+			      flags: EPHEMERAL,
 		    });
 	  }
 
@@ -36,7 +37,7 @@ async function handleCreate(interaction) {
 	  	const name = existingCharacter.properties['Character Name']?.title?.[0]?.plain_text ?? 'your character';
 	  	return interaction.reply({
 	      			content: `You already have an active character: **${name}**. You can only register a new character after your current one is retired or deceased.`,
-	      			flags: 64,
+	      			flags: EPHEMERAL,
 	    });
 	  }
 
@@ -57,7 +58,7 @@ async function showProfile(interaction) {
 		console.error('[league profile] Notion error during pre-check:', err);
 		return interaction.reply({
 			content: `Could not reach the database right now. Please try again in a moment.`,
-			flags: 64,
+			flags: EPHEMERAL,
 		});
 	}
 
@@ -66,7 +67,7 @@ async function showProfile(interaction) {
 			content: isOwnProfile
 			? `You do not have an active character. If you wish to create one, make a thread in **#character-profiles** and use the \`/league create\` command.`
 			: `**${targetUser.displayName}** does not have an active character.`,
-			flags: 64,
+			flags: EPHEMERAL,
 		});
 	}
 
@@ -104,11 +105,11 @@ async function setCharacterArt(interaction, client) {
     if (!isThread || parentId !== LEAGUE_PROFILES_FORUM_ID) {
         return interaction.reply({
             content: 'You need to run `/league setart` inside your character profile thread in the **#characters** forum.',
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const attachment = interaction.options.getAttachment('image');
 
@@ -185,11 +186,11 @@ async function editCharacter(interaction) {
     if (!name && !classLevels && !species && !background && !charSheetLink) {
         return interaction.reply({
             content: 'Please provide at least one field to update.',
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let character;
     try {

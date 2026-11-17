@@ -5,6 +5,7 @@ const { addAction } = require('../../pendingActions');
 const { sendAdminLog } = require('../../adminLog');
 const { attachDashboardExpiry } = require('../../dashboard/expiry');
 const { getQuestSummary, buildQuestSummaryEmbed, confirmQuestCompletion } = require('../command');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 function assertOwner(state, interaction) {
     const ownerId = state.draft.dm?.discordId;
@@ -82,7 +83,7 @@ async function refreshDashboardMessage(interaction, questId, dashboardMessageId)
 }
 
 async function handleSubmit(interaction, questId) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let state;
     try {
@@ -167,7 +168,7 @@ async function handleSubmitCancel(interaction) {
 
 // Cancel Quest
 async function handleCancelQuest(interaction, questId) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let state;
     try {

@@ -1,6 +1,7 @@
 const { getCachedGames } = require('../../shared/data-access/cache');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { buildEmbed, applyFilters, canSeeUnreleased } = require('./listGamesHelper');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = async (interaction, client) => {
     const formatFilter = interaction.options.getString('format_filter');
@@ -10,7 +11,7 @@ module.exports = async (interaction, client) => {
     const isPublic = interaction.options.getBoolean('public') ?? true;
     const isAdmin = canSeeUnreleased(interaction);
 
-    await interaction.deferReply({ flags: isPublic ? 0 : 64 });
+    await interaction.deferReply({ flags: isPublic ? 0 : EPHEMERAL });
 
     try {
         const allGames = await getCachedGames();

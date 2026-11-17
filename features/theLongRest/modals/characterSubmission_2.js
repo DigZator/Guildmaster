@@ -11,6 +11,7 @@ const {
     longTextFields,
     embedSize,
 } = require('../memorialEmbed');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 async function validateImageURL(url) {
     const controller = new AbortController();
@@ -48,7 +49,7 @@ module.exports = async (interaction, client) => {
     if (!interaction.isModalSubmit()) return;
     if (interaction.customId !== "characterSubmission_2") return;
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const storedData = memorialDrafts.get(interaction.user.id);
     // storedData.name only exists on the part-1 draft; once part 2 is done the
@@ -56,7 +57,7 @@ module.exports = async (interaction, client) => {
     if (!storedData || !storedData.name) {
         await interaction.editReply({
             content: "Error: Your session expired. Please start over.",
-            flags: 64
+            flags: EPHEMERAL
         });
         return;
     }
@@ -71,7 +72,7 @@ module.exports = async (interaction, client) => {
     if (!imageCheck.valid) {
         await interaction.editReply({
             content: `❌ **Portrait URL is invalid:** ${imageCheck.reason}\n\nPlease start over with a direct link to an image (e.g. ending in .png/.jpg, or a Discord CDN link).`,
-            flags: 64
+            flags: EPHEMERAL
         });
         return;
     }
@@ -93,7 +94,7 @@ module.exports = async (interaction, client) => {
     if (!outputChannel) {
         await interaction.editReply({
             content: 'Output channel not found. Contact an admin.',
-            flags: 64
+            flags: EPHEMERAL
         });
         return;
     }
@@ -124,7 +125,7 @@ module.exports = async (interaction, client) => {
         if (size > EMBED_TOTAL_MAX) {
             await interaction.editReply({
                 content: `❌ Your submission is too long for Discord (${size} of ${EMBED_TOTAL_MAX} characters). Please shorten the backstory or manner of death and start over.`,
-                flags: 64
+                flags: EPHEMERAL
             });
             return;
         }
@@ -132,7 +133,7 @@ module.exports = async (interaction, client) => {
         console.error('[characterSubmission_2] Failed to build the memorial embed:', err);
         await interaction.editReply({
             content: '❌ Something went wrong building your preview. Please check your details and start over.',
-            flags: 64
+            flags: EPHEMERAL
         });
         return;
     }

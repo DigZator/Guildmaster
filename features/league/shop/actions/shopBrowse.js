@@ -3,11 +3,12 @@ const { searchCatalogue, getCatalogueItemByCode } = require('../../fiveEtools/ca
 const { getShopEntry, getBuyableEntry, getAllStockedEntries } = require('../floor');
 const { formatCurrency } = require('../../currency');
 const { rarityEmoji } = require('../embeds');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league shop browse ──────────────────────────────────────────────────────
 
 async function handleShopBrowse(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const rarity = interaction.options.getString('rarity') ?? null;
     const sortBy = interaction.options.getString('sort')   ?? null;
@@ -25,7 +26,7 @@ async function handleShopBrowse(interaction) {
 // ─── /league shop search ──────────────────────────────────────────────────────
 
 async function handleShopSearch(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const query = interaction.options.getString('name');
     const catalogueMatches = searchCatalogue(query, { limit: 100 });
@@ -44,7 +45,7 @@ async function handleShopSearch(interaction) {
 // ─── /league shop info ────────────────────────────────────────────────────────
 
 async function handleShopInfo(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const code = interaction.options.getString('code');
     const stocked = getShopEntry(code);

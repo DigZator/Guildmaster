@@ -3,15 +3,16 @@ const { clip, describeError } = require('./helpers');
 const { readOptions, preflight } = require('./preflight');
 const { buildPreview, discardPreview, problemsEmbed } = require('./preview');
 const { runCampaign } = require('./run');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 // ── Entry point ─────────────────────────────────────────────────────────────
 module.exports = async (interaction) => {
     if (!interaction.guild) {
-        await interaction.reply({ content: '❌ This command can only be used in a server.', flags: 64 });
+        await interaction.reply({ content: '❌ This command can only be used in a server.', flags: EPHEMERAL });
         return;
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const opts = readOptions(interaction);
 
@@ -49,7 +50,7 @@ module.exports = async (interaction) => {
 function claimPreview(interaction) {
     const pending = pendingPreviews.get(interaction.user.id);
     if (!pending) {
-        interaction.followUp({ content: '❌ This preview has expired or was already handled.', flags: 64 }).catch(() => {});
+        interaction.followUp({ content: '❌ This preview has expired or was already handled.', flags: EPHEMERAL }).catch(() => {});
         return null;
     }
     if (pending.previewMessageId !== interaction.message?.id) {

@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getCharacterGold, adjustCharacterNumbersUnlocked, withTwoPageLocks } = require('./notion');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../data/channels');
 const { formatCurrency } = require('./currency');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 // ─── /league gold ─────────────────────────────────────────────────────────
 async function transferGold(interaction) {
@@ -11,11 +12,11 @@ async function transferGold(interaction) {
     if (targetUser.id === interaction.user.id) {
         return interaction.reply({
             content: '❌ You cannot transfer gold to yourself.',
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const adminChannelId = LEAGUE_ADMIN_CHANNEL_ID;
     const adminChannel   = interaction.guild.channels.cache.get(adminChannelId);
@@ -142,7 +143,7 @@ async function transferGold(interaction) {
 
 // ─── /league balance ─────────────────────────────────────────────────────────
 async function showBalance(interaction) {
-	await interaction.deferReply({ flags: 64 });
+	await interaction.deferReply({ flags: EPHEMERAL });
 
 	const char = await getActiveCharacter(interaction.user.id);
 	if (!char) {

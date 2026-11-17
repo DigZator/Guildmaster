@@ -1,4 +1,5 @@
 const { buildLeaderboardEmbedAndRow, LEADERBOARD_PAGE_SIZE } = require('./command');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 async function handleLeaderboardPage(interaction, client) {
     const [, sessionId, direction] = interaction.customId.split(':');
@@ -7,14 +8,14 @@ async function handleLeaderboardPage(interaction, client) {
     if (!session) {
         return interaction.reply({
             content: '❌ This leaderboard has expired. Please run `/league leaderboard` again.',
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
     if (interaction.user.id !== session.requesterId) {
         return interaction.reply({
             content: '❌ Only the person who ran this command can page through it.',
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 

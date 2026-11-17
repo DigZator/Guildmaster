@@ -6,6 +6,7 @@ const {
 const jobsStore = require('./jobs');
 const { typeLabel } = require('./filer');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 // ─── protect ────────────────────────────────────────────────────────────────
 async function handleProtect(interaction) {
@@ -24,7 +25,7 @@ async function handleProtect(interaction) {
                 '',
                 '-# Only the bot\'s control channel and the destination of a filing are protected automatically. Add any other channel the bot relies on (ticket, direct line, RSS, dashboards, Keep Alive) here yourself.',
             ].join('\n').slice(0, 2000),
-            flags: 64,
+            flags: EPHEMERAL,
             allowedMentions: { parse: [] },
         });
         return;
@@ -35,13 +36,13 @@ async function handleProtect(interaction) {
     if (sub === 'add') {
         const auto = getAlwaysProtectedIds().get(channel.id);
         if (auto) {
-            await interaction.reply({ content: `ℹ️ <#${channel.id}> is already protected automatically — ${auto}.`, flags: 64 });
+            await interaction.reply({ content: `ℹ️ <#${channel.id}> is already protected automatically — ${auto}.`, flags: EPHEMERAL });
             return;
         }
         const result = addProtected(channel.id, interaction.user.id);
         await interaction.reply({
             content: result.error ? `❌ ${result.error}` : `✅ <#${channel.id}> is now protected from \`/channel_file\`.`,
-            flags: 64,
+            flags: EPHEMERAL,
         });
         return;
     }
@@ -50,14 +51,14 @@ async function handleProtect(interaction) {
         const result = removeProtected(channel.id);
         await interaction.reply({
             content: result.error ? `❌ ${result.error}` : `✅ <#${channel.id}> is no longer on the manual protect list.`,
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 }
 
 // ─── file ───────────────────────────────────────────────────────────────────
 async function handleFile(interaction, client) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const target = await client.channels.fetch(interaction.options.getChannel('target', true).id);
     const location = await client.channels.fetch(interaction.options.getChannel('location', true).id);

@@ -1,6 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { randomBytes } = require('crypto');
 const { queryLeaderboard } = require('../notion');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 // ─── /league leaderboard ───────────────────────────────────────────────────────
 const LEADERBOARD_LABELS = {
@@ -86,7 +87,7 @@ async function showLeaderboard(interaction, client) {
 	const status    = interaction.options.getString('status');
 	const isPublic  = interaction.options.getBoolean('public') ?? false;
 
-	await interaction.deferReply({ flags: isPublic ? undefined : 64 });
+	await interaction.deferReply({ flags: isPublic ? undefined : EPHEMERAL });
 
 	const rows = await queryLeaderboard({ sortBy, order, className, species, status });
 

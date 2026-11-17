@@ -18,6 +18,7 @@ const { sendInventory } = require('../inventory/button');
 const { showBalance } = require('../gold');
 const { handleDowntimeList } = require('../downtime/command');
 const { LEAGUE_ART_ARCHIVE_THREAD_ID, LEAGUE_PROFILES_FORUM_ID } = require('../../../data/channels');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
 const ART_TIMEOUT_MS = 5 * 60 * 1000;
@@ -80,7 +81,7 @@ function buildDashboardRows(hasActive) {
 // ─── Read-only buttons (Profile / Quests / Downtimes / Inventory / Balance) ──
 
 async function handleProfileButton(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const character = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!character) {
@@ -126,7 +127,7 @@ function formatDateIST(dateString) {
 }
 
 async function handleQuestsButton(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const character = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!character) {
@@ -172,7 +173,7 @@ async function handleQuestsButton(interaction) {
 // ─── Switch Character ─────────────────────────────────────────────────────
 
 async function handleSwitchButton(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let characters;
     try {
@@ -212,7 +213,7 @@ async function handleSwitchButton(interaction) {
 async function handleEditButton(interaction) {
     const character = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!character) {
-        return interaction.reply({ content: 'You do not have an active character. Use /league create to register one.', flags: 64 });
+        return interaction.reply({ content: 'You do not have an active character. Use /league create to register one.', flags: EPHEMERAL });
     }
 
     const p = character.properties;
@@ -258,18 +259,18 @@ async function handleSetArtButton(interaction, client) {
     if (!isThread || parentId !== LEAGUE_PROFILES_FORUM_ID) {
         return interaction.reply({
             content: 'You need to use this inside your character profile thread in the #characters forum. (Try /league dashboard from there instead.)',
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
     const character = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!character) {
-        return interaction.reply({ content: 'You do not have an active character. Use /league create to register one.', flags: 64 });
+        return interaction.reply({ content: 'You do not have an active character. Use /league create to register one.', flags: EPHEMERAL });
     }
 
     await interaction.reply({
         content: 'Upload your character art as an image attachment in this channel within 5 minutes, or type "cancel" to cancel.',
-        flags: 64,
+        flags: EPHEMERAL,
     });
 
     const filter = m => m.author.id === interaction.user.id;
@@ -277,25 +278,25 @@ async function handleSetArtButton(interaction, client) {
     try {
         collected = await interaction.channel.awaitMessages({ filter, max: 1, time: ART_TIMEOUT_MS, errors: ['time'] });
     } catch {
-        return interaction.followUp({ content: 'Timed out waiting for an image. Please try again.', flags: 64 });
+        return interaction.followUp({ content: 'Timed out waiting for an image. Please try again.', flags: EPHEMERAL });
     }
 
     const reply = collected.first();
 
     if (reply.content.trim().toLowerCase() === 'cancel') {
         try { await reply.delete(); } catch {}
-        return interaction.followUp({ content: 'Cancelled.', flags: 64 });
+        return interaction.followUp({ content: 'Cancelled.', flags: EPHEMERAL });
     }
 
     const attachment = reply.attachments.first();
     if (!attachment) {
-        return interaction.followUp({ content: 'No image attachment found. Please run this again and attach an image.', flags: 64 });
+        return interaction.followUp({ content: 'No image attachment found. Please run this again and attach an image.', flags: EPHEMERAL });
     }
     if (!attachment.contentType?.startsWith('image/')) {
-        return interaction.followUp({ content: 'That file doesnt look like an image. Please run this again with a PNG, JPG, or GIF.', flags: 64 });
+        return interaction.followUp({ content: 'That file doesnt look like an image. Please run this again with a PNG, JPG, or GIF.', flags: EPHEMERAL });
     }
     if (attachment.size > MAX_IMAGE_SIZE) {
-        return interaction.followUp({ content: 'Image is too large. Maximum size is 8MB. Please run this again.', flags: 64 });
+        return interaction.followUp({ content: 'Image is too large. Maximum size is 8MB. Please run this again.', flags: EPHEMERAL });
     }
 
     const characterName = character.properties['Character Name']?.title?.[0]?.plain_text ?? 'Unknown';
@@ -311,14 +312,14 @@ async function handleSetArtButton(interaction, client) {
         if (!permanentUrl) throw new Error('No URL returned from archive message');
     } catch (err) {
         console.error('[leagueDashboard setart] Failed to archive image:', err);
-        return interaction.followUp({ content: 'Failed to store your image. Please try again.', flags: 64 });
+        return interaction.followUp({ content: 'Failed to store your image. Please try again.', flags: EPHEMERAL });
     }
 
     try {
         await updateCharacterArt(character.id, permanentUrl);
     } catch (err) {
         console.error('[leagueDashboard setart] Notion error updating art:', err);
-        return interaction.followUp({ content: 'Failed to save your art. Please try again.', flags: 64 });
+        return interaction.followUp({ content: 'Failed to save your art. Please try again.', flags: EPHEMERAL });
     }
 
     return interaction.followUp({
@@ -334,7 +335,7 @@ async function handleSetArtButton(interaction, client) {
                 ].join('\n'))
                 .setThumbnail(permanentUrl),
         ],
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 

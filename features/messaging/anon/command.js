@@ -17,6 +17,7 @@ const {
     logAnonAction,
     auditWarning,
 } = require('./helper');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const TIMEOUT_MS = 5 * 60 * 1000;
 
@@ -37,7 +38,7 @@ module.exports = async (interaction, client) => {
         const nativeFile = interaction.options.getAttachment('attachment');
         const mentions   = interaction.options.getBoolean('mentions') ?? false;
 
-        await interaction.deferReply({ flags: 64 });
+        await interaction.deferReply({ flags: EPHEMERAL });
 
         if (key && key.length > MAX_KEY_LENGTH) {
             return interaction.editReply({ content: `❌ Keys can be at most ${MAX_KEY_LENGTH} characters (yours is ${key.length}).` });
@@ -139,10 +140,10 @@ module.exports = async (interaction, client) => {
         const record = getMessage(key);
 
         if (!record) {
-            return interaction.reply({ content: `❌ Key \`${key}\` not found.`, flags: 64 });
+            return interaction.reply({ content: `❌ Key \`${key}\` not found.`, flags: EPHEMERAL });
         }
 
-        await interaction.deferReply({ flags: 64 });
+        await interaction.deferReply({ flags: EPHEMERAL });
 
         let messageContent = '*Could not fetch message content.*';
         let attachmentCount = 0;
@@ -185,10 +186,10 @@ module.exports = async (interaction, client) => {
         const record   = getMessage(key);
 
         if (!record) {
-            return interaction.reply({ content: `❌ Key \`${key}\` not found.`, flags: 64 });
+            return interaction.reply({ content: `❌ Key \`${key}\` not found.`, flags: EPHEMERAL });
         }
 
-        await interaction.deferReply({ flags: 64 });
+        await interaction.deferReply({ flags: EPHEMERAL });
 
         let currentContent = '*Could not fetch message content.*';
         let attachmentNote = '';
@@ -219,12 +220,12 @@ module.exports = async (interaction, client) => {
         });
 
         for (const chunk of chunks) {
-            await interaction.followUp({ content: `\`\`\`\n${chunk}\n\`\`\``, flags: 64});
+            await interaction.followUp({ content: `\`\`\`\n${chunk}\n\`\`\``, flags: EPHEMERAL});
         }
 
         await interaction.followUp({
             content: `Send your new message below.${mentions ? `\n${MENTIONS_WARNING}` : ''} You have 5 minutes.`,
-            flags: 64
+            flags: EPHEMERAL
         });
 
         const filter   = m => m.author.id === interaction.user.id;
@@ -244,7 +245,7 @@ module.exports = async (interaction, client) => {
             const problem = validatePayload(candidate, [...targetMessage.attachments.keys()]);
             if (problem) {
                 const secondsLeft = Math.max(Math.ceil((deadline - Date.now()) / 1000), 0);
-                await interaction.followUp({ content: `${problem}\nSend a corrected version — you have about ${secondsLeft}s left.`, flags: 64 });
+                await interaction.followUp({ content: `${problem}\nSend a corrected version — you have about ${secondsLeft}s left.`, flags: EPHEMERAL });
                 continue;
             }
             newContent = candidate;

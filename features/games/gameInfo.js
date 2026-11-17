@@ -1,10 +1,11 @@
 const { buildAnnouncementEmbed } = require('./announcementHelper');
 const { fetchGameByUID } = require('../../utils/notion');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = async (interaction, client) => {
     const uid = interaction.options.getString('uid');
     const isPublic = interaction.options.getBoolean('public') ?? true;
-    await interaction.deferReply({ flags: isPublic ? 0 : 64 });
+    await interaction.deferReply({ flags: isPublic ? 0 : EPHEMERAL });
     try {
         const game = await fetchGameByUID(uid);
         if (!game) {

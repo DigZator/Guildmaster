@@ -1,6 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { getPageById, updatePageProperty } = require('../notion');
 const { LEAGUE_ADMIN_CHANNEL_ID } = require('../../../data/channels');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 module.exports = async (interaction) => {
     if (!interaction.isModalSubmit()) return;
@@ -8,7 +9,7 @@ module.exports = async (interaction) => {
 
     const characterId = interaction.customId.split(':')[1];
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let character;
     try {

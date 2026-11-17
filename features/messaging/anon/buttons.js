@@ -12,6 +12,7 @@ const {
     logAnonAction,
     auditWarning,
 } = require('./helper');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 const CLEAR_PREVIEW = { embeds: [], components: [], files: [], attachments: [] };
 const SESSION_GONE = '❌ This session has expired or was already handled.';
@@ -26,7 +27,7 @@ module.exports = {
 
             const pending = takePending(client, pendingKey);
             if (!pending) {
-                return interaction.followUp({ content: SESSION_GONE, flags: 64 });
+                return interaction.followUp({ content: SESSION_GONE, flags: EPHEMERAL });
             }
 
             try {
@@ -93,7 +94,7 @@ module.exports = {
 
             const pending = takePending(client, key);
             if (!pending) {
-                return interaction.followUp({ content: SESSION_GONE, flags: 64 });
+                return interaction.followUp({ content: SESSION_GONE, flags: EPHEMERAL });
             }
 
             try {
@@ -145,11 +146,11 @@ module.exports = {
             const key = interaction.customId.replace('anon_remove_confirm_', '');
 
             if (removing.has(key)) {
-                return interaction.followUp({ content: '⏳ This message is already being removed.', flags: 64 });
+                return interaction.followUp({ content: '⏳ This message is already being removed.', flags: EPHEMERAL });
             }
             const record = getMessage(key);
             if (!record) {
-                return interaction.followUp({ content: '❌ Key not found — it may already have been removed.', flags: 64 });
+                return interaction.followUp({ content: '❌ Key not found — it may already have been removed.', flags: EPHEMERAL });
             }
 
             removing.add(key);

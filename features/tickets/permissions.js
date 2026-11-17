@@ -1,5 +1,6 @@
 const { getTicketType } = require('./ticketTypes');
 const auth = require('../../shared/auth');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 function isTicketStaff(interaction, ticket) {
     if (auth.can('admin', interaction)) return true;
@@ -35,11 +36,11 @@ async function isTicketCloser(interaction, ticket) {
 }
 
 function fileDenyMessage() {
-    return { content: '❌ User filing a ticket cannot be the same as the user who closed it.', flags: 64 };
+    return { content: '❌ User filing a ticket cannot be the same as the user who closed it.', flags: EPHEMERAL };
 }
 
 function denyMessage() {
-    return { content: '❌ You don\'t have permission to do that on this ticket.', flags: 64 };
+    return { content: '❌ You don\'t have permission to do that on this ticket.', flags: EPHEMERAL };
 }
 
 module.exports = { isTicketStaff, isTicketRaiser, isTicketCloser, fileDenyMessage, denyMessage };

@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, createInventoryItem } = require('../notion');
 const { getCatalogueItemByCode, defaultPriceFor } = require('../fiveEtools/catalogue');
 const { sendAdminLog } = require('../adminLog');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 async function resolveItemAssignment(interaction, label) {
     const targetUser = interaction.options.getUser('player');
@@ -27,7 +28,7 @@ async function resolveItemAssignment(interaction, label) {
 async function runAdminItemGrant(interaction, config) {
     const { label, replyVerb, embedTitle, resolveItem, successMessage } = config;
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const resolvedItem = resolveItem(interaction);
     if (resolvedItem.error) return interaction.editReply({ content: resolvedItem.error });

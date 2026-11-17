@@ -2,18 +2,19 @@ const { buildAnnouncementEmbed, buildWhatsApp, italizeBlurb, bulletizeNotes, get
 const { sessions } = require('./sessionStore');
 const { syncAnnouncementFieldToNotion, UNSYNCED_FIELDS } = require('./announcementNotionSync');
 const { invalidateCache } = require('../../shared/data-access/cache');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = async (interaction, client) => {
     const field = interaction.customId.slice('announceedit_modal_'.length + interaction.user.id.length + 1);
 
     const session = sessions.get(interaction.user.id);
     if (!session) {
-        await interaction.reply({ content: '❌ Session expired.', flags: 64 });
+        await interaction.reply({ content: '❌ Session expired.', flags: EPHEMERAL });
         return;
     }
 
     if (!isCurrentPreview(session, interaction)) {
-        await interaction.reply({ content: STALE_PREVIEW_MESSAGE, flags: 64 });
+        await interaction.reply({ content: STALE_PREVIEW_MESSAGE, flags: EPHEMERAL });
         return;
     }
 

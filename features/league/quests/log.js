@@ -1,6 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { getActiveCharacter, getCharacterQuestLog, getPageById } = require('../notion');
 const { getQuestById } = require('./command');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 // ─── /league log ──────────────────────────────────────────────────────────────
 function formatDateIST(dateString) {
@@ -28,7 +29,7 @@ async function resolveTargetCharacter(interaction) {
 }
 
 async function showQuestLog(interaction) {
-	await interaction.deferReply({ flags: 64 });
+	await interaction.deferReply({ flags: EPHEMERAL });
 
 	const questId = interaction.options.getString('quest_id');
 

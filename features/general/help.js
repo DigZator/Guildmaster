@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const helpData = require('../../helpData');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const GROUP_TITLES = {
     help: '📖  Help',
@@ -55,15 +56,15 @@ module.exports = async (interaction) => {
 
     const groupData = helpData[group];
     if (!groupData) {
-        return interaction.reply({ content: '❌ Unknown help group.', flags: 64 });
+        return interaction.reply({ content: '❌ Unknown help group.', flags: EPHEMERAL });
     }
 
     const familyData = groupData[familyKey];
     if (!familyData) {
         const available = Object.keys(groupData).join(', ');
-        return interaction.reply({ content: `❌ Unknown family **${familyKey}** for **${group}**. Available: ${available}`, flags: 64 });
+        return interaction.reply({ content: `❌ Unknown family **${familyKey}** for **${group}**. Available: ${available}`, flags: EPHEMERAL });
     }
 
     const embed = buildFamilyEmbed(group, familyData);
-    return interaction.reply({ embeds: [embed], flags: 64 });
+    return interaction.reply({ embeds: [embed], flags: EPHEMERAL });
 };

@@ -7,6 +7,7 @@ const { TLR_MOD_PING_ROLE_ID } = require('./roles');
 const { tryAcquire, release } = require('../../shared/utilities/interactionLock');
 const { buildPreviewButtons, buildModButtons } = require('./memorialButtons');
 const { MEMORIAL_LIMITS } = require('./memorialEmbed');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const HOLD_MS = 5 * 60 * 1000;
 
@@ -26,7 +27,7 @@ async function ackSilently(interaction) {
 
 async function tellEphemeral(interaction, content) {
     try {
-        await interaction.followUp({ content, flags: 64 });
+        await interaction.followUp({ content, flags: EPHEMERAL });
     } catch (err) {
         console.warn('[Memorial] Could not send follow-up:', err.message);
     }
@@ -232,7 +233,7 @@ module.exports = {
             await interaction.deferUpdate();
             memorialDrafts.delete(interaction.user.id);
             try { await interaction.message.delete(); } catch {  }
-            await interaction.editReply({ content: '❌ Submission cancelled. You can start over anytime.', flags: 64 });
+            await interaction.editReply({ content: '❌ Submission cancelled. You can start over anytime.', flags: EPHEMERAL });
         },
 
         // Mod clicks Approve.

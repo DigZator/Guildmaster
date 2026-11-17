@@ -9,6 +9,7 @@ const { getProtectionReason } = require('./guards');
 const { reportError } = require('../../shared/utilities/errorReporter');
 const { formatStamp } = require('../../shared/transcript');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const { PHASES } = jobsStore;
 
@@ -202,13 +203,13 @@ async function revertAndReport(client, jobId, reason, { failed = false, by } = {
 async function showErrors(interaction, job) {
     const report = buildReport(job);
     if (report.length <= 1900) {
-        await interaction.reply({ content: `\`\`\`\n${report}\n\`\`\``.slice(0, 2000), flags: 64 });
+        await interaction.reply({ content: `\`\`\`\n${report}\n\`\`\``.slice(0, 2000), flags: EPHEMERAL });
         return;
     }
     await interaction.reply({
         content: 'The report is long, so it is attached as a file.',
         files: [new AttachmentBuilder(Buffer.from(report, 'utf8'), { name: `filing-report-${job.id.slice(0, 8)}.txt` })],
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 
@@ -251,7 +252,7 @@ async function finishDeleted(client, job, { by, note } = {}) {
 }
 
 async function proceed(client, interaction, jobId) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const job = jobsStore.getJob(jobId);
     if (!job || job.phase !== PHASES.review) {
@@ -328,7 +329,7 @@ async function proceed(client, interaction, jobId) {
 }
 
 async function abort(client, interaction, jobId) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
     const job = jobsStore.getJob(jobId);
     if (!job || ![PHASES.review, PHASES.unrecoverable].includes(job.phase)) {
         await interaction.editReply('❌ This filing is no longer waiting for review.');
@@ -351,7 +352,7 @@ async function abort(client, interaction, jobId) {
 }
 
 async function rerun(client, interaction, jobId) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const moved = await jobsStore.transitionJob(jobId, [PHASES.review], { phase: PHASES.verifying });
     if (!moved.ok) {

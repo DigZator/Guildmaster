@@ -4,6 +4,7 @@ const { buildCreateModal } = require('./modals');
 const ticketStore = require('./store');
 const ticketFlow = require('./flow');
 const { decodeId } = require('./ticketId');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const STAFF_ONLY_ACTIONS = new Set(['claim', 'unclaim', 'resurrect', 'resurrectYes', 'resurrectNo', 'file', 'fileYes', 'fileNo']);
 const RAISER_OR_STAFF_ACTIONS = new Set(['close', 'closeYes', 'closeNo']);
@@ -33,7 +34,7 @@ async function handleOutOfDate(interaction, ticketId, action) {
     } else if (PROMPT_ACTIONS.has(action)) {
         await interaction.update({ content: text, components: [] });
     } else {
-        await interaction.reply({ content: text, flags: 64 });
+        await interaction.reply({ content: text, flags: EPHEMERAL });
     }
 
     const message = interaction.message;
@@ -55,7 +56,7 @@ async function handleTicketCreateButton(interaction) {
     const typeKey = interaction.customId.split(':')[1];
     const type = getTicketType(typeKey);
     if (!type) {
-        return interaction.reply({ content: '❌ Unknown ticket type.', flags: 64 });
+        return interaction.reply({ content: '❌ Unknown ticket type.', flags: EPHEMERAL });
     }
 
     const modal = buildCreateModal(type);
@@ -75,7 +76,7 @@ async function handleTicketButton(interaction) {
     const ticket = resolveTicket(interaction);
 
     if (!ticket) {
-        return interaction.reply({ content: '❌ This ticket record no longer exists.', flags: 64 });
+        return interaction.reply({ content: '❌ This ticket record no longer exists.', flags: EPHEMERAL });
     }
 
     if (STAFF_ONLY_ACTIONS.has(action) && !isTicketStaff(interaction, ticket)) {
@@ -141,7 +142,7 @@ async function handleTicketButton(interaction) {
         case 'fileNo':
             return interaction.update({ content: 'Cancelled.', components: [] });
         default:
-            return interaction.reply({ content: '❌ This ticket control isn\'t wired up yet.', flags: 64 });
+            return interaction.reply({ content: '❌ This ticket control isn\'t wired up yet.', flags: EPHEMERAL });
     }
 }
 
@@ -151,7 +152,7 @@ const { formatWarnings } = ticketFlow;
 async function handleTicketModal(interaction) {
     if (interaction.customId.startsWith('ticketCreateModal:')) {
         const typeKey = interaction.customId.split(':')[1];
-        await interaction.deferReply({ flags: 64 });
+        await interaction.deferReply({ flags: EPHEMERAL });
         const submissionData = {
             reason: interaction.fields.getTextInputValue('reason'),
             identification: interaction.fields.getTextInputValue('identification'),
@@ -164,7 +165,7 @@ async function handleTicketModal(interaction) {
         const { ticketId, action } = decodeId(interaction.customId);
         if (action === 'closeFeedbackModal') {
             const ticket = ticketStore.getTicketById(ticketId);
-            if (!ticket) return interaction.reply({ content: '❌ This ticket record no longer exists.', flags: 64 });
+            if (!ticket) return interaction.reply({ content: '❌ This ticket record no longer exists.', flags: EPHEMERAL });
             if (!isTicketStaff(interaction, ticket) && !isTicketRaiser(interaction, ticket)) {
                 return interaction.reply(denyMessage());
             }
@@ -175,7 +176,7 @@ async function handleTicketModal(interaction) {
 
             const reason = interaction.fields.getTextInputValue('reason');
             const feedback = interaction.fields.getTextInputValue('feedback') || '';
-            await interaction.deferReply({ flags: 64 });
+            await interaction.deferReply({ flags: EPHEMERAL });
             const result = await ticketFlow.finalizeClose(interaction, ticket, { reason, feedback });
             if (!result.ok) return handleOutOfDate(interaction, ticket.id, action);
             return interaction.editReply({ content: `🔒 Ticket closed.${formatWarnings(result.warnings)}` });

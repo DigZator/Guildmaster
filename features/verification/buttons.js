@@ -16,7 +16,7 @@ const RETRY_ID = 'verification:retry';
 const MODAL_ID = 'verification:modal';
 const ATTEMPT_COOLDOWN_MS = 3000;
 
-const EPHEMERAL = 64;
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 const sec = ms => Math.floor(ms / 1000);
 
 function retryRow() {

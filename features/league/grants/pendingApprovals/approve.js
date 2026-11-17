@@ -15,11 +15,12 @@ const questDrafts = require('../../quests/drafts');
 const { approveQuestLink, approveQuestComplete, approveQuestCancel } = require('../../quests/command');
 const { getBlueprint, nextDtaId, getBlueprintById, resolveCostFromUID, applyDowntimeOutput } = require('../../downtime/engine');
 const { sendAdminLog } = require('../../adminLog');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /leagueadmin approve ─────────────────────────────────────────────────────
 async function handleApprove(interaction, client) {
     const ids = interaction.options.getString('id').split(',').map(s => s.trim()).filter(Boolean);
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const results = [];
 

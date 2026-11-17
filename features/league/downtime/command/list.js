@@ -1,5 +1,6 @@
 const { getActiveCharacter, getActiveDowntimeForCharacter } = require('../../notion');
 const { getAll: getAllPendingActions } = require('../../pendingActions');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league downtime list ─────────────────────────────────────────────────────
 
@@ -16,7 +17,7 @@ function extrasNote(p) {
 }
 
 async function handleDowntimeList(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const char = await getActiveCharacter(interaction.user.id).catch(() => null);
     if (!char) return interaction.editReply({ content: '❌ No active character found.' });

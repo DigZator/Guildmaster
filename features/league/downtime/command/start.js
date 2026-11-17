@@ -13,6 +13,7 @@ const {
 const { getCatalogueItemByName } = require('../../fiveEtools/catalogue');
 const { formatCurrency } = require('../../currency');
 const { sendAdminLog } = require('../../adminLog');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league downtime start ────────────────────────────────────────────────────
 
@@ -37,7 +38,7 @@ function tierChoiceHelp(key, blueprint) {
 }
 
 async function handleDowntimeStart(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const activityKey = interaction.options.getString('activity');
     const tierId = interaction.options.getString('tier')?.trim() || null;

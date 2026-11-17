@@ -1,6 +1,7 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const { sessions } = require('./sessionStore');
 const { isCurrentPreview, STALE_PREVIEW_MESSAGE } = require('./announcementHelper');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const MAX_MODAL_VALUE_LENGTH = 4000;
 
@@ -30,12 +31,12 @@ module.exports = async (interaction, client) => {
     const session = sessions.get(interaction.user.id);
 
     if (!session) {
-        await interaction.reply({ content: '❌ Session expired.', flags: 64 });
+        await interaction.reply({ content: '❌ Session expired.', flags: EPHEMERAL });
         return;
     }
 
     if (!isCurrentPreview(session, interaction)) {
-        await interaction.reply({ content: STALE_PREVIEW_MESSAGE, flags: 64 });
+        await interaction.reply({ content: STALE_PREVIEW_MESSAGE, flags: EPHEMERAL });
         return;
     }
 

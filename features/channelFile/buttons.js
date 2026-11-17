@@ -2,6 +2,7 @@ const jobsStore = require('./jobs');
 const review = require('./review');
 const { runGuards } = require('./guards');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 // ─── Confirm (from the command's confirmation message) ──────────────────────
 async function handleConfirm(interaction, client, [, , targetId, locationId, visibility]) {
@@ -57,7 +58,7 @@ async function handleButton(interaction, client) {
     const [, jobId, action] = parts;
     const job = jobsStore.getJob(jobId);
     if (!job) {
-        await interaction.reply({ content: '❌ This filing has already finished (or no longer exists).', flags: 64 });
+        await interaction.reply({ content: '❌ This filing has already finished (or no longer exists).', flags: EPHEMERAL });
         return;
     }
 
@@ -67,21 +68,21 @@ async function handleButton(interaction, client) {
 
     if (action === 'proceed') {
         if (job.phase !== 'review' || job.failed) {
-            await interaction.reply({ content: '❌ This filing is not ready to be completed.', flags: 64 });
+            await interaction.reply({ content: '❌ This filing is not ready to be completed.', flags: EPHEMERAL });
             return;
         }
         await interaction.showModal(review.buildProceedModal(job));
         return;
     }
 
-    await interaction.reply({ content: '❌ Unknown action.', flags: 64 });
+    await interaction.reply({ content: '❌ Unknown action.', flags: EPHEMERAL });
 }
 
 // ─── Proceed modal ──────────────────────────────────────────────────────────
 async function handleModal(interaction, client) {
     const [, jobId, action] = interaction.customId.split(':');
     if (action !== 'proceedModal') {
-        await interaction.reply({ content: '❌ Unknown form.', flags: 64 });
+        await interaction.reply({ content: '❌ Unknown form.', flags: EPHEMERAL });
         return;
     }
     await review.proceed(client, interaction, jobId);

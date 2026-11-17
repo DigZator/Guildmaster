@@ -15,6 +15,7 @@ const { formatCurrency } = require('../../currency');
 const { ITEM_TYPE_CHOICES, ITEM_SUBTYPE_CHOICES, ITEM_RARITY_CHOICES } = require('../../itemChoices');
 const { setPendingManualItem, getPendingManualItem, clearPendingManualItem } = require('../../pendingManualItems');
 const { assertOwner, assertUnlocked, finishAndDelete, navRow, refreshDashboardMessage } = require('./common');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // Add Reward — item
 async function showItemPlayerSelect(interaction, questId, dashboardMessageId) {
@@ -305,7 +306,7 @@ async function handleAddItemSearchModalSubmit(interaction, questId, extra) {
     const query = interaction.fields.getTextInputValue('query').trim();
 
     if (!query) {
-        return interaction.reply({ content: '❌ Enter something to search for.', flags: 64 });
+        return interaction.reply({ content: '❌ Enter something to search for.', flags: EPHEMERAL });
     }
 
     const matches = searchCatalogue(query, { limit: 25 });
@@ -320,7 +321,7 @@ async function handleAddItemSearchModalSubmit(interaction, questId, extra) {
         return interaction.reply({
             content: `❌ No catalogue matches for "${query}". Try a different search, or reopen Add Item and pick Manual Entry instead.`,
             components: [row],
-            flags: 64,
+            flags: EPHEMERAL,
         });
     }
 
@@ -336,7 +337,7 @@ async function handleAddItemSearchModalSubmit(interaction, questId, extra) {
     return interaction.reply({
         content: `Found ${matches.length} match(es) for "${query}":`,
         components: [new ActionRowBuilder().addComponents(select)],
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 

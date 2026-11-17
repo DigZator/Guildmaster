@@ -3,6 +3,7 @@ const { getCachedGames } = require('../../shared/data-access/cache');
 const gameFields = require('../../data/gameFields.json');
 const { fetchPage, stringifyPropertyValue } = require('../../utils/notion');
 const editGameSession = require('./editGameSession');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const MAX_MODAL_VALUE_LENGTH = 4000;
 
@@ -12,20 +13,20 @@ module.exports = async (interaction) => {
     const fieldName = interaction.options.getString('field');
 
     if (!gameUID || !fieldName) {
-        await interaction.reply({ content: '❌ Please provide both a game and a field.', flags: 64 });
+        await interaction.reply({ content: '❌ Please provide both a game and a field.', flags: EPHEMERAL });
         return;
     }
 
     const fieldConfig = gameFields[fieldName];
     if (!fieldConfig) {
-        await interaction.reply({ content: `❌ Unknown field: \`${fieldName}\``, flags: 64 });
+        await interaction.reply({ content: `❌ Unknown field: \`${fieldName}\``, flags: EPHEMERAL });
         return;
     }
 
     const games = await getCachedGames();
     const game = games?.find(g => g.uid === gameUID);
     if (!game) {
-        await interaction.reply({ content: '❌ Game not found.', flags: 64 });
+        await interaction.reply({ content: '❌ Game not found.', flags: EPHEMERAL });
         return;
     }
 
@@ -54,7 +55,7 @@ module.exports = async (interaction) => {
 
         const payload = {
             content: `🖼️ **${fieldName}** for **${game.title}**\nSend an **image** in this channel, or paste a **link** to one, within 10 minutes. Type \`cancel\` to abort.\nPNG, JPEG, GIF or WebP, up to 20 MB.`,
-            flags: 64,
+            flags: EPHEMERAL,
         };
         if (currentValue) {
             payload.embeds = [new EmbedBuilder().setDescription('Current cover art:').setImage(currentValue)];
@@ -79,7 +80,7 @@ module.exports = async (interaction) => {
         await interaction.reply({
             content: `**${fieldName}** for **${game.title}** — current value: \`${currentLabel}\`\nChoose a new value:`,
             components: [new ActionRowBuilder().addComponents(trueButton, falseButton)],
-            flags: 64,
+            flags: EPHEMERAL,
         });
         return;
     }

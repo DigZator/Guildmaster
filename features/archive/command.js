@@ -1,6 +1,7 @@
 const { EmbedBuilder, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../data/channels');
 const { getArchiveCategoryId } = require('../../shared/archive/config');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const MAX_CHANNELS_PER_CATEGORY = 50;
 
@@ -31,7 +32,7 @@ module.exports = async (interaction) => {
     const ARCHIVE_CATEGORY_ID = getArchiveCategoryId();
 
     if (!ARCHIVE_CATEGORY_ID) {
-        await interaction.reply({ content: '❌ No archive category is configured yet. Run `/archive-config` and pick a category first.', flags: 64 });
+        await interaction.reply({ content: '❌ No archive category is configured yet. Run `/archive-config` and pick a category first.', flags: EPHEMERAL });
         return;
     }
 
@@ -39,7 +40,7 @@ module.exports = async (interaction) => {
     const archiveCategory = guild.channels.cache.get(ARCHIVE_CATEGORY_ID);
 
     if (!archiveCategory || archiveCategory.type !== ChannelType.GuildCategory) {
-        await interaction.reply({ content: '❌ The configured archive category no longer exists or isn\'t a category anymore. Run `/archive-config` to fix it.', flags: 64 });
+        await interaction.reply({ content: '❌ The configured archive category no longer exists or isn\'t a category anymore. Run `/archive-config` to fix it.', flags: EPHEMERAL });
         return;
     }
 
@@ -47,13 +48,13 @@ module.exports = async (interaction) => {
 
     // Can't  archive the archive category itself.
     if (target.id === archiveCategory.id) {
-        await interaction.reply({ content: `❌ That is the configured archive category (**${archiveCategory.name}**) — it can't be archived.`, flags: 64 });
+        await interaction.reply({ content: `❌ That is the configured archive category (**${archiveCategory.name}**) — it can't be archived.`, flags: EPHEMERAL });
         return;
     }
 
     // target is already inside the archive category.
     if (target.parentId === archiveCategory.id) {
-        await interaction.reply({ content: `❌ **${target.name}** is already archived.`, flags: 64 });
+        await interaction.reply({ content: `❌ **${target.name}** is already archived.`, flags: EPHEMERAL });
         return;
     }
 
@@ -64,21 +65,21 @@ module.exports = async (interaction) => {
         const currentArchiveCount = archiveCategory.children.cache.size;
 
         if (childCount === 0) {
-            await interaction.reply({ content: `❌ **${target.name}** has no channels in it — nothing to archive. You can delete the empty category manually if you'd like.`, flags: 64 });
+            await interaction.reply({ content: `❌ **${target.name}** has no channels in it — nothing to archive. You can delete the empty category manually if you'd like.`, flags: EPHEMERAL });
             return;
         }
 
         if (currentArchiveCount + childCount > MAX_CHANNELS_PER_CATEGORY) {
             await interaction.reply({
                 content: `❌ Can't archive **${target.name}**: it has ${childCount} channel(s), but **${archiveCategory.name}** already has ${currentArchiveCount}/${MAX_CHANNELS_PER_CATEGORY} channels. Discord caps categories at ${MAX_CHANNELS_PER_CATEGORY} channels.`,
-                flags: 64,
+                flags: EPHEMERAL,
             });
             return;
         }
     } else {
         const currentArchiveCount = archiveCategory.children.cache.size;
         if (currentArchiveCount + 1 > MAX_CHANNELS_PER_CATEGORY) {
-            await interaction.reply({ content: `❌ Can't archive **${target.name}**: **${archiveCategory.name}** is already at the ${MAX_CHANNELS_PER_CATEGORY}-channel cap.`, flags: 64 });
+            await interaction.reply({ content: `❌ Can't archive **${target.name}**: **${archiveCategory.name}** is already at the ${MAX_CHANNELS_PER_CATEGORY}-channel cap.`, flags: EPHEMERAL });
             return;
         }
     }
@@ -107,7 +108,7 @@ module.exports = async (interaction) => {
     await interaction.reply({
         embeds: [confirmEmbed],
         components: [confirmRow],
-        flags: 64,
+        flags: EPHEMERAL,
     });
 };
 

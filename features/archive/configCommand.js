@@ -1,12 +1,13 @@
 const { ChannelType, EmbedBuilder } = require('discord.js');
 const { setArchiveCategoryId, getArchiveCategoryId } = require('../../shared/archive/config');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 module.exports = async (interaction) => {
 
     const category = interaction.options.getChannel('category', true);
 
     if (category.type !== ChannelType.GuildCategory) {
-        await interaction.reply({ content: '❌ That has to be a category, not a channel.', flags: 64 });
+        await interaction.reply({ content: '❌ That has to be a category, not a channel.', flags: EPHEMERAL });
         return;
     }
 
@@ -23,5 +24,5 @@ module.exports = async (interaction) => {
         embed.addFields({ name: 'Previous category ID', value: previousId });
     }
 
-    await interaction.reply({ embeds: [embed], flags: 64 });
+    await interaction.reply({ embeds: [embed], flags: EPHEMERAL });
 };

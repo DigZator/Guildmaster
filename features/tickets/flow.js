@@ -13,6 +13,7 @@ const { encodeId } = require('./ticketId');
 const { buildCloseModal } = require('./modals');
 const { mention } = require('./mentions');
 const { isTicketCloser, fileDenyMessage } = require('./permissions');
+const { EPHEMERAL } = require('../../shared/utilities/ephemeral');
 
 const creating = new Set();
 
@@ -261,7 +262,7 @@ async function promptCloseConfirm(interaction, ticket) {
     await interaction.reply({
         content: `⚠️ Close this ticket? The raiser will lose visibility.\n-# 💡 You can also use ${mention('close')} to close tickets.`,
         components: [confirmRow(ticket.id, 'close')],
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 
@@ -325,7 +326,7 @@ async function promptResurrectConfirm(interaction, ticket) {
     await interaction.reply({
         content: '♻️ Resurrect this ticket? The raiser will regain visibility.',
         components: [confirmRow(ticket.id, 'resurrect')],
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 
@@ -373,7 +374,7 @@ async function promptFileConfirm(interaction, ticket) {
     await interaction.reply({
         content: '🗄️ File this ticket? This is **irreversible** — the channel will be deleted once the transcript is logged. The transcript includes the request details, and attachments are reposted to the log where possible (anything too large or that can\'t be downloaded is listed as not preserved).',
         components: [confirmRow(ticket.id, 'file')],
-        flags: 64,
+        flags: EPHEMERAL,
     });
 }
 

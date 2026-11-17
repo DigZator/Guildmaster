@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
 const { renderMatrix } = require('./campaignPermissions');
 const { yn, clip, describeError, formatLog, chunkEmbeds } = require('./helpers');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 // ── Report ──────────────────────────────────────────────────────────────────
 function outcomeOf(result) {
@@ -125,7 +126,7 @@ async function deliverReport(interaction, embeds) {
     try {
         await interaction.editReply({ content: '', embeds: chunks[0] });
         for (const chunk of chunks.slice(1)) {
-            await interaction.followUp({ embeds: chunk, flags: 64 });
+            await interaction.followUp({ embeds: chunk, flags: EPHEMERAL });
         }
     } catch (err) {
         console.error('[create_campaign] ⚠️ Failed to deliver the ephemeral report:', err);
@@ -155,7 +156,7 @@ async function deliverReport(interaction, embeds) {
     if (ctrlError) {
         await interaction.followUp({
             content: `⚠️ The report could not be posted to guildmaster-ctrl: ${ctrlError}.`,
-            flags: 64,
+            flags: EPHEMERAL,
         }).catch(e => console.error('[create_campaign] ⚠️ Could not tell the admin about the ctrl failure:', e));
     }
 }

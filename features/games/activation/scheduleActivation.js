@@ -12,6 +12,7 @@ const {
 const { runActivationJob } = require('./scheduler');
 const { toDiscordTimestamp, istMinutesOfDay, parseTimeToMinutes } = require('../istTime');
 const { GUILDMASTER_CTRL_CHANNEL_ID } = require('../../../data/channels');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 
 function isValidTime(str) {
     return /^\d{2}:\d{2}$/.test(str) && str.split(':')[0] < 24 && str.split(':')[1] < 60;
@@ -49,7 +50,7 @@ module.exports = async (interaction, client) => {
         const game = games.find(g => g.uid === uid);
 
         if (!game) {
-            await interaction.reply({ content: '❌ Game not found.', flags: 64 });
+            await interaction.reply({ content: '❌ Game not found.', flags: EPHEMERAL });
             return;
         }
 
@@ -61,12 +62,12 @@ module.exports = async (interaction, client) => {
         const added = addToQueue(game, interaction.user.id);
 
         if (added === 'custom_form') {
-            await interaction.reply({ content: `⚠️ **${game.title}** has a custom registration form and cannot be added to the activation scheduler.`, flags: 64 });
+            await interaction.reply({ content: `⚠️ **${game.title}** has a custom registration form and cannot be added to the activation scheduler.`, flags: EPHEMERAL });
             return;
         }
 
         if (!added) {
-            await interaction.reply({ content: `⚠️ **${game.title}** is already in the queue.`, flags: 64 });
+            await interaction.reply({ content: `⚠️ **${game.title}** is already in the queue.`, flags: EPHEMERAL });
             return;
         }
 
@@ -76,7 +77,7 @@ module.exports = async (interaction, client) => {
         }
         reply += `\n${buildQueueSummary(getQueue())}`;
 
-        await interaction.reply({ content: reply, flags: 64 });
+        await interaction.reply({ content: reply, flags: EPHEMERAL });
 
         const ctrlChannel = GUILDMASTER_CTRL_CHANNEL_ID ? interaction.guild.channels.cache.get(GUILDMASTER_CTRL_CHANNEL_ID) : null;
         if (ctrlChannel) {
@@ -102,65 +103,65 @@ module.exports = async (interaction, client) => {
         const entry = data.queue.find(g => g.uid === uid);
 
         if (!entry) {
-            await interaction.reply({ content: '❌ Game not found in queue.', flags: 64 });
+            await interaction.reply({ content: '❌ Game not found in queue.', flags: EPHEMERAL });
             return;
         }
 
         removeFromQueue(uid);
         let reply = `✅ **${entry.title}** removed from the queue.\n\n`;
         reply += buildQueueSummary(getQueue());
-        await interaction.reply({ content: reply, flags: 64 });
+        await interaction.reply({ content: reply, flags: EPHEMERAL });
     }
 
     else if (sub === 'view') {
-        await interaction.reply({ content: buildQueueSummary(getQueue()), flags: 64 });
+        await interaction.reply({ content: buildQueueSummary(getQueue()), flags: EPHEMERAL });
     }
 
     else if (sub === 'set-reminder-time') {
         const time = interaction.options.getString('time');
         if (!isValidTime(time)) {
-            await interaction.reply({ content: '❌ Invalid time format. Use HH:MM in 24hr IST.', flags: 64 });
+            await interaction.reply({ content: '❌ Invalid time format. Use HH:MM in 24hr IST.', flags: EPHEMERAL });
             return;
         }
         setReminderTime(time);
         const ts = toDiscordTimestamp(time);
-        await interaction.reply({ content: `✅ Reminder time updated to <t:${ts}:t>.`, flags: 64 });
+        await interaction.reply({ content: `✅ Reminder time updated to <t:${ts}:t>.`, flags: EPHEMERAL });
     }
 
     else if (sub === 'set-activation-time') {
         const time = interaction.options.getString('time');
         if (!isValidTime(time)) {
-            await interaction.reply({ content: '❌ Invalid time format. Use HH:MM in 24hr IST.', flags: 64 });
+            await interaction.reply({ content: '❌ Invalid time format. Use HH:MM in 24hr IST.', flags: EPHEMERAL });
             return;
         }
         setActivationTime(time);
         const ts = toDiscordTimestamp(time);
-        await interaction.reply({ content: `✅ Activation time updated to <t:${ts}:t>.`, flags: 64 });
+        await interaction.reply({ content: `✅ Activation time updated to <t:${ts}:t>.`, flags: EPHEMERAL });
     }
 
     else if (sub === 'toggle-reminder') {
         const enabled = toggleReminder();
         await interaction.reply({
             content: `✅ Daily reminder is now **${enabled ? 'enabled' : 'disabled'}**.`,
-            flags: 64
+            flags: EPHEMERAL
         });
     }
 
     else if (sub === 'status') {
-        await interaction.reply({ content: buildQueueSummary(getQueue()), flags: 64 });
+        await interaction.reply({ content: buildQueueSummary(getQueue()), flags: EPHEMERAL });
     }
 
     else if (sub === 'run-now') {
         const announce = interaction.options.getBoolean('announce') ?? true;
         const data = getQueue();
         if (data.queue.length === 0) {
-            await interaction.reply({ content: '⚠️ Queue is empty — nothing to activate.', flags: 64 });
+            await interaction.reply({ content: '⚠️ Queue is empty — nothing to activate.', flags: EPHEMERAL });
             return;
         }
 
         await interaction.reply({
             content: `🔄 Running activation job now (forced, ${announce ? 'with' : 'without'} announcement)...`,
-            flags: 64
+            flags: EPHEMERAL
         });
 
         let outcome;
@@ -189,7 +190,7 @@ module.exports = async (interaction, client) => {
        const enabled = toggleAutoSchedule();
        await interaction.reply({
            content: `✅ Auto-scheduler  is now **${enabled ? 'enabled' : 'disabled'}**.`,
-           flags: 64
+           flags: EPHEMERAL
        });
    }
 };

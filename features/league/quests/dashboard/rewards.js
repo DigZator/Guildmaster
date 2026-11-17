@@ -13,13 +13,14 @@ const questDrafts = require('../drafts');
 const { REP_MAX } = require('../../grants');
 const { assertOwner, assertUnlocked, backRow, refreshDashboardMessage } = require('./common');
 const { showItemPlayerSelect } = require('./items');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 const BULK_PAGE_SIZE = 5; 
 const REWARD_TYPE_LABELS = { gold: 'Gold', rep: 'Reputation', milestone: 'Milestones', item: 'Item' };
 
 // Add Reward
 async function handleAddReward(interaction, questId) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let state;
     try {
@@ -111,7 +112,7 @@ async function handleAddRewardTypeSelect(interaction, questId, dashboardMessageI
 }
 
 async function handleAddRewardBulkModalSubmit(interaction, questId, extra) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const [rewardType, pageIndexStr, dashboardMessageId] = extra.split('|');
     const pageIndex = parseInt(pageIndexStr, 10);
@@ -207,14 +208,14 @@ async function handleAddRewardBulkNext(interaction, questId, extra) {
         assertOwner(state, interaction);
         assertUnlocked(state);
     } catch (err) {
-        return interaction.reply({ content: err.message, flags: 64 });
+        return interaction.reply({ content: err.message, flags: EPHEMERAL });
     }
 
     const totalPages = Math.ceil(state.roster.length / BULK_PAGE_SIZE);
     const slice = state.roster.slice(pageIndex * BULK_PAGE_SIZE, pageIndex * BULK_PAGE_SIZE + BULK_PAGE_SIZE);
 
     if (slice.length === 0) {
-        return interaction.reply({ content: '❌ No more characters on this page — the roster may have changed. Reopen Add Reward to try again.', flags: 64 });
+        return interaction.reply({ content: '❌ No more characters on this page — the roster may have changed. Reopen Add Reward to try again.', flags: EPHEMERAL });
     }
 
     const modal = buildBulkAmountModal(questId, rewardType, pageIndex, dashboardMessageId, slice, state.draft, totalPages);

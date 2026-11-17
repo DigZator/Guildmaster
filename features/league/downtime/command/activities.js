@@ -1,10 +1,11 @@
 const { loadBlueprints, getParamName } = require('../engine');
 const { formatGpCost } = require('./helpers');
+const { EPHEMERAL } = require('../../../../shared/utilities/ephemeral');
 
 // ─── /league downtime activities ───────────────────────────────────────────────
 
 async function handleDowntimeActivities(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const blueprints = loadBlueprints();
     const entries = Object.entries(blueprints);
@@ -51,7 +52,7 @@ async function handleDowntimeActivities(interaction) {
     }
     if (current) chunks.push(current);
     await interaction.editReply({ content: `📋 **Downtime Activities** (reference only — use \`/league downtime start\` and pick from the autocomplete)\n\n${chunks[0]}` });
-    for (const chunk of chunks.slice(1)) await interaction.followUp({ content: chunk, flags: 64 });
+    for (const chunk of chunks.slice(1)) await interaction.followUp({ content: chunk, flags: EPHEMERAL });
 }
 
 module.exports = { handleDowntimeActivities };

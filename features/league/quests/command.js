@@ -16,6 +16,7 @@ const DM_ROLE_ID = process.env.DM_ROLE_ID;
 // ─── Notion setup ─────────────────────────────────────────────────────────────
 
 const { Client } = require('@notionhq/client');
+const { EPHEMERAL } = require('../../../shared/utilities/ephemeral');
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const QUEST_LOG_DB_ID = process.env.LEAGUE_QUEST_LOG_DB_ID;
 
@@ -162,7 +163,7 @@ async function dashboardQuestAutocomplete(interaction) {
 // ─── /league quest list ────────────────────────────────────────────────────────
 
 async function listQuests(interaction) {
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     let response;
     try {
@@ -201,10 +202,10 @@ async function listQuests(interaction) {
 
 async function handleQuestLink(interaction) {
     if (!isDM(interaction)) {
-        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: 64 });
+        return interaction.reply({ content: '❌ You do not have permission to use this command.', flags: EPHEMERAL });
     }
 
-    await interaction.deferReply({ flags: 64 });
+    await interaction.deferReply({ flags: EPHEMERAL });
 
     const gameUid = interaction.options.getString('game');
     const notes   = interaction.options.getString('notes') ?? null;
