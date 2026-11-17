@@ -9,66 +9,53 @@ if (!token || !clientId || !guildId) {
     throw new Error('Missing environment variables');
 }
 
-const commands = [
-	//ping: defined by the general feature
-	require('./features/general').definitions.ping,
+// Each feature owns its command definitions (features/<name>/definitions). This file only decides the order they are
+// registered in. The order interleaves features (general's /ping and /keep_alive are not side by side), and the command
+// snapshot pins it, so it is written out here: [feature, command] is one command of a feature that has several, and
+// [feature] is all of the feature's commands.
+const features = {
+    general: require('./features/general'),
+    games: require('./features/games'),
+    theLongRest: require('./features/theLongRest'),
+    tickets: require('./features/tickets'),
+    directLine: require('./features/directLine'),
+    messaging: require('./features/messaging'),
+    league: require('./features/league'),
+    archive: require('./features/archive'),
+    config: require('./features/config'),
+    channelFile: require('./features/channelFile'),
+    verification: require('./features/verification'),
+};
 
-	//keep_alive: defined by the general feature
-	require('./features/general').definitions.keep_alive,
+const REGISTRATION_ORDER = [
+    ['general', 'ping'],
+    ['general', 'keep_alive'],
+    ['games', 'create_campaign'],
+    ['theLongRest'],
+    ['games', 'announce_game'],
+    ['tickets'],
+    ['directLine'],
+    ['games', 'list_games'],
+    ['games', 'get_players'],
+    ['games', 'manipulate_table'],
+    ['games', 'game_info'],
+    ['messaging'],
+    ['games', 'schedule_activation'],
+    ['general', 'help'],
+    ['games', 'edit_game'],
+    ['league'],
+    ['archive'],
+    ['config'],
+    ['channelFile'],
+    ['verification'],
+];
 
-	//create_campaign: defined by the games feature
-	require('./features/games').definitions.create_campaign,
-
-	//the_long_rest: defined by the long-rest feature
-	...require('./features/theLongRest').definitions,
-
-	//announce_game: defined by the games feature
-	require('./features/games').definitions.announce_game,
-
-	//ticket: defined by the tickets feature
-	...require('./features/tickets').definitions,
-
-	//direct_line: defined by the direct-line feature
-	...require('./features/directLine').definitions,
-
-	//list_games: defined by the games feature
-	require('./features/games').definitions.list_games,
-
-	//get_players: defined by the games feature
-	require('./features/games').definitions.get_players,
-
-	//manipulate_table: defined by the games feature
-	require('./features/games').definitions.manipulate_table,
-	        
-	//game_info: defined by the games feature
-	require('./features/games').definitions.game_info,
-
-	//rss and anon_msg: defined by the messaging feature
-	...require('./features/messaging').definitions,
-
-	//schedule_activation: defined by the games feature
-	require('./features/games').definitions.schedule_activation,
-	//help: defined by the general feature
-	require('./features/general').definitions.help,
-
-	//edit_game: defined by the games feature
-	require('./features/games').definitions.edit_game,
-
-	//league, leagueadmin and leaguedm: defined by the league feature
-	...require('./features/league').definitions,
-
-	//archive and archive-config: defined by the archive feature
-	...require('./features/archive').definitions,
-
-	//config: defined by the config feature
-	...require('./features/config').definitions,
-
-	//channel_file: defined by the channel-file feature
-	...require('./features/channelFile').definitions,
-
-	//verification: defined by the verification feature
-	...require('./features/verification').definitions,
-].map(cmd => cmd.toJSON());
+const commands = REGISTRATION_ORDER.flatMap(([feature, name]) => {
+    const { definitions } = features[feature];
+    if (!name) return [...definitions];
+    if (!definitions[name]) throw new Error(`Feature "${feature}" has no command definition "${name}"`);
+    return [definitions[name]];
+}).map(cmd => cmd.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(token);
 

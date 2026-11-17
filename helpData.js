@@ -1,3 +1,14 @@
+// The /help text. Each feature owns the families of its commands (features/<name>/help); this file keeps the "help" group,
+// the "player general" family (it mixes commands of several features) and the order of the groups and families, which
+// the help snapshot pins.
+const games = require('./features/games');
+const messaging = require('./features/messaging');
+const tickets = require('./features/tickets');
+const archive = require('./features/archive');
+const config = require('./features/config');
+const channelFile = require('./features/channelFile');
+const league = require('./features/league');
+
 module.exports = {
 
   // ─── /help help about ──────────────────────────────────────────────────
@@ -75,32 +86,32 @@ module.exports = {
       ],
     },
     // tickets: help text of the tickets feature
-    ...require('./features/tickets').help.player,
+    ...tickets.help.player,
   },
 
   // ─── /help admin <family> ───────────────────────────────────────────────
   admin: {
     // game-management and scheduling: help text of the games feature
-    ...require('./features/games').help.admin,
+    ...games.help.admin,
     // rss and messaging: help text of the messaging feature
-    ...require('./features/messaging').help.admin,
+    ...messaging.help.admin,
     // tickets: help text of the tickets feature
-    ...require('./features/tickets').help.admin,
+    ...tickets.help.admin,
     // archive: help text of the archive feature
-    ...require('./features/archive').help.admin,
+    ...archive.help.admin,
     // config: help text of the config feature
-    ...require('./features/config').help.admin,
+    ...config.help.admin,
     // channel-file: help text of the channel-file feature
-    ...require('./features/channelFile').help.admin,
+    ...channelFile.help.admin,
   },
 
   // ─── /help league <family> ──────────────────────────────────────────────
-  league: require('./features/league').help.league,
+  league: league.help.league,
 
   // ─── /help leaguedm <family> ─────────────────────────────────────────────
-  leaguedm: require('./features/league').help.leaguedm,
+  leaguedm: league.help.leaguedm,
 
   // ─── /help leagueadmin <family> ──────────────────────────────────────────
-  leagueadmin: require('./features/league').help.leagueadmin,
+  leagueadmin: league.help.leagueadmin,
 
 };
