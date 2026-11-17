@@ -4,7 +4,7 @@
 // and says how the two combine: 'role' (roles only), 'channel' (channels only), 'either', 'both'.
 // 'open' lets everyone through.
 //
-// Phase 2 encodes TODAY'S behavior only. `legacy` names the utils/isAdminChannel.js type each policy
+// The policies encode the behavior of the old helpers only. `legacy` names the utils/isAdminChannel.js type each policy
 // reproduces, so a test can prove the two agree. Rules that are meant to change later (refactor plan, section 6)
 // are not here yet: they arrive as separate changes, each as its own policy or route declaration.
 //
@@ -33,11 +33,11 @@ const definitions = {
     cmd: { who: ['CMD_ROLE_ID'], where: [], combine: 'role', legacy: 'cmd' },
 
     // The Admins role, or anyone Discord itself lets administer the server (the Administrator permission).
-    // This is what /verification has always allowed (utils/verificationAdmin.js). `permissions` is the only
+    // This is what /verification has always allowed (the old verification admin helper, now deleted). `permissions` is the only
     // policy field that grants access whatever `combine` says, so it is declared on exactly the policies that mean it.
     admin_or_discord_admin: { who: ['ADMINS_ROLE_ID'], where: [], combine: 'role', permissions: ['Administrator'] },
 
-    // The Long Rest moderators: Admins or Clerk of Mortal Affairs (config/tlrRoles.js isTlrMod).
+    // The Long Rest moderators: Admins or Clerk of Mortal Affairs (the old isTlrMod helper, now deleted).
     tlr_mod: { who: ['ADMINS_ROLE_ID', 'CLERK_OF_MORTAL_AFFAIRS_ROLE_ID'], where: [], combine: 'role' },
 };
 

@@ -1,6 +1,6 @@
 // Mirrors features/league/quests/dashboardId.js exactly.
-// Used by buttons/tableAdmin.js to encode/decode customIds for the
-// /manipulate_table dashboard. Kept separate from questDashboardId.js so the
+// Used by buttons.js to encode/decode customIds for the
+// /manipulate_table dashboard. Kept separate from the quests' dashboardId.js so the
 // two dashboards' id spaces can never collide.
 
 const PREFIX = 'tableAdmin';

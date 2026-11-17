@@ -45,7 +45,7 @@ module.exports = async (interaction) => {
     }
 };
 
-// ── Button handlers (wired up in buttons/createCampaign.js) ─────────────────
+// ── Button handlers (wired up in buttons.js) ─────────────────
 function claimPreview(interaction) {
     const pending = pendingPreviews.get(interaction.user.id);
     if (!pending) {

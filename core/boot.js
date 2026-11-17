@@ -1,9 +1,9 @@
 const { createRegistry } = require('./registry');
 const { createRouter } = require('./router');
 
-// The interaction kinds the new router handles. Phase 3 moves them over one at a time (selects, modals,
-// buttons and commands, which includes autocomplete): every old router in interactions/ is now retired.
-// Both index.js and the route-permission test harness call this, so the harness exercises exactly what runs live.
+// The interaction kinds the router handles: selects, modals, buttons and commands (which includes autocomplete).
+// index.js calls this to start the bot; the route-permission and autocomplete test harnesses call it with
+// `start: false`, so they exercise exactly the router that runs live.
 const MIGRATED = ['select', 'userSelect', 'modal', 'button', 'command'];
 
 // `start: false` installs only the router; the route and autocomplete test harnesses use it so a fake client never starts the features.

@@ -7,7 +7,7 @@
 //     modals:      { exact: {...}, prefix: {...} },
 //     selects:     { exact: {...}, prefix: {...} },     // string select menus
 //     userSelects: { exact: {...}, prefix: {...} },
-//     init?: (client) => void,                          // schedulers, watchers (used from Phase 4)
+//     init?: (client) => void,                          // schedulers, watchers (core/boot.js calls it once at startup)
 //   }
 //
 // A route is { policy, handler, denied?, falseMeansUnhandled? }. EVERY route names its policy on purpose:

@@ -4,9 +4,9 @@ const { findCustomIdRoute } = require('./registry');
 // ONE interactionCreate listener for commands, autocomplete, buttons, modals and select menus.
 // It looks the route up in the registry, enforces the route's policy, then runs the handler.
 //
-// The four old routers each behave a little differently when nothing matches or when a handler throws
+// The four old routers (now deleted) each behaved a little differently when nothing matches or when a handler throws
 // (different log labels, different reply texts, silent vs warned). Those differences are preserved on
-// purpose in `kinds` below: Phase 3 changes where the code lives, not what users see.
+// purpose in `kinds` below: moving the code never changes what users see.
 
 const DEFAULT_DENIED = '❌ You do not have permission to use this command.';
 const ephemeral = 64;
@@ -145,7 +145,7 @@ function createRouter(registry, { can = auth.can, only = null } = {}) {
         return handleCustomId(interaction, client, kindName);
     }
 
-    // The single listener. Not called from index.js until Phase 3 step 3.
+    // The single listener, installed by core/boot.js.
     function install(client) {
         client.on('interactionCreate', (interaction) => handle(interaction, client));
     }
