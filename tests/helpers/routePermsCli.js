@@ -39,7 +39,7 @@ fs.createWriteStream = offline;
 // .env, and anything else under the home directory (for example ~/5etools-src) look like they do not exist.
 // The five tracked data files and everything inside the repo (modules, node_modules) read normally.
 const os = require('os');
-const TRACKED_DATA = new Set(['channels.js', 'registrationDefaults.js', 'gameFields.json', 'downtimeQuotes.json', 'downtimeBlueprints.json']);
+const TRACKED_DATA = new Set(['channels.js', 'gameFields.json', 'downtimeQuotes.json', 'downtimeBlueprints.json']);
 const dataDir = path.join(root, 'data') + path.sep;
 const home = os.homedir() + path.sep;
 const hidden = (p) => {

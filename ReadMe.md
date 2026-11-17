@@ -211,7 +211,7 @@ Started by each feature's `init` at boot, these run independently of any single 
 |---|---|
 | `features/games/cacheWatcher.js` | Watches/refreshes the in-memory games cache (`shared/data-access/cache.js`) |
 | `shared/data-access/cacheAlert.js` | Alerts on cache staleness/failures |
-| `features/games/registrationDefaults.js` | Loads default registration-link settings |
+| `features/games/registrationDefaults.js` | Fills in the default registration line and link on games that have none; `registrationConstants.js` holds the three texts |
 | `features/games/activation/scheduler.js` | Drives the daily game-activation queue — reminders and activations at configurable IST times, based on `data/activationQueue.json` |
 | `features/league/shop/restockScheduler.js` | Hourly scan that auto-restocks shop items per their configured cadence (`features/league/shop/floor.js`, `features/league/fiveEtools/catalogue.js`); also runs once ~30s after startup |
 | `features/general/threadActivityReport.js` | Periodic thread-activity reporting; also triggers the Keep Alive refresh every 3 days |
@@ -250,7 +250,6 @@ Persistent runtime state lives under `/data` as JSON files, generally read/writt
 | `threadReport.json` | Thread-activity report state |
 | `features/general/keepAlive/store.js` → `keepAliveThreads.json` | Threads registered with `/keep_alive` |
 | `gameFields.json` | Field metadata for `/edit_game` autocomplete |
-| `registrationDefaults.js` | Default registration link |
 | `channels.js` | Central export of channel-ID env vars for reuse across modules |
 
 ### 7.2 Notion integration (`utils/notion.js`, `features/league/notion/`)

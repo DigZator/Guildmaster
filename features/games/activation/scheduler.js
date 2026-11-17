@@ -6,7 +6,7 @@ const { istDateStr, istTimeOnDayMs, toDiscordTimestamp, crossedDailyTime } = req
 const { QUEST_BOARD_CHANNEL_ID, GUILDMASTER_CTRL_CHANNEL_ID, BOT_DEBUGGING_CHANNEL_ID } = require('../../../data/channels');
 
 const QUEST_BOARD_ID = process.env.DEV_MODE === 'true' ? BOT_DEBUGGING_CHANNEL_ID : QUEST_BOARD_CHANNEL_ID;
-const { DEFAULT_REGISTRATION_LINK } = require('../../../data/registrationDefaults');
+const { DEFAULT_REGISTRATION_LINK } = require('../registrationConstants');
 const { getRoleMention } = require('../announcementHelper');
 
 const ACTIVATION_MAX_ATTEMPTS = 2;                      // the first run plus one retry

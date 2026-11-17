@@ -1,6 +1,6 @@
 const path = require('path');
 const { createJsonStore } = require('../../../shared/data-access/jsonStore');
-const { DEFAULT_REGISTRATION_LINK } = require('../../../data/registrationDefaults');
+const { DEFAULT_REGISTRATION_LINK } = require('../registrationConstants');
 
 const DEFAULT_QUEUE = {
     reminderTime: "19:00",

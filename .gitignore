@@ -8,7 +8,6 @@ scripts/*
 data/*
 !data/channels.js
 !data/downtimeBlueprints.json
-!data/registrationDefaults.js
 !data/gameFields.json
 !data/downtimeQuotes.json
 
