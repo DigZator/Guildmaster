@@ -29,7 +29,7 @@ Module._load = function (request) {
 console.log = () => {}; console.warn = () => {};   // keep stdout clean for the JSON below
 
 const { inspect } = require('../../core/registry');
-const { problems, registry } = inspect(require('../../manifests'));
+const { problems, registry } = inspect(require('../../features'));
 
 const plain = (spec) => ({ id: spec.id, owner: spec.owner, policy: spec.policy, gate: spec.gate, denied: spec.denied, falseMeansUnhandled: spec.falseMeansUnhandled, hasHandler: typeof spec.handler === 'function' });
 const out = { problems, registry: null };

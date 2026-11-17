@@ -1,5 +1,5 @@
 // What each feature starts when the bot starts (plan section 8.3, C1). index.js only calls core/boot.js; boot installs the
-// router and then runs every manifest's `init(client)` in the order of manifests/index.js. This pins which listeners each
+// router and then runs every manifest's `init(client)` in the order of features/index.js. This pins which listeners each
 // feature registers (a fake client records them; nothing is started because the schedulers wait for 'clientReady'),
 // and that the whole set is the same one index.js used to start by hand: 35 registrations in total.
 require('./helpers/env');

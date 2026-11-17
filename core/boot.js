@@ -8,9 +8,9 @@ const MIGRATED = ['select', 'userSelect', 'modal', 'button', 'command'];
 
 // `start: false` installs only the router; the route and autocomplete test harnesses use it so a fake client never starts the features.
 function boot(client, { start = true } = {}) {
-    const registry = createRegistry(require('../manifests'));   // any manifest problem stops startup, listing all of them
+    const registry = createRegistry(require('../features'));   // any manifest problem stops startup, listing all of them
     createRouter(registry, { only: MIGRATED }).install(client);
-    // Each feature starts what it runs by itself, in the order of manifests/index.js (the order inside a feature is its own).
+    // Each feature starts what it runs by itself, in the order of features/index.js (the order inside a feature is its own).
     if (start) for (const { init } of registry.inits) init(client);
 }
 boot.MIGRATED = MIGRATED;

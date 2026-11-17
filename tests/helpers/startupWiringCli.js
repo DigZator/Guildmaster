@@ -28,7 +28,7 @@ console.log = () => {}; console.warn = () => {};   // keep stdout clean for the 
 
 const { EventEmitter } = require('events');
 const { createRegistry } = require('../../core/registry');
-const { inits } = createRegistry(require('../../manifests'));
+const { inits } = createRegistry(require('../../features'));
 const out = [];
 for (const { owner, init } of inits) {
     const client = new EventEmitter();
